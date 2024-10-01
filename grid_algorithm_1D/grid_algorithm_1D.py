@@ -22,9 +22,12 @@ def solve_grid_problem_1d(
     deltaA: float = A_interval[1] - A_interval[0]
 
     is_smaller_case: bool = False
-    if deltaA >= 1:
-        # Tester cas où deltaA == 1
+    if deltaA > 1:
         n_scaling: int = math.ceil(-math.log(deltaA) / math.log(inv_lamb))
+        A_scaled: np.ndarray = A_interval * float(inv_lamb**n_scaling)
+        B_scaled: np.ndarray = B_interval * float((-lamb) ** n_scaling)
+    elif deltaA == 1:
+        n_scaling = 1
         A_scaled: np.ndarray = A_interval * float(inv_lamb**n_scaling)
         B_scaled: np.ndarray = B_interval * float((-lamb) ** n_scaling)
     elif deltaA < float(inv_lamb):
