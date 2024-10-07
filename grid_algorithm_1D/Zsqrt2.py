@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import math
-from typing import Union, Optional
+from typing import Optional
 
 
 class Zsqrt2:
@@ -23,7 +23,7 @@ class Zsqrt2:
         else:
             return f"{self.a} - {-self.b}√2"
 
-    def __add__(self, nb: Union[Zsqrt2, int]) -> Zsqrt2:
+    def __add__(self, nb: Zsqrt2 | int) -> Zsqrt2:
         if isinstance(nb, Zsqrt2):
             return Zsqrt2(self.a + nb.a, self.b + nb.b)
         elif isinstance(nb, int):
@@ -33,10 +33,10 @@ class Zsqrt2:
                 f"'{type(self).__name__}' + '{type(nb).__name__}' operation is not defined"
             )
 
-    def __iadd__(self, nb: Union[Zsqrt2, int]) -> Zsqrt2:
+    def __iadd__(self, nb: Zsqrt2 | int) -> Zsqrt2:
         return self + nb
 
-    def __sub__(self, nb: Union[Zsqrt2, int]) -> Zsqrt2:
+    def __sub__(self, nb: Zsqrt2 | int) -> Zsqrt2:
         if isinstance(nb, Zsqrt2):
             return Zsqrt2(self.a - nb.a, self.b - nb.b)
         elif isinstance(nb, int):
@@ -46,10 +46,10 @@ class Zsqrt2:
                 f"'{type(self).__name__}' - '{type(nb).__name__}' operation is not defined"
             )
 
-    def __isub__(self, nb: Union[Zsqrt2, int]) -> Zsqrt2:
+    def __isub__(self, nb: Zsqrt2 | int) -> Zsqrt2:
         return self - nb
 
-    def __mul__(self, nb: Union[Zsqrt2, int]) -> Zsqrt2:
+    def __mul__(self, nb: Zsqrt2 | int) -> Zsqrt2:
         if isinstance(nb, Zsqrt2):
             return Zsqrt2(self.a * nb.a + 2 * self.b * nb.b, self.a * nb.b + self.b * nb.a)
         elif isinstance(nb, int):
@@ -59,7 +59,7 @@ class Zsqrt2:
                 f"'{type(self).__name__}' * '{type(nb).__name__}' operation is not defined"
             )
 
-    def __imul__(self, nb: Union[Zsqrt2, int]) -> Zsqrt2:
+    def __imul__(self, nb: Zsqrt2 | int) -> Zsqrt2:
         return self * nb
 
     def __pow__(self, n: int) -> Zsqrt2:
@@ -81,7 +81,7 @@ class Zsqrt2:
     def __float__(self) -> float:
         return self.a + self.b * math.sqrt(2)
 
-    def __round__(self, precision: Optional[int] = None) -> Union[int, float]:
+    def __round__(self, precision: Optional[int] = None) -> int | float:
         if precision is None:
             return round(float(self))
         else:
@@ -103,4 +103,4 @@ inv_lamb: Zsqrt2 = -lamb.conjugate()
 if __name__ == "__main__":
     x = Zsqrt2(1, 1)
     y = Zsqrt2(2, 5)
-    print(x**-1)
+    #print(x**-1)
