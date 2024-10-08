@@ -14,21 +14,20 @@ def solve_grid_problem_1d(
 ) -> list[Zsqrt2]:
     """Solves the 1 dimensional grid problem for two sets and returns the result.
 
-        Given two real closed sets A and B, this function finds all the solutions x in the ring Z[sqrt(2)] such that
-        x is in A and conjugate(x) i in B.
+    Given two real closed sets A and B, this function finds all the solutions x in the ring Z[sqrt(2)] such that
+    x is in A and conjugate(x) i in B.
 
-        Args:
-            A (Iterable[float]): Bounds of the first interval.
-            B (Iterable[float]): Bounds of the second interval.
-            plot_solutions (bool): Plot all solutions to the problem on the real axis is set to True.
+    Args:
+        A (Iterable[float]): Bounds of the first interval.
+        B (Iterable[float]): Bounds of the second interval.
+        plot_solutions (bool): Plot all solutions to the problem on the real axis is set to True.
 
-        Returns:
-            list[Zsqrt2]: The list of solutions to the grid problem.
+    Returns:
+        list[Zsqrt2]: The list of solutions to the grid problem.
 
-        Raises:
-            TypeError: If function argument are not iterable.
-            TypeError: If intervals limits are not real numbers.
-    
+    Raises:
+        TypeError: If function argument are not iterable.
+        TypeError: If intervals limits are not real numbers.
     """
     if not isinstance(A, Iterable) or not isinstance(B, Iterable):
         raise TypeError(f"Expected input intervals to be iterable")
@@ -130,10 +129,16 @@ def solve_grid_problem_1d(
         )
         plt.yticks([])
         plt.legend()
-        Path(os.path.join(os.path.dirname(os.path.abspath(__file__)), "Solutions")).mkdir(parents=True, exist_ok=True)
-        plt.savefig(os.path.join(os.path.dirname(os.path.abspath(__file__)), "Solutions", "solutions.png"), dpi=200)
+        Path(os.path.join(os.path.dirname(os.path.abspath(__file__)), "Solutions")).mkdir(
+            parents=True, exist_ok=True
+        )
+        plt.savefig(
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), "Solutions", "solutions.png"),
+            dpi=200,
+        )
 
     return alpha
+
 
 if __name__ == "__main__":
     solve_grid_problem_1d((-8, 0), (-3, 3), plot_solutions=True)
