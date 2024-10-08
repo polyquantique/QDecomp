@@ -20,7 +20,7 @@ def solve_grid_problem_1d(
     Args:
         A (Iterable[float]): Bounds of the first interval.
         B (Iterable[float]): Bounds of the second interval.
-        plot_solutions (bool): Plot all solutions to the problem on the real axis is set to True.
+        plot_solutions (bool): Plot all solutions to the problem on the real axis if set to True.
 
     Returns:
         list[Zsqrt2]: The list of solutions to the grid problem.
