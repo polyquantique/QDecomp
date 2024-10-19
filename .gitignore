@@ -163,3 +163,4 @@ cython_debug/
 
 Solutions/
 *.png
+.gitignore
