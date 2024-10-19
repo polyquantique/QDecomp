@@ -75,10 +75,14 @@ def steiner_ellipse(p1, p2, p3, verbosity=0):
 
     # Debug printing
     if verbosity >= 5:
+        # Initial points
         points = np.array([p1_, p2_, p3_])
+
+        # Ellipse contour
         t_range = np.linspace(0, 2*np.pi, 100)
         ellipse = np.array([contour(t_) for t_ in t_range]).T
         
+        # Ellipse filling
         density = 100
         x = np.linspace(-2, 2, density)
         y = np.linspace(-2, 2, density)
@@ -87,10 +91,12 @@ def steiner_ellipse(p1, p2, p3, verbosity=0):
 
         in_ellipse = is_inside_ellipse(point_mesh, D, p)
 
+        # Results plotting
         plt.plot(ellipse[0], ellipse[1], c="g", label="Contour of the ellipse")
         plt.pcolormesh(x_mesh, y_mesh, in_ellipse, cmap="Wistia", label="Ellipse region")
         plt.scatter(points[:, 0], points[:, 1], marker="x", color="r", label="Initial points")
         plt.scatter(*p, marker="x", color="b", label="Center")
+
         plt.title("Debugging of the steiner_ellipse() function")
         plt.legend()
         plt.axis("equal")
