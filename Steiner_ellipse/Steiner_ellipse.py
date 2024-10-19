@@ -79,31 +79,66 @@ def steiner_ellipse(p1, p2, p3, verbosity=0):
         t_range = np.linspace(0, 2*np.pi, 100)
         ellipse = np.array([contour(t_) for t_ in t_range]).T
         
-        density = 50
+        density = 100
         x = np.linspace(-2, 2, density)
         y = np.linspace(-2, 2, density)
         x_mesh, y_mesh = np.meshgrid(x, y)
-        in_ellipse = np.full_like(x_mesh, False)
+        point_mesh = np.stack([x_mesh, y_mesh], axis=-1)
 
-        for i, x_ in enumerate(x):
-            for j, y_ in enumerate(y):
-                vect = np.array([x_-p[0], y_-p[1]])
-                is_inside = (vect.T @ D @ vect) <= 1
-                in_ellipse[j, i] = is_inside
-        
-        plt.plot(ellipse[0], ellipse[1], label="Contour of the ellipse")
-        plt.scatter(x_mesh, y_mesh, marker=".", c=in_ellipse.astype(int), label="Ellipse region")
+        in_ellipse = is_inside_ellipse(point_mesh, D, p)
+
+        plt.plot(ellipse[0], ellipse[1], c="g", label="Contour of the ellipse")
+        plt.pcolormesh(x_mesh, y_mesh, in_ellipse, cmap="Wistia", label="Ellipse region")
         plt.scatter(points[:, 0], points[:, 1], marker="x", color="r", label="Initial points")
+        plt.scatter(*p, marker="x", color="b", label="Center")
         plt.title("Debugging of the steiner_ellipse() function")
         plt.legend()
+        plt.axis("equal")
         plt.show()
     
     # Returning the results
     return D, p
 
+
+def is_inside_ellipse(u, D, p):
+    """
+    Determines if a point u = (x, y) is inside the ellipse defined by D and p. u can also be an 
+    array of points for which the last dimension is of size 2. The function will return an array of
+    of the same shape than u, but without the last dimension.
+
+    :param u: point to be tested
+    :param D: matrix definition of the ellipse
+    :param p: center of the ellipse
+
+    :return: True if the point is inside the ellipse
+    """
+    vector = u - p
+    is_inside = np.einsum("...i,ij,...j->...", vector, D, vector) <= 1
+
+    return is_inside
+
+
 if __name__ == "__main__":
+    # Points defining the ellipse
     p1 = np.array([1, 0])
     p2 = np.array([0, 1])
     p3 = np.array([1, 1])
 
+    # Find the ellipse
     D, p = steiner_ellipse(p1, p2, p3, verbosity=5)
+
+    # Testing the 'is_inside_ellipse()' function ...
+    # ... with many points
+    points_to_test = np.array([
+        [1, 1],
+        [1, 0],
+        [0, 0],
+    ])
+
+    result = is_inside_ellipse(points_to_test, D, p)
+    print(result)
+
+    # ... with one point
+    point_to_test = (1, 0)
+    result = is_inside_ellipse(point_to_test, D, p)
+    print(result)
