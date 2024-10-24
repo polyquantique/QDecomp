@@ -40,7 +40,7 @@ def steiner_ellipse_def(p1, p2, p3, verbosity=0):
         # Handle vertical lines to ensure they are not collinear
         if (delta1[0] == 0) and (delta2[0] == 0):
             collin_error = True
-    
+
     if collin_error:
         raise ValueError("The three points must not be collinear.")
 
@@ -101,7 +101,9 @@ def steiner_ellipse_def(p1, p2, p3, verbosity=0):
         # Plot the results
         plt.plot(ellipse[0], ellipse[1], c="g", label="Contour of the ellipse")
         plt.pcolormesh(x_mesh, y_mesh, in_ellipse, cmap="Wistia")  # Ellipse region
-        plt.scatter(points[:, 0], points[:, 1], marker="x", color="r", label="Initial points")
+        plt.scatter(
+            points[:, 0], points[:, 1], marker="x", color="r", label="Initial points"
+        )
         plt.scatter(*p, marker="x", color="b", label="Center")
 
         plt.title("Debugging of the steiner_ellipse() function")
