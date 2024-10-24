@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def steiner_ellipse(p1, p2, p3, verbosity=0):
+def steiner_ellipse_def(p1, p2, p3, verbosity=0):
     """
     Calculates the smallest ellipse that passes through the three given points using the Steiner
     method. The ellipse is represented by the equation (u − p)† D (u − p) <= 1, where p is the
@@ -21,22 +21,28 @@ def steiner_ellipse(p1, p2, p3, verbosity=0):
     # Check that the ellipse can be defined by the three points
 
     # Ensure all three points are distinct
-    assert (p1_ != p2_).any() and (p2_ != p3_).any(), "The three points must be distinct."
+    if (p1_ == p2_).all() or (p1_ == p3_).all() or (p2_ == p3_).all():
+        raise ValueError("The three points must be distinct.")
 
     # Ensure the points are not collinear
     delta1 = p2_ - p1_
     delta2 = p3_ - p2_
 
-    collin_msg = "The three points must not be collinear."
+    collin_error = False  # Flag to raise an error
     if (delta1[0] != 0) and (delta2[0] != 0):
         # Avoid division by 0 for slope calculations
         slope1 = delta1[1] / delta1[0]
         slope2 = delta2[1] / delta2[0]
-        assert slope1 != slope2, collin_msg
+        if slope1 == slope2:
+            collin_error = True
 
     else:
         # Handle vertical lines to ensure they are not collinear
-        assert (delta1[0] != 0) or (delta2[0] != 0), collin_msg
+        if (delta1[0] == 0) and (delta2[0] == 0):
+            collin_error = True
+    
+    if collin_error:
+        raise ValueError("The three points must not be collinear.")
 
     # * * * * * #
     # Calculate the center of the ellipse
@@ -94,7 +100,7 @@ def steiner_ellipse(p1, p2, p3, verbosity=0):
 
         # Plot the results
         plt.plot(ellipse[0], ellipse[1], c="g", label="Contour of the ellipse")
-        plt.pcolormesh(x_mesh, y_mesh, in_ellipse, cmap="Wistia", label="Ellipse region")
+        plt.pcolormesh(x_mesh, y_mesh, in_ellipse, cmap="Wistia")  # Ellipse region
         plt.scatter(points[:, 0], points[:, 1], marker="x", color="r", label="Initial points")
         plt.scatter(*p, marker="x", color="b", label="Center")
 
@@ -122,31 +128,3 @@ def is_inside_ellipse(u, D, p):
     is_inside = np.einsum("...i,ij,...j->...", vector, D, vector) <= 1
 
     return is_inside
-
-
-if __name__ == "__main__":
-    # Define three points to compute the ellipse
-    p1 = np.array([1, 0])
-    p2 = np.array([0, 1])
-    p3 = np.array([1, 1])
-
-    # Find the ellipse that passes through the three points
-    D, p = steiner_ellipse(p1, p2, p3, verbosity=5)
-
-    # Test the 'is_inside_ellipse()' function with multiple points
-    points_to_test = np.array(
-        [
-            [1, 1],
-            [1, 0],
-            [0, 0],
-        ]
-    )
-
-    # Check if the points are inside the ellipse
-    result = is_inside_ellipse(points_to_test, D, p)
-    print(result)
-
-    # Test with a single point
-    point_to_test = (1, 0)
-    result = is_inside_ellipse(point_to_test, D, p)
-    print(result)
