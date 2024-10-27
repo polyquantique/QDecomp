@@ -46,6 +46,9 @@ test_points_def = [
 
 @pytest.mark.parametrize("p1, p2, p3", test_points_def)
 def test_ellipse_def(p1, p2, p3):
+    """
+    Check that the D matrix and p vector are a good definition of the ellipse.
+    """
     D, p = se.steiner_ellipse_def(p1, p2, p3)
     for pi in (p1, p2, p3):
         vec = pi - p
@@ -57,6 +60,9 @@ def test_ellipse_def(p1, p2, p3):
 
 @pytest.mark.parametrize("verbosity", (0, 1, 3, 5))
 def test_ellipse_verbosity(verbosity):
+    """
+    Test the verbosity parameter.
+    """
     plt.switch_backend("Agg")  # To test a function that creates a plot.
 
     p1, p2, p3 = (0, 0), (1, 0), (0, 1)
@@ -66,6 +72,10 @@ def test_ellipse_verbosity(verbosity):
 
 @pytest.mark.parametrize("dim", ([], [5], [4, 3]))
 def test_is_inside_ellipse(dim):
+    """
+    Test that the "is_inside_ellipse()" function can distinguish points within the ellipse and those
+    outside it. Also test if the dimension of the output is the same as the input.
+    """
     points = np.random.uniform(low=-1.5, high=1.5, size=(*dim, 2))
 
     # Ellipse (circle) of radius 1 centered at (0, 0)
@@ -76,3 +86,4 @@ def test_is_inside_ellipse(dim):
     res_calculated = np.sum(points**2, axis=-1) <= 1
 
     assert np.allclose(res_fun, res_calculated)
+    assert res_calculated.shape == tuple(dim)
