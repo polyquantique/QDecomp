@@ -1,13 +1,11 @@
 import math
-import os
-import sys
 from typing import Any
 
-sys.path.append(os.path.dirname(os.path.dirname(os.getcwd())))
 import numpy as np
 import pytest
-from grid_algorithm_1D.Zsqrt2 import Zsqrt2
 from numpy.random import randint
+
+from Zsqrt2 import Zsqrt2
 
 
 @pytest.mark.parametrize(
