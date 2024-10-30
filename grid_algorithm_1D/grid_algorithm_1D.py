@@ -117,9 +117,10 @@ def solve_grid_problem_1d(
         plt.legend()
         Path("Solutions").mkdir(parents=True, exist_ok=True)
         plt.savefig(os.path.join("Solutions", "solutions.png"), dpi=200)
+        plt.show()
 
     return alpha
 
 
 if __name__ == "__main__":
-    solve_grid_problem_1d((-8, 0), (-3, 3), plot_solutions=True)
+    solve_grid_problem_1d((0, 100), (200, 300), plot_solutions=True)
