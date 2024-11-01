@@ -34,11 +34,14 @@ def test_init_exceptions(a: Any, b: Any) -> None:
 def test_repr(a: int, b: int) -> None:
     """Test the string representation of the Zsqrt2 class"""
     ring_element = Zsqrt2(a, b)
-    assert str(ring_element) == (
-        lambda input: (
-            f"{input[0]} + {input[1]}√2" if input[1] >= 0 else f"{input[0]} - {-input[1]}√2"
-        )
-    )((a, b))
+    if a == 0 and b == 0:
+        assert str(ring_element) == str(0)
+    else:
+        assert str(ring_element) == (
+            lambda input: (
+                f"{input[0]} + {input[1]}√2" if input[1] >= 0 else f"{input[0]} - {-input[1]}√2"
+            )
+        )((a, b))
 
 
 def test_get_item() -> None:
