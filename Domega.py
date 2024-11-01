@@ -328,7 +328,7 @@ class Domega:
             a: D = (self.a * nb.d) + (self.b * nb.c) + (self.c * nb.b) + (self.d * nb.a)
             b: D = -(self.a * nb.a) + (self.b * nb.d) + (self.c * nb.c) + (self.d * nb.b)
             c: D = -(self.a * nb.b) + -(self.b * nb.a) + (self.c * nb.d) + (self.d * nb.c)
-            d: D = -(self.a * nb.c) + -(self.b * nb.b) + -(self.c * nb.a) + (self.d + nb.d)
+            d: D = -(self.a * nb.c) + -(self.b * nb.b) + -(self.c * nb.a) + (self.d * nb.d)
             return Domega(a, b, c, d)
         else:
             raise TypeError(f"Product operation is not defined with {type(nb).__name__}.")
@@ -355,6 +355,12 @@ class Domega:
             out *= self
         return out
 
+H_11 = Domega((-1, 1), (0, 0), (1, 1), (0, 0))
+T_11 = Domega((0, 0), (0, 0), (0, 0), (1, 0))
+T_12 = Domega((0, 0), (0, 0), (0, 0), (0, 0))
+T_22 = Domega((0, 0), (0, 0), (1, 0), (0, 0))
+H = np.array([[H_11, H_11], [H_11, -H_11]], dtype=Domega)
+T = np.array([[T_11, T_12], [T_12, T_22]], dtype=Domega)
 
 if __name__ == "__main__":
     n1 = Domega(D(1, 4), D(-5, 0), (3, 4), D(-14, 2))
@@ -364,3 +370,5 @@ if __name__ == "__main__":
     print(n3.sde())
     print(n1)
     print((n1**0))
+    print(H_11.real())
+    print(T@T@T@T)
