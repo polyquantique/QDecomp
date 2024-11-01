@@ -15,9 +15,6 @@ class Dsqrt2:
     The coefficients a, b are dyadic fractions of the form m / 2^n, where m is an integer and n is a positive integer.
     The coefficient will be automatically reduced when the class is initialized.
 
-    The ring element can also be expressed as alpha + i*beta, where i = √-1, and alpha and beta are numbers in te ring D[√2].
-    alpha = d + (c-a)/2 √2 and beta = b + (c+a)/2 √2.
-
     Attributes:
         a (D): Rationnal coefficient of the ring element.
         b (D): √2 coefficient of the ring element.
