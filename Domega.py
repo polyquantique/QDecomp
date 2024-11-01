@@ -344,12 +344,14 @@ class Domega:
     def __pow__(self, power: int) -> Domega:
         """Define the power operation for the Domega class.
         
-        Exponent can only be of type integer.
+        Exponent must be positive integers.
         """
         if not isinstance(power, (int, np.int32, np.int64)):
             raise TypeError(f"Exponent must be an integer, but received {type(power).__name__}.")
+        if power < 0:
+            raise ValueError(f"Expected exponent to be a positive integer, but got {power}.")
         out = Domega((0, 0), (0, 0), (0, 0), (1, 0))
-        for i in range(power):
+        for _ in range(power):
             out *= self
         return out
 
