@@ -114,10 +114,12 @@ class matrix_state:
     
     def shift(self, k: int) -> matrix_state:
         """To do: error message if wrong type, and doc strings"""
+        A = self.A
+        B = self.B
         sigma_k_mod = G_op([lamb, 0, 0, 1]) ** k
         tau_k_mod = G_op([1, 0, 0, -lamb]) ** k
         inv_lamb_k = inv_lamb ** k
-        shift_A = inv_lamb_k * sigma_k_mod * self * sigma_k_mod
-        shift_B = inv_lamb_k * tau_k_mod * self * tau_k_mod
+        shift_A = inv_lamb_k * sigma_k_mod * A * sigma_k_mod
+        shift_B = inv_lamb_k * tau_k_mod * B * tau_k_mod
         state = matrix_state(shift_A, shift_B)
         return state
