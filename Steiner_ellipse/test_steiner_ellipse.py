@@ -52,22 +52,9 @@ def test_ellipse_def(p1, p2, p3):
     D, p = se.steiner_ellipse_def(p1, p2, p3)
     for pi in (p1, p2, p3):
         vec = pi - p
-        print(vec @ D @ vec)
         assert (vec @ D @ vec) == pytest.approx(1)
 
     assert np.allclose(p, np.mean((p1, p2, p3), axis=0))
-
-
-@pytest.mark.parametrize("verbosity", (0, 1, 3, 5))
-def test_ellipse_verbosity(verbosity):
-    """
-    Test the verbosity parameter.
-    """
-    plt.switch_backend("Agg")  # To test a function that creates a plot.
-
-    p1, p2, p3 = (0, 0), (1, 0), (0, 1)
-    D, p = se.steiner_ellipse_def(p1, p2, p3, verbosity=verbosity)
-    assert (D.shape == (2, 2)) and (p.shape == (2,))
 
 
 @pytest.mark.parametrize("dim", ([], [5], [4, 3]))
@@ -87,3 +74,72 @@ def test_is_inside_ellipse(dim):
 
     assert np.allclose(res_fun, res_calculated)
     assert res_calculated.shape == tuple(dim)
+
+
+def test_inside_ellipse_D_shape_error():
+    """
+    Check if an IndexError is raised when the shapes of D and p are incompatible.
+    """
+    points = np.random.rand(3, 2)
+    D = np.eye(3)
+    p = np.ones(2)
+
+    match_msg = (
+        r"The matrix definition \(shape .*\) and center \(shape .*\) must have compatible "
+        + r"dimensions."
+    )
+
+    with pytest.raises(IndexError, match=match_msg):
+        se.is_inside_ellipse(points, D, p)
+
+
+def test_inside_ellipse_points_shape_error():
+    """
+    Check if an IndexError is raised when the shapes of D and p are incompatible.
+    """
+    points = np.random.rand(3, 3)
+    D = np.eye(2)
+    p = np.ones(2)
+
+    match_msg = (
+        r"The last dimension of the points to test \(shape .*\) must be the same than "
+        + r"the number of dimensions of the ellipse \(shape .*\)."
+    )
+    with pytest.raises(IndexError, match=match_msg):
+        se.is_inside_ellipse(points, D, p)
+
+
+def test_plot_ellipse():
+    """
+    Test the plot_ellipse() function.
+    """
+    plt.switch_backend("Agg")  # To test a function that creates a plot.
+
+    p1, p2, p3 = (0, 0), (1, 0), (0, 1)
+    points_to_plot = np.random.rand(3, 2)
+    D, p = se.steiner_ellipse_def(p1, p2, p3)
+
+    se.plot_ellipse(D, p, points_to_plot)
+    assert True  # The code has run so far
+
+
+@pytest.mark.parametrize("center", [(0, 0), (1, 0), (-2, -3)])
+def test_ellipse_bbox(center):
+    """
+    Test the ellipse_bbox() function.
+    """
+    # Center of the ellipse
+    p = np.array(center)
+
+    # Ellipse with a main axis of half-length 2 aligned with axis x and a second main axis of
+    # half-length 1 aligned with axis y
+    D = np.array([[1 / 4, 0], [0, 1]])
+
+    bbox = se.ellipse_bbox(D, p)
+
+    # Values [:, 1] are the max for each dimension and values [:, 0] are the min
+    assert (bbox[:, 0] < bbox[:, 1]).all()
+
+    bbox_expected = np.array([[-2, 2], [-1, 1]]) + p.reshape(-1, 1)
+
+    assert np.allclose(bbox, bbox_expected)
