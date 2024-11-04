@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import math
-from typing import Any, Iterator
+from typing import Any, Iterator, Callable
 
 import numpy as np
 
@@ -256,9 +256,22 @@ class Domega:
 
     def __repr__(self) -> str:
         """Define the string representation of the class."""
-        sign = lambda coeff: "+" if coeff.num >= 0 else "-"
-        value = lambda coeff: str(coeff) if coeff.num >= 0 else str(-coeff)
-        return f"{"" if self.a.num >= 0 else "-"}{value(self.a)} ω3 {sign(self.b)} {value(self.b)} ω2 {sign(self.c)} {value(self.c)} ω1 {sign(self.d)} {value(self.d)}"
+        sign: Callable[[D], str] = lambda coeff: "+" if coeff.num >= 0 else "-"
+        value: Callable[[D], str] = lambda coeff: str(coeff) if coeff.num >= 0 else str(-coeff)
+        omega: Callable[[int], str] = lambda index: "ω" + str(index) if index > 0 else ""
+        if all([coeff.num == 0 for coeff in self]):
+            return "0"
+        else:
+            output: str = ""
+            for index, coeff in enumerate(self):
+                if coeff.num != 0:
+                    if coeff.num < 0:
+                        output += sign(coeff) + " " + value(coeff) + omega(3 - index) + " "
+                    elif coeff.num > 0 and len(output) == 0:
+                        output += str(coeff) + omega(3 - index) + " "
+                    else:
+                        output += sign(coeff) + " " + value(coeff) + omega(3 - index) + " "
+        return output.rstrip()
 
     def __getitem__(self, i: int | slice) -> D | list[D]:
         """Return the coefficients of the ring element from their index."""
