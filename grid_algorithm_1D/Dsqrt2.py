@@ -254,7 +254,7 @@ class Dsqrt2:
     def __rmul__(self, other: int | D | Dsqrt2) -> Dsqrt2:
         return self.__mul__(other)
     
-    def __power__(self, exponent: int):
+    def __pow__(self, exponent: int):
         """Raise the ring number to an integer power."""
         if not isinstance(exponent, int):
             raise TypeError("Exponent must be an integer.")
