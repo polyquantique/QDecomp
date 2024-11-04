@@ -48,6 +48,9 @@ class G_op:
     def dag(self) -> G_op:
         return G_op([self.elements[0], self.elements[2], self.elements[1], self.elements[3]])
     
+    def conjugate(self) -> G_op:
+        return G_op([Dsqrt2.conjugate(self.elements[0]), Dsqrt2.conjugate(self.elements[1]), Dsqrt2.conjugate(self.elements[2]), Dsqrt2.conjugate(self.elements[3])])
+    
     def inv(self) -> G_op:
         determinant = self.det()
         if determinant == Dsqrt2(0, 0):
@@ -73,20 +76,43 @@ class G_op:
     def __rsub__(self, other: int | D | Dsqrt2 | G_op) -> G_op:
         return -self.__add__(other)
 
-    def __mul__(self, other: int | D | Dsqrt2 | G_op) -> G_op:
+    def __mul__(self, other: int | D | Dsqrt2 | G_op | np.matrix) -> G_op | np.matrix:
         """Define matrix multiplication."""
         if isinstance(other, (int, D, Dsqrt2)):
             return G_op([other*self.elements[0], other*self.elements[1], other*self.elements[2], other*self.elements[3]])
         elif isinstance(other, G_op):
             return G_op([
-                self.elements[0] * other.elements[0] + self.elements[1] * other.elements[2], self.elements[0] * other.elements[1] + self.elements[1] * other.elements[3],
-                self.elements[2] * other.elements[0] + self.elements[3] * other.elements[2], self.elements[2] * other.elements[1] + self.elements[3] * other.elements[3]
+                self.elements[0] * other.elements[0] + self.elements[1] * other.elements[2],
+                self.elements[0] * other.elements[1] + self.elements[1] * other.elements[3],
+                self.elements[2] * other.elements[0] + self.elements[3] * other.elements[2],
+                self.elements[2] * other.elements[1] + self.elements[3] * other.elements[3]
+            ])
+        elif isinstance(other, np.matrix):
+            return np.matrix([
+                [float(self.elements[0]), float(self.elements[1])],
+                [float(self.elements[2]), float(self.elements[3])]
+            ]) * other
+        else:
+            return TypeError("Product must be with G_op, np.matrix, Dsqrt2, D, or int")
+        
+    def __rmul__(self, other: int | D | Dsqrt2 | G_op | np.matrix) -> G_op | np.matrix:
+        """Define matrix multiplication."""
+        if isinstance(other, (int, D, Dsqrt2)):
+            return self.__mul__(other)
+        elif isinstance(other, G_op):
+            return G_op([
+                other.elements[0] * self.elements[0] + other.elements[1] * self.elements[2],
+                other.elements[0] * self.elements[1] + other.elements[1] * self.elements[3],
+                other.elements[2] * self.elements[0] + other.elements[3] * self.elements[2],
+                other.elements[2] * self.elements[1] + other.elements[3] * self.elements[3]
+            ])
+        elif isinstance(other, np.matrix):
+            return other * np.matrix([
+                [float(self.elements[0]), float(self.elements[1])],
+                [float(self.elements[2]), float(self.elements[3])]
             ])
         else:
-            return TypeError("Product must be with G_op, Dsqrt2, D, or int")
-        
-    def __rmul__(self, other: int | D | Dsqrt2 | G_op) -> G_op:
-        return self.__mul__(other)
+            return TypeError("Product must be with G_op, np.matrix, Dsqrt2, D, or int")
     
     def __pow__(self, exponent: int) -> G_op:
         """Raise the matrix to an integer power."""

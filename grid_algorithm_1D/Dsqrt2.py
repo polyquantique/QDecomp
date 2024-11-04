@@ -269,3 +269,7 @@ class Dsqrt2:
             result = result * base  # Uses the __mul__ method already defined
 
         return result
+    
+lamb: Dsqrt2 = Dsqrt2(1, 1)
+
+inv_lamb: Dsqrt2 = Dsqrt2(-1, 1)
