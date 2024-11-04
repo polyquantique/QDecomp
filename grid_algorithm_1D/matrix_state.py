@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from Dsqrt2_2x2matrix import G_op
+from Dsqrt2_2x2matrix import G_op, Z
 from Dsqrt2 import D, Dsqrt2, lamb, inv_lamb
 import numpy as np
+import math
 
 class matrix_state:
     """Class to do operations with matrix states
@@ -24,11 +25,19 @@ class matrix_state:
         if A.shape != (2, 2) or B.shape != (2, 2):
             raise ValueError("Both A and B must be 2x2 matrices.")
         
-        # Check that all elements in A and B are int or float
-        if not (np.issubdtype(A.dtype, np.integer) or np.issubdtype(A.dtype, np.floating)):
-            raise TypeError("Elements in the matrix must be of type float or int.")
-        if not (np.issubdtype(B.dtype, np.integer) or np.issubdtype(B.dtype, np.floating)):
-            raise TypeError("Elements in the matrix must be of type float or int.")
+        # Check that all elements in A can be converted to float, without converting if they are integers
+        if not np.issubdtype(A.dtype, np.integer):
+            try:
+                A = A.astype(float)
+            except ValueError:
+                raise TypeError("Elements in matrix A must be convertible to type float.")
+
+        # Check that all elements in B can be converted to float, without converting if they are integers
+        if not np.issubdtype(B.dtype, np.integer):
+            try:
+                B = B.astype(float)
+            except ValueError:
+                raise TypeError("Elements in matrix B must be convertible to type float.")
         
         # Check if A and B are symmetric by verifying that A[0, 1] == A[1, 0] and B[0, 1] == B[1, 0]
         if not np.isclose(A[0, 1], A[1, 0]):
@@ -83,12 +92,12 @@ class matrix_state:
     @property
     def b(self) -> float:
         A = self.A
-        return A[0, 1]
+        return float(A[0, 1])
     
     @property
     def beta(self) -> float:
         B = self.B
-        return B[0, 1]
+        return float(B[0, 1])
     
     @property
     def skew(self) -> float:
@@ -106,9 +115,9 @@ class matrix_state:
         """To do: error message if wrong type, and doc strings"""
         A = self.A
         B = self.B
-        G_conj = G_op.conjugate(G)
-        new_A = G_op.dag(G) * A * G
-        new_B = G_op.dag(G_conj) * B * G_conj
+        G_conj = G.conjugate()
+        new_A = G.dag() * A * G
+        new_B = G_conj.dag() * B * G_conj
         state = matrix_state(new_A, new_B)
         return state
     
@@ -116,10 +125,17 @@ class matrix_state:
         """To do: error message if wrong type, and doc strings"""
         A = self.A
         B = self.B
-        sigma_k_mod = G_op([lamb, 0, 0, 1]) ** k
-        tau_k_mod = G_op([1, 0, 0, -lamb]) ** k
-        inv_lamb_k = inv_lamb ** k
-        shift_A = inv_lamb_k * sigma_k_mod * A * sigma_k_mod
-        shift_B = inv_lamb_k * tau_k_mod * B * tau_k_mod
+        sigma = math.sqrt(float(inv_lamb)) * G_op([lamb, 0, 0, 1])
+        tau = math.sqrt(float(inv_lamb)) * G_op([1, 0, 0, -lamb])
+        if k >= 0:
+            sigma_k = sigma ** k
+            tau_k = tau ** k
+        else:
+            sigma_inv = math.sqrt(float(inv_lamb)) * G_op([1, 0, 0, lamb])
+            tau_inv = math.sqrt(float(inv_lamb)) * G_op([lamb, 0, 0, -1])
+            sigma_k = sigma_inv ** -k
+            tau_k = tau_inv ** -k
+        shift_A = sigma_k * A * sigma_k
+        shift_B = tau_k * B * tau_k
         state = matrix_state(shift_A, shift_B)
         return state

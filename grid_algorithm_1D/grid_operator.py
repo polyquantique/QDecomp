@@ -20,7 +20,7 @@ def find_grid_operator(A: np.matrix, B: np.matrix) -> G_op:
         G_i = find_special_grid_operator(state)
         inv_grid_op *= G_i
         state = state.transform(G_i)
-    grid_op = inv_grid_op.inv
+    grid_op = inv_grid_op.inv()
     return grid_op
 
 def find_special_grid_operator(state: matrix_state) -> G_op:
@@ -28,7 +28,7 @@ def find_special_grid_operator(state: matrix_state) -> G_op:
     special_grid_operator = I
     z = state.z
     gamma = state.gamma
-    b = state.B
+    b = state.b
     beta = state.beta
     if beta <= 0:
         special_grid_operator *= Z
@@ -64,4 +64,4 @@ def find_special_grid_operator(state: matrix_state) -> G_op:
             ValueError("To do")
     return special_grid_operator
 
-print(find_grid_operator(np.matrix([[1, 0], [0, 1]]), np.matrix([[0.5, 0], [0, 0.0001]])))
+print(find_grid_operator(np.matrix([[1, 0], [0, 1]]), np.matrix([[3000, 30], [30, 100]])))
