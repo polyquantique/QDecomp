@@ -73,7 +73,7 @@ if __name__ == "__main__":
         H @ T @ T @ T @ H @ H @ T @ H @ T @ H @ H @ T @ H @ T @ H @ T @ H @ H @ H @ T
     )  # random unitary matrix with s >3
 
-    print(f"Initial gate : {U}")
+    print(f"Initial gate : \n{U}")
     sequence, U_f = exact_synthesis(U)
     print(f"Sequence : {sequence}")
     print(f"Matrix with s<3 : \n{U_f}")
