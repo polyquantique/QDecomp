@@ -1,3 +1,26 @@
+# Copyright 2022-2023 D-Wave Systems Inc.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+"""
+This module contains the Zsqrt2 class, which allow for symbolic calculation with element of 
+the ring of quadratic integers with radicand 2 Z[√2]. The ring elements have the form a + b√2, 
+where a and b are integers. This class is useful to solve 1 dimensional grid problems, where 
+solutions are found inside this ring. For more information see 
+Neil J. Ross and Peter Selinger, Optimal ancilla-free Clifford+T approximation of z-rotations, https://arxiv.org/pdf/1403.2975
+
+"""
+
 from __future__ import annotations
 
 import math
@@ -8,9 +31,9 @@ import numpy as np
 
 
 class Zsqrt2:
-    """A simple class to do symbolic computation with elements of the ring Z[sqrt(2)].
+    """A simple class to do symbolic computation with elements of the ring Z[√2].
 
-    The ring element has the form a + b√2.
+    The ring element has the form a + b√2, where a and b are integers.
 
     Attributes:
         a (int): Integer coefficient of the ring element.
@@ -27,20 +50,28 @@ class Zsqrt2:
         Raises:
             TypeError: If a or b are not integers.
         """
-        self.a: int = a
-        self.b: int = b
         for input in (a, b):
             if not isinstance(input, (int, np.int32, np.int64)):
                 raise TypeError(
                     f"Expected inputs to be of type int, but got {type(input).__name__}."
                 )
+        self._a: int = a
+        self._b: int = b
+
+    @property
+    def a(self) -> int:
+        return self._a
+
+    @property
+    def b(self) -> int:
+        return self._b
 
     def conjugate(self) -> Zsqrt2:
         """Define the √2-conjugation operation."""
         return Zsqrt2(self.a, -self.b)
 
     def __float__(self, precision: int = 50) -> float:
-        """Define the float representation."""
+        """Define the float representation of the ring element."""
         getcontext().prec = precision
         result = Decimal(int(self.a)) + Decimal(int(self.b)) * Decimal(2).sqrt()
         return float(result)
@@ -50,129 +81,100 @@ class Zsqrt2:
         return (self.a, self.b)[i]
 
     def __repr__(self) -> str:
-        """Return string representation of the ring element."""
-        if self.b >= 0:
+        """Define the string representation of the ring element."""
+        if self.a == 0 and self.b == 0:
+            return str(0)
+        elif self.b >= 0:
             return f"{self.a} + {self.b}√2"
         else:
             return f"{self.a} - {-self.b}√2"
 
     def __eq__(self, nb: Any) -> bool:
-        """Define the equality of Zsqrt class."""
+        """Define the equality of Zsqrt2 class."""
         return float(self) == nb
 
     def __neg__(self) -> Zsqrt2:
-        """Define the element negation."""
+        """Define the negation of a ring element."""
         return Zsqrt2(-self.a, -self.b)
 
     def __add__(self, nb: Zsqrt2 | int) -> Zsqrt2:
-        """Add two Z[sqrt(2)] elements.
+        """Define the summation operation for the Zsqrt2 class.
 
-        Args:
-            nb (Zsqrt2 | int): Number to add to the ring element.
-
-        Returns:
-            Zsqrt2: Sum result in Z[sqrt(2)].
-
-        Raises:
-            TypeError: If nb is not of type Zsqrt2 or int.
+        Allow summation with integers or Zsqrt2 objects.
         """
         if isinstance(nb, Zsqrt2):
             return Zsqrt2(self.a + nb.a, self.b + nb.b)
         elif isinstance(nb, (int, np.int32, np.int64)):
             return Zsqrt2(self.a + nb, self.b)
         else:
-            raise TypeError(
-                f"'{type(self).__name__}' + '{type(nb).__name__}' operation is not defined"
-            )
+            raise TypeError(f"Summation operation is not defined with {type(nb).__name__}.")
 
     def __radd__(self, nb: int) -> Zsqrt2:
-        """Define the right summation of int with Z[sqrt2] element."""
+        """Define the right summation of int with the Zsqrt2 class."""
         return self.__add__(nb)
 
     def __iadd__(self, nb: Zsqrt2 | int) -> Zsqrt2:
-        """Define in-place summation."""
-        return self + nb
+        """Define the in-place summation operation for the class."""
+        return self.__add__(nb)
 
     def __sub__(self, nb: Zsqrt2 | int) -> Zsqrt2:
-        """Subtracts two Z[sqrt(2)] elements.
+        """Define the subtraction operation for the Zsqrt2 class.
 
-        Args:
-            nb (Zsqrt2 | int): Number to subtract to the ring element.
-
-        Returns:
-            Zsqrt2: Difference result in Z[sqrt(2)].
-
-        Raises:
-            TypeError: If nb is not of type Zsqrt2 or int.
+        Allow subtraction with integers and Zsqrt2 objects.
         """
         if isinstance(nb, Zsqrt2):
             return Zsqrt2(self.a - nb.a, self.b - nb.b)
         elif isinstance(nb, (int, np.int32, np.int64)):
             return Zsqrt2(self.a - nb, self.b)
         else:
-            raise TypeError(
-                f"'{type(self).__name__}' - '{type(nb).__name__}' operation is not defined"
-            )
+            raise TypeError(f"Subtraction operation is not defined with {type(nb).__name__}.")
 
     def __rsub__(self, nb: int) -> Zsqrt2:
-        """Define the right subtraction of int with Z[sqrt2] element."""
+        """Define the right subtraction of int with the Zsqrt2 class."""
         return -self + nb
 
     def __isub__(self, nb: Zsqrt2 | int) -> Zsqrt2:
-        """Define in-place subtraction."""
-        return self - nb
+        """Define in-place subtraction operation for the class."""
+        return self.__sub__(nb)
 
     def __mul__(self, nb: Zsqrt2 | int) -> Zsqrt2:
-        """Product of two Z[sqrt(2)] elements.
+        """Define the multiplication operation for the Zsqrt2 class.
 
-        Args:
-            nb (Zsqrt2 | int): Number to multiply to the ring element.
-
-        Returns:
-            Zsqrt2: Product result in Z[sqrt(2)].
-
-        Raises:
-            TypeError: If nb is not of type Zsqrt2 or int.
+        Allow multiplication with integers and Zsqrt2 objects.
         """
         if isinstance(nb, Zsqrt2):
             return Zsqrt2(self.a * nb.a + 2 * self.b * nb.b, self.a * nb.b + self.b * nb.a)
         elif isinstance(nb, (int, np.int32, np.int64)):
             return Zsqrt2(self.a * nb, self.b * nb)
         else:
-            raise TypeError(
-                f"'{type(self).__name__}' * '{type(nb).__name__}' operation is not defined"
-            )
+            raise TypeError(f"Multiplication operation is not defined with {type(nb).__name__}")
 
     def __rmul__(self, nb: int) -> Zsqrt2:
-        """Define the right product of int with Z[sqrt2] element."""
-        return self * nb
+        """Define the right multiplication of int with the Zsqrt2 class."""
+        return self.__mul__(nb)
 
     def __imul__(self, nb: Zsqrt2 | int) -> Zsqrt2:
-        """Define in-place multiplication."""
-        return self * nb
+        """Define in-place multiplication operation for the class."""
+        return self.__mul__(nb)
 
     def __pow__(self, n: int) -> Zsqrt2:
-        """Power of a Z[sqrt(2)] element.
+        """Define the power operation for the Zsqrt2 class.
 
-        Args:
-            n (int): Power of the ring element.
-
-        Returns:
-            Zsqrt2: Result in Z[sqrt(2)].
-
-        Raises:
-            TypeError: If n is not of type int.
-            ValueError: If n < 0.
+        Exponent must be a positive integer.
         """
         if not isinstance(n, (int, np.int32, np.int64)):
             raise TypeError(f"Expected power to be of type int, but got {type(n).__name__}.")
         elif n < 0:
             raise ValueError(f"Expected power to be a positive integer, but got {n}.")
 
-        pow_out = Zsqrt2(1, 0)
-        for i in range(n):
-            pow_out = self * pow_out
-        return pow_out
+        a: int = 0
+        b: int = 0
+        for k in range(n + 1):
+            if k % 2 == 0:
+                a += math.comb(n, k) * self.a ** (n - k) * self.b**k * 2 ** (k // 2)
+            else:
+                b += math.comb(n, k) * self.a ** (n - k) * self.b**k * 2 ** (k // 2)
+        return Zsqrt2(a, b)
 
     def __ipow__(self, nb: int) -> Zsqrt2:
         """Define in-place power."""
@@ -204,12 +206,3 @@ class Zsqrt2:
 
 lamb: Zsqrt2 = Zsqrt2(1, 1)
 inv_lamb: Zsqrt2 = -lamb.conjugate()
-
-if __name__ == "__main__":
-    x = Zsqrt2(1, 1)
-    y = Zsqrt2(2, 5)
-    # print(x**-1)
-    n1 = Zsqrt2(np.int64(-6), np.int64(4))
-    n2 = 9
-    print(2 + 3 * math.sqrt(2))
-    print(float(Zsqrt2(2, 3)))
