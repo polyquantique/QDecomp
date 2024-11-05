@@ -120,7 +120,9 @@ class D:
     def __mul__(self, nb: D | int) -> D:
         """Define the product operation for the D class. Allow products with D elements or with integers."""
         if not isinstance(nb, (D, int, np.int32, np.int64)):
-            raise TypeError(f"Product operation is not defined for the {type(nb).__name__} class.")
+            raise TypeError(
+                f"Product operation is not defined for the {type(nb).__name__} class."
+            )
         if isinstance(nb, D):
             return D(self.num * nb.num, self.denom + nb.denom)
         elif isinstance(nb, (int, np.int32, np.int64)):
@@ -172,7 +174,12 @@ class Domega:
         """
         for input in (a, b, c, d):
             if isinstance(input, tuple):
-                if any([not isinstance(value, (int, np.int32, np.int64)) for value in input]):
+                if any(
+                    [
+                        not isinstance(value, (int, np.int32, np.int64))
+                        for value in input
+                    ]
+                ):
                     raise TypeError(
                         f"Tuple entries must be integers, but received {type(input[[not isinstance(value, (int, np.int32, np.int64)) for value in input].index(True)]).__name__}"
                     )
@@ -228,7 +235,9 @@ class Domega:
         sde: int = 0
         if any([coeff.denom != 0 for coeff in self]):
             k_max: int = max([coeff.denom for coeff in self])
-            coeffs: list[int] = [coeff.num * 2 ** (k_max - coeff.denom) for coeff in self]
+            coeffs: list[int] = [
+                coeff.num * 2 ** (k_max - coeff.denom) for coeff in self
+            ]
             sde += 2 * k_max
         else:
             coeffs = [coeff.num for coeff in self]
@@ -237,7 +246,11 @@ class Domega:
             while all([coeff % 2 == 0 for coeff in coeffs]) and any(coeffs):
                 coeffs = [coeff // 2 for coeff in coeffs]
                 sde -= 2
-        while coeffs[0] % 2 == coeffs[2] % 2 and coeffs[1] % 2 == coeffs[3] % 2 and any(coeffs):
+        while (
+            coeffs[0] % 2 == coeffs[2] % 2
+            and coeffs[1] % 2 == coeffs[3] % 2
+            and any(coeffs)
+        ):
             alpha: int = (coeffs[1] - coeffs[3]) // 2
             beta: int = (coeffs[2] + coeffs[0]) // 2
             gamma: int = (coeffs[1] + coeffs[3]) // 2
@@ -258,7 +271,7 @@ class Domega:
         """Define the string representation of the class."""
         sign = lambda coeff: "+" if coeff.num >= 0 else "-"
         value = lambda coeff: str(coeff) if coeff.num >= 0 else str(-coeff)
-        return f"{"" if self.a.num >= 0 else "-"}{value(self.a)} ω3 {sign(self.b)} {value(self.b)} ω2 {sign(self.c)} {value(self.c)} ω1 {sign(self.d)} {value(self.d)}"
+        return f"{'' if self.a.num >= 0 else '-'}{value(self.a)} ω3 {sign(self.b)} {value(self.b)} ω2 {sign(self.c)} {value(self.c)} ω1 {sign(self.d)} {value(self.d)}"
 
     def __getitem__(self, i: int | slice) -> D | list[D]:
         """Return the coefficients of the ring element from their index."""
@@ -286,7 +299,9 @@ class Domega:
         elif isinstance(nb, Domega):
             return Domega(self.a + nb.a, self.b + nb.b, self.c + nb.c, self.d + nb.d)
         else:
-            raise TypeError(f"Summation operation is not defined with {type(nb).__name__}.")
+            raise TypeError(
+                f"Summation operation is not defined with {type(nb).__name__}."
+            )
 
     def __radd__(self, nb: int | D) -> Domega:
         """Define the right summation of integers and D objects with the Domega class."""
@@ -302,7 +317,9 @@ class Domega:
         Allow subtraction with int, D objects and Domega objects.
         """
         if not isinstance(nb, ((int, np.int32, np.int64, D, Domega))):
-            raise TypeError(f"Subtraction operation is not defined with {type(nb).__name__}.")
+            raise TypeError(
+                f"Subtraction operation is not defined with {type(nb).__name__}."
+            )
         return self.__add__(-nb)
 
     def __rsub__(self, nb: int | D) -> Domega:
@@ -320,18 +337,29 @@ class Domega:
         """
         if isinstance(nb, (int, np.int32, np.int64)):
             return Domega(
-                self.a * D(nb, 0), self.b * D(nb, 0), self.c * D(nb, 0), self.d * D(nb, 0)
+                self.a * D(nb, 0),
+                self.b * D(nb, 0),
+                self.c * D(nb, 0),
+                self.d * D(nb, 0),
             )
         elif isinstance(nb, D):
             return Domega(self.a * nb, self.b * nb, self.c * nb, self.d * nb)
         elif isinstance(nb, Domega):
             a: D = (self.a * nb.d) + (self.b * nb.c) + (self.c * nb.b) + (self.d * nb.a)
-            b: D = -(self.a * nb.a) + (self.b * nb.d) + (self.c * nb.c) + (self.d * nb.b)
-            c: D = -(self.a * nb.b) + -(self.b * nb.a) + (self.c * nb.d) + (self.d * nb.c)
-            d: D = -(self.a * nb.c) + -(self.b * nb.b) + -(self.c * nb.a) + (self.d * nb.d)
+            b: D = (
+                -(self.a * nb.a) + (self.b * nb.d) + (self.c * nb.c) + (self.d * nb.b)
+            )
+            c: D = (
+                -(self.a * nb.b) + -(self.b * nb.a) + (self.c * nb.d) + (self.d * nb.c)
+            )
+            d: D = (
+                -(self.a * nb.c) + -(self.b * nb.b) + -(self.c * nb.a) + (self.d * nb.d)
+            )
             return Domega(a, b, c, d)
         else:
-            raise TypeError(f"Product operation is not defined with {type(nb).__name__}.")
+            raise TypeError(
+                f"Product operation is not defined with {type(nb).__name__}."
+            )
 
     def __rmul__(self, nb: int | D) -> Domega:
         """Define the right multiplication of integers and D objects with the Domega class."""
@@ -343,24 +371,42 @@ class Domega:
 
     def __pow__(self, power: int) -> Domega:
         """Define the power operation for the Domega class.
-        
+
         Exponent must be positive integers.
         """
         if not isinstance(power, (int, np.int32, np.int64)):
-            raise TypeError(f"Exponent must be an integer, but received {type(power).__name__}.")
+            raise TypeError(
+                f"Exponent must be an integer, but received {type(power).__name__}."
+            )
         if power < 0:
-            raise ValueError(f"Expected exponent to be a positive integer, but got {power}.")
+            raise ValueError(
+                f"Expected exponent to be a positive integer, but got {power}."
+            )
         out = Domega((0, 0), (0, 0), (0, 0), (1, 0))
         for _ in range(power):
             out *= self
         return out
 
+    def __eq__(self, other):
+        """Define the equality of the Domega class."""
+        if isinstance(other, Domega):
+            return (
+                self.a == other.a
+                and self.b == other.b
+                and self.c == other.c
+                and self.d == other.d
+            )
+        return False
+
+
 H_11 = Domega((-1, 1), (0, 0), (1, 1), (0, 0))
 T_11 = Domega((0, 0), (0, 0), (0, 0), (1, 0))
 T_12 = Domega((0, 0), (0, 0), (0, 0), (0, 0))
 T_22 = Domega((0, 0), (0, 0), (1, 0), (0, 0))
+T_22_inv = Domega((-1, 0), (0, 0), (0, 0), (0, 0))
 H = np.array([[H_11, H_11], [H_11, -H_11]], dtype=Domega)
 T = np.array([[T_11, T_12], [T_12, T_22]], dtype=Domega)
+T_inv = np.array([[T_11, T_12], [T_12, T_22_inv]], dtype=Domega)
 
 if __name__ == "__main__":
     n1 = Domega(D(1, 4), D(-5, 0), (3, 4), D(-14, 2))
@@ -371,4 +417,6 @@ if __name__ == "__main__":
     print(n1)
     print((n1**0))
     print(H_11.real())
-    print(T@T@T@T)
+    print(T @ T @ T @ T)
+    print(T_inv)
+    print(T_inv @ T)
