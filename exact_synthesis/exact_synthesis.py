@@ -19,12 +19,10 @@ def exact_synthesis(U: np.array) -> str:
     sequence: str = ""
     norm_z = U[0, 0] * U[0, 0].complex_conjugate()
     s = norm_z.sde()
-    print(s)
     while s > 3:
         for k in [0, 1, 2, 3]:
             U_prime = H @ T_inv ** (k) @ U
             norm_z_prime = U_prime[0, 0] * U_prime[0, 0].complex_conjugate()
-            sde = norm_z_prime.sde()
             if norm_z_prime.sde() == s - 1:
                 sequence += k * "T" + "H"
                 s = norm_z_prime.sde()
