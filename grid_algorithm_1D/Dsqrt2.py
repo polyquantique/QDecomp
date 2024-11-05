@@ -241,7 +241,7 @@ class Dsqrt2:
     def __rsub__(self, other: int | D) -> Dsqrt2:
         return -self + other
     
-    def __mul__(self, other: Dsqrt2 | D | int) -> Dsqrt2:
+    def __mul__(self, other: Dsqrt2 | D | int | float) -> Dsqrt2 | float:
         if isinstance(other, (int, np.int32, np.int64)):
             return Dsqrt2(self.a * D(other, 0), self.b * D(other, 0))
         elif isinstance(other, D):
@@ -250,11 +250,13 @@ class Dsqrt2:
             a: D = self.a * other.a + 2 * self.b * other.b
             b: D = self.a * other.b + self.b * other.a
             return Dsqrt2(a, b)
+        elif isinstance(other, float):
+            return float(self) * other
         
     def __rmul__(self, other: int | D | Dsqrt2) -> Dsqrt2:
         return self.__mul__(other)
     
-    def __power__(self, exponent: int):
+    def __pow__(self, exponent: int):
         """Raise the ring number to an integer power."""
         if not isinstance(exponent, int):
             raise TypeError("Exponent must be an integer.")
@@ -269,3 +271,7 @@ class Dsqrt2:
             result = result * base  # Uses the __mul__ method already defined
 
         return result
+    
+lamb: Dsqrt2 = Dsqrt2(1, 1)
+
+inv_lamb: Dsqrt2 = Dsqrt2(-1, 1)
