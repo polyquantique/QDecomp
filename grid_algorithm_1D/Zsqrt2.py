@@ -87,12 +87,21 @@ class Zsqrt2:
 
     def __repr__(self) -> str:
         """Define the string representation of the ring element."""
-        if self.a == 0 and self.b == 0:
-            return str(0)
-        elif self.b >= 0:
-            return f"{self.a} + {self.b}√2"
+        repr: str = ""
+        if self.a != 0:
+            repr += str(self.a)
+            if self.b != 0:
+                if self.b > 0:
+                    repr += f"+{self.b if self.b != 1 else ""}√2"
+                elif self.b < 0:
+                    repr += f"-{-self.b if self.b != -1 else ""}√2"
+        elif self.b != 0:
+            if self.b == -1:
+                repr += "-"
+            repr += f"{self.b if self.b != 1 and self.b != -1 else ""}√2"
         else:
-            return f"{self.a} - {-self.b}√2"
+            repr += str(0)
+        return repr
 
     def __eq__(self, nb: Any) -> bool:
         """Define the equality of Zsqrt2 class."""
@@ -211,3 +220,6 @@ class Zsqrt2:
 
 lamb: Zsqrt2 = Zsqrt2(1, 1)
 inv_lamb: Zsqrt2 = -lamb.conjugate()
+
+if __name__ == "__main__":
+    print(Zsqrt2(1, 1))

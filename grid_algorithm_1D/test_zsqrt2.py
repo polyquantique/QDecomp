@@ -30,18 +30,23 @@ def test_init_exceptions(a: Any, b: Any) -> None:
         Zsqrt2(a, b)
 
 
-@pytest.mark.parametrize(("a", "b"), [randint(-100, 101, size=2) for i in range(15)] + [(0, 0)])
-def test_repr(a: int, b: int) -> None:
+
+def test_repr() -> None:
     """Test the string representation of the Zsqrt2 class"""
-    ring_element = Zsqrt2(a, b)
-    if a == 0 and b == 0:
-        assert str(ring_element) == str(0)
-    else:
-        assert str(ring_element) == (
-            lambda input: (
-                f"{input[0]} + {input[1]}√2" if input[1] >= 0 else f"{input[0]} - {-input[1]}√2"
-            )
-        )((a, b))
+    nb = [(Zsqrt2(1, 1), "1+√2"), 
+          (Zsqrt2(1, -1), "1-√2"), 
+          (Zsqrt2(1, 2), "1+2√2"), 
+          (Zsqrt2(1, -2), "1-2√2"), 
+          (Zsqrt2(0, 1), "√2"), 
+          (Zsqrt2(0, -1), "-√2"),
+          (Zsqrt2(0, 2), "2√2"),
+          (Zsqrt2(0, -2), "-2√2"),
+          (Zsqrt2(1, 0), "1"),
+          (Zsqrt2(-1, 0), "-1"),
+          (Zsqrt2(0, 0), "0"),
+          ]
+    assert all([str(ni[0]) == ni[1] for ni in nb])
+
 
 
 def test_get_item() -> None:
