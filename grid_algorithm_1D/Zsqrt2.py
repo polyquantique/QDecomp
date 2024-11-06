@@ -1,4 +1,4 @@
-# Copyright 2022-2023 D-Wave Systems Inc.
+# Copyright 2022-2023 Olivier Romain, Francis Blais, Vincent Girouard, Marius Trudeau
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -70,11 +70,16 @@ class Zsqrt2:
         """Define the √2-conjugation operation."""
         return Zsqrt2(self.a, -self.b)
 
-    def __float__(self, precision: int = 50) -> float:
+    def __float__(self) -> float:
         """Define the float representation of the ring element."""
-        getcontext().prec = precision
-        result = Decimal(int(self.a)) + Decimal(int(self.b)) * Decimal(2).sqrt()
-        return float(result)
+        a: float = float(self.a)
+        bsqrt: float = float(self.b) * math.sqrt(2)
+        if ((a < 0) != (bsqrt < 0)) and math.isclose(a,  -bsqrt, rel_tol=1e-4):
+            getcontext().prec = 50
+            result = float(Decimal(int(self.a)) + Decimal(int(self.b)) * Decimal(2).sqrt())
+            return result
+        else:
+            return a + bsqrt
 
     def __getitem__(self, i: int) -> int:
         """Access the values of a and b with their index."""

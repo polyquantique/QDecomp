@@ -148,7 +148,7 @@ def test_power(base: Zsqrt2, power: int) -> None:
     result = base**power
     n = base
     n **= power
-    assert isinstance(result, Zsqrt2) and math.isclose(float(result), float(base) ** power) #and math.isclose(float(result), float(n))
+    assert isinstance(result, Zsqrt2) and math.isclose(float(result), float(base) ** power) and math.isclose(float(result), float(n))
 
 @pytest.mark.parametrize(
     "nb", [1.0, 1 + 1.0j, "1", float(Zsqrt2(1, 1)), [1], (1,), {1}, {1: 1}, None, range(5)]
