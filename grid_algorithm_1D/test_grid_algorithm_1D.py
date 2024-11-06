@@ -31,25 +31,18 @@ def test_len_type_error(interval: Sequence[float | int]) -> None:
         solve_grid_problem_1d(interval, interval)
 
 
-@pytest.mark.parametrize("a", [1 + 1.0j, None, "1", (1,)])
+@pytest.mark.parametrize("a", [1 + 1.j, None, "1", (1,)])
 def test_float_type_error(a: Any) -> None:
     """Test the raise of a type error when the interval limits are not real numbers"""
     A: tuple = (1, 2)
     B: tuple = (a, 2)
     C: tuple = (1, a)
     D: tuple = (a, a)
-    with pytest.raises(TypeError, match="Interval limits must be real numbers."):
-        solve_grid_problem_1d(A, B)
-    with pytest.raises(TypeError, match="Interval limits must be real numbers."):
-        solve_grid_problem_1d(A, C)
-    with pytest.raises(TypeError, match="Interval limits must be real numbers."):
-        solve_grid_problem_1d(A, C)
-    with pytest.raises(TypeError, match="Interval limits must be real numbers."):
-        solve_grid_problem_1d(B, A)
-    with pytest.raises(TypeError, match="Interval limits must be real numbers."):
-        solve_grid_problem_1d(C, A)
-    with pytest.raises(TypeError, match="Interval limits must be real numbers."):
-        solve_grid_problem_1d(D, A)
+    for arg1 in (A, B, C, D):
+        for arg2 in (A, B, C, D):
+            if not (arg1 == A and arg2 == A):
+                with pytest.raises(TypeError, match="Interval limits must be real numbers."):
+                    solve_grid_problem_1d(arg1, arg2)
 
 
 @pytest.mark.parametrize("interval", [(0, -1), (1, 0), (1, 1)])
@@ -63,13 +56,13 @@ def test_interval_ascending_value_error(interval: Sequence[float]) -> None:
         solve_grid_problem_1d(interval, interval)
 
 
-@pytest.mark.parametrize("A", [np.sort(uniform(-50, 50, 2)) for i in range(10)])
-@pytest.mark.parametrize("B", [np.sort(uniform(-50, 50, 2)) for i in range(10)])
+@pytest.mark.parametrize("A", [np.sort(uniform(-50, 50, 2)) for i in range(10)] + [[0, 1], [-1, 0], [0, 0.9], [-0.9, 0], [0, 0.4], [-0.4, 0]])
+@pytest.mark.parametrize("B", [np.sort(uniform(-50, 50, 2)) for i in range(9)] + [[-1, 1]])
 def test_grid_algorithm_1D_solutions(A, B):
     """Test the validity of the solutions found for the 1D grid problem for A and B."""
     solutions = solve_grid_problem_1d(A, B)
     if len(solutions) > 0:
-        assert any(
+        assert all(
             [
                 (
                     float(solution) <= A[1]
