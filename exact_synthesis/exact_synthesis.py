@@ -93,7 +93,7 @@ def apply_sequence(sequence: str, U: np.array = I) -> np.array:
 def random_sequence(n: int) -> str:
     """Generate a random sequence of H and T gates of length n
     Args:
-        n (int): Length of the sequence
+        n (int): number of H gates in the sequence
     Returns:
         str: Random sequence of H and T gates
     """
@@ -104,10 +104,14 @@ def random_sequence(n: int) -> str:
 
 
 if __name__ == "__main__":
-    U = apply_sequence(random_sequence(10))
+    init_seq = random_sequence(10)
+    print(f"Initial sequence : {init_seq}")
+    U = apply_sequence(init_seq)
     print(f"Initial gate : \n{U}")
     sequence, U_f = exact_synthesis(U)
     print(f"Sequence : {sequence}")
     print(f"Matrix with s<3 : \n{U_f}")
     print(f"Final matrix : \n{apply_sequence(sequence, U_f)}")
     assert U.all() == apply_sequence(sequence, U_f).all()
+    remaining_seq = init_seq.replace(sequence, "", 1)
+    print(remaining_seq)
