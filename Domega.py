@@ -428,6 +428,7 @@ T_22_inv = Domega((-1, 0), (0, 0), (0, 0), (0, 0))
 H = np.array([[H_11, H_11], [H_11, -H_11]], dtype=Domega)
 T = np.array([[T_11, T_12], [T_12, T_22]], dtype=Domega)
 T_inv = np.array([[T_11, T_12], [T_12, T_22_inv]], dtype=Domega)
+I = np.array([[T_11, T_12], [T_12, T_11]], dtype=Domega)
 
 if __name__ == "__main__":
     n1 = Domega(D(1, 4), D(-5, 0), (3, 4), D(-14, 2))
