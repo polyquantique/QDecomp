@@ -4,6 +4,16 @@ import numpy as np
 from diophantine_equation import *
 
 
+def test_integer_fact():
+    """
+    Test the integer_fact() function.
+    """
+    for _ in range(10):
+        num = np.random.randint(2, 1000)
+        factors = integer_fact(num)
+
+        assert np.prod([fact ** exp for fact, exp in factors]) == num
+
 def test_gcd():
     """
     Test the gcd_Zomega() function.
@@ -25,6 +35,8 @@ def test_gcd():
         mult_b = div_b * gcd
 
         assert (mult_a == a) and (mult_b == b)  # We should find the initial numbers
+
+        assert (gcd_Zomega(div_a, div_b) == 1)  # The gcd of the quotients should be 1
 
 def test_euclidean_div():
     """
