@@ -1,52 +1,54 @@
 import sys
+
 sys.path.append("../CliffordPlusT")
 
 import numpy as np
-from sympy import symbols, diophantine
+from sympy import diophantine, symbols
 
-from Zomega import Zomega
 from grid_algorithm_1D.Zsqrt2 import Zsqrt2
+from Zomega import Zomega
 
 
 def integer_fact(p):
     """
     Find the factorization of an integer p. This function returns a list of tuples (p_i, m_i) where
     p_i is a prime factor of p and m_i is its power.
-    
+
     :param n: An integer
     :return: A list of tuples (p_i, m_i) containing the prime factors of n and their powers
     """
     n = p
     factors = []  # List of tuples (p_i, m_i)
-    
+
     counter = 0
     while n % 2 == 0:
         counter += 1
         n = n // 2
-    
+
     if counter > 0:
         factors.append((2, counter))
-             
+
     # n must be odd at this point, so a skip of 2 ( i = i + 2) can be used
     for i in range(3, int(np.sqrt(n)) + 1, 2):
         counter = 0
 
         # while i divides n, print i and divide n
-        while n % i== 0:
+        while n % i == 0:
             counter += 1
             n = n // i
 
         if counter > 0:
             factors.append((i, counter))
-        
+
         if i > np.sqrt(n):
             break
-             
+
     # If n != 1 at this point, n is a prime
     if n != 1:
         factors.append((n, 1))
-    
+
     return factors
+
 
 def pi_fact(pi, mi):
     """
@@ -61,60 +63,81 @@ def pi_fact(pi, mi):
     """
     pass
 
+
 def xi_fact(xi):
     """
-    Finds the factorization of xi in the ring Z[sqrt(2)] where xi is an element of Z[sqrt(2)]. This
-    function returns a list of tuples (xi_i, mi), where xi_i is a prime factor of xi in Z[sqrt(2)]
-    and mi is its power.
+    Finds the factorization of xi (up to a prime) in the ring Z[sqrt(2)] where xi is an element of
+    Z[sqrt(2)]. This function returns a list of tuples (xi_i, mi), where xi_i is a prime factor of
+    xi in Z[sqrt(2)] and mi is its power.
 
     :param xi: An element of Z[sqrt(2)]
     :return: A list of tuples (xi_i, mi) containing the prime factors of xi and their powers
     """
-    p = xi * xi.conjugate()
-    pi_list = integer_fact(p)
     xi_fact_list = []
+    p = (xi * xi.conjugate()).a
+
+    if p < 0:
+        p = -p
+        xi_fact_list.append((Zsqrt2(-1, 0), 1))
+
+    pi_list = integer_fact(p)
+    print(f"{pi_list = }")
 
     for pi, mi in pi_list:
-        if pi % 8 == 1 or pi % 8 == 7:
+        # If pi = 2, xi_i = sqrt(2)
+        if pi == 2:
+            xi_fact_list.append((Zsqrt2(0, 1), mi))
+
+        # If pi % 8 == 1 or 7, we can factorize pi into xi_i where pi = xi_i * xi_i⋅
+        elif pi % 8 == 1 or pi % 8 == 7:
             xi_i = pi_fact_into_xi(pi)
+
+            # Determine wether we need to add xi_i or its conjugate to the factorization and how
+            # many times
+            xi_temp = xi
+            for i in range(mi + 1):
+                xi_temp, r = euclidean_div_Zsqrt2(xi_temp, xi_i)
+
+                if r != 0:
+                    break
+
+            if i != 0:
+                xi_fact_list.append((xi_i, i))
+            if i != mi:
+                xi_fact_list.append((xi_i.conjugate(), mi - i))
+
+        # If pi % 8 == 3 or 5, pi is its own factorization in Z[sqrt(2)]
+        # We need to append pi mi/2 times to the factorization of xi since pi = xi * xi
         else:
-            xi_i = pi_fact(pi, mi)
+            xi_fact_list.append((pi, mi // 2))
 
-        xi_list = xi_fact(xi_i)
+    return xi_fact_list
 
-    return xi_list
 
 def pi_fact__pi_eq_2(pi, mi):
-    """
-    
-    """
+    """ """
     pass
 
+
 def pi_fact__mi_even(pi, mi):
-    """
-    
-    """
+    """ """
     pass
 
 
 def pi_fact__pi_mod_4_eq_1(pi, mi):
-    """
-    
-    """
+    """ """
     pass
 
 
 def pi_fact__pi_mod_8_eq_3(pi, mi):
-    """
-    
-    """
+    """ """
     pass
 
 
 def pi_fact_into_xi(pi):
     """
     Solve the equation pi = xi_i * xi_i⋅ = a**2 - 2 * b**2 where ⋅ denotes the sqrt(2) conjugate.
-    pi is a prime integer and xi_i = a + b * sqrt(2) is an element of Z[sqrt(2)]. pi has a 
+    pi is a prime integer and xi_i = a + b * sqrt(2) is an element of Z[sqrt(2)]. pi has a
     factorization only if pi % 8 = 1 or 7. In any other case, the function returns None.
 
     :param pi: A prime integer
@@ -148,9 +171,9 @@ def gcd_Zomega(x, y):
     while b != 0:
         _, r = euclidean_div_Zomega(a, b)
         a, b = b, r
-    
+
     return a
-    
+
 
 def euclidean_div_Zomega(num, div):
     """
@@ -166,15 +189,64 @@ def euclidean_div_Zomega(num, div):
 
     div_div_cc = div * div_cc  # Product of the divider by its complex conjugate
 
-    denom = (div_div_cc * div_div_cc.sqrt2_conjugate()).d.num  # Convert the denominator into an integer
-    numer = num * div_cc * div_div_cc.sqrt2_conjugate()  # Apply the same multiplication on the numerator
+    # Convert the denominator into an integer
+    denom = (div_div_cc * div_div_cc.sqrt2_conjugate()).d.num
+    # Apply the same multiplication on the numerator
+    numer = (num * div_cc * div_div_cc.sqrt2_conjugate())
 
     n = numer
     a, b, c, d = n.a.num, n.b.num, n.c.num, n.d.num  # Extract the coefficients of numer
     # Divide the coefficients by the integer denominator and round them
-    a_, b_, c_, d_ = round(a/denom), round(b/denom), round(c/denom), round(d/denom)
+    a_, b_, c_, d_ = round(a / denom), round(b / denom), round(c / denom), round(d / denom)
 
     q = Zomega(a_, b_, c_, d_)  # Construction of the divider with the new coefficients
     r = num - q * div  # Calculation of the rest of the division
 
     return q, r
+
+
+def euclidean_div_Zsqrt2(num, div):
+    """
+    Perform the euclidean division of num in Z[sqrt(2)]. This function returns q and r such that
+    num = q * div + r.
+
+    :param num: Number to be divided in Z[sqrt(2)]
+    :param div: Divider in Z[sqrt(2)]
+    :return: A tuple (q, r) where q is the result of the division and r is the rest
+    """
+    num_ = num * div.conjugate()
+    den_ = (div * div.conjugate()).a
+
+    a_, b_ = num_.a, num_.b
+    a, b = round(a_ / den_), round(b_ / den_)
+
+    q = Zsqrt2(a, b)
+    r = num - q * div
+
+    return q, r
+
+
+def are_sim_Zsqrt2(x, y):
+    """
+    Determine if x ~ y. Equivalently, x ~ y if there exists a unit u such that x = u * y. x, y and u
+    are elements of Z[sqrt(2)].
+
+    :param x: First number in Z[sqrt(2)]
+    :param y: Second number in Z[sqrt(2)]
+    :return: True if x ~ y, False otherwise
+    """
+    # Test if y is a divider of x and y is a divider of x
+    _, r1 = euclidean_div_Zsqrt2(x, y)
+    _, r2 = euclidean_div_Zsqrt2(y, x)
+    return (r1 == 0) and (r2 == 0)
+
+
+def is_unit_Zsqrt2(x):
+    """
+    Determine if x is a unit in the ring Z[sqrt(2)].
+
+    :param x: A number in Z[sqrt(2)]
+    :return: True if x is a unit, False otherwise
+    """
+    integer = x * x.conjugate()
+    return (integer == 1) or (integer == -1)
