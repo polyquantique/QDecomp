@@ -367,7 +367,30 @@ class Domega:
         for _ in range(power):
             out *= self
         return out
+    
+    def __eq__(self, other: Any) -> bool:
+        """Define the equality of the Dsqrt2 class."""
+        if hasattr(other, "real"):
+            if callable(other.real):
+                if not math.isclose(float(other.real()), float(self.real())): return False
+                if not math.isclose(float(other.imag()), float(self.imag())): return False
 
+            else:
+                if not math.isclose(float(other.real), float(self.real())): return False
+                if not math.isclose(float(other.imag), float(self.imag())): return False
+            
+            return True
+
+        elif hasattr(other, "float"):
+            try:
+                if not math.isclose(float(other), float(self.real())): return False
+                if float(self.imag) != 0: return False
+                return True
+            
+            except:
+                return TypeError("Non-comparable types")
+            
+        
 H_11 = Domega((-1, 1), (0, 0), (1, 1), (0, 0))
 T_11 = Domega((0, 0), (0, 0), (0, 0), (1, 0))
 T_12 = Domega((0, 0), (0, 0), (0, 0), (0, 0))
