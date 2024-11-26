@@ -132,20 +132,31 @@ def solve_grid_problem_1d(A: Sequence[float | int], B: Sequence[float | int]) ->
             alpha_i_scaled: Zsqrt2 = Zsqrt2(a=ai, b=bi)
 
             # Compute the unscaled solution
-            alpha_i: Zsqrt2 = alpha_i_scaled * (lambda is_smaller: inv_lamb if is_smaller else lamb)(is_smaller_case)** n_scaling
+            alpha_i: Zsqrt2 = (
+                alpha_i_scaled
+                * (lambda is_smaller: inv_lamb if is_smaller else lamb)(is_smaller_case)
+                ** n_scaling
+            )
             fl_alpha_i = float(alpha_i)
             fl_alpha_i_conjugate = float(alpha_i.conjugate())
 
             # See if the solution is a solution to the unscaled grid problem for A and B
-            if (fl_alpha_i >= A[0] and fl_alpha_i <= A[1] and fl_alpha_i_conjugate >= B[0] and fl_alpha_i_conjugate <= B[1]):
+            if (
+                fl_alpha_i >= A[0]
+                and fl_alpha_i <= A[1]
+                and fl_alpha_i_conjugate >= B[0]
+                and fl_alpha_i_conjugate <= B[1]
+            ):
                 alpha.append(alpha_i)
-    
+
     return alpha
-            
 
 
 def plot_grid_problem(
-    A: Sequence[float | int], B: Sequence[float | int], solutions: Sequence[Zsqrt2], show: bool = False
+    A: Sequence[float | int],
+    B: Sequence[float | int],
+    solutions: Sequence[Zsqrt2],
+    show: bool = False,
 ) -> None:
     """Plot the solutions of the 1D grid problem on the real axis.
 
@@ -212,6 +223,7 @@ def plot_grid_problem(
         save_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Solutions")
         Path(save_path).mkdir(parents=True, exist_ok=True)
         plt.savefig(os.path.join(save_path, "solutions.png"), dpi=200)
+
 
 s = solve_grid_problem_1d((-1, 1), (-1, 1))
 plot_grid_problem((-1, 1), (-1, 1), solutions=s)
