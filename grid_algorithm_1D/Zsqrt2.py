@@ -13,11 +13,12 @@
 #    limitations under the License.
 
 """
-This module contains the Zsqrt2 class, which allow for symbolic calculation with element of 
+This module contains the definition of the Zsqrt2 class, which allows for symbolic calculation with element of 
 the ring of quadratic integers with radicand 2 Z[√2]. The ring elements have the form a + b√2, 
-where a and b are integers. This class is useful to solve 1 dimensional grid problems, where 
+where a and b are integers. This class is useful among others to solve 1 dimensional grid problems, where 
 solutions are found inside this ring. For more information see 
-Neil J. Ross and Peter Selinger, Optimal ancilla-free Clifford+T approximation of z-rotations, https://arxiv.org/pdf/1403.2975
+Neil J. Ross and Peter Selinger, Optimal ancilla-free Clifford+T approximation of z-rotations, 
+https://arxiv.org/pdf/1403.2975
 
 """
 
@@ -92,13 +93,13 @@ class Zsqrt2:
             repr += str(self.a)
             if self.b != 0:
                 if self.b > 0:
-                    repr += f"+{self.b if self.b != 1 else ""}√2"
+                    repr += f"+{self.b if self.b != 1 else ''}√2"
                 elif self.b < 0:
-                    repr += f"-{-self.b if self.b != -1 else ""}√2"
+                    repr += f"-{-self.b if self.b != -1 else ''}√2"
         elif self.b != 0:
             if self.b == -1:
                 repr += "-"
-            repr += f"{self.b if self.b != 1 and self.b != -1 else ""}√2"
+            repr += f"{self.b if self.b != 1 and self.b != -1 else ''}√2"
         else:
             repr += str(0)
         return repr
@@ -220,6 +221,3 @@ class Zsqrt2:
 
 lamb: Zsqrt2 = Zsqrt2(1, 1)
 inv_lamb: Zsqrt2 = -lamb.conjugate()
-
-if __name__ == "__main__":
-    print(Zsqrt2(1, 1))
