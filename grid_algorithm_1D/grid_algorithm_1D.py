@@ -99,14 +99,21 @@ def solve_grid_problem_1d(A: Sequence[float | int], B: Sequence[float | int]) ->
     if n_scaling % 2 == 1:
         B_scaled = np.flip(B_scaled)
 
-    # Interval to find b (√2 coefficient of the ring element)
+    # Interval in which to find b (√2 coefficient of the ring element)
     b_interval_scaled: list[float] = [
         (A_scaled[0] - B_scaled[1]) / math.sqrt(8),
         (A_scaled[1] - B_scaled[0]) / math.sqrt(8),
     ]
 
-    b_start: int = math.ceil(b_interval_scaled[0])
-    b_end: int = math.floor(b_interval_scaled[-1])
+    # Integers in the interval
+    if math.isclose(b_interval_scaled[0], round(b_interval_scaled[0])):
+        b_start: int = round(b_interval_scaled[0])
+    else:
+        b_start = math.ceil(b_interval_scaled[0])
+    if math.isclose(b_interval_scaled[-1], round(b_interval_scaled[-1])):
+        b_end: int = round(b_interval_scaled[-1])
+    else:
+        b_end = math.floor(b_interval_scaled[-1])
 
     alpha: list[Zsqrt2] = []
     for bi in range(b_start, b_end + 1):
@@ -115,30 +122,30 @@ def solve_grid_problem_1d(A: Sequence[float | int], B: Sequence[float | int]) ->
             A_scaled[0] - bi * math.sqrt(2),
             A_scaled[1] - bi * math.sqrt(2),
         ]
+        for index, bound in enumerate(a_interval_scaled):
+            if math.isclose(bound, round(bound)):
+                a_interval_scaled[index] = round(bound)
+
         # If there is an integer if this interval
         if math.ceil(a_interval_scaled[0]) == math.floor(a_interval_scaled[1]):
             ai: int = math.ceil(a_interval_scaled[0])
-            alpha_scaled = ai + bi * math.sqrt(2)
-            alpha_conjugate_scaled = ai - bi * math.sqrt(2)
-            # If the solutions for ai and bi is a solution for the scaled grid problem for A and B
-            if (
-                alpha_scaled >= A_scaled[0]
-                and alpha_scaled <= A_scaled[1]
-                and alpha_conjugate_scaled >= B_scaled[0]
-                and alpha_conjugate_scaled <= B_scaled[1]
-            ):
-                # Append the unscaled solution to the list of solutions
-                alpha.append(
-                    Zsqrt2(ai, bi)
-                    * (lambda is_smaller: inv_lamb if is_smaller else lamb)(is_smaller_case)
-                    ** n_scaling
-                )
+            alpha_i_scaled: Zsqrt2 = Zsqrt2(a=ai, b=bi)
 
+            # Compute the unscaled solution
+            alpha_i: Zsqrt2 = alpha_i_scaled * (lambda is_smaller: inv_lamb if is_smaller else lamb)(is_smaller_case)** n_scaling
+            fl_alpha_i = float(alpha_i)
+            fl_alpha_i_conjugate = float(alpha_i.conjugate())
+
+            # See if the solution is a solution to the unscaled grid problem for A and B
+            if (fl_alpha_i >= A[0] and fl_alpha_i <= A[1] and fl_alpha_i_conjugate >= B[0] and fl_alpha_i_conjugate <= B[1]):
+                alpha.append(alpha_i)
+    
     return alpha
+            
 
 
 def plot_grid_problem(
-    A: Sequence[float | int], B: Sequence[float | int], solutions: Sequence[Zsqrt2]
+    A: Sequence[float | int], B: Sequence[float | int], solutions: Sequence[Zsqrt2], show: bool = False
 ) -> None:
     """Plot the solutions of the 1D grid problem on the real axis.
 
@@ -149,6 +156,7 @@ def plot_grid_problem(
         A (Sequence[float | int]): Bounds of the first interval.
         B (Sequence[float | int]): Bounds of the second interval.
         solutions (Sequence[Zsqrt2]): Solutions of the 1D grid problem for A and B in Z[√2].
+        show (bool): If set to True, open the plot in a window. Default = False.
 
     Raises:
         TypeError: If A and B intervals are not subscriptable sequences of length 2.
@@ -198,6 +206,12 @@ def plot_grid_problem(
     plt.title(f"Solutions for the 1 dimensional grid problem for A = {list(A)} and B = {list(B)}")
     plt.yticks([])
     plt.legend()
-    save_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Solutions")
-    Path(save_path).mkdir(parents=True, exist_ok=True)
-    plt.savefig(os.path.join(save_path, "solutions.png"), dpi=200)
+    if show:
+        plt.show()
+    else:
+        save_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Solutions")
+        Path(save_path).mkdir(parents=True, exist_ok=True)
+        plt.savefig(os.path.join(save_path, "solutions.png"), dpi=200)
+
+s = solve_grid_problem_1d((-1, 1), (-1, 1))
+plot_grid_problem((-1, 1), (-1, 1), solutions=s)
