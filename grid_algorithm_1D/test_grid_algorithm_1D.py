@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 from numpy.random import uniform
 
-from grid_algorithm_1D import solve_grid_problem_1d, plot_grid_problem
+from grid_algorithm_1D import plot_grid_problem, solve_grid_problem_1d
 from Zsqrt2 import Zsqrt2
 
 
@@ -32,7 +32,7 @@ def test_len_type_error(interval: Sequence[float | int]) -> None:
         solve_grid_problem_1d(interval, interval)
 
 
-@pytest.mark.parametrize("a", [1 + 1.j, None, "1", (1,)])
+@pytest.mark.parametrize("a", [1 + 1.0j, None, "1", (1,)])
 def test_float_type_error(a: Any) -> None:
     """Test the raise of a type error when the interval limits are not real numbers"""
     A: tuple = (1, 2)
@@ -57,7 +57,11 @@ def test_interval_ascending_value_error(interval: Sequence[float]) -> None:
         solve_grid_problem_1d(interval, interval)
 
 
-@pytest.mark.parametrize("A", [np.sort(uniform(-50, 50, 2)) for i in range(10)] + [[0, 1], [-1, 0], [0, 0.9], [-0.9, 0], [0, 0.4], [-0.4, 0]])
+@pytest.mark.parametrize(
+    "A",
+    [np.sort(uniform(-50, 50, 2)) for i in range(10)]
+    + [[0, 1], [-1, 0], [0, 0.9], [-0.9, 0], [0, 0.4], [-0.4, 0]],
+)
 @pytest.mark.parametrize("B", [np.sort(uniform(-50, 50, 2)) for i in range(9)] + [[-1, 1]])
 def test_grid_algorithm_1D_solutions(A, B):
     """Test the validity of the solutions found for the 1D grid problem for A and B."""
@@ -74,6 +78,7 @@ def test_grid_algorithm_1D_solutions(A, B):
                 for solution in solutions
             ]
         )
+
 
 @pytest.mark.parametrize("not_subscriptable", [1, 1.0, True, {1, 2}])
 def test_indexable_type_error_plot_function(not_subscriptable: Any) -> None:
@@ -101,7 +106,7 @@ def test_len_type_error_plot_function(interval: Sequence[float | int]) -> None:
         plot_grid_problem(interval, interval, [])
 
 
-@pytest.mark.parametrize("a", [1 + 1.j, None, "1", (1,)])
+@pytest.mark.parametrize("a", [1 + 1.0j, None, "1", (1,)])
 def test_float_type_error_plot_function(a: Any) -> None:
     """Test the raise of a type error when plotting if the interval limits are not real numbers"""
     A: tuple = (1, 2)

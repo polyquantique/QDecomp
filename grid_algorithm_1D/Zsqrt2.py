@@ -75,7 +75,7 @@ class Zsqrt2:
         """Define the float representation of the ring element."""
         a: float = float(self.a)
         bsqrt: float = float(self.b) * math.sqrt(2)
-        if ((a < 0) != (bsqrt < 0)) and math.isclose(a,  -bsqrt, rel_tol=1e-4):
+        if ((a < 0) != (bsqrt < 0)) and math.isclose(a, -bsqrt, rel_tol=1e-4):
             getcontext().prec = 50
             result = float(Decimal(int(self.a)) + Decimal(int(self.b)) * Decimal(2).sqrt())
             return result

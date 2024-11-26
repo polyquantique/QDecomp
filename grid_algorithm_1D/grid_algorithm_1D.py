@@ -137,10 +137,12 @@ def solve_grid_problem_1d(A: Sequence[float | int], B: Sequence[float | int]) ->
     return alpha
 
 
-def plot_grid_problem(A: Sequence[float | int], B: Sequence[float | int], solutions: Sequence[Zsqrt2]) -> None:
+def plot_grid_problem(
+    A: Sequence[float | int], B: Sequence[float | int], solutions: Sequence[Zsqrt2]
+) -> None:
     """Plot the solutions of the 1D grid problem on the real axis.
 
-    Given the two real intervals A and B and the solution to their 1D grid problems, 
+    Given the two real intervals A and B and the solution to their 1D grid problems,
     plot the solutions and their conjugate on the real axis.
 
     Args:

@@ -30,23 +30,22 @@ def test_init_exceptions(a: Any, b: Any) -> None:
         Zsqrt2(a, b)
 
 
-
 def test_repr() -> None:
     """Test the string representation of the Zsqrt2 class"""
-    nb = [(Zsqrt2(1, 1), "1+√2"), 
-          (Zsqrt2(1, -1), "1-√2"), 
-          (Zsqrt2(1, 2), "1+2√2"), 
-          (Zsqrt2(1, -2), "1-2√2"), 
-          (Zsqrt2(0, 1), "√2"), 
-          (Zsqrt2(0, -1), "-√2"),
-          (Zsqrt2(0, 2), "2√2"),
-          (Zsqrt2(0, -2), "-2√2"),
-          (Zsqrt2(1, 0), "1"),
-          (Zsqrt2(-1, 0), "-1"),
-          (Zsqrt2(0, 0), "0"),
-          ]
+    nb = [
+        (Zsqrt2(1, 1), "1+√2"),
+        (Zsqrt2(1, -1), "1-√2"),
+        (Zsqrt2(1, 2), "1+2√2"),
+        (Zsqrt2(1, -2), "1-2√2"),
+        (Zsqrt2(0, 1), "√2"),
+        (Zsqrt2(0, -1), "-√2"),
+        (Zsqrt2(0, 2), "2√2"),
+        (Zsqrt2(0, -2), "-2√2"),
+        (Zsqrt2(1, 0), "1"),
+        (Zsqrt2(-1, 0), "-1"),
+        (Zsqrt2(0, 0), "0"),
+    ]
     assert all([str(ni[0]) == ni[1] for ni in nb])
-
 
 
 def test_get_item() -> None:
@@ -75,7 +74,11 @@ def test_addition(n1: Zsqrt2 | int, n2: Zsqrt2 | int) -> None:
         sum = n1 + n2
         n = n1
         n += n2
-        assert isinstance(sum, Zsqrt2) and math.isclose(float(sum), float(n1) + float(n2)) and math.isclose(float(sum), float(n))
+        assert (
+            isinstance(sum, Zsqrt2)
+            and math.isclose(float(sum), float(n1) + float(n2))
+            and math.isclose(float(sum), float(n))
+        )
 
 
 @pytest.mark.parametrize(
@@ -102,7 +105,11 @@ def test_subtraction(n1: Zsqrt2 | int, n2: Zsqrt2 | int) -> None:
         sub = n1 - n2
         n = n1
         n -= n2
-        assert isinstance(sub, Zsqrt2) and math.isclose(float(sub), float(n1) - float(n2)) and math.isclose(float(sub), float(n))
+        assert (
+            isinstance(sub, Zsqrt2)
+            and math.isclose(float(sub), float(n1) - float(n2))
+            and math.isclose(float(sub), float(n))
+        )
 
 
 @pytest.mark.parametrize(
@@ -129,7 +136,11 @@ def test_product(n1: Zsqrt2 | int, n2: Zsqrt2 | int) -> None:
         prod = n1 * n2
         n = n1
         n *= n2
-        assert isinstance(prod, Zsqrt2) and math.isclose(float(prod), float(n1) * float(n2)) and math.isclose(float(prod), float(n))
+        assert (
+            isinstance(prod, Zsqrt2)
+            and math.isclose(float(prod), float(n1) * float(n2))
+            and math.isclose(float(prod), float(n))
+        )
 
 
 @pytest.mark.parametrize(
@@ -153,7 +164,12 @@ def test_power(base: Zsqrt2, power: int) -> None:
     result = base**power
     n = base
     n **= power
-    assert isinstance(result, Zsqrt2) and math.isclose(float(result), float(base) ** power) and math.isclose(float(result), float(n))
+    assert (
+        isinstance(result, Zsqrt2)
+        and math.isclose(float(result), float(base) ** power)
+        and math.isclose(float(result), float(n))
+    )
+
 
 @pytest.mark.parametrize(
     "nb", [1.0, 1 + 1.0j, "1", float(Zsqrt2(1, 1)), [1], (1,), {1}, {1: 1}, None, range(5)]
@@ -162,15 +178,17 @@ def test_power_type_exceptions(nb: Any) -> None:
     """Test the raise of a type error when raising a Z[sqrt2] element to a non-integer power."""
     ring_element = Zsqrt2(randint(-100, 101), randint(-100, 101))
     with pytest.raises(TypeError):
-        ring_element ** nb
+        ring_element**nb
     with pytest.raises(TypeError):
-        nb ** ring_element
+        nb**ring_element
+
 
 def test_power_value_exception() -> None:
     """Test the raise of a value error when the exponent is negative"""
     ring_element = Zsqrt2(randint(-100, 101), randint(-100, 101))
     with pytest.raises(ValueError, match="Expected power to be a positive integer, but got"):
-        ring_element ** -1
+        ring_element**-1
+
 
 @pytest.mark.parametrize(
     "nb", [Zsqrt2(1, 1), Zsqrt2(1, -1), Zsqrt2(-1, 1), Zsqrt2(-1, -1), Zsqrt2(0, 0)]
@@ -224,4 +242,3 @@ def test__eq__(n1: Zsqrt2 | int, n2: Zsqrt2 | int):
         assert n1 == n2
     else:
         assert n1 != n2
-
