@@ -59,7 +59,7 @@ def solve_grid_problem_1d(A: Sequence[float | int], B: Sequence[float | int]) ->
     """
     if not hasattr(A, "__getitem__") or not hasattr(B, "__getitem__"):
         raise TypeError(
-            f"Expected input intervals to be subscriptable, but got {A if not hasattr(A, "__getitem__") else B}."
+            f"Expected input intervals to be subscriptable, but got {A if not hasattr(A, '__getitem__') else B}."
         )
     elif len(list(A)) != 2 or len(list(B)) != 2:
         raise TypeError(
@@ -160,7 +160,7 @@ def plot_grid_problem(A: Sequence[float | int], B: Sequence[float | int], soluti
         )
     elif len(list(A)) != 2 or len(list(B)) != 2:
         raise TypeError(
-            f"Intervals must be of length 2 but got length {len(list(A)) if len(list(A)) != 2 else len(list(B))}"
+            f"Intervals must have 2 bounds, but got {len(list(A)) if len(list(A)) != 2 else len(list(B))} bounds."
         )
     elif not all([isinstance(i, (float, int, np.int32, np.int64)) for i in list(A) + list(B)]):
         raise TypeError("Interval limits must be real numbers.")
