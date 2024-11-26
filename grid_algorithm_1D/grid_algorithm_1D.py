@@ -223,7 +223,3 @@ def plot_grid_problem(
         save_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Solutions")
         Path(save_path).mkdir(parents=True, exist_ok=True)
         plt.savefig(os.path.join(save_path, "solutions.png"), dpi=200)
-
-
-s = solve_grid_problem_1d((-1, 1), (-1, 1))
-plot_grid_problem((-1, 1), (-1, 1), solutions=s)
