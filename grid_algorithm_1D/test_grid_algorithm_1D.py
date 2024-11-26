@@ -4,7 +4,8 @@ import numpy as np
 import pytest
 from numpy.random import uniform
 
-from grid_algorithm_1D import solve_grid_problem_1d
+from grid_algorithm_1D import solve_grid_problem_1d, plot_grid_problem
+from Zsqrt2 import Zsqrt2
 
 
 @pytest.mark.parametrize("not_subscriptable", [1, 1.0, True, {1, 2}])
@@ -73,3 +74,60 @@ def test_grid_algorithm_1D_solutions(A, B):
                 for solution in solutions
             ]
         )
+
+@pytest.mark.parametrize("not_subscriptable", [1, 1.0, True, {1, 2}])
+def test_indexable_type_error_plot_function(not_subscriptable: Any) -> None:
+    """Test the raise of type errors when plotting if the given intervals are not subscriptable."""
+    with pytest.raises(TypeError, match="to be subscriptable."):
+        plot_grid_problem(not_subscriptable, (1, 2), [])
+    with pytest.raises(TypeError, match="to be subscriptable."):
+        plot_grid_problem((1, 2), not_subscriptable, [])
+    with pytest.raises(TypeError, match="to be subscriptable."):
+        plot_grid_problem(not_subscriptable, not_subscriptable, [])
+    with pytest.raises(TypeError, match="to be subscriptable."):
+        plot_grid_problem([1, 2], [1, 2], not_subscriptable)
+
+
+@pytest.mark.parametrize(
+    "interval", [(1, 2, 3), (1,), [1, 2, 3], [1], "123", "1", np.array([1, 2, 3]), np.array([1])]
+)
+def test_len_type_error_plot_function(interval: Sequence[float | int]) -> None:
+    """Test the raise of type errors when plotting if giving intervals that are not of length 2."""
+    with pytest.raises(TypeError, match="Intervals must have 2 bounds"):
+        plot_grid_problem(interval, (1, 2), [])
+    with pytest.raises(TypeError, match="Intervals must have 2 bounds"):
+        plot_grid_problem((1, 2), interval, [])
+    with pytest.raises(TypeError, match="Intervals must have 2 bounds"):
+        plot_grid_problem(interval, interval, [])
+
+
+@pytest.mark.parametrize("a", [1 + 1.j, None, "1", (1,)])
+def test_float_type_error_plot_function(a: Any) -> None:
+    """Test the raise of a type error when plotting if the interval limits are not real numbers"""
+    A: tuple = (1, 2)
+    B: tuple = (a, 2)
+    C: tuple = (1, a)
+    D: tuple = (a, a)
+    for arg1 in (A, B, C, D):
+        for arg2 in (A, B, C, D):
+            if not (arg1 == A and arg2 == A):
+                with pytest.raises(TypeError, match="Interval limits must be real numbers."):
+                    plot_grid_problem(arg1, arg2, [])
+
+
+@pytest.mark.parametrize("interval", [(0, -1), (1, 0), (1, 1)])
+def test_interval_ascending_value_error_plot_function(interval: Sequence[float]) -> None:
+    """Test the raise of value error when plotting if the intervals limits are not in increasing order."""
+    with pytest.raises(ValueError, match="Intervals A and B must have"):
+        plot_grid_problem((1, 2), interval, [])
+    with pytest.raises(ValueError, match="Intervals A and B must have"):
+        plot_grid_problem(interval, (1, 2), [])
+    with pytest.raises(ValueError, match="Intervals A and B must have"):
+        plot_grid_problem(interval, interval, [])
+
+
+@pytest.mark.parametrize("solutions", [(Zsqrt2(1, 1), 1), (1, Zsqrt2(1, 1)), (1, 1)])
+def test_solutions_type_error_plot_function(solutions: Sequence[Any]) -> None:
+    """Test the raise of a type error if the given solutions are not Zsqrt objects"""
+    with pytest.raises(TypeError, match="Solutions must be Zsqrt2 objects"):
+        plot_grid_problem([1, 2], [1, 2], solutions)
