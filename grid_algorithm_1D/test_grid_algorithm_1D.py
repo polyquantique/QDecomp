@@ -3,6 +3,7 @@ from typing import Any, Sequence
 import numpy as np
 import pytest
 from numpy.random import uniform
+import matplotlib.pyplot as plt
 
 from grid_algorithm_1D import plot_grid_problem, solve_grid_problem_1d
 from Zsqrt2 import Zsqrt2
@@ -136,3 +137,16 @@ def test_solutions_type_error_plot_function(solutions: Sequence[Any]) -> None:
     """Test the raise of a type error if the given solutions are not Zsqrt objects"""
     with pytest.raises(TypeError, match="Solutions must be Zsqrt2 objects"):
         plot_grid_problem([1, 2], [1, 2], solutions)
+    
+
+def test_plot_grid_problem():
+    """
+    Test the plot_grid_problem() function.
+    """
+    plt.switch_backend("Agg")  # To test a function that creates a plot.
+    A = (1, 2)
+    B = (1, 2)
+    solutions = solve_grid_problem_1d(A=A, B=B)
+    plot_grid_problem(A, B, solutions, show=False)
+    plot_grid_problem(A, B, solutions, show=True)
+    assert True  # The code has run so far

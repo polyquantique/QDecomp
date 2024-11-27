@@ -177,7 +177,7 @@ def plot_grid_problem(
     """
     if not hasattr(A, "__getitem__") or not hasattr(B, "__getitem__"):
         raise TypeError(
-            f"Expected input intervals to be subscriptable, but got {A if not hasattr(A, "__getitem__") else B}."
+            f"Expected input intervals to be subscriptable, but got {A if not hasattr(A, '__getitem__') else B}."
         )
     elif len(list(A)) != 2 or len(list(B)) != 2:
         raise TypeError(
