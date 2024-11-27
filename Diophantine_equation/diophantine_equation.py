@@ -32,7 +32,7 @@ def integer_fact(p):
     for i in range(3, int(np.sqrt(n)) + 1, 2):
         counter = 0
 
-        # while i divides n, print i and divide n
+        # while i divides n, append i and divide n
         while n % i == 0:
             counter += 1
             n = n // i
@@ -48,20 +48,6 @@ def integer_fact(p):
         factors.append((n, 1))
 
     return factors
-
-
-def pi_fact(pi, mi):
-    """
-    Finds the factorization of pi**mi in the ring of integers of Z[omega] where pi is an integer
-    prime, mi is an integer, and omega = exp(i pi /4). This function return a number in Z[omega] to
-    the power mi for which the relation pi**mi = (ti**mi) * (ti**mi)† where † denotes the complex
-    conjugate.
-
-    :param pi: A prime integer
-    :param mi: An integer
-    :return: An element of Z[omega] for which pi**mi = (ti**mi) * (ti**mi)†
-    """
-    pass
 
 
 def xi_fact(xi):
@@ -81,7 +67,6 @@ def xi_fact(xi):
         xi_fact_list.append((Zsqrt2(-1, 0), 1))
 
     pi_list = integer_fact(p)
-    print(f"{pi_list = }")
 
     for pi, mi in pi_list:
         # If pi = 2, xi_i = sqrt(2)
@@ -114,35 +99,18 @@ def xi_fact(xi):
     return xi_fact_list
 
 
-def pi_fact__pi_eq_2(pi, mi):
-    """ """
-    pass
-
-
-def pi_fact__mi_even(pi, mi):
-    """ """
-    pass
-
-
-def pi_fact__pi_mod_4_eq_1(pi, mi):
-    """ """
-    pass
-
-
-def pi_fact__pi_mod_8_eq_3(pi, mi):
-    """ """
-    pass
-
-
 def pi_fact_into_xi(pi):
     """
     Solve the equation pi = xi_i * xi_i⋅ = a**2 - 2 * b**2 where ⋅ denotes the sqrt(2) conjugate.
     pi is a prime integer and xi_i = a + b * sqrt(2) is an element of Z[sqrt(2)]. pi has a
-    factorization only if pi % 8 = 1 or 7. In any other case, the function returns None.
+    factorization only if pi % 8 = 1 or 7 or pi = 2. In any other case, the function returns None.
 
     :param pi: A prime integer
     :return: An element of Z[sqrt(2)] for which pi = xi_i * xi_i⋅, or None if pi % 8 != 1 or 7
     """
+    if pi == 2:
+        return Zsqrt2(0, 1)
+    
     if not (pi % 8 == 1 or pi % 8 == 7):
         return None
 
@@ -157,6 +125,62 @@ def pi_fact_into_xi(pi):
 
     return xi
 
+
+def xi_i_fact_into_ti(xi_i):
+    """
+    Solve the equation xi_i = t_i * t_i† where † denotes the complex conjugate. xi_i is a prime
+    element in Z[sqrt(2)] and t_i is an element of Z[omega]. xi_i has a factorization only if
+    pi % 8 = 1, 3 ou 5, where pi = xi_i * xi_i⋅ or if pi = 2.
+
+    Note: this function assumes xi_i is a prime element in Z[sqrt(2)]. No check is performed to
+    verify this assumption.
+
+    :param xi_i: A prime element in Z[sqrt(2)]
+    :return: An element of Z[omega] for which xi_i = t_i * t_i†, or None if xi_i % 8 = 7
+    """
+    if xi_i == Zsqrt2(0, 1):  # xi_i = sqrt(2)
+        delta = Zomega(0, 0, 1, 1)  # delta = 1 + omega
+        return delta
+    
+    if xi_i.b == 0:  # xi_i is already a prime integer
+        pi = xi_i.a
+    else:
+        pi = (xi_i * xi_i.conjugate()).a
+
+    if pi % 4 == 1:
+        u = solve_usquare_eq_a_mod_p(1, pi)
+        xi_i_converted = Zomega(-xi_i.b, 0, xi_i.b, xi_i.a)
+        ti = gcd_Zomega(xi_i_converted, Zomega(0, 1, 0, u))  # Second term: u + i
+        return ti
+    
+    if pi % 8 == 3:  # xi_i = pi which is an integer in that case
+        u = solve_usquare_eq_a_mod_p(2, pi)
+        xi_i_converted = Zomega(0, 0, 0, xi_i.a)
+        ti = gcd_Zomega(xi_i_converted, Zomega(1, 0, 1, u))  # Second term: u + i sqrt(2)
+        return ti
+    
+    if pi % 8 == 7:
+        return None
+
+def solve_usquare_eq_a_mod_p(a, p):
+    """
+    Solve the diophantine equation u**2 = -a (mod p) where a, p and u are integers. This function
+    returns the first integer solution of the equation. p is a prime.
+
+    :param a: An integer
+    :param p: A prime integer
+    :return: The first integer solution of the equation u**2 = -a (mod p)
+    """
+    # The equation to solve is u**2 = q * p - a where q is an integer
+    q, u, t = symbols("q u t", integer=True)
+    equation = u**2 - q * p + a
+    solutions = diophantine(equation, t)
+
+    _, u0 = solutions.pop()  # Extract the first solution
+    sol = int(u0.subs({t: 0}))
+
+    return sol
+    
 
 def gcd_Zomega(x, y):
     """

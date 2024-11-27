@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from sympy import factorint, primerange
+from sympy import factorint, primerange, randprime
 
 from diophantine_equation import *
 
@@ -43,6 +43,58 @@ def test_pi_fact_into_xi(pi):
         xi = pi_fact_into_xi(pi)
         assert pi % 8 == 3 or pi % 8 == 5
         assert xi is None
+
+def test_xi_i_fact_into_ti():
+    """
+    Test the xi_i_fact_into_ti() function.
+    """
+    for i in range(15):
+        if i == 0:
+            p = 2
+        else:
+            p = randprime(3, 1000)  # A random prime number
+
+
+        xi_i = pi_fact_into_xi(p)  # A random prime in Z[sqrt(2)]
+        if xi_i is None:
+            xi_i = Zsqrt2(p, 0)  # p is its own factorization in Z[sqrt(2)]
+
+        xi_i_fact = xi_i_fact_into_ti(xi_i)
+
+        if p % 8 == 7:
+            # There is no solution to the equation xi_i ~ t_i * t_i†
+            assert xi_i_fact is None
+
+        else:
+            xi_i_calculated = xi_i_fact * xi_i_fact.complex_conjugate()  # Instance of Domega
+            assert xi_i_calculated.a == -xi_i_calculated.c  # Assert that the imaginary part is 0
+            # Convert to the Zsqrt2 class
+            xi_i_calculated_to_Zsqrt2 = Zsqrt2(xi_i_calculated.d.num, xi_i_calculated.c.num)
+            assert are_sim_Zsqrt2(xi_i, xi_i_calculated_to_Zsqrt2)
+
+def test_solve_usquare_eq_a_mod_p():
+    """
+    Test the solve_usquare_eq_a_mod_p() function.
+    """
+    for _ in range(15):
+        p = 0
+        while p %2 == 0 or p % 8 == 7:
+            # There is no solution when p is even or p % 8 == 7
+            p = randprime(1, 1000)
+        
+        a = 0
+
+        if p % 4 == 1:
+            a = 1
+        
+        elif p % 8 == 3:
+            a = 2
+
+        assert a != 0
+
+        u = solve_usquare_eq_a_mod_p(a, p)
+
+        assert (u**2) % p == -a + p
 
 
 def test_gcd():
