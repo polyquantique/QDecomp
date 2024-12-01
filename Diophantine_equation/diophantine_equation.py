@@ -5,6 +5,9 @@ sys.path.append("../CliffordPlusT")
 import numpy as np
 from sympy import diophantine, symbols
 
+from Domega import D as D_
+from Domega import Domega
+from grid_algorithm_1D.Dsqrt2 import D, Dsqrt2
 from grid_algorithm_1D.Zsqrt2 import Zsqrt2
 from Zomega import Zomega
 
@@ -94,7 +97,7 @@ def xi_fact(xi):
         # If pi % 8 == 3 or 5, pi is its own factorization in Z[sqrt(2)]
         # We need to append pi mi/2 times to the factorization of xi since pi = xi * xi
         else:
-            xi_fact_list.append((pi, mi // 2))
+            xi_fact_list.append((Zsqrt2(pi, 0), mi // 2))
 
     return xi_fact_list
 
@@ -110,7 +113,7 @@ def pi_fact_into_xi(pi):
     """
     if pi == 2:
         return Zsqrt2(0, 1)
-    
+
     if not (pi % 8 == 1 or pi % 8 == 7):
         return None
 
@@ -130,7 +133,7 @@ def xi_i_fact_into_ti(xi_i):
     """
     Solve the equation xi_i = t_i * t_i† where † denotes the complex conjugate. xi_i is a prime
     element in Z[sqrt(2)] and t_i is an element of Z[omega]. xi_i has a factorization only if
-    pi % 8 = 1, 3 ou 5, where pi = xi_i * xi_i⋅ or if pi = 2.
+    pi % 8 = 1, 3 or 5, where pi = xi_i * xi_i⋅ or if pi = 2.
 
     Note: this function assumes xi_i is a prime element in Z[sqrt(2)]. No check is performed to
     verify this assumption.
@@ -141,7 +144,7 @@ def xi_i_fact_into_ti(xi_i):
     if xi_i == Zsqrt2(0, 1):  # xi_i = sqrt(2)
         delta = Zomega(0, 0, 1, 1)  # delta = 1 + omega
         return delta
-    
+
     if xi_i.b == 0:  # xi_i is already a prime integer
         pi = xi_i.a
     else:
@@ -152,15 +155,16 @@ def xi_i_fact_into_ti(xi_i):
         xi_i_converted = Zomega(-xi_i.b, 0, xi_i.b, xi_i.a)
         ti = gcd_Zomega(xi_i_converted, Zomega(0, 1, 0, u))  # Second term: u + i
         return ti
-    
+
     if pi % 8 == 3:  # xi_i = pi which is an integer in that case
         u = solve_usquare_eq_a_mod_p(2, pi)
         xi_i_converted = Zomega(0, 0, 0, xi_i.a)
         ti = gcd_Zomega(xi_i_converted, Zomega(1, 0, 1, u))  # Second term: u + i sqrt(2)
         return ti
-    
+
     if pi % 8 == 7:
         return None
+
 
 def solve_usquare_eq_a_mod_p(a, p):
     """
@@ -180,7 +184,7 @@ def solve_usquare_eq_a_mod_p(a, p):
     sol = int(u0.subs({t: 0}))
 
     return sol
-    
+
 
 def gcd_Zomega(x, y):
     """
@@ -216,12 +220,17 @@ def euclidean_div_Zomega(num, div):
     # Convert the denominator into an integer
     denom = (div_div_cc * div_div_cc.sqrt2_conjugate()).d.num
     # Apply the same multiplication on the numerator
-    numer = (num * div_cc * div_div_cc.sqrt2_conjugate())
+    numer = num * div_cc * div_div_cc.sqrt2_conjugate()
 
     n = numer
     a, b, c, d = n.a.num, n.b.num, n.c.num, n.d.num  # Extract the coefficients of numer
     # Divide the coefficients by the integer denominator and round them
-    a_, b_, c_, d_ = round(a / denom), round(b / denom), round(c / denom), round(d / denom)
+    a_, b_, c_, d_ = (
+        round(a / denom),
+        round(b / denom),
+        round(c / denom),
+        round(d / denom),
+    )
 
     q = Zomega(a_, b_, c_, d_)  # Construction of the divider with the new coefficients
     r = num - q * div  # Calculation of the rest of the division
@@ -274,3 +283,85 @@ def is_unit_Zsqrt2(x):
     """
     integer = x * x.conjugate()
     return (integer == 1) or (integer == -1)
+
+
+def solve_xi_sim_ttdag_in_z(xi):
+    """
+    Solve the equation xi ~ t * t† or t where † denotes the complex conjugate. xi is an element of
+    Z[sqrt(2)] and t is an element of Z[omega]. This function returns the first solution of the
+    equation. If no solution exists, the function returns None.
+
+    :param xi: An element of Z[sqrt(2)]
+    :return: An element of Z[omega] for which xi = t * t†, or None if no solution exists
+    """
+    xi_fact_list = xi_fact(xi)
+
+    t = Zomega(0, 0, 0, 1)
+    for xi_i, mi in xi_fact_list:
+        if xi_i == -1:
+            continue
+
+        if mi % 2 == 0:  # For even exponents, xi_i ** mi = xi_i ** (mi // 2) * xi_i ** (mi // 2)
+            factor = xi_i ** (mi // 2)
+            d = factor.a
+            c = factor.b
+            a = -c
+            t *= Zomega(a, 0, c, d)
+
+        else:
+            ti_i = xi_i_fact_into_ti(xi_i)
+            if ti_i is None:
+                return None
+
+            t *= ti_i**mi
+
+    return t
+
+
+def solve_xi_eq_ttdag_in_d(xi):
+    """
+    Solve the equation xi = t * t† or t where † denotes the complex conjugate. xi is an element of
+    D[sqrt(2)] and t is an element of D[omega]. This function returns the first solution of the
+    equation. If no solution exists, the function returns None.
+
+    :param xi: An element of D[sqrt(2)]
+    :return: An element of D[omega] for which xi = t * t†, or None if no solution exists
+    """
+    # The equation only has a solution if xi is doubly positive, i.e. xi >= 0 and xi⋅ >= 0.
+    if float(xi) < 0 or float(xi.conjugate()) < 0:
+        return None
+
+    l = (xi * xi.conjugate()).a.denom  # Greatest denominator power of 2
+    xi_prime_temp = Dsqrt2(D(0, 0), D(1, 0)) ** l * xi  # xi_prime is in Z[sqrt(2)]
+    xi_prime = Zsqrt2(xi_prime_temp.a.num, xi_prime_temp.b.num)  # Convert xi_prime to Z[sqrt(2)]
+
+    s = solve_xi_sim_ttdag_in_z(xi_prime)  # Solve the equation xi' ~ s * s†
+    if s is None:  # There is no solution to the equation xi' ~ s * s†
+        return None
+
+    delta = Zomega(0, 0, 1, 1)  # delta = 1 + omega
+    # delta**-1 = delta * lambda**-1 * omega**-1 / sqrt(2)
+    delta_inv = (
+        delta * Domega((-1, 0), (0, 0), (1, 0), (-1, 0)) * Domega((0, 0), (-1, 1), (0, 0), (1, 1))
+    )
+
+    delta_inv_l = delta_inv**l  # delta_l = delta ** l
+
+    t = delta_inv_l * s  # t = delta ** -l * s
+
+    tt = t * t.complex_conjugate()  # tt = t * t†
+    tt = Dsqrt2(
+        (tt.d.num, tt.d.denom), (tt.c.num, tt.c.denom)
+    )  # Convert tt from D[omega] to D[sqrt(2)]
+
+    denom = (tt * tt.conjugate()).a  # Element of ring D
+    u_temp = xi * tt.conjugate() * int(2**denom.denom)
+    u = Zsqrt2(u_temp.a.num // denom.num, u_temp.b.num // denom.num)
+
+    # u is of the form u = lambda**2n => n = ln(u) / 2 ln(lambda)
+    n = round(np.log(float(u)) / (2 * np.log(float(Zsqrt2(1, 1)))))
+
+    # v**2 = u => v = lambda**n
+    v = Domega((-1, 0), (0, 0), (1, 0), (1, 0)) ** n
+
+    return t * v

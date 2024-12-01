@@ -176,14 +176,14 @@ class Dsqrt2:
         elif isinstance(a, int):
             self._a: D = D(a, 0)
         else:
-            D(a[0], a[1])
+            self._a: D = D(a[0], a[1])
         
         if isinstance(b, D):
             self._b: D = b
         elif isinstance(b, int):
             self._b: D = D(b, 0)
         else:
-            D(b[0], b[1])
+            self._b: D = D(b[0], b[1])
         
     @property
     def a(self):

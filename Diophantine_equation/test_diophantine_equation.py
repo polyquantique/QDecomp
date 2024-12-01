@@ -44,6 +44,7 @@ def test_pi_fact_into_xi(pi):
         assert pi % 8 == 3 or pi % 8 == 5
         assert xi is None
 
+
 def test_xi_i_fact_into_ti():
     """
     Test the xi_i_fact_into_ti() function.
@@ -53,7 +54,6 @@ def test_xi_i_fact_into_ti():
             p = 2
         else:
             p = randprime(3, 1000)  # A random prime number
-
 
         xi_i = pi_fact_into_xi(p)  # A random prime in Z[sqrt(2)]
         if xi_i is None:
@@ -72,21 +72,22 @@ def test_xi_i_fact_into_ti():
             xi_i_calculated_to_Zsqrt2 = Zsqrt2(xi_i_calculated.d.num, xi_i_calculated.c.num)
             assert are_sim_Zsqrt2(xi_i, xi_i_calculated_to_Zsqrt2)
 
+
 def test_solve_usquare_eq_a_mod_p():
     """
     Test the solve_usquare_eq_a_mod_p() function.
     """
     for _ in range(15):
         p = 0
-        while p %2 == 0 or p % 8 == 7:
+        while p % 2 == 0 or p % 8 == 7:
             # There is no solution when p is even or p % 8 == 7
             p = randprime(1, 1000)
-        
+
         a = 0
 
         if p % 4 == 1:
             a = 1
-        
+
         elif p % 8 == 3:
             a = 2
 
