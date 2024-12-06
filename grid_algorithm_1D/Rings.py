@@ -478,7 +478,7 @@ class Domega:
                         else:
                             output += sign(coeff) + " " + value(coeff) + omega(3 - index) + " "
                     elif coeff.num > 0 and len(output) == 0:
-                        if coeff == -1 and index != 3:
+                        if coeff == 1 and index != 3:
                             output += omega(3 - index) + " "
                         else:
                             output += str(coeff) + omega(3 - index) + " "
@@ -645,14 +645,6 @@ class Zomega(Domega):
                     f"Class arguments must be integers, but got {arg} of type {type(arg).__name__}"
                 )
         super().__init__((a, 0), (b, 0), (c, 0), (d, 0))
-
-    def __getitem__(self, index: int | slice) -> int | list[int]:
-        """Return the coefficients of the ring element from their index."""
-        return [self.a.num, self.b.num, self.c.num, self.d.num][index]
-
-    def __iter__(self) -> Iterator:
-        """Allow iteration in the class coefficients."""
-        return iter([self.a.num, self.b.num, self.c.num, self.d.num])
 
     def __float__(self) -> float:
         """Define the float representation of the class."""
