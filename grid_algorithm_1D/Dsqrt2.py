@@ -214,7 +214,7 @@ class Dsqrt2:
     
     def __float__(self) -> float:
         """Define the float value of the class."""
-        return float(self.a) + float(self.b)*(np.sqrt(2))
+        return float(self.a) + float(self.b)*(math.sqrt(2))
     
     def __eq__(self, other: Any) -> bool:
         """Define the equality of the Dsqrt2 class."""

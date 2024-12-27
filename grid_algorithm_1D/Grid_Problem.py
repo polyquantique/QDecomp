@@ -1,0 +1,67 @@
+import numpy as np
+import math
+from Dsqrt2 import D, Dsqrt2, lamb
+from Dsqrt2_2x2matrix import G_op, I, R, K, X, Z, A, B
+from matrix_state import matrix_state
+
+
+def find_grid_operator(A: np.matrix, B: np.matrix) -> G_op:
+    """To do: docstrings, comments and error messages"""
+    initial_state = matrix_state(A, B)
+    initial_state_bias = initial_state.bias
+    inv_grid_op = I
+    if abs(initial_state_bias) > 1:
+        k_lower = (-1 - initial_state_bias)/2
+        k = math.ceil(k_lower)
+        state = initial_state.shift(k)
+    else:
+        state = initial_state
+    while state.skew >= 15:
+        G_i = find_special_grid_operator(state)
+        inv_grid_op *= G_i
+        state = state.transform(G_i)
+    grid_op = inv_grid_op.inv()
+    return grid_op
+
+def find_special_grid_operator(state: matrix_state) -> G_op:
+    """To do: docstrings, comments and error messages"""
+    special_grid_operator = I
+    z = state.z
+    gamma = state.gamma
+    b = state.b
+    beta = state.beta
+    if beta <= 0:
+        special_grid_operator *= Z
+    if abs(z) <= 0.8 and abs(gamma) <= 0.8:
+        special_grid_operator *= R
+    elif b >= 0:
+        if gamma <= -z:
+            special_grid_operator *= X
+        if z <= 0.3 and gamma >= 0.8:
+            special_grid_operator *= K
+        elif z >= 0.3 and gamma >= 0.3:
+            c = min(z, gamma)
+            if math.floor(float(lamb) ** c / 2) < 1:
+                n = 1
+            else:
+                n = math.ceil(float(lamb) ** c / 4)
+            special_grid_operator *= A ** n
+        elif z >= 0.8 and gamma <= 0.3:
+            special_grid_operator *= K.conjugate
+        else:
+            ValueError("To do")
+    else:
+        if gamma <= -z:
+            special_grid_operator *= X
+        elif z >= -0.2 and gamma >= -0.2:
+            c = min(z, gamma)
+            if math.floor(float(lamb) ** c / math.sqrt(2)) < 1:
+                n = 1
+            else:
+                n = math.ceil(float(lamb) ** c / math.sqrt(8))
+            special_grid_operator *= A ** n
+        else:
+            ValueError("To do")
+    return special_grid_operator
+
+print(find_grid_operator(np.matrix([[1e-5, 300], [300, 25]]), np.matrix([[2, 1e-10], [1e-10, 10000]])))
