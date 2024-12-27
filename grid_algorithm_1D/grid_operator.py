@@ -11,26 +11,26 @@ class grid_operator:
     Attributes:
         
     """
-    def __init__(self, grid_operator):
+    def __init__(self, grid_operator) -> None:
         """
         
         """
-
-        # Convert input to NumPy array for consistency
-        grid_operator = np.array(grid_operator)
+        # Convert input to NumPy matrix for consistency
+        grid_operator = np.matrix(grid_operator)
 
         # Validate shape
         if grid_operator.shape != (2, 2):
             raise ValueError("The grid operator must be 2x2 in size.")
 
-        # Validate each element's type
-        if not all(isinstance(element, Dsqrt2) for element in grid_operator.flatten()):
-            raise TypeError(f"All elements in the matrix must be of type {Dsqrt2.__name__}.")
+        # Validate each element
+        for element in grid_operator.flatten().tolist()[0]:
+            if not isinstance(element, (int, Dsqrt2)):
+                raise TypeError(f"Element {element} must be an int or Dsqrt2.")
 
         self.grid_operator = grid_operator
 
     def __repr__(self) -> str:
+        grid_operator = self.grid_operator
         return str(grid_operator)
-    
-I = grid_operator([[1, 0], [0, 1]])
-print(I)
+        
+I = [[1, 0], [0, 1]]
