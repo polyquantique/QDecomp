@@ -1,14 +1,16 @@
 import numpy as np
 import math
-from Dsqrt2 import D, Dsqrt2, lamb
-from Dsqrt2_2x2matrix import G_op, I, R, K, X, Z, A, B
-from matrix_state import matrix_state
+from Rings import Domega, D, Dsqrt2, lamb, inv_lamb
+from Grid_Operator import grid_operator, I, R, K, X, Z, A, B
+import State
 
 
-def find_grid_operator(A: np.matrix, B: np.matrix) -> G_op:
+def find_grid_operator(A: np.matrix, B: np.matrix) -> grid_operator:
     """To do: docstrings, comments and error messages"""
-    initial_state = matrix_state(A, B)
+    initial_state = State.state(A, B)
     initial_state_bias = initial_state.bias
+    special_sigma = State.special_sigma
+    inv_special_sigma = State.inv_special_sigma
     inv_grid_op = I
     if abs(initial_state_bias) > 1:
         k_lower = (-1 - initial_state_bias)/2
@@ -20,10 +22,11 @@ def find_grid_operator(A: np.matrix, B: np.matrix) -> G_op:
         G_i = find_special_grid_operator(state)
         inv_grid_op *= G_i
         state = state.transform(G_i)
+    inv_grid_op = (special_sigma ** k) * inv_grid_op * (inv_special_sigma ** k)
     grid_op = inv_grid_op.inv()
     return grid_op
 
-def find_special_grid_operator(state: matrix_state) -> G_op:
+def find_special_grid_operator(state: State.state) -> grid_operator:
     """To do: docstrings, comments and error messages"""
     special_grid_operator = I
     z = state.z
@@ -41,13 +44,13 @@ def find_special_grid_operator(state: matrix_state) -> G_op:
             special_grid_operator *= K
         elif z >= 0.3 and gamma >= 0.3:
             c = min(z, gamma)
-            if math.floor(float(lamb) ** c / 2) < 1:
+            if math.floor(float(lamb** c) / 2) < 1:
                 n = 1
             else:
-                n = math.ceil(float(lamb) ** c / 4)
+                n = math.ceil(float(lamb ** c) / 4)
             special_grid_operator *= A ** n
         elif z >= 0.8 and gamma <= 0.3:
-            special_grid_operator *= K.conjugate
+            special_grid_operator *= K.conjugate()
         else:
             ValueError("To do")
     else:

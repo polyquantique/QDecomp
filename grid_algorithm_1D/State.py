@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from Rings import Zsqrt2, lamb, inv_lamb
+from Grid_Operator import grid_operator
 import numpy as np
 import math
 
@@ -108,3 +110,35 @@ class state:
         z = self.z
         gamma = self.gamma
         return gamma - z
+
+    def transform(self, G: grid_operator) -> state:
+        """To do: error message if wrong type, and doc strings"""
+        A = self.A
+        B = self.B
+        G_conj = G.conjugate()
+        new_A = G.dag() * A * G
+        new_B = G_conj.dag() * B * G_conj
+        state = state(new_A, new_B)
+        return state
+    
+    def shift(self, k: int) -> grid_operator:
+        """To do: error message if wrong type, and doc strings"""
+        A = self.A
+        B = self.B
+        sigma = math.sqrt(float(inv_lamb)) * grid_operator([lamb, 0, 0, 1])
+        tau = math.sqrt(float(inv_lamb)) * grid_operator([1, 0, 0, -lamb])
+        if k >= 0:
+            sigma_k = sigma ** k
+            tau_k = tau ** k
+        else:
+            sigma_inv = math.sqrt(float(inv_lamb)) * grid_operator([1, 0, 0, lamb])
+            tau_inv = math.sqrt(float(inv_lamb)) * grid_operator([lamb, 0, 0, -1])
+            sigma_k = sigma_inv ** -k
+            tau_k = tau_inv ** -k
+        shift_A = sigma_k * A * sigma_k
+        shift_B = tau_k * B * tau_k
+        state = state(shift_A, shift_B)
+        return state
+    
+special_sigma: np.matrix = np.matrix([[lamb, 0], [0, 1]])
+inv_special_sigma: np.matrix = np.matrix([[inv_lamb, 0], [0, 1]])
