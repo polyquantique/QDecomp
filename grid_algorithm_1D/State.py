@@ -118,8 +118,7 @@ class state:
         G_conj = G.conjugate()
         new_A = G.dag() * A * G
         new_B = G_conj.dag() * B * G_conj
-        state = state(new_A, new_B)
-        return state
+        return state(new_A, new_B)
     
     def shift(self, k: int) -> grid_operator:
         """To do: error message if wrong type, and doc strings"""
@@ -137,8 +136,7 @@ class state:
             tau_k = tau_inv ** -k
         shift_A = sigma_k * A * sigma_k
         shift_B = tau_k * B * tau_k
-        state = state(shift_A, shift_B)
-        return state
+        return state(shift_A, shift_B)
     
-special_sigma: np.matrix = np.matrix([[lamb, 0], [0, 1]])
-inv_special_sigma: np.matrix = np.matrix([[inv_lamb, 0], [0, 1]])
+special_sigma: grid_operator = grid_operator([lamb, 0, 0, 1])
+inv_special_sigma: grid_operator = grid_operator([inv_lamb, 0, 0, 1])

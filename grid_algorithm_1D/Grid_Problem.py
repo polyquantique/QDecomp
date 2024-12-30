@@ -2,37 +2,39 @@ import numpy as np
 import math
 from Rings import Domega, D, Dsqrt2, lamb, inv_lamb
 from Grid_Operator import grid_operator, I, R, K, X, Z, A, B
-import State
+from State import state, special_sigma, inv_special_sigma
 
 
 def find_grid_operator(A: np.matrix, B: np.matrix) -> grid_operator:
     """To do: docstrings, comments and error messages"""
-    initial_state = State.state(A, B)
+    initial_state = state(A, B)
     initial_state_bias = initial_state.bias
-    special_sigma = State.special_sigma
-    inv_special_sigma = State.inv_special_sigma
     inv_grid_op = I
     if abs(initial_state_bias) > 1:
         k_lower = (-1 - initial_state_bias)/2
         k = math.ceil(k_lower)
-        state = initial_state.shift(k)
+        new_state = initial_state.shift(k)
     else:
-        state = initial_state
-    while state.skew >= 15:
-        G_i = find_special_grid_operator(state)
+        new_state = initial_state
+        k = 0
+    while new_state.skew >= 15:
+        G_i = find_special_grid_operator(new_state)
         inv_grid_op *= G_i
-        state = state.transform(G_i)
-    inv_grid_op = (special_sigma ** k) * inv_grid_op * (inv_special_sigma ** k)
+        new_state = new_state.transform(G_i)
+    if k < 0:
+        inv_grid_op = (inv_special_sigma ** abs(k)) * inv_grid_op * (special_sigma ** abs(k))
+    else:
+        inv_grid_op = (special_sigma ** k) * inv_grid_op * (inv_special_sigma ** k)
     grid_op = inv_grid_op.inv()
     return grid_op
 
-def find_special_grid_operator(state: State.state) -> grid_operator:
+def find_special_grid_operator(ellipse_state: state) -> grid_operator:
     """To do: docstrings, comments and error messages"""
     special_grid_operator = I
-    z = state.z
-    gamma = state.gamma
-    b = state.b
-    beta = state.beta
+    z = ellipse_state.z
+    gamma = ellipse_state.gamma
+    b = ellipse_state.b
+    beta = ellipse_state.beta
     if beta <= 0:
         special_grid_operator *= Z
     if abs(z) <= 0.8 and abs(gamma) <= 0.8:
@@ -44,10 +46,10 @@ def find_special_grid_operator(state: State.state) -> grid_operator:
             special_grid_operator *= K
         elif z >= 0.3 and gamma >= 0.3:
             c = min(z, gamma)
-            if math.floor(float(lamb** c) / 2) < 1:
+            if math.floor(float(lamb) ** c / 2) < 1:
                 n = 1
             else:
-                n = math.ceil(float(lamb ** c) / 4)
+                n = math.ceil(float(lamb) ** c / 4)
             special_grid_operator *= A ** n
         elif z >= 0.8 and gamma <= 0.3:
             special_grid_operator *= K.conjugate()
@@ -67,4 +69,4 @@ def find_special_grid_operator(state: State.state) -> grid_operator:
             ValueError("To do")
     return special_grid_operator
 
-print(find_grid_operator(np.matrix([[1e-5, 300], [300, 25]]), np.matrix([[2, 1e-10], [1e-10, 10000]])))
+print(find_grid_operator(np.matrix([[1, 0], [0, 1]]), np.matrix([[10000, 1e-20], [1e-20, 10000]])))

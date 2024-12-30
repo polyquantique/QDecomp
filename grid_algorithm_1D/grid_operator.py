@@ -46,23 +46,28 @@ class grid_operator:
         self.d = G[1, 1]
 
     def __repr__(self) -> str:
+        """"""
         G = self.G
         return f"{G}"
     
     def __neg__(self) -> grid_operator:
+        """"""
         G = self.G
         return grid_operator(-G)
     
     def det(self) -> Union[int, D, Zsqrt2, Dsqrt2]:
+        """"""
         G = self.G
         det_G = G[0, 0] * G[1, 1] - G[0, 1] * G[1, 0]
         return det_G
     
     def dag(self) -> grid_operator:
+        """"""
         G = self.G
         return np.transpose(G)
     
     def conjugate(self):
+        """"""
         G = self.G
         # Initialize G_conj with the same shape as G, using np.array for flexibility
         G_conj = np.zeros_like(G, dtype=object)  # or dtype=G.dtype if you need consistency in types
@@ -80,6 +85,7 @@ class grid_operator:
         return grid_operator(G_conj)  # Return the conjugated grid
     
     def inv(self) -> grid_operator:
+        """"""
         determinant = self.det()
         if determinant == 0:
             return ValueError("Determinant must be non-zero")
@@ -90,49 +96,55 @@ class grid_operator:
         else:
             return NotImplemented
         
-    def __add__(self, other: grid_operator) -> grid_operator:
+    def __add__(self, other: grid_operator | np.matrix) -> grid_operator | np.matrix:
         """"""
-        if not isinstance(other, grid_operator):
-            return "Both elements must be grid operators"
+        if not isinstance(other, (grid_operator, np.matrix)):
+            return "Both elements must be grid operators or numpy matrices"
         G = self.G
-        G_p = other.G
-        return grid_operator(G + G_p)
+        if isinstance(other, np.matrix):
+            G_p = np.matrix([[float(other.a), float(other.b)], [float(other.c), float(other.d)]])
+            return G + G_p
+        else:
+            G_p = other.G
+            return grid_operator(G + G_p)
     
-    def __radd__(self, other: grid_operator) -> grid_operator:
+    def __radd__(self, other: grid_operator | np.matrix) -> grid_operator | np.matrix:
+        """"""
         return self.__add__(other)
     
-    def __sub__(self, other: grid_operator) -> grid_operator:
+    def __sub__(self, other: grid_operator | np.matrix) -> grid_operator | np.matrix:
         """"""
         return self.__add__(-other)
     
-    def __rsub__(self, other: grid_operator) -> grid_operator:
+    def __rsub__(self, other: grid_operator | np.matrix) -> grid_operator | np.matrix:
+        """"""
         return -self.__add__(other)
 
-    def __mul__(self, other: int | D | Dsqrt2 | grid_operator | np.matrix | float) -> grid_operator | np.matrix:
+    def __mul__(self, other: int | D | Zsqrt2 | Dsqrt2 | grid_operator | np.matrix | float) -> grid_operator | np.matrix:
         """"""
         G = self.G
-        if isinstance(other, (int, D, Dsqrt2)):
+        if isinstance(other, (int, D, Zsqrt2, Dsqrt2)):
             return grid_operator(other * G)
-        elif isinstance(other, float):
-            return other * G
+        elif isinstance(other, (float, np.matrix)):
+            float_G = np.matrix([[float(self.a), float(self.b)], [float(self.c), float(self.d)]])
+            return float_G * other
         elif isinstance(other, grid_operator):
             G_p = other.G
             return grid_operator(G * G_p)
-        elif isinstance(other, np.matrix):
-            return G * other
         else:
             raise TypeError("Product must be with a valid type")
         
     def __rmul__(self, other: int | D | Dsqrt2 | grid_operator | np.matrix | float) -> grid_operator | np.matrix:
         """"""
         G = self.G
-        if isinstance(other, (float, int, D, Dsqrt2)):
+        if isinstance(other, (int, D, Zsqrt2, Dsqrt2)):
             return self.__mul__(other)
         elif isinstance(other, grid_operator):
             G_p = other.G
             return grid_operator(G_p * G)
-        elif isinstance(other, np.matrix):
-            return other * G
+        elif isinstance(other, (float, np.matrix)):
+            float_G = np.matrix([[float(self.a), float(self.b)], [float(self.c), float(self.d)]])
+            return other * float_G
         else:
             raise TypeError("Product must be with a valid type")
     
