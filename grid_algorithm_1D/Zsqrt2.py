@@ -111,9 +111,11 @@ class Zsqrt2:
 
     def __eq__(self, nb: Any) -> bool:
         """Define the equality of Zsqrt2 class."""
-        if not isinstance(nb, Zsqrt2):
-            return NotImplemented
-        return self.a == nb.a and self.b == nb.b
+        if isinstance(nb, Zsqrt2):
+            return self.a == nb.a and self.b == nb.b
+        elif isinstance(nb, num.Integral):
+            return self.a == nb and self.b == 0
+        return False
 
     def __neg__(self) -> Zsqrt2:
         """Define the negation of a ring element."""
@@ -151,7 +153,7 @@ class Zsqrt2:
 
     def __rsub__(self, nb: int) -> Zsqrt2:
         """Define the right subtraction of int with the Zsqrt2 class."""
-        return -self.__add__(nb)
+        return (-self).__add__(nb)
 
     def __isub__(self, nb: Zsqrt2 | int) -> Zsqrt2:
         """Define in-place subtraction operation for the class."""
