@@ -1,3 +1,27 @@
+# Copyright 2022-2023 Olivier Romain, Francis Blais, Vincent Girouard, Marius Trudeau
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+"""
+This module contains the definition of the Zsqrt2 class, which allows for symbolic calculation with element of 
+the ring of quadratic integers with radicand 2 Z[√2]. The ring elements have the form a + b√2, 
+where a and b are integers. This class is useful among others to solve 1 dimensional grid problems, where 
+solutions are found inside this ring. For more information see 
+Neil J. Ross and Peter Selinger, Optimal ancilla-free Clifford+T approximation of z-rotations, 
+https://arxiv.org/pdf/1403.2975
+
+"""
+
 from __future__ import annotations
 
 import math
@@ -8,7 +32,7 @@ import numpy as np
 
 
 class Zsqrt2:
-    """A simple class to do symbolic computation with elements of the ring Z[sqrt(2)].
+    """A simple class to do symbolic computation with elements of the ring Z[√2].
 
     The ring element has the form a + b√2, where a and b are integers.
 
@@ -47,21 +71,41 @@ class Zsqrt2:
         """Define the √2-conjugation operation."""
         return Zsqrt2(self.a, -self.b)
 
+    def __float__(self) -> float:
+        """Define the float representation of the ring element."""
+        a: float = float(self.a)
+        bsqrt: float = float(self.b) * math.sqrt(2)
+        if ((a < 0) != (bsqrt < 0)) and math.isclose(a, -bsqrt, rel_tol=1e-4):
+            getcontext().prec = 50
+            result = float(Decimal(int(self.a)) + Decimal(int(self.b)) * Decimal(2).sqrt())
+            return result
+        else:
+            return a + bsqrt
+
     def __getitem__(self, i: int) -> int:
         """Access the values of a and b with their index."""
         return (self.a, self.b)[i]
 
     def __repr__(self) -> str:
         """Define the string representation of the ring element."""
-        if self.a == 0 and self.b == 0:
-            return str(0)
-        elif self.b >= 0:
-            return f"{self.a} + {self.b}√2"
+        repr: str = ""
+        if self.a != 0:
+            repr += str(self.a)
+            if self.b != 0:
+                if self.b > 0:
+                    repr += f"+{self.b if self.b != 1 else ''}√2"
+                elif self.b < 0:
+                    repr += f"-{-self.b if self.b != -1 else ''}√2"
+        elif self.b != 0:
+            if self.b == -1:
+                repr += "-"
+            repr += f"{self.b if self.b != 1 and self.b != -1 else ''}√2"
         else:
-            return f"{self.a} - {-self.b}√2"
+            repr += str(0)
+        return repr
 
     def __eq__(self, nb: Any) -> bool:
-        """Define the equality of Zsqrt class."""
+        """Define the equality of Zsqrt2 class."""
         return float(self) == nb
 
     def __neg__(self) -> Zsqrt2:
@@ -128,11 +172,11 @@ class Zsqrt2:
 
     def __rmul__(self, nb: int) -> Zsqrt2:
         """Define the right multiplication of int with the Zsqrt2 class."""
-        return self * nb
+        return self.__mul__(nb)
 
     def __imul__(self, nb: Zsqrt2 | int) -> Zsqrt2:
         """Define in-place multiplication operation for the class."""
-        return self * nb
+        return self.__mul__(nb)
 
     def __pow__(self, n: int) -> Zsqrt2:
         """Define the power operation for the Zsqrt2 class.
@@ -144,10 +188,14 @@ class Zsqrt2:
         elif n < 0:
             raise ValueError(f"Expected power to be a positive integer, but got {n}.")
 
-        pow_out = Zsqrt2(1, 0)
-        for _ in range(n):
-            pow_out = self * pow_out
-        return pow_out
+        a: int = 0
+        b: int = 0
+        for k in range(n + 1):
+            if k % 2 == 0:
+                a += math.comb(n, k) * self.a ** (n - k) * self.b**k * 2 ** (k // 2)
+            else:
+                b += math.comb(n, k) * self.a ** (n - k) * self.b**k * 2 ** (k // 2)
+        return Zsqrt2(a, b)
 
     def __ipow__(self, nb: int) -> Zsqrt2:
         """Define in-place power."""
@@ -179,12 +227,3 @@ class Zsqrt2:
 
 lamb: Zsqrt2 = Zsqrt2(1, 1)
 inv_lamb: Zsqrt2 = -lamb.conjugate()
-
-if __name__ == "__main__":
-    x = Zsqrt2(1, 1)
-    y = Zsqrt2(2, 5)
-    # print(x**-1)
-    n1 = Zsqrt2(np.int64(-6), np.int64(4))
-    n2 = 9
-    print(2 + 3 * math.sqrt(2))
-    print(float(Zsqrt2(2, 3)))

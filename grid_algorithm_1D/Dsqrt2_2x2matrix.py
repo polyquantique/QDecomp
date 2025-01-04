@@ -6,8 +6,8 @@ from typing import Union, Iterable, Sequence
 
 class G_op:
     """Class to do symbolic computation with matrices of elements of the ring D[√2].
-
     
+    The matrices are of the form [[a b], [c d]], where a, b, c, d are 
 
     Attributes:
         
@@ -69,20 +69,20 @@ class G_op:
         else:
             return NotImplemented
 
-    def __add__(self, other: int | D | Dsqrt2 | G_op) -> G_op:
+    def __add__(self, other: G_op) -> G_op:
         """Define matrix addition."""
         if not isinstance(other, G_op):
             return "Both elements must be 2x2 matrices"
         return G_op([self.elements[i] + other.elements[i] for i in range(4)])
     
-    def __radd__(self, other: int | D | Dsqrt2 | G_op) -> G_op:
+    def __radd__(self, other: G_op) -> G_op:
         return self.__add__(other)
     
-    def __sub__(self, other: int | D | Dsqrt2 | G_op) -> G_op:
+    def __sub__(self, other: G_op) -> G_op:
         """Define matrix subtraction."""
         return self.__add__(-other)
     
-    def __rsub__(self, other: int | D | Dsqrt2 | G_op) -> G_op:
+    def __rsub__(self, other: G_op) -> G_op:
         return -self.__add__(other)
 
     def __mul__(self, other: int | D | Dsqrt2 | G_op | np.matrix | float) -> G_op | np.matrix:
