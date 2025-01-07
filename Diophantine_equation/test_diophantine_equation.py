@@ -1,3 +1,5 @@
+import itertools
+
 import numpy as np
 import pytest
 from sympy import factorint, primerange, randprime
@@ -5,38 +7,57 @@ from sympy import factorint, primerange, randprime
 from diophantine_equation import *
 
 
-def test_integer_fact():
+@pytest.mark.parametrize("n", range(2, 20))
+def test_integer_fact(n):
     """
     Test the integer_fact() function.
     """
-    for _ in range(10):
-        num = np.random.randint(2, 1000)
-        factors = integer_fact(num)
+    factors = integer_fact(n)
 
-        assert np.prod([fact**exp for fact, exp in factors]) == num
-        assert factorint(num) == {fact: exp for fact, exp in factors}
+    assert np.prod([fact**exp for fact, exp in factors]) == n
+    assert factorint(n) == {fact: exp for fact, exp in factors}
 
 
-def test_xi_fact():
+def test_integer_fact_errors():
+    """
+    Test the integer_fact() function.
+    """
+    with pytest.raises(ValueError, match="The number must be greater than 1."):
+        integer_fact(1)
+
+    with pytest.raises(ValueError, match="The number must be an integer. Got "):
+        integer_fact(2.3)
+
+
+@pytest.mark.parametrize("a, b", itertools.product(range(-1, 20), range(-5, 5)))
+def test_xi_fact(a, b):
     """
     Test the xi_fact() function.
     """
-    for _ in range(15):
-        xi = Zsqrt2(*np.random.randint(-100, 100, 2))
-        fact = xi_fact(xi)
+    xi = Zsqrt2(a, b)
+    fact = xi_fact(xi)
 
-        xi_calculated = np.prod([xi_i**mi for xi_i, mi in fact])
+    xi_calculated = np.prod([xi_i**mi for xi_i, mi in fact])
+
+    if xi == 0:  # xi is nul
+        assert xi_calculated == 0
+
+    else:
         assert are_sim_Zsqrt2(xi, xi_calculated)
 
 
-@pytest.mark.parametrize("pi", primerange(3, 100))
+@pytest.mark.parametrize("pi", primerange(0, 100))
 def test_pi_fact_into_xi(pi):
     """
     Test the pi_fact_into_xi() function.
     """
-    if pi % 8 == 1 or pi % 8 == 7:
+    if pi == 2:
         xi = pi_fact_into_xi(pi)
-        assert xi * xi.conjugate() == pi
+        assert xi == Zsqrt2(0, 1) or xi == Zsqrt2(0, -1)
+
+    elif pi % 8 == 1 or pi % 8 == 7:
+        xi = pi_fact_into_xi(pi)
+        assert xi * xi.sqrt2_conjugate() == pi
 
     else:
         # pi is its own factorization in Z[sqrt(2)]
@@ -45,137 +66,206 @@ def test_pi_fact_into_xi(pi):
         assert xi is None
 
 
-def test_xi_i_fact_into_ti():
+@pytest.mark.parametrize("n", primerange(0, 100))
+def test_xi_i_fact_into_ti(n):
     """
     Test the xi_i_fact_into_ti() function.
     """
-    for i in range(15):
-        if i == 0:
-            p = 2
-        else:
-            p = randprime(3, 1000)  # A random prime number
+    xi_i = pi_fact_into_xi(n)  # A prime in Z[sqrt(2)]
+    if xi_i is None:
+        xi_i = Zsqrt2(n, 0)  # p is its own factorization in Z[sqrt(2)]
 
-        xi_i = pi_fact_into_xi(p)  # A random prime in Z[sqrt(2)]
-        if xi_i is None:
-            xi_i = Zsqrt2(p, 0)  # p is its own factorization in Z[sqrt(2)]
+    xi_i_fact = xi_i_fact_into_ti(xi_i)
 
-        xi_i_fact = xi_i_fact_into_ti(xi_i)
+    if n % 8 == 7:
+        # There is no solution to the equation xi_i ~ t_i * t_i†
+        assert xi_i_fact is None
 
-        if p % 8 == 7:
-            # There is no solution to the equation xi_i ~ t_i * t_i†
-            assert xi_i_fact is None
+    else:
+        xi_i_calculated = xi_i_fact * xi_i_fact.complex_conjugate()  # Instance of Zomega
+        assert xi_i_calculated.a == -xi_i_calculated.c  # Assert that the imaginary part is 0
 
-        else:
-            xi_i_calculated = xi_i_fact * xi_i_fact.complex_conjugate()  # Instance of Domega
-            assert xi_i_calculated.a == -xi_i_calculated.c  # Assert that the imaginary part is 0
-            # Convert to the Zsqrt2 class
-            xi_i_calculated_to_Zsqrt2 = Zsqrt2(xi_i_calculated.d.num, xi_i_calculated.c.num)
-            assert are_sim_Zsqrt2(xi_i, xi_i_calculated_to_Zsqrt2)
+        # Convert to the Zsqrt2 class
+        xi_i_calculated_to_Zsqrt2 = Zsqrt2(xi_i_calculated.d.num, xi_i_calculated.c.num)
+        assert are_sim_Zsqrt2(xi_i, xi_i_calculated_to_Zsqrt2)
 
 
-def test_solve_usquare_eq_a_mod_p():
+@pytest.mark.parametrize("p", primerange(0, 100))
+def test_solve_usquare_eq_a_mod_p(p):
     """
     Test the solve_usquare_eq_a_mod_p() function.
     """
-    for _ in range(15):
-        p = 0
-        while p % 2 == 0 or p % 8 == 7:
-            # There is no solution when p is even or p % 8 == 7
-            p = randprime(1, 1000)
+    if p % 2 == 0:  # There is no solution in that case
+        return
 
-        a = 0
+    if p % 8 == 7:  # There is no solution in that case
+        return
 
-        if p % 4 == 1:
-            a = 1
+    if p % 4 == 1:
+        a = 1
 
-        elif p % 8 == 3:
-            a = 2
+    elif p % 8 == 3:
+        a = 2
 
-        assert a != 0
+    u = solve_usquare_eq_a_mod_p(a, p)
 
-        u = solve_usquare_eq_a_mod_p(a, p)
-
-        assert (u**2) % p == -a + p
+    assert (u**2) % p == -a + p
 
 
-def test_gcd():
+gcd_test_list = [
+    Zomega(0, 0, 1, 0),  # 1
+    Zomega(0, 1, 0, 0),  # i
+    Zomega(0, 0, 1, 1),  # delta = 1 + omega
+    Zomega(1, 2, 3, 4),
+    Zomega(-1, -2, -3, -4),
+    Zomega(-5, 2, 3, -4),
+]
+
+
+@pytest.mark.parametrize("a, b", itertools.product(gcd_test_list, gcd_test_list))
+def test_gcd(a, b):
     """
     Test the gcd_Zomega() function.
     """
-    for _ in range(10):
-        a = Zomega(*np.random.randint(-10, 10, 4))  # First number
-        b = Zomega(*np.random.randint(-10, 10, 4))  # Second number
+    gcd = gcd_Zomega(a, b)
 
-        gcd = gcd_Zomega(a, b)
+    # Euclidean division of a and b by the gcd (with rest)
+    div_a, ra = euclidean_div_Zomega(a, gcd)
+    div_b, rb = euclidean_div_Zomega(b, gcd)
 
-        # Euclidean division of a and b by the gcd (with rest)
-        div_a, ra = euclidean_div_Zomega(a, gcd)
-        div_b, rb = euclidean_div_Zomega(b, gcd)
+    assert (ra == 0) and (rb == 0)  # The rest should be 0
 
-        assert (ra == 0) and (rb == 0)  # The rest should be 0
+    # Multiplication of the computed quotients by the gcd
+    mult_a = div_a * gcd
+    mult_b = div_b * gcd
 
-        # Multiplication of the computed quotients by the gcd
-        mult_a = div_a * gcd
-        mult_b = div_b * gcd
+    assert (mult_a == a) and (mult_b == b)  # We should find the initial numbers
 
-        assert (mult_a == a) and (mult_b == b)  # We should find the initial numbers
-
-        assert gcd_Zomega(div_a, div_b) == 1  # The gcd of the quotients should be 1
+    assert gcd_Zomega(div_a, div_b) == 1  # The gcd of the quotients should be 1
 
 
-def test_euclidean_div_Zomega():
+omega_div_test_list = [
+    Zomega(0, 0, 1, 0),  # 1
+    Zomega(0, 1, 0, 0),  # i
+    Zomega(0, 0, 1, 1),  # delta = 1 + omega
+    Zomega(1, 2, 3, 4),
+    Zomega(-1, -2, -3, -4),
+    Zomega(-5, 2, 3, -4),
+]
+
+
+@pytest.mark.parametrize("num, div", itertools.product(omega_div_test_list, omega_div_test_list))
+def test_euclidean_div_Zomega(num, div):
     """
     Test the euclidean division function in Z[omega].
     """
-    for _ in range(10):
-        num = Zomega(*np.random.randint(-100, 100, 4))
-        div = Zomega(*np.random.randint(-100, 100, 4))
-
-        q, r = euclidean_div_Zomega(num, div)
-
-        assert (q * div + r) == num
+    q, r = euclidean_div_Zomega(num, div)
+    assert (q * div + r) == num
 
 
-def test_euclidean_div_Zsqrt2():
+sqrt2_div_test_list = [
+    Zsqrt2(0, 1),  # 1
+    Zsqrt2(1, 0),  # sqrt(2)
+    Zsqrt2(1, 1),  # lambda = 1 + sqrt(2) (unit)
+    Zsqrt2(1, 2),
+    Zsqrt2(-1, 2),
+    Zsqrt2(5, -1),
+]
+
+
+@pytest.mark.parametrize("num, div", itertools.product(sqrt2_div_test_list, sqrt2_div_test_list))
+def test_euclidean_div_Zsqrt2(num, div):
     """
     Test the euclidean division function oin Z[sqrt2].
     """
-    for _ in range(10):
-        num = Zsqrt2(*np.random.randint(-100, 100, 2))
-        div = Zsqrt2(*np.random.randint(-100, 100, 2))
-
-        q, r = euclidean_div_Zsqrt2(num, div)
-
-        assert (q * div + r) == num
+    q, r = euclidean_div_Zsqrt2(num, div)
+    assert (q * div + r) == num
 
 
-def test_are_sim_Zsqrt2():
+sim_test_list = [
+    Zsqrt2(0, 1),  # 1
+    Zsqrt2(1, 0),  # sqrt(2)
+    Zsqrt2(1, 1),  # lambda = 1 + sqrt(2) (unit)
+    Zsqrt2(1, 2),
+    Zsqrt2(-1, 2),
+    Zsqrt2(5, -1),
+]
+
+
+@pytest.mark.parametrize("xi, m, n", itertools.product(sim_test_list, [0, 1], range(0, 4)))
+def test_are_sim_Zsqrt2(xi, m, n):
     """
     Test the are_sim_Zsqrt2() function.
+
+    xi: element of Z[sqrt(2)]
+    m, n: define a unit u = (-1)^m * lambda^n
     """
     lambd = Zsqrt2(1, 1)  # Lambda = 1 + sqrt(2)
-    for _ in range(15):
-        m = np.random.randint(0, 1)
-        n = np.random.randint(0, 10)
-        u = (-1) ** m * lambd**n  # Generate a random unit
+    lambd_inv = Zsqrt2(-1, 1)  # Lambda**-1 = -1 + sqrt(2)
 
-        xi = Zsqrt2(*np.random.randint(-100, 100, 2))  # Random number in Z[sqrt(2)]
-        xi_prime = u * xi  # Generate a similar number
+    u = (-1) ** m * lambd**n  # Generate a unit
+    u_ = (-1) ** m * lambd_inv**n  # Generate another unit
 
-        assert are_sim_Zsqrt2(xi, xi_prime)
-        assert not are_sim_Zsqrt2(xi + 1, xi_prime)
-        assert not are_sim_Zsqrt2(xi, 2 * xi_prime)
+    xi_prime = u * xi  # Generate a similar number
+    xi_prime_ = u_ * xi  # Generate another similar number
+
+    assert are_sim_Zsqrt2(xi, xi_prime)
+    assert not are_sim_Zsqrt2(xi + 1, xi_prime)
+    assert not are_sim_Zsqrt2(xi, 2 * xi_prime)
+
+    assert are_sim_Zsqrt2(xi, xi_prime_)
+    assert not are_sim_Zsqrt2(xi + 1, xi_prime_)
+    assert not are_sim_Zsqrt2(xi, 2 * xi_prime_)
 
 
-def test_is_unit_Zsqrt2():
+@pytest.mark.parametrize("m, n", itertools.product([0, 1], range(0, 4)))
+def test_is_unit_Zsqrt2(m, n):
     """
     Test the is_unit_Zsqrt2() function.
     """
     lambd = Zsqrt2(1, 1)  # Lambda = 1 + sqrt(2)
-    for _ in range(15):
-        m = np.random.randint(0, 1)
-        n = np.random.randint(0, 10)
-        u = (-1) ** m * lambd**n  # Generate a random unit
+    lambd_inv = Zsqrt2(-1, 1)  # Lambda**-1 = -1 + sqrt(2)
 
-        assert is_unit_Zsqrt2(u)
-        assert not is_unit_Zsqrt2(u + 1)
+    u = (-1) ** m * lambd**n  # Generate a unit
+    u_ = (-1) ** m * lambd_inv**n  # Generate another unit
+
+    assert is_unit_Zsqrt2(u)
+    assert not is_unit_Zsqrt2(u + 1)
+    assert not is_unit_Zsqrt2(u * 2)
+
+    assert is_unit_Zsqrt2(u_)
+    assert not is_unit_Zsqrt2(u_ + 1)
+    assert not is_unit_Zsqrt2(u_ * 2)
+
+
+@pytest.mark.parametrize("a, b", itertools.product(range(-1, 20), range(-5, 5)))
+def test_solve_xi_sim_ttdag_in_z(a, b):
+    """
+    Test the solve_xi_sim_ttdag_in_z() function.
+    """
+    xi = Zsqrt2(a, b)
+    t = solve_xi_sim_ttdag_in_z(xi)
+
+    if t is not None:
+        recombination = t * t.complex_conjugate()
+        recombination_Zsqrt2 = Zsqrt2(recombination.d.num, recombination.c.num)
+
+        assert are_sim_Zsqrt2(xi, recombination_Zsqrt2)
+
+
+@pytest.mark.parametrize(
+    "a, a_, b, b_", itertools.product(range(-1, 10), range(0, 3), range(-5, 4), range(0, 3))
+)
+def test_solve_xi_eq_ttdag_in_d(a, a_, b, b_):
+    """
+    Test the solve_xi_eq_ttdag_in_d() function.
+    """
+    xi = Dsqrt2(D(a, a_), D(b, b_))
+
+    t = solve_xi_eq_ttdag_in_d(xi)
+
+    if t is not None:
+        recombination = t * t.complex_conjugate()
+
+        assert recombination == xi
+        assert float(xi) >= 0 and float(xi.sqrt2_conjugate()) >= 0  # xi is doubly positive
