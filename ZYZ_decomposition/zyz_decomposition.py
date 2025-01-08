@@ -1,3 +1,43 @@
+# Copyright 2022-2023 Olivier Romain, Francis Blais, Vincent Girouard, Marius Trudeau
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+"""
+This module define the function that computes the ZYZ decomposition of an unitary 2x2 matrix.
+
+Input: U, a unitary 2x2 matrix
+Output: Angles of the decomposition (t0, t1, t2, alpha) [rad] such that
+        U = e**(i alpha) R_z(t2) R_y(t1) R_z(t0)
+
+
+Example:
+
+from zyz_decomposition import *
+
+a = complex(1, 1) / np.sqrt(3)
+b = np.sqrt(complex(1, 0) - np.abs(a) ** 2)  # Ensure that U is unitary
+alpha = np.pi/3
+U = np.exp(1.0j * alpha) * np.array([[a, -b.conjugate()], [b, a.conjugate()]])  # Unitary matrix
+
+t0, t1, t2, alpha_ = zyz_decomposition(U)  # Compute the decomposition
+
+U_calculated = phase(alpha_) * Rz(t2) @ Ry(t1) @ Rz(t0)  # Recreate U from the decomposition
+
+print(f"U =\n{U}\n")
+print(f"U_calculated =\n{U_calculated}\n")
+print(f"Error = {np.linalg.norm(U - U_calculated)}")  # Error = 1.0007415106216802e-16
+
+"""
+
 import numpy as np
 
 # Rotation and phase matrices
