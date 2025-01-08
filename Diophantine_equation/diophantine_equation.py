@@ -1,3 +1,37 @@
+# Copyright 2022-2023 Olivier Romain, Francis Blais, Vincent Girouard, Marius Trudeau
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+"""
+This module solves the Diophantine equation xi = t† t for t where xi is given.
+
+Input: xi in D[sqrt(2)]
+Output: t in D[omega] such that xi = t† t
+
+
+Example:
+
+xi = Dsqrt2(D(13, 1), D(4, 1))  # Input: xi = 13/2 + 2 sqrt(2)
+t = solve_xi_eq_ttdag_in_d(xi)  # Solution
+tt = t * t.complex_conjugate()  # Product tt = t * t†
+tt = tt.convert(Dsqrt2)         # Convert tt from D[omega] to D[sqrt(2)]
+
+print(f"{xi = }")  # xi = 13/2+2√2
+print(f"{t = }")   # t = - 2ω3 + 1/2ω2 + 3/2
+print(f"{tt = }")  # tt = 13/2+2√2
+
+"""
+
 import sys
 
 sys.path.append("../CliffordPlusT")
