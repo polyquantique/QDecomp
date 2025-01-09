@@ -12,7 +12,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 """
-This module define the function that computes the ZYZ decomposition of an unitary 2x2 matrix.
+This module defines the function that computes the ZYZ decomposition of a unitary 2x2 matrix.
 
 Input: U, a unitary 2x2 matrix
 Output: Angles of the decomposition (t0, t1, t2, alpha) [rad] such that
@@ -40,33 +40,27 @@ print(f"Error = {np.linalg.norm(U - U_calculated)}")  # Error = 1.00074151062168
 
 import numpy as np
 
-# Rotation and phase matrices
-Rx = lambda teta: np.array(
-    [[np.cos(teta / 2), -1.0j * np.sin(teta / 2)], [-1.0j * np.sin(teta / 2), np.cos(teta / 2)]]
-)
-Ry = lambda teta: np.array(
-    [[np.cos(teta / 2), -np.sin(teta / 2)], [np.sin(teta / 2), np.cos(teta / 2)]]
-)
-Rz = lambda teta: np.array([[np.exp(-1.0j * teta / 2), 0], [0, np.exp(1.0j * teta / 2)]])
-phase = lambda alpha: np.exp(1.0j * alpha)
 
-
-def zyz_decomposition(U):
+def zyz_decomposition(U: np.ndarray) -> tuple[float, ...]:
     """
     Compute the ZYZ decomposition of a 2x2 unitary matrix U.
     U = e**(i alpha) * Rz(t2) * Ry(t1) * Rz(t0)
 
-    :param U: A 2x2 unitary matrix.
-    :return: A tuple (t0, t1, t2, alpha) containing ZYZ rotation angles (rad) and the global phase
-    (rad).
+    Args:
+        U: A 2x2 unitary matrix.
+    
+    Returns:
+        tuple: (t0, t1, t2, alpha), the ZYZ rotation angles (rad) and the global phase (rad)
     """
-    det = np.linalg.det(U)
-
-    if not np.isclose(np.abs(det), 1):
-        raise ValueError(f"The input matrix must be unitary. Got a matrix with determinant {det}.")
-
+    if type(U) is not np.ndarray:
+        raise TypeError(f"Input must be a numpy array. Got {type(U)}.")
+    
     if not U.shape == (2, 2):
         raise ValueError(f"The input matrix must be 2x2. Got a matrix with shape {U.shape}.")
+
+    det = np.linalg.det(U)
+    if not np.isclose(np.abs(det), 1):
+        raise ValueError(f"The input matrix must be unitary. Got a matrix with determinant {det}.")
 
     alpha = np.arctan2(det.imag, det.real) / 2  # det = exp(2 i alpha)
     V = np.exp(-1.0j * alpha) * U  # V = exp(-i alpha)*U is a special unitary matrix
