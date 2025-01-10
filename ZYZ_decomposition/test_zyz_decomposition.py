@@ -4,7 +4,6 @@ import pytest
 
 from zyz_decomposition import *
 
-
 # Rotation and phase matrices
 Rx = lambda teta: np.array(
     [[np.cos(teta / 2), -1.0j * np.sin(teta / 2)], [-1.0j * np.sin(teta / 2), np.cos(teta / 2)]]
@@ -52,12 +51,13 @@ def test_zyz_decomposition(a, alpha):
 @pytest.mark.parametrize(
     "error_type, U, error_message",
     [
-        [   ValueError,
+        [
+            ValueError,
             np.array([[1, 0], [0, 2]]),
             "The input matrix must be unitary. Got a matrix with determinant",
         ],
         [ValueError, np.eye(3), "The input matrix must be 2x2. Got a matrix with shape "],
-        [TypeError, 2, "Input must be a numpy array. Got "]
+        [TypeError, 2, "Input must be a numpy array. Got "],
     ],
 )
 def test_zyz_decomposition_error(error_type, U, error_message):
