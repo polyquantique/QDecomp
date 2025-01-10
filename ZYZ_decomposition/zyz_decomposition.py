@@ -12,7 +12,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 """
-This module defines the function that computes the ZYZ decomposition of a unitary 2x2 matrix.
+This module defines the function that computes the ZYZ decomposition of an unitary 2x2 matrix.
 
 Input: U, a unitary 2x2 matrix
 Output: Angles of the decomposition (t0, t1, t2, alpha) [rad] such that
