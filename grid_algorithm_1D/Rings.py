@@ -36,7 +36,7 @@ from __future__ import annotations
 
 import math
 from decimal import Decimal, getcontext
-from numbers import Integral
+from numbers import Integral, Number
 from typing import Any, Callable, Iterator, Union
 
 
@@ -68,8 +68,8 @@ class D:
             )
         elif denom < 0:
             raise ValueError(f"Denominator exponent must be positive but got {denom}.")
-        self._num: int = num
-        self._denom: int = denom
+        self.__num: int = num
+        self.__denom: int = denom
 
         # Reduce the fraction
         if not self.is_integer:
@@ -78,12 +78,12 @@ class D:
     @property
     def num(self) -> int:
         """Numerator of the dyadic fraction."""
-        return self._num
+        return self.__num
 
     @property
     def denom(self) -> int:
         """Denominator exponent of the dyadic fraction."""
-        return self._denom
+        return self.__denom
 
     @property
     def is_integer(self) -> bool:
@@ -93,11 +93,11 @@ class D:
     def __reduce(self) -> None:
         """Reduce the fraction if the numerator is even."""
         if self.num == 0:
-            self._denom = 0
+            self.__denom = 0
             return
         while (self.num & 1) == 0 and self.denom > 0:
-            self._num >>= 1
-            self._denom -= 1
+            self.__num >>= 1
+            self.__denom -= 1
 
     def __neg__(self) -> D:
         """Define the negation of the D class."""
@@ -128,10 +128,6 @@ class D:
         elif isinstance(nb, Domega):
             return nb.__eq__(self)
         return math.isclose(float(self), nb)
-
-    def __neq__(self, nb: Any) -> bool:
-        """Define the != operation of the D class."""
-        return not self.__eq__(nb)
 
     def __lt__(self, nb: Any) -> bool:
         """Define the < operation of the D class."""
@@ -171,7 +167,7 @@ class D:
 
     def __sub__(self, nb: Any) -> D:
         """Define the subtraction operation for the D class."""
-        if isinstance(nb, (D, Domega, Integral)):
+        if isinstance(nb, (D, Integral)):
             return self.__add__(-nb)
         raise TypeError(f"Subtraction operation is not defined between D and {type(nb).__name__}.")
 
@@ -274,30 +270,30 @@ class Domega:
                     f"Class arguments must be of type tuple[int, int] or D objects but received {type(input).__name__}."
                 )
 
-        self._a: D = a if isinstance(a, D) else D(a[0], a[1])
-        self._b: D = b if isinstance(b, D) else D(b[0], b[1])
-        self._c: D = c if isinstance(c, D) else D(c[0], c[1])
-        self._d: D = d if isinstance(d, D) else D(d[0], d[1])
+        self.__a: D = a if isinstance(a, D) else D(a[0], a[1])
+        self.__b: D = b if isinstance(b, D) else D(b[0], b[1])
+        self.__c: D = c if isinstance(c, D) else D(c[0], c[1])
+        self.__d: D = d if isinstance(d, D) else D(d[0], d[1])
 
     @property
     def a(self) -> D:
         """\u03C9^3 coefficient of the ring element."""
-        return self._a
+        return self.__a
 
     @property
     def b(self) -> D:
         """\u03C9^2 coefficient of the ring element."""
-        return self._b
+        return self.__b
 
     @property
     def c(self) -> D:
         """\u03C9^1 coefficient of the ring element."""
-        return self._c
+        return self.__c
 
     @property
     def d(self) -> D:
         """\u03C9^0 coefficient of the ring element."""
-        return self._d
+        return self.__d
 
     @property
     def _is_Zomega(self) -> bool:
@@ -498,19 +494,14 @@ class Domega:
             return self.a == nb.a and self.b == nb.b and self.c == nb.c and self.d == nb.d
         elif isinstance(nb, (D, Integral)):
             return self._is_D and self.d == nb
-        try:
+        elif isinstance(nb, Number):
             return math.isclose(self.real(), complex(nb).real) and math.isclose(
                 self.imag(), complex(nb).imag
             )
-        except:
-            raise TypeError(
-                f"Comparaison between {self.__class__.__name__} and {type(nb).__name__} is not possible."
-            )
-
-    def __neq__(self, nb: Any) -> bool:
-        """Define the != operation of the class."""
-        return not self.__eq__(nb)
-
+        raise TypeError(
+                    f"Comparaison between {self.__class__.__name__} and {type(nb).__name__} is not possible."
+                )
+    
     def __neg__(self) -> Ring:
         """Define the negation of the ring element."""
         return Domega(-self.a, -self.b, -self.c, -self.d).convert(type(self))
@@ -523,11 +514,11 @@ class Domega:
         """Define the summation operation for the ring elements."""
         if isinstance(nb, (D, Integral)):
             return Domega(self.a, self.b, self.c, self.d + nb).convert(
-                output_type(type(self), type(nb))
+                _output_type(type(self), type(nb))
             )
         elif isinstance(nb, Domega):
             return Domega(self.a + nb.a, self.b + nb.b, self.c + nb.c, self.d + nb.d).convert(
-                output_type(type(self), type(nb))
+                _output_type(type(self), type(nb))
             )
         raise TypeError(
             f"Summation operation is not defined between {self.__class__.__name__} and {type(nb).__name__}."
@@ -561,14 +552,14 @@ class Domega:
         """Define the multiplication operation for the Domega class."""
         if isinstance(nb, (D, Integral)):
             return Domega(self.a * nb, self.b * nb, self.c * nb, self.d * nb).convert(
-                output_type(type(self), type(nb))
+                _output_type(type(self), type(nb))
             )
         elif isinstance(nb, Domega):
             a: D = (self.a * nb.d) + (self.b * nb.c) + (self.c * nb.b) + (self.d * nb.a)
             b: D = -(self.a * nb.a) + (self.b * nb.d) + (self.c * nb.c) + (self.d * nb.b)
             c: D = -(self.a * nb.b) + -(self.b * nb.a) + (self.c * nb.d) + (self.d * nb.c)
             d: D = -(self.a * nb.c) + -(self.b * nb.b) + -(self.c * nb.a) + (self.d * nb.d)
-            return Domega(a, b, c, d).convert(output_type(type(self), type(nb)))
+            return Domega(a, b, c, d).convert(_output_type(type(self), type(nb)))
         raise TypeError(
             f"Product operation is not defined between {self.__class__.__name__} and {type(nb).__name__}."
         )
@@ -686,19 +677,19 @@ class Dsqrt2(Domega):
                 raise TypeError(
                     f"Class arguments must be of type tuple[int, int] or D objects but received {type(input).__name__}."
                 )
-        self._p: D = p if isinstance(p, D) else D(p[0], p[1])
-        self._q: D = q if isinstance(q, D) else D(q[0], q[1])
-        super().__init__(-self._q, D(0, 0), self._q, self._p)
+        self.__p: D = p if isinstance(p, D) else D(p[0], p[1])
+        self.__q: D = q if isinstance(q, D) else D(q[0], q[1])
+        super().__init__(-self.__q, D(0, 0), self.__q, self.__p)
 
     @property
     def p(self) -> D:
         """Rational coefficient of the ring element."""
-        return self._p
+        return self.__p
 
     @property
     def q(self) -> D:
         """\u221a2 coefficient of the ring element."""
-        return self._q
+        return self.__q
 
     def __repr__(self) -> str:
         """Define the string representation of the ring element."""
@@ -709,7 +700,7 @@ class Dsqrt2(Domega):
             repr += str(self.p) + " "
         if self.q != 0:
             repr += f"{"- " if self.q < 0 else "+ "}"
-            repr += f"{str(abs(self.q)) + " " if abs(self.q) != 1 else ""}"
+            repr += f"{str(abs(self.q)) if abs(self.q) != 1 else ""}"
             repr += "\u221a2"
         return repr
 
@@ -782,7 +773,7 @@ class Zsqrt2(Domega):
         return self.real()
 
 
-def output_type(*types: type) -> type:
+def _output_type(*types: type) -> type:
     """Return the output type of class operations.
 
     Args:
