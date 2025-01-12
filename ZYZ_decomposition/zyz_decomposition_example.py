@@ -1,17 +1,3 @@
-# ---
-# jupyter:
-#   jupytext:
-#     text_representation:
-#       extension: .py
-#       format_name: light
-#       format_version: '1.5'
-#       jupytext_version: 1.16.6
-#   kernelspec:
-#     display_name: Python 3
-#     language: python
-#     name: python3
-# ---
-
 # # Using the `zyz_decomposition.py` module
 
 # Any single qubit gate can be decomposed into a series of three rotations around the Z, Y, and Z axis and a phase (see Section 4.1 of [Quantum Gates](https://threeplusone.com/pubs/on_gates.pdf) by Gavin E. Crooks).

@@ -32,12 +32,12 @@ def zyz_decomposition(U: np.ndarray) -> tuple[float, ...]:
     U = e**(i alpha) * Rz(t2) * Ry(t1) * Rz(t0)
 
     Args:
-        U: A 2x2 unitary matrix.
+        U (np.ndarray): A 2x2 unitary matrix.
 
     Returns:
-        tuple: (t0, t1, t2, alpha), the ZYZ rotation angles (rad) and the global phase (rad)
+        tuple (float, ...): (t0, t1, t2, alpha), the ZYZ rotation angles (rad) and the global phase (rad)
     """
-    if type(U) is not np.ndarray:
+    if not isinstance(U, np.ndarray):
         raise TypeError(f"Input must be a numpy array. Got {type(U)}.")
 
     if not U.shape == (2, 2):
