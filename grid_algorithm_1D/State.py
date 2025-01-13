@@ -1,3 +1,17 @@
+# Copyright 2022-2023 Olivier Romain, Francis Blais, Vincent Girouard, Marius Trudeau
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
 from __future__ import annotations
 
 from Rings import Zsqrt2, lamb, inv_lamb
@@ -6,40 +20,61 @@ import numpy as np
 import math
 
 class state:
-    """Class to do operations with matrix states
+    """Class to initialize a state given a pair of 2X2 matrices. 
 
-    Attributes
+    A state is of the form (A, B), where A and B are both 2X2 matrices and have 
+    a determinant of 1. This module is pulled from Appendix A of https://arxiv.org/pdf/1403.2975. 
+    This module is useful in the context of achieving at least 1/6 uprightness 
+    for both ellipses of the state. 
+
+    Attributes:
+        A (np.matrix): First matrix of the state.
+        B (np.matrix): Second matrix of the state.
+        z (float): Exponent of λ in A
+        zeta (float): Exponent of λ in B
+        e (float): Diagonal component of A
+        epsilon (float): Diagonal component of B
+        b (float): Antidiagonal component of A
+        beta (float): Antidiagonal component of B
     """
     def __init__(self, A: np.matrix, B: np.matrix) -> None:
-        """Initialize the matrix_state class.
+        """Initialize the state class.
         
         Args:
+            A (np.matrix): First matrix of the class
+            B (np.matrix): Second matrix of the class
 
         Raises:
+            TypeError: If A or B cannot be converted to a numpy matrix.
+            ValueError: If A or B are not 2x2 matrices.
+            TypeError: If the elements of A or B cannot be converted to floats.
+            ValueError: If A or B are not symmetric matrices.
         """
-        # Ensure A and B are numpy matrices
-        if not (isinstance(A, np.matrix) and isinstance(B, np.matrix)):
-            raise TypeError("A and B must be of type np.matrix")
         
+        # Attempt to convert A and B to numpy matrices
+        try:
+            A = np.asmatrix(A)
+            B = np.asmatrix(B)
+        except Exception:
+            raise TypeError("A and B must be convertible to numpy matrices.")
+    
         # Check that both matrices are 2x2
         if A.shape != (2, 2) or B.shape != (2, 2):
             raise ValueError("Both A and B must be 2x2 matrices.")
-        
-        # Check that all elements in A can be converted to float, without converting if they are integers
-        if not np.issubdtype(A.dtype, np.integer):
-            try:
-                A = A.astype(float)
-            except ValueError:
-                raise TypeError("Elements in matrix A must be convertible to type float.")
+    
+        # Ensure elements in A can be converted to float
+        try:
+            A = A.astype(float)
+        except ValueError:
+            raise TypeError("Elements in matrix A must be convertible to type float.")
 
-        # Check that all elements in B can be converted to float, without converting if they are integers
-        if not np.issubdtype(B.dtype, np.integer):
-            try:
-                B = B.astype(float)
-            except ValueError:
-                raise TypeError("Elements in matrix B must be convertible to type float.")
-        
-        # Check if A and B are symmetric by verifying that A[0, 1] == A[1, 0] and B[0, 1] == B[1, 0]
+        # Ensure elements in B can be converted to float
+        try:
+            B = B.astype(float)
+        except ValueError:
+            raise TypeError("Elements in matrix B must be convertible to type float.")
+    
+        # Check if A and B are symmetric
         if not np.isclose(A[0, 1], A[1, 0]):
             raise ValueError("Matrix A must be symmetric.")
         if not np.isclose(B[0, 1], B[1, 0]):
@@ -65,6 +100,7 @@ class state:
             self.B = (1/detB)*B
 
     def __repr__(self) -> str:
+        """Returns a string representation of the object"""
         return f"({self.A}, {self.B})"
     
     @property
@@ -73,7 +109,7 @@ class state:
         return -0.5*np.log(A[0, 0]/A[1, 1])/np.log(1 + np.sqrt(2))
     
     @property
-    def gamma(self) -> float:
+    def zeta(self) -> float:
         B = self.B
         return -0.5*np.log(B[0, 0]/B[1, 1])/np.log(1 + np.sqrt(2))
     
@@ -85,9 +121,9 @@ class state:
     
     @property
     def epsilon(self) -> float:
-        z = self.gamma
+        zeta = self.zeta
         B = self.B
-        return B[0,0] * (1 + np.sqrt(2)) ** z
+        return B[0,0] * (1 + np.sqrt(2)) ** zeta
     
     @property
     def b(self) -> float:
@@ -108,35 +144,37 @@ class state:
     @property
     def bias(self) -> float:
         z = self.z
-        gamma = self.gamma
-        return gamma - z
+        zeta = self.zeta
+        return zeta - z
 
     def transform(self, G: grid_operator) -> state:
-        """To do: error message if wrong type, and doc strings"""
+        """Returns the action of a grid operator on a state"""
         A = self.A
         B = self.B
+        if not isinstance(G, grid_operator):
+            raise TypeError("G must be a grid operator")
         G_conj = G.conjugate()
         new_A = G.dag() * A * G
         new_B = G_conj.dag() * B * G_conj
         return state(new_A, new_B)
     
     def shift(self, k: int) -> grid_operator:
-        """To do: error message if wrong type, and doc strings"""
+        """Returns the 'shift by k' action on a state"""
         A = self.A
         B = self.B
-        sigma = math.sqrt(float(inv_lamb)) * grid_operator([lamb, 0, 0, 1])
-        tau = math.sqrt(float(inv_lamb)) * grid_operator([1, 0, 0, -lamb])
+        if not isinstance(k, int):
+            raise ValueError("k must be an integer")
         if k >= 0:
-            sigma_k = sigma ** k
-            tau_k = tau ** k
+            sigma_k = (special_sigma ** k) * (math.sqrt(float(inv_lamb)) ** k)
+            tau_k = (special_tau ** k) * (math.sqrt(float(inv_lamb)) ** k)
         else:
-            sigma_inv = math.sqrt(float(inv_lamb)) * grid_operator([1, 0, 0, lamb])
-            tau_inv = math.sqrt(float(inv_lamb)) * grid_operator([lamb, 0, 0, -1])
-            sigma_k = sigma_inv ** -k
-            tau_k = tau_inv ** -k
+            sigma_k = (inv_special_sigma ** -k) * (math.sqrt(float(lamb)) ** -k)
+            tau_k = (inv_special_tau ** -k) * (math.sqrt(float(lamb)) ** -k)
         shift_A = sigma_k * A * sigma_k
         shift_B = tau_k * B * tau_k
         return state(shift_A, shift_B)
     
 special_sigma: grid_operator = grid_operator([lamb, 0, 0, 1])
 inv_special_sigma: grid_operator = grid_operator([inv_lamb, 0, 0, 1])
+special_tau: grid_operator = grid_operator([1, 0, 0, -lamb])
+inv_special_tau: grid_operator = grid_operator([1, 0, 0, -inv_lamb])

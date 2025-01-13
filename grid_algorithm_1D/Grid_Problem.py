@@ -68,5 +68,3 @@ def find_special_grid_operator(ellipse_state: state) -> grid_operator:
         else:
             ValueError("To do")
     return special_grid_operator
-
-print(find_grid_operator(np.matrix([[1, 0], [0, 1]]), np.matrix([[10000, 1e-20], [1e-20, 10000]])))
