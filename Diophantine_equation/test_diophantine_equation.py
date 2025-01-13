@@ -75,7 +75,7 @@ def test_xi_i_fact_into_ti(n):
     if xi_i is None:
         xi_i = Zsqrt2(n, 0)  # p is its own factorization in Z[sqrt(2)]
 
-    xi_i_fact = xi_i_fact_into_ti(xi_i)
+    xi_i_fact = xi_i_fact_into_ti(xi_i, True)
 
     if n % 8 == 7:
         # There is no solution to the equation xi_i ~ t_i * t_i†
@@ -88,6 +88,30 @@ def test_xi_i_fact_into_ti(n):
         # Convert to the Zsqrt2 class
         xi_i_calculated_to_Zsqrt2 = Zsqrt2(xi_i_calculated.d.num, xi_i_calculated.c.num)
         assert are_sim_Zsqrt2(xi_i, xi_i_calculated_to_Zsqrt2)
+
+
+@pytest.mark.parametrize("xi, is_prime", [
+    (Zsqrt2(0, 1), True),
+    (Zsqrt2(1, 0), False),
+    (Zsqrt2(1, 1), False),
+    (Zsqrt2(2, 0), False),
+    (Zsqrt2(0, 2), False),
+    (Zsqrt2(3, 0), True),
+    (Zsqrt2(0, 3), False),
+    (Zsqrt2(0, 15), False),
+    (Zsqrt2(15, 0), False),
+])
+def test_xi_fact_into_ti_error(xi, is_prime):
+    """
+    Test the error raised by the xi_fact_into_ti() function.
+    """
+    if not is_prime:
+        with pytest.raises(ValueError, match=r"The input argument must be a prime in Z\[sqrt\(2\)\]."):
+            xi_i_fact_into_ti(xi, check_prime=True)
+
+    else:
+        xi_i_fact_into_ti(xi, check_prime=True)
+        assert True  # The code has run without error
 
 
 @pytest.mark.parametrize("p", primerange(0, 100))

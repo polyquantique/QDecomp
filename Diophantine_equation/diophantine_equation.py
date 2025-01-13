@@ -13,23 +13,10 @@
 #    limitations under the License.
 
 """
-This module solves the Diophantine equation xi = t† t for t where xi is given.
+This module solves the Diophantine equation ξ = t† t for t where ξ is given.
 
-Input: xi in D[sqrt(2)]
-Output: t in D[omega] such that xi = t† t
-
-
-Example:
-
-xi = Dsqrt2(D(13, 1), D(4, 1))  # Input: xi = 13/2 + 2 sqrt(2)
-t = solve_xi_eq_ttdag_in_d(xi)  # Solution
-tt = t * t.complex_conjugate()  # Product tt = t * t†
-tt = tt.convert(Dsqrt2)         # Convert tt from D[omega] to D[sqrt(2)]
-
-print(f"{xi = }")  # xi = 13/2+2√2
-print(f"{t = }")   # t = - 2ω3 + 1/2ω2 + 3/2
-print(f"{tt = }")  # tt = 13/2+2√2
-
+Input: ξ in D[√2]
+Output: t in D[ω] such that ξ = t† t
 """
 
 import sys
@@ -47,14 +34,22 @@ def integer_fact(p):
     Find the factorization of an integer p. This function returns a list of tuples (p_i, m_i) where
     p_i is a prime factor of p and m_i is its power.
 
-    :param n: An integer
-    :return: A list of tuples (p_i, m_i) containing the prime factors of n and their powers
+    Args:
+        n (int): Number to factorize
+    
+    Returns:
+        list of tuples: The prime factors of n and their powers. Each tuple is of the form
+        (p_i, m_i) where p_i is a prime factor of n and m_i is its power.
+    
+    Raises:
+        ValueError: If the number is less than 2.
+        ValueError: If the number is not an integer.
     """
     if p < 2:
         raise ValueError("The number must be greater than 1.")
 
     if int(p) != p:
-        raise ValueError(f"The number must be an integer. Got *.")
+        raise ValueError(f"The number must be an integer. Got {p}.")
 
     n = p
     factors = []  # List of tuples (p_i, m_i)
@@ -91,12 +86,16 @@ def integer_fact(p):
 
 def xi_fact(xi):
     """
-    Finds the factorization of xi (up to a prime) in the ring Z[sqrt(2)] where xi is an element of
-    Z[sqrt(2)]. This function returns a list of tuples (xi_i, mi), where xi_i is a prime factor of
-    xi in Z[sqrt(2)] and mi is its power.
+    Finds the factorization of ξ (up to a prime) in the ring Z[√2] where ξ is an element of
+    Z[√2]. This function returns a list of tuples (ξ_i, m_i), where ξ_i is a prime factor of
+    ξ in Z[√2] and m_i is its power.
 
-    :param xi: An element of Z[sqrt(2)]
-    :return: A list of tuples (xi_i, mi) containing the prime factors of xi and their powers
+    Args:
+        xi (Zsqrt2): An element of Z[√2]
+    
+    Returns:
+        list of tuples: The prime factors of ξ and their powers. Each tuple is of the form
+        (ξ_i, m_i) where ξ_i is a prime factor of ξ and m_i is its power.
     """
     if xi == 0:  # 0 cannot be factorized
         return [
@@ -106,27 +105,27 @@ def xi_fact(xi):
     xi_fact_list = []
     p = (xi * xi.sqrt2_conjugate()).p
 
-    if p == 1 or p == -1:  # xi is a unit
+    if p == 1 or p == -1:  # ξ is a unit, so it cannot be factorized
         return [
             (xi, 1),
         ]
 
-    if p < 0:
+    if p < 0:  # If p is negative, we factorize -p > 0 instead
         p = -p
         xi_fact_list.append((Zsqrt2(-1, 0), 1))
 
     pi_list = integer_fact(p)
 
     for pi, mi in pi_list:
-        # If pi = 2, xi_i = sqrt(2)
+        # If pi = 2, ξ_i = sqrt(2)
         if pi == 2:
             xi_fact_list.append((Zsqrt2(0, 1), mi))
 
-        # If pi % 8 == 1 or 7, we can factorize pi into xi_i where pi = xi_i * xi_i⋅
+        # If pi % 8 == 1 or 7, we can factorize pi into ξ_i where pi = ξ_i * ξ_i⋅
         elif pi % 8 == 1 or pi % 8 == 7:
             xi_i = pi_fact_into_xi(pi)
 
-            # Determine wether we need to add xi_i or its conjugate to the factorization and how
+            # Determine wether we need to add ξ_i or its conjugate to the factorization and how
             # many times
             xi_temp = xi
             for i in range(mi + 1):
@@ -140,8 +139,8 @@ def xi_fact(xi):
             if i != mi:
                 xi_fact_list.append((xi_i.sqrt2_conjugate(), mi - i))
 
-        # If pi % 8 == 3 or 5, pi is its own factorization in Z[sqrt(2)]
-        # We need to append pi mi/2 times to the factorization of xi since pi = xi * xi
+        # If pi % 8 == 3 or 5, pi is its own factorization in Z[√2]
+        # We need to append pi mi/2 times to the factorization of ξ since pi = ξ * ξ
         else:
             xi_fact_list.append((Zsqrt2(pi, 0), mi // 2))
 
@@ -150,12 +149,15 @@ def xi_fact(xi):
 
 def pi_fact_into_xi(pi):
     """
-    Solve the equation pi = xi_i * xi_i⋅ = a**2 - 2 * b**2 where ⋅ denotes the sqrt(2) conjugate.
-    pi is a prime integer and xi_i = a + b * sqrt(2) is an element of Z[sqrt(2)]. pi has a
-    factorization only if pi % 8 = 1 or 7 or pi = 2. In any other case, the function returns None.
+    Solve the equation pi = ξ_i * ξ_i⋅ = a**2 - 2 * b**2 where ⋅ denotes the √2 conjugate.
+    pi is a prime integer and ξ_i = a + b √2 is an element of Z[√2]. pi has a factorization
+    only if pi % 8 = 1 or 7 or pi = 2. In any other case, the function returns None.
 
-    :param pi: A prime integer
-    :return: An element of Z[sqrt(2)] for which pi = xi_i * xi_i⋅, or None if pi % 8 != 1 or 7
+    Args:
+        pi (int): A prime integer
+
+    Returns:
+        Zsqrt2 or None: A number ξ_i for which pi = ξ_i * xi_i⋅, or None if pi % 8 != 1 or 7
     """
     if pi == 2:
         return Zsqrt2(0, 1)
@@ -175,23 +177,56 @@ def pi_fact_into_xi(pi):
     return xi
 
 
-def xi_i_fact_into_ti(xi_i):
+def xi_i_fact_into_ti(xi_i, check_prime=False):
     """
-    Solve the equation xi_i = t_i * t_i† where † denotes the complex conjugate. xi_i is a prime
-    element in Z[sqrt(2)] and t_i is an element of Z[omega]. xi_i has a factorization only if
-    pi % 8 = 1, 3 or 5, where pi = xi_i * xi_i⋅ or if pi = 2.
+    Solve the equation ξ_i = t_i * t_i† where † denotes the complex conjugate. ξ_i is a prime
+    element in Z[√2] and t_i is an element of Z[omega]. ξ_i has a factorization only if
+    pi % 8 = 1, 3 or 5, where pi = ξ_i * ξ_i⋅ or if pi = 2.
 
-    Note: this function assumes xi_i is a prime element in Z[sqrt(2)]. No check is performed to
-    verify this assumption.
+    Note: this function assumes ξ_i is a prime element in Z[√2]. No check is performed to
+    verify this assumption unless specified by the check_prime argument.
 
-    :param xi_i: A prime element in Z[sqrt(2)]
-    :return: An element of Z[omega] for which xi_i = t_i * t_i†, or None if xi_i % 8 = 7
+    Args:
+        xi_i (Zsqrt2): A prime element in Z[√2]
+        check_prime (bool): If set to True, the function will check if ξ_i is a prime in Z[√2]
+    
+    Returns:
+        Zomega or None: A number ti_i for which ξ_i = t_i * t_i†, or None if ξ_i % 8 = 7
+    
+    Raises:
+        ValueError: If the input argument is not a prime in Z[√2] (only if check_prime is True,
+        because this verification is computationally expensive)
     """
-    if xi_i == Zsqrt2(0, 1):  # xi_i = sqrt(2)
-        delta = Zomega(0, 0, 1, 1)  # delta = 1 + omega
+    # Verify if ξ_i is a prime in Z[√2]
+    if check_prime:
+        factors = xi_fact(xi_i)
+        is_prime = True
+
+        if len(factors) >= 3:  # The first factor might be a unit
+            is_prime = False
+        
+        if len(factors) == 1:  # Check if the factor is not a unit
+            if is_unit_Zsqrt2(factors[0][0]):
+                is_prime = False
+
+        if len(factors) == 2:  # Check if a least one factor is a unit
+            if not (is_unit_Zsqrt2(factors[0][0]) or is_unit_Zsqrt2(factors[1][0])):
+                is_prime = False
+        
+        for _, m in factors:
+            if m > 1:
+                is_prime = False
+                break
+
+        if not is_prime:
+            raise ValueError("The input argument must be a prime in Z[sqrt(2)].")
+
+
+    if xi_i == Zsqrt2(0, 1):  # xi_i = √2
+        delta = Zomega(0, 0, 1, 1)  # δ = 1 + ω
         return delta
 
-    if xi_i.q == 0:  # xi_i is already a prime integer
+    if xi_i.q == 0:  # ξ_i is already a prime integer
         pi = xi_i.p
     else:
         pi = (xi_i * xi_i.sqrt2_conjugate()).p
@@ -202,10 +237,10 @@ def xi_i_fact_into_ti(xi_i):
         ti = gcd_Zomega(xi_i_converted, Zomega(0, 1, 0, u))  # Second term: u + i
         return ti
 
-    if pi % 8 == 3:  # xi_i = pi which is an integer in that case
+    if pi % 8 == 3:  # ξ_i = pi which is an integer in that case
         u = solve_usquare_eq_a_mod_p(2, pi)
         xi_i_converted = Zomega(0, 0, 0, xi_i.p)
-        ti = gcd_Zomega(xi_i_converted, Zomega(1, 0, 1, u))  # Second term: u + i sqrt(2)
+        ti = gcd_Zomega(xi_i_converted, Zomega(1, 0, 1, u))  # Second term: u + i √2
         return ti
 
     if pi % 8 == 7:
@@ -217,9 +252,12 @@ def solve_usquare_eq_a_mod_p(a, p):
     Solve the diophantine equation u**2 = -a (mod p) where a, p and u are integers. This function
     returns the first integer solution of the equation. p is a prime.
 
-    :param a: An integer
-    :param p: A prime integer
-    :return: The first integer solution of the equation u**2 = -a (mod p)
+    Args:
+        a (int): An integer
+        p (int): A prime integer
+
+    Returns:
+        int: The first positive integer solution u to the equation u**2 = -a (mod p)
     """
     # The equation to solve is u**2 = q * p - a where q is an integer
     q, u, t = symbols("q u t", integer=True)
@@ -234,12 +272,15 @@ def solve_usquare_eq_a_mod_p(a, p):
 
 def gcd_Zomega(x, y):
     """
-    Find the greatest common divider (gcd) of x and y in the ring Z[omega]. x and y are elements of
-    the ring Z[omega]. The algorithm implemented is the Euler method extended to the ring Z[omega].
+    Find the greatest common divider (gcd) of x and y in the ring Z[ω]. x and y are elements of
+    the ring Z[ω]. The algorithm implemented is the Euler method extended to the ring Z[ω].
 
-    :param x: First number in Z[omega]
-    :param y: Second number in Z[omega]
-    :return: The greatest common divider of x and y in Z[omega]
+    Args:
+        x (Zomega): First number
+        y (Zomega): Second number
+
+    Returns:
+        Zomega: The greatest common divider of x and y
     """
     a, b = x, y
     while b != 0:
@@ -251,16 +292,17 @@ def gcd_Zomega(x, y):
 
 def euclidean_div_Zomega(num, div):
     """
-    Compute the euclidean division of num by div where num and div are elements of Z[omega]. This
+    Compute the euclidean division of num by div where num and div are elements of Z[ω]. This
     function return q and r such that num = q * div + r.
 
-    :param num: Number to be divided in Z[omega]
-    :param div: Divider in Z[omega]
-    :return: A tuple (q, r) where q is the result of the division and r is the rest
+    Args:
+        num (Zomega): Number to be divided
+        div (Zomega): Divider
+    
+    Returns:
+        tuple: (q, r) where q is the result of the division and r is the rest
     """
-    # div_sc = div.sqrt2_conjugate()  # Complex conjugate of the divider
-    div_cc = div.complex_conjugate()  # Sqrt(2) conjugate of the divider
-
+    div_cc = div.complex_conjugate()  # √2 conjugate of the divider
     div_div_cc = div * div_cc  # Product of the divider by its complex conjugate
 
     # Convert the denominator into an integer
@@ -286,12 +328,15 @@ def euclidean_div_Zomega(num, div):
 
 def euclidean_div_Zsqrt2(num, div):
     """
-    Perform the euclidean division of num in Z[sqrt(2)]. This function returns q and r such that
+    Perform the euclidean division of num in Z[√2]. This function returns q and r such that
     num = q * div + r.
 
-    :param num: Number to be divided in Z[sqrt(2)]
-    :param div: Divider in Z[sqrt(2)]
-    :return: A tuple (q, r) where q is the result of the division and r is the rest
+    Args:
+        num (Zsqrt2): Number to be divided
+        div (Zsqrt2): Divider
+
+    Returns:
+        tuple: (q, r) where q is the result of the division and r is the rest
     """
     num_ = num * div.sqrt2_conjugate()
     den_ = (div * div.sqrt2_conjugate()).p
@@ -308,11 +353,14 @@ def euclidean_div_Zsqrt2(num, div):
 def are_sim_Zsqrt2(x, y):
     """
     Determine if x ~ y. Equivalently, x ~ y if there exists a unit u such that x = u * y. x, y and u
-    are elements of Z[sqrt(2)].
+    are elements of Z[√2].
 
-    :param x: First number in Z[sqrt(2)]
-    :param y: Second number in Z[sqrt(2)]
-    :return: True if x ~ y, False otherwise
+    Args:
+        x (Zsqrt2): First number
+        y (Zsqrt2): Second number
+
+    Returns:
+        bool: True if x ~ y, False otherwise
     """
     # Test if y is a divider of x and y is a divider of x
     _, r1 = euclidean_div_Zsqrt2(x, y)
@@ -322,10 +370,13 @@ def are_sim_Zsqrt2(x, y):
 
 def is_unit_Zsqrt2(x):
     """
-    Determine if x is a unit in the ring Z[sqrt(2)].
+    Determine if x is a unit in the ring Z[√2].
 
-    :param x: A number in Z[sqrt(2)]
-    :return: True if x is a unit, False otherwise
+    Args:
+        x (Zsqrt2): The number to test
+    
+    Returns:
+        bool: True if x is a unit, False otherwise
     """
     integer = x * x.sqrt2_conjugate()
     return (integer == 1) or (integer == -1)
@@ -333,12 +384,15 @@ def is_unit_Zsqrt2(x):
 
 def solve_xi_sim_ttdag_in_z(xi):
     """
-    Solve the equation xi ~ t * t† for t where † denotes the complex conjugate. xi is an element of
-    Z[sqrt(2)] and t is an element of Z[omega]. This function returns the first solution of the
+    Solve the equation ξ ~ t * t† for t where † denotes the complex conjugate. ξ is an element of
+    Z[√2] and t is an element of Z[ω]. This function returns the first solution of the
     equation. If no solution exists, the function returns None.
 
-    :param xi: An element of Z[sqrt(2)]
-    :return: An element of Z[omega] for which xi = t * t†, or None if no solution exists
+    Args:
+        xi (Zsqrt2): A number
+
+    Returns:
+        Zomega or None: A number t for which ξ = t * t†, or None if no solution exists
     """
     xi_fact_list = xi_fact(xi)
 
@@ -347,7 +401,7 @@ def solve_xi_sim_ttdag_in_z(xi):
         if xi_i == -1:
             continue
 
-        if mi % 2 == 0:  # For even exponents, xi_i ** mi = xi_i ** (mi // 2) * xi_i ** (mi // 2)
+        if mi % 2 == 0:  # For even exponents, ξ_i ** mi = ξ_i ** (mi // 2) * ξ_i ** (mi // 2)
             factor = xi_i ** (mi // 2)
             d = factor.p
             c = factor.q
@@ -366,53 +420,56 @@ def solve_xi_sim_ttdag_in_z(xi):
 
 def solve_xi_eq_ttdag_in_d(xi):
     """
-    Solve the equation xi = t * t† or t where † denotes the complex conjugate. xi is an element of
-    D[sqrt(2)] and t is an element of D[omega]. This function returns the first solution of the
+    Solve the equation ξ = t * t† or t where † denotes the complex conjugate. ξ is an element of
+    D[√2] and t is an element of D[ω]. This function returns the first solution of the
     equation. If no solution exists, the function returns None.
 
-    :param xi: An element of D[sqrt(2)]
-    :return: An element of D[omega] for which xi = t * t†, or None if no solution exists
+    Args:
+        xi (Dsqrt2): A number
+
+    Returns:
+        Domega of None: A number t for which ξ = t * t†, or None if no solution exists
     """
-    # The equation only has a solution if xi is doubly positive, i.e. xi >= 0 and xi⋅ >= 0.
+    # The equation only has a solution if ξ is doubly positive, i.e. ξ >= 0 and ξ• >= 0.
     if float(xi) < 0 or float(xi.sqrt2_conjugate()) < 0:
         return None
 
     l = (xi * xi.sqrt2_conjugate()).p.denom  # Greatest denominator power of 2
-    xi_prime_temp = Dsqrt2(D(0, 0), D(1, 0)) ** l * xi  # xi_prime is in Z[sqrt(2)]
-    xi_prime = Zsqrt2(xi_prime_temp.p.num, xi_prime_temp.q.num)  # Convert xi_prime to Z[sqrt(2)]
+    xi_prime_temp = Dsqrt2(D(0, 0), D(1, 0)) ** l * xi  # ξ_prime is in Z[√2]
+    xi_prime = Zsqrt2(xi_prime_temp.p.num, xi_prime_temp.q.num)  # Convert ξ_prime to Z[√2]
 
-    s = solve_xi_sim_ttdag_in_z(xi_prime)  # Solve the equation xi' ~ s * s†
-    if s is None:  # If there is no solution to the equation xi' ~ s * s†
+    s = solve_xi_sim_ttdag_in_z(xi_prime)  # Solve the equation ξ' ~ s * s†
+    if s is None:  # If there is no solution to the equation ξ' ~ s * s†
         return None
 
-    delta = Zomega(0, 0, 1, 1)  # delta = 1 + omega
-    # delta**-1 = delta * lambda**-1 * omega**-1 / sqrt(2)
+    delta = Zomega(0, 0, 1, 1)  # δ = 1 + ω
+    # δ**-1 = δ * λ**-1 * ω**-1 / √2
     delta_inv = (
         delta * Domega((-1, 0), (0, 0), (1, 0), (-1, 0)) * Domega((0, 0), (-1, 1), (0, 0), (1, 1))
     )
 
-    delta_inv_l = delta_inv**l  # delta_l = delta ** l
+    delta_inv_l = delta_inv**l  # δ_l = δ ** l
 
-    t = delta_inv_l * s  # t = delta**-l * s
+    t = delta_inv_l * s  # t = δ**-l * s
 
     tt = t * t.complex_conjugate()  # tt = t * t†
 
     tt = tt.convert(Dsqrt2)
 
-    # Find u such that xi = u * t * t†
+    # Find u such that ξ = u * t * t†
     denom = (tt * tt.sqrt2_conjugate()).d  # Element of ring D
     u_temp = xi * tt.sqrt2_conjugate() * int(2**denom.denom)
     u = Zsqrt2(u_temp.p.num // denom.num, u_temp.q.num // denom.num)
 
-    # u is of the form u = lambda**2n => n = ln(u) / 2 ln(lambda)
+    # u is of the form u = λ**2n => n = ln(u) / 2 ln(λ)
     n = round(np.log(float(u)) / (2 * np.log(float(Zsqrt2(1, 1)))))
 
-    # v**2 = u => v = lambda**n
+    # v**2 = u => v = λ**n
     if n > 0:
-        v = Domega((-1, 0), (0, 0), (1, 0), (1, 0)) ** n  # lambda**n
+        v = Domega((-1, 0), (0, 0), (1, 0), (1, 0)) ** n  # λ**n
     elif n == 0:
         v = Domega((0, 0), (0, 0), (0, 0), (1, 0))  # 1
     else:
-        v = Domega((-1, 0), (0, 0), (1, 0), (-1, 0)) ** -n  # (lambda**-1)**n
+        v = Domega((-1, 0), (0, 0), (1, 0), (-1, 0)) ** -n  # (λ**-1)**n
 
     return t * v
