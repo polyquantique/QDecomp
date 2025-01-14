@@ -29,6 +29,148 @@ from sympy import diophantine, symbols
 from grid_algorithm_1D.Rings import *
 
 
+# ----------------------------- #
+# Functions for Rings algebra   #
+# ----------------------------- #
+def gcd_Zomega(x, y):
+    """
+    Find the greatest common divider (gcd) of x and y in the ring Z[ω]. x and y are elements of
+    the ring Z[ω]. The algorithm implemented is the Euler method extended to the ring Z[ω].
+
+    Args:
+        x (Zomega): First number
+        y (Zomega): Second number
+
+    Returns:
+        Zomega: The greatest common divider of x and y
+    """
+    a, b = x, y
+    while b != 0:
+        _, r = euclidean_div_Zomega(a, b)
+        a, b = b, r
+
+    return a
+
+
+def euclidean_div_Zomega(num, div):
+    """
+    Compute the euclidean division of num by div where num and div are elements of Z[ω]. This
+    function return q and r such that num = q * div + r.
+
+    Args:
+        num (Zomega): Number to be divided
+        div (Zomega): Divider
+    
+    Returns:
+        tuple: (q, r) where q is the result of the division and r is the rest
+    """
+    div_cc = div.complex_conjugate()  # √2 conjugate of the divider
+    div_div_cc = div * div_cc  # Product of the divider by its complex conjugate
+
+    # Convert the denominator into an integer
+    denom_D = div_div_cc * div_div_cc.sqrt2_conjugate()  # Element of the ring D
+    denom = denom_D.d.num  # Convert to an integer
+    # Apply the same multiplication on the numerator
+    numer = num * div_cc * div_div_cc.sqrt2_conjugate()
+
+    n = numer
+    a, b, c, d = n.a.num, n.b.num, n.c.num, n.d.num  # Extract the coefficients of numer
+    # Divide the coefficients by the integer denominator and round them
+    a_, b_, c_, d_ = (
+        round(a / denom),
+        round(b / denom),
+        round(c / denom),
+        round(d / denom),
+    )
+
+    q = Zomega(a_, b_, c_, d_)  # Construction of the divider with the new coefficients
+    r = num - q * div  # Calculation of the rest of the division
+
+    return q, r
+
+
+def euclidean_div_Zsqrt2(num, div):
+    """
+    Perform the euclidean division of num in Z[√2]. This function returns q and r such that
+    num = q * div + r.
+
+    Args:
+        num (Zsqrt2): Number to be divided
+        div (Zsqrt2): Divider
+
+    Returns:
+        tuple: (q, r) where q is the result of the division and r is the rest
+    """
+    num_ = num * div.sqrt2_conjugate()
+    den_ = (div * div.sqrt2_conjugate()).p
+
+    a_, b_ = num_.p, num_.q
+    a, b = round(a_ / den_), round(b_ / den_)
+
+    q = Zsqrt2(a, b)
+    r = num - q * div
+
+    return q, r
+
+
+def are_sim_Zsqrt2(x, y):
+    """
+    Determine if x ~ y. Equivalently, x ~ y if there exists a unit u such that x = u * y. x, y and u
+    are elements of Z[√2].
+
+    Args:
+        x (Zsqrt2): First number
+        y (Zsqrt2): Second number
+
+    Returns:
+        bool: True if x ~ y, False otherwise
+    """
+    # Test if y is a divider of x and y is a divider of x
+    _, r1 = euclidean_div_Zsqrt2(x, y)
+    _, r2 = euclidean_div_Zsqrt2(y, x)
+    return (r1 == 0) and (r2 == 0)
+
+
+def is_unit_Zsqrt2(x):
+    """
+    Determine if x is a unit in the ring Z[√2].
+
+    Args:
+        x (Zsqrt2): The number to test
+    
+    Returns:
+        bool: True if x is a unit, False otherwise
+    """
+    integer = x * x.sqrt2_conjugate()
+    return (integer == 1) or (integer == -1)
+
+
+# ----------------------------- #
+# Functions to solve the Diophantine equation
+# ----------------------------- #
+def solve_usquare_eq_a_mod_p(a, p):
+    """
+    Solve the diophantine equation u**2 = -a (mod p) where a, p and u are integers. This function
+    returns the first integer solution of the equation. p is a prime.
+
+    Args:
+        a (int): An integer
+        p (int): A prime integer
+
+    Returns:
+        int: The first positive integer solution u to the equation u**2 = -a (mod p)
+    """
+    # The equation to solve is u**2 = q * p - a where q is an integer
+    q, u, t = symbols("q u t", integer=True)
+    equation = u**2 - q * p + a
+    solutions = diophantine(equation, t)
+
+    _, u0 = solutions.pop()  # Extract the first solution
+    sol = int(u0.subs({t: 0}))
+
+    return sol
+
+
 def integer_fact(p):
     """
     Find the factorization of an integer p. This function returns a list of tuples (p_i, m_i) where
@@ -245,141 +387,6 @@ def xi_i_fact_into_ti(xi_i, check_prime=False):
 
     if pi % 8 == 7:
         return None
-
-
-def solve_usquare_eq_a_mod_p(a, p):
-    """
-    Solve the diophantine equation u**2 = -a (mod p) where a, p and u are integers. This function
-    returns the first integer solution of the equation. p is a prime.
-
-    Args:
-        a (int): An integer
-        p (int): A prime integer
-
-    Returns:
-        int: The first positive integer solution u to the equation u**2 = -a (mod p)
-    """
-    # The equation to solve is u**2 = q * p - a where q is an integer
-    q, u, t = symbols("q u t", integer=True)
-    equation = u**2 - q * p + a
-    solutions = diophantine(equation, t)
-
-    _, u0 = solutions.pop()  # Extract the first solution
-    sol = int(u0.subs({t: 0}))
-
-    return sol
-
-
-def gcd_Zomega(x, y):
-    """
-    Find the greatest common divider (gcd) of x and y in the ring Z[ω]. x and y are elements of
-    the ring Z[ω]. The algorithm implemented is the Euler method extended to the ring Z[ω].
-
-    Args:
-        x (Zomega): First number
-        y (Zomega): Second number
-
-    Returns:
-        Zomega: The greatest common divider of x and y
-    """
-    a, b = x, y
-    while b != 0:
-        _, r = euclidean_div_Zomega(a, b)
-        a, b = b, r
-
-    return a
-
-
-def euclidean_div_Zomega(num, div):
-    """
-    Compute the euclidean division of num by div where num and div are elements of Z[ω]. This
-    function return q and r such that num = q * div + r.
-
-    Args:
-        num (Zomega): Number to be divided
-        div (Zomega): Divider
-    
-    Returns:
-        tuple: (q, r) where q is the result of the division and r is the rest
-    """
-    div_cc = div.complex_conjugate()  # √2 conjugate of the divider
-    div_div_cc = div * div_cc  # Product of the divider by its complex conjugate
-
-    # Convert the denominator into an integer
-    denom = (div_div_cc * div_div_cc.sqrt2_conjugate()).d.num
-    # Apply the same multiplication on the numerator
-    numer = num * div_cc * div_div_cc.sqrt2_conjugate()
-
-    n = numer
-    a, b, c, d = n.a.num, n.b.num, n.c.num, n.d.num  # Extract the coefficients of numer
-    # Divide the coefficients by the integer denominator and round them
-    a_, b_, c_, d_ = (
-        round(a / denom),
-        round(b / denom),
-        round(c / denom),
-        round(d / denom),
-    )
-
-    q = Zomega(a_, b_, c_, d_)  # Construction of the divider with the new coefficients
-    r = num - q * div  # Calculation of the rest of the division
-
-    return q, r
-
-
-def euclidean_div_Zsqrt2(num, div):
-    """
-    Perform the euclidean division of num in Z[√2]. This function returns q and r such that
-    num = q * div + r.
-
-    Args:
-        num (Zsqrt2): Number to be divided
-        div (Zsqrt2): Divider
-
-    Returns:
-        tuple: (q, r) where q is the result of the division and r is the rest
-    """
-    num_ = num * div.sqrt2_conjugate()
-    den_ = (div * div.sqrt2_conjugate()).p
-
-    a_, b_ = num_.p, num_.q
-    a, b = round(a_ / den_), round(b_ / den_)
-
-    q = Zsqrt2(a, b)
-    r = num - q * div
-
-    return q, r
-
-
-def are_sim_Zsqrt2(x, y):
-    """
-    Determine if x ~ y. Equivalently, x ~ y if there exists a unit u such that x = u * y. x, y and u
-    are elements of Z[√2].
-
-    Args:
-        x (Zsqrt2): First number
-        y (Zsqrt2): Second number
-
-    Returns:
-        bool: True if x ~ y, False otherwise
-    """
-    # Test if y is a divider of x and y is a divider of x
-    _, r1 = euclidean_div_Zsqrt2(x, y)
-    _, r2 = euclidean_div_Zsqrt2(y, x)
-    return (r1 == 0) and (r2 == 0)
-
-
-def is_unit_Zsqrt2(x):
-    """
-    Determine if x is a unit in the ring Z[√2].
-
-    Args:
-        x (Zsqrt2): The number to test
-    
-    Returns:
-        bool: True if x is a unit, False otherwise
-    """
-    integer = x * x.sqrt2_conjugate()
-    return (integer == 1) or (integer == -1)
 
 
 def solve_xi_sim_ttdag_in_z(xi):
