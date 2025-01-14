@@ -4,24 +4,28 @@ from typing import Any
 import numpy as np
 import pytest
 from numpy.random import randint
-
 from Zsqrt2 import Zsqrt2
 
 
 @pytest.mark.parametrize(
     ("a", "b"),
     [
-        (1.0, 2),       # float
-        (1, 2.0),       # float
-        (1.0, 2.0),     # float
+        (1.0, 2),  # float
+        (1, 2.0),  # float
+        (1.0, 2.0),  # float
         (1 + 1.0j, 2),  # complex
-        ("a", 2),       # string
-        ([1], 2),       # list
-        ((1,), 2),      # tuple
+        ("a", 2),  # string
+        ([1], 2),  # list
+        ((1,), 2),  # tuple
         (range(5), 2),  # range
-        ({1: 1}, 2),    # dict
-        ({1,}, 2,),     # set
-        (None, 2),      # None
+        ({1: 1}, 2),  # dict
+        (
+            {
+                1,
+            },
+            2,
+        ),  # set
+        (None, 2),  # None
     ],
 )
 def test_init_exceptions(a: Any, b: Any) -> None:

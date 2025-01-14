@@ -1,12 +1,12 @@
 from typing import Any, Sequence
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 from numpy.random import uniform
-import matplotlib.pyplot as plt
+from Zsqrt2 import Zsqrt2
 
 from grid_algorithm_1D import plot_grid_problem, solve_grid_problem_1d
-from Zsqrt2 import Zsqrt2
 
 
 @pytest.mark.parametrize("not_subscriptable", [1, 1.0, True, {1, 2}])
@@ -137,7 +137,7 @@ def test_solutions_type_error_plot_function(solutions: Sequence[Any]) -> None:
     """Test the raise of a type error if the given solutions are not Zsqrt objects"""
     with pytest.raises(TypeError, match="Solutions must be Zsqrt2 objects"):
         plot_grid_problem([1, 2], [1, 2], solutions)
-    
+
 
 def test_plot_grid_problem():
     """

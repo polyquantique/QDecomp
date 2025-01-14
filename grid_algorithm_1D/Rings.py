@@ -692,7 +692,7 @@ class Dsqrt2(Domega):
 
         Raises:
             TypeError: If the class arguments are not 2-tuples of integers (num, denom) or D objects.
-            ValueError: If the denominator exponent is negative. 
+            ValueError: If the denominator exponent is negative.
         """
         for input in (p, q):
             if isinstance(input, tuple):
@@ -765,7 +765,7 @@ class Dsqrt2(Domega):
     def __ge__(self, nb: Any) -> bool:
         """Define the >= operation for the class."""
         return float(self) > nb or self == nb
-    
+
 
 class Zsqrt2(Zomega):
     """A simple class to do symbolic computation with elements of the ring Z[√2].
@@ -817,11 +817,11 @@ class Zsqrt2(Zomega):
     def __iter__(self) -> Iterator:
         """Allow iteration in the class coefficients."""
         return iter([self.p, self.q])
-    
+
 
 def output_type(*types: type) -> type:
     """Return the output type of class operations.
-    
+
     Args:
         *types (type): Variable-length argument list of Python types.
 
@@ -846,6 +846,7 @@ def output_type(*types: type) -> type:
         raise ValueError(
             f"Conversion between {', '.join([t.__name__ for t in types])} is not supported."
         )
+
 
 lamb: Zsqrt2 = Zsqrt2(1, 1)
 inv_lamb: Zsqrt2 = Zsqrt2(-1, 1)

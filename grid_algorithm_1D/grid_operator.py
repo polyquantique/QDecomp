@@ -14,18 +14,21 @@
 
 from __future__ import annotations
 
-import numpy as np
-from Rings import D, Zsqrt2, Dsqrt2, Domega, lamb, inv_lamb
 from typing import Union
 
-class grid_operator:
-    """Class to initialize a grid operator. 
+import numpy as np
+from Rings import D, Domega, Dsqrt2, Zsqrt2, inv_lamb, lamb
 
-    A grid operator is defined in detail in Section 5.3 of https://arxiv.org/pdf/1403.2975. 
-    This module uses the Rings.py module in order to properly define the ring elements of the grid operators, 
-    which are used to reduce the uprightness of the given ellipse pair. 
-    
+
+class grid_operator:
+    """Class to initialize a grid operator.
+
+    A grid operator is defined in detail in Section 5.3 of https://arxiv.org/pdf/1403.2975.
+    This module uses the Rings.py module in order to properly define the ring elements of the grid operators,
+    which are used to reduce the uprightness of the given ellipse pair.
+
     """
+
     def __init__(self, G) -> None:
         # Automatically convert input to np.matrix if necessary
         if isinstance(G, list):
@@ -33,7 +36,7 @@ class grid_operator:
                 # Convert flat 4-element list to 2x2 matrix
                 G = np.matrix([[G[0], G[1]], [G[2], G[3]]], dtype=object)
             elif (
-                len(G) == 2 
+                len(G) == 2
                 and all(len(row) == 2 for row in G)
                 and all(isinstance(e, (int, D, Zsqrt2, Dsqrt2)) for row in G for e in row)
             ):
@@ -67,23 +70,23 @@ class grid_operator:
         """"""
         G = self.G
         return f"{G}"
-    
+
     def __neg__(self) -> grid_operator:
         """"""
         G = self.G
         return grid_operator(-G)
-    
+
     def det(self) -> Union[int, D, Zsqrt2, Dsqrt2]:
         """"""
         G = self.G
         det_G = G[0, 0] * G[1, 1] - G[0, 1] * G[1, 0]
         return det_G
-    
+
     def dag(self) -> grid_operator:
         """"""
         G = self.G
         return np.transpose(G)
-    
+
     def conjugate(self):
         """"""
         G = self.G
@@ -99,9 +102,9 @@ class grid_operator:
                     G_conj[i, j] = element.sqrt2_conjugate()  # Apply conjugation
                 else:
                     raise TypeError(f"Invalid type at G[{i}, {j}]: {type(element)}")
-    
+
         return grid_operator(G_conj)  # Return the conjugated grid
-    
+
     def inv(self) -> grid_operator:
         """"""
         determinant = self.det()
@@ -113,7 +116,7 @@ class grid_operator:
             return grid_operator([-self.d, self.b, self.c, -self.a])
         else:
             return NotImplemented
-        
+
     def __add__(self, other: grid_operator | np.matrix) -> grid_operator | np.matrix:
         """"""
         if not isinstance(other, (grid_operator, np.matrix)):
@@ -125,20 +128,22 @@ class grid_operator:
         else:
             G_p = other.G
             return grid_operator(G + G_p)
-    
+
     def __radd__(self, other: grid_operator | np.matrix) -> grid_operator | np.matrix:
         """"""
         return self.__add__(other)
-    
+
     def __sub__(self, other: grid_operator | np.matrix) -> grid_operator | np.matrix:
         """"""
         return self.__add__(-other)
-    
+
     def __rsub__(self, other: grid_operator | np.matrix) -> grid_operator | np.matrix:
         """"""
         return -self.__add__(other)
 
-    def __mul__(self, other: int | D | Zsqrt2 | Dsqrt2 | grid_operator | np.matrix | float) -> grid_operator | np.matrix:
+    def __mul__(
+        self, other: int | D | Zsqrt2 | Dsqrt2 | grid_operator | np.matrix | float
+    ) -> grid_operator | np.matrix:
         """"""
         G = self.G
         if isinstance(other, (int, D, Zsqrt2, Dsqrt2)):
@@ -151,8 +156,10 @@ class grid_operator:
             return grid_operator(G * G_p)
         else:
             raise TypeError("Product must be with a valid type")
-        
-    def __rmul__(self, other: int | D | Dsqrt2 | grid_operator | np.matrix | float) -> grid_operator | np.matrix:
+
+    def __rmul__(
+        self, other: int | D | Dsqrt2 | grid_operator | np.matrix | float
+    ) -> grid_operator | np.matrix:
         """"""
         G = self.G
         if isinstance(other, (int, D, Zsqrt2, Dsqrt2)):
@@ -165,7 +172,7 @@ class grid_operator:
             return other * float_G
         else:
             raise TypeError("Product must be with a valid type")
-    
+
     def __pow__(self, exponent: int) -> grid_operator:
         """"""
         if not isinstance(exponent, int):
@@ -181,12 +188,27 @@ class grid_operator:
             result = result * base  # Uses the __mul__ method already defined
 
         return result
-    
-I: grid_operator = grid_operator([1, 0, 0, 1])
-    
-R: grid_operator = grid_operator([Dsqrt2(D(0, 0), D(1, 1)), -Dsqrt2(D(0, 0), D(1, 1)), Dsqrt2(D(0, 0), D(1, 1)), Dsqrt2(D(0, 0), D(1, 1))])
 
-K: grid_operator = grid_operator([Dsqrt2(D(-1, 0), D(1, 1)), -Dsqrt2(D(0, 0), D(1, 1)), Dsqrt2(D(1, 0), D(1, 1)), Dsqrt2(D(0, 0), D(1, 1))])
+
+I: grid_operator = grid_operator([1, 0, 0, 1])
+
+R: grid_operator = grid_operator(
+    [
+        Dsqrt2(D(0, 0), D(1, 1)),
+        -Dsqrt2(D(0, 0), D(1, 1)),
+        Dsqrt2(D(0, 0), D(1, 1)),
+        Dsqrt2(D(0, 0), D(1, 1)),
+    ]
+)
+
+K: grid_operator = grid_operator(
+    [
+        Dsqrt2(D(-1, 0), D(1, 1)),
+        -Dsqrt2(D(0, 0), D(1, 1)),
+        Dsqrt2(D(1, 0), D(1, 1)),
+        Dsqrt2(D(0, 0), D(1, 1)),
+    ]
+)
 
 X: grid_operator = grid_operator([0, 1, 1, 0])
 

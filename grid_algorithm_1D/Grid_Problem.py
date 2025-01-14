@@ -1,8 +1,9 @@
-import numpy as np
 import math
-from Rings import Domega, D, Dsqrt2, lamb, inv_lamb
-from Grid_Operator import grid_operator, I, R, K, X, Z, A, B
-from State import state, special_sigma, inv_special_sigma
+
+import numpy as np
+from Grid_Operator import A, B, I, K, R, X, Z, grid_operator
+from Rings import D, Domega, Dsqrt2, inv_lamb, lamb
+from State import inv_special_sigma, special_sigma, state
 
 
 def find_grid_operator(A: np.matrix, B: np.matrix) -> grid_operator:
@@ -11,7 +12,7 @@ def find_grid_operator(A: np.matrix, B: np.matrix) -> grid_operator:
     initial_state_bias = initial_state.bias
     inv_grid_op = I
     if abs(initial_state_bias) > 1:
-        k_lower = (-1 - initial_state_bias)/2
+        k_lower = (-1 - initial_state_bias) / 2
         k = math.ceil(k_lower)
         new_state = initial_state.shift(k)
     else:
@@ -24,9 +25,10 @@ def find_grid_operator(A: np.matrix, B: np.matrix) -> grid_operator:
     if k < 0:
         inv_grid_op = (inv_special_sigma ** abs(k)) * inv_grid_op * (special_sigma ** abs(k))
     else:
-        inv_grid_op = (special_sigma ** k) * inv_grid_op * (inv_special_sigma ** k)
+        inv_grid_op = (special_sigma**k) * inv_grid_op * (inv_special_sigma**k)
     grid_op = inv_grid_op.inv()
     return grid_op
+
 
 def find_special_grid_operator(ellipse_state: state) -> grid_operator:
     """To do: docstrings, comments and error messages"""
@@ -50,7 +52,7 @@ def find_special_grid_operator(ellipse_state: state) -> grid_operator:
                 n = 1
             else:
                 n = math.ceil(float(lamb) ** c / 4)
-            special_grid_operator *= A ** n
+            special_grid_operator *= A**n
         elif z >= 0.8 and gamma <= 0.3:
             special_grid_operator *= K.conjugate()
         else:
@@ -64,7 +66,7 @@ def find_special_grid_operator(ellipse_state: state) -> grid_operator:
                 n = 1
             else:
                 n = math.ceil(float(lamb) ** c / math.sqrt(8))
-            special_grid_operator *= A ** n
+            special_grid_operator *= A**n
         else:
             ValueError("To do")
     return special_grid_operator
