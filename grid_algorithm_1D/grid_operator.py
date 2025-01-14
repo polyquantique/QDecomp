@@ -27,68 +27,78 @@ class grid_operator:
     This module uses the Rings.py module in order to properly define the ring elements of the grid operators,
     which are used to reduce the uprightness of the given ellipse pair.
 
+    Attributes:
+        G (np.ndarray): ndarray form of the grid operator
     """
 
     def __init__(self, G) -> None:
-        # Automatically convert input to np.matrix if necessary
+        """Initialize the object with a 2x2 numpy array.
+
+        Args:
+            G: A 4-element flat list, a 2x2 nested list, or a 2x2 numpy.ndarray
+            containing elements of type int, D, Zsqrt2, or Dsqrt2.
+
+        Raises:
+            ValueError: If G is not a 4-element flat list, a 2x2 nested list, or a 2x2 array.
+            TypeError: If elements of G are not of valid types.
+            ValueError: If G is not 2x2 in size.
+        """
+        # Automatically convert input to np.ndarray if necessary
         if isinstance(G, list):
             if len(G) == 4 and all(isinstance(e, (int, D, Zsqrt2, Dsqrt2)) for e in G):
-                # Convert flat 4-element list to 2x2 matrix
-                G = np.matrix([[G[0], G[1]], [G[2], G[3]]], dtype=object)
+                # Convert flat 4-element list to 2x2 ndarray
+                G = np.array([[G[0], G[1]], [G[2], G[3]]], dtype=object)
             elif (
                 len(G) == 2
                 and all(len(row) == 2 for row in G)
                 and all(isinstance(e, (int, D, Zsqrt2, Dsqrt2)) for row in G for e in row)
             ):
-                # Convert 2x2 nested list to matrix
-                G = np.matrix(G, dtype=object)
+                # Convert 2x2 nested list to ndarray
+                G = np.array(G, dtype=object)
             else:
                 raise ValueError(
                     "G must be a 4-element flat list or a 2x2 nested list with valid elements."
                 )
 
-        # Ensure G is a numpy matrix
-        if not isinstance(G, np.matrix):
-            raise TypeError("G must be a numpy matrix or convertible to one.")
+        # Ensure G is a numpy ndarray
+        if not isinstance(G, np.ndarray):
+            raise TypeError("G must be a numpy ndarray or convertible to one.")
 
         # Validate shape
         if G.shape != (2, 2):
             raise ValueError("G must be 2x2 in size.")
 
         # Validate each element
-        for element in G.flatten().tolist()[0]:
+        for element in G.flatten():
             if not isinstance(element, (int, D, Zsqrt2, Dsqrt2)):
                 raise TypeError(f"Element {element} must be an int, D, Zsqrt2, or Dsqrt2.")
 
+        # Assign attributes
         self.G = G
-        self.a = G[0, 0]
-        self.b = G[0, 1]
-        self.c = G[1, 0]
-        self.d = G[1, 1]
 
     def __repr__(self) -> str:
-        """"""
+        """Define the string representation of the grid operator"""
         G = self.G
         return f"{G}"
 
     def __neg__(self) -> grid_operator:
-        """"""
+        """Define the negation of the grid operator"""
         G = self.G
         return grid_operator(-G)
 
     def det(self) -> Union[int, D, Zsqrt2, Dsqrt2]:
-        """"""
+        """Computes the determinant of the grid operator"""
         G = self.G
-        det_G = G[0, 0] * G[1, 1] - G[0, 1] * G[1, 0]
-        return det_G
+        return G[0, 0] * G[1, 1] - G[0, 1] * G[1, 0]
 
     def dag(self) -> grid_operator:
-        """"""
+        """Define the dag operation of the grid operator"""
         G = self.G
+        # Since G is Real, the dag operation is the transpose operation
         return np.transpose(G)
 
     def conjugate(self):
-        """"""
+        """Define the conjugation of the grid operator"""
         G = self.G
         # Initialize G_conj with the same shape as G, using np.array for flexibility
         G_conj = np.zeros_like(G, dtype=object)  # or dtype=G.dtype if you need consistency in types
@@ -106,19 +116,19 @@ class grid_operator:
         return grid_operator(G_conj)  # Return the conjugated grid
 
     def inv(self) -> grid_operator:
-        """"""
+        """Define the inversion of the grid operator"""
         determinant = self.det()
         if determinant == 0:
-            return ValueError("Determinant must be non-zero")
+            raise ValueError("Determinant must be non-zero")
         elif determinant == 1:
             return grid_operator([self.d, -self.b, -self.c, self.a])
         elif determinant == -1:
             return grid_operator([-self.d, self.b, self.c, -self.a])
         else:
-            return NotImplemented
+            raise ValueError("The inversion is not defined for grid operators with determinant different from -1 or 1")
 
     def __add__(self, other: grid_operator | np.matrix) -> grid_operator | np.matrix:
-        """"""
+        """Define the summation operation of the grid operator"""
         if not isinstance(other, (grid_operator, np.matrix)):
             return "Both elements must be grid operators or numpy matrices"
         G = self.G
@@ -130,21 +140,21 @@ class grid_operator:
             return grid_operator(G + G_p)
 
     def __radd__(self, other: grid_operator | np.matrix) -> grid_operator | np.matrix:
-        """"""
+        """Define the right summation operation of the grid operator"""
         return self.__add__(other)
 
     def __sub__(self, other: grid_operator | np.matrix) -> grid_operator | np.matrix:
-        """"""
+        """Define the substraction operation of the grid operator"""
         return self.__add__(-other)
 
     def __rsub__(self, other: grid_operator | np.matrix) -> grid_operator | np.matrix:
-        """"""
+        """Define the right substraction operation of the grid operator"""
         return -self.__add__(other)
 
     def __mul__(
         self, other: int | D | Zsqrt2 | Dsqrt2 | grid_operator | np.matrix | float
     ) -> grid_operator | np.matrix:
-        """"""
+        """Define the multiplication operation of the grid operator"""
         G = self.G
         if isinstance(other, (int, D, Zsqrt2, Dsqrt2)):
             return grid_operator(other * G)
@@ -160,7 +170,7 @@ class grid_operator:
     def __rmul__(
         self, other: int | D | Dsqrt2 | grid_operator | np.matrix | float
     ) -> grid_operator | np.matrix:
-        """"""
+        """Define the right multiplication operation of the grid operator"""
         G = self.G
         if isinstance(other, (int, D, Zsqrt2, Dsqrt2)):
             return self.__mul__(other)
@@ -174,7 +184,7 @@ class grid_operator:
             raise TypeError("Product must be with a valid type")
 
     def __pow__(self, exponent: int) -> grid_operator:
-        """"""
+        """Define the exponentiation of the grid operator"""
         if not isinstance(exponent, int):
             raise TypeError("Exponent must be an integer.")
         if exponent < 0:
