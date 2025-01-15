@@ -26,7 +26,7 @@ from Zsqrt2 import Zsqrt2
 )
 def test_init_exceptions(a: Any, b: Any) -> None:
     """Test the raise of type errors when giving wrong argument type in Zsqrt2 class"""
-    with pytest.raises(TypeError, match="Expected inputs to be of type int, but got"):
+    with pytest.raises(TypeError, match="Expected class inputs to be of type int, but got"):
         Zsqrt2(a, b)
 
 
