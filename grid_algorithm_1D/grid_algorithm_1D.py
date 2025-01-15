@@ -38,7 +38,7 @@ from typing import Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
-from Zsqrt2 import Zsqrt2, inv_lamb, lamb
+from Rings import Zsqrt2, inv_lamb, lamb
 
 
 def solve_grid_problem_1d(A: Sequence[float | int], B: Sequence[float | int]) -> list[Zsqrt2]:
@@ -118,14 +118,14 @@ def solve_grid_problem_1d(A: Sequence[float | int], B: Sequence[float | int]) ->
         # If there is an integer if this interval
         if math.ceil(a_interval_scaled[0]) == math.floor(a_interval_scaled[1]):
             ai = math.ceil(a_interval_scaled[0])
-            alpha_i_scaled = Zsqrt2(a=ai, b=bi)
+            alpha_i_scaled = Zsqrt2(p=ai, q=bi)
 
             # Compute the unscaled solution
             alpha_i: Zsqrt2 = alpha_i_scaled * (
                 lambda n_scaling: lamb if n_scaling >= 0 else inv_lamb
             )(n_scaling) ** abs(n_scaling)
             fl_alpha_i = float(alpha_i)
-            fl_alpha_i_conjugate = float(alpha_i.conjugate())
+            fl_alpha_i_conjugate = float(alpha_i.sqrt2_conjugate())
 
             # See if the solution is a solution to the unscaled grid problem for A and B
             if (
@@ -191,7 +191,7 @@ def plot_grid_problem(
         label=r"$\alpha$",
     )
     plt.scatter(
-        [float(i.conjugate()) for i in solutions],
+        [float(i.sqrt2_conjugate()) for i in solutions],
         [0] * len(solutions),
         color="red",
         s=20,
