@@ -234,7 +234,8 @@ def test_conjugate(a: int, b: int) -> None:
     "n1", [-10, 5, 0, Zsqrt2(-10, 5), Zsqrt2(5, 5), Zsqrt2(5, -10), Zsqrt2(-10, -10), Zsqrt2(0, 0)]
 )
 @pytest.mark.parametrize(
-    "n2", [-10, 5, 0, Zsqrt2(-10, 5), Zsqrt2(5, 5), Zsqrt2(5, -10), Zsqrt2(-10, -10), Zsqrt2(0, 0), 1.5]
+    "n2",
+    [-10, 5, 0, Zsqrt2(-10, 5), Zsqrt2(5, 5), Zsqrt2(5, -10), Zsqrt2(-10, -10), Zsqrt2(0, 0), 1.5],
 )
 def test__eq__(n1: Zsqrt2 | int, n2: Zsqrt2 | int):
     """Test the equality of Zsqrt2 class."""

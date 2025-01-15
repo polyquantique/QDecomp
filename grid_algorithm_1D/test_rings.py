@@ -573,12 +573,14 @@ def test_comparison_dsqrt2():
     assert n1 <= n1 and n1 >= n1 and n2 <= n2 and n2 >= n2
     assert (n1 < n2) == (float(n1) < (float(n2))) and (n1 > n2) == (float(n1) > (float(n2)))
 
+
 def test_comparison_zsqrt2():
     """Test the >, <, >= and <= comparison operators for the Zsqrt2 class."""
     n1 = Zsqrt2(1, 1)
     n2 = Zsqrt2(2, 1)
     assert n1 <= n1 and n1 >= n1 and n2 <= n2 and n2 >= n2
     assert (n1 < n2) == (float(n1) < (float(n2))) and (n1 > n2) == (float(n1) > (float(n2)))
+
 
 def test_Zomega_getitem():
     """Test the get_item method of the Zomega_class."""

@@ -36,7 +36,7 @@ from __future__ import annotations
 
 import math
 from decimal import Decimal, getcontext
-from numbers import Integral, Complex, Real
+from numbers import Complex, Integral, Real
 from typing import Any, Callable, Iterator, Union
 
 
@@ -499,9 +499,9 @@ class Domega:
                 self.imag(), complex(nb).imag
             )
         raise TypeError(
-                    f"Comparison between {self.__class__.__name__} and {type(nb).__name__} is not possible."
-                )
-    
+            f"Comparison between {self.__class__.__name__} and {type(nb).__name__} is not possible."
+        )
+
     def __neg__(self) -> Ring:
         """Define the negation of the ring element."""
         return Domega(-self.a, -self.b, -self.c, -self.d).convert(type(self))
@@ -640,7 +640,7 @@ class Zomega(Domega):
                     f"Class arguments must be integers, but got {arg} of type {type(arg).__name__}"
                 )
         super().__init__((a, 0), (b, 0), (c, 0), (d, 0))
-    
+
     def __getitem__(self, i):
         return (self.a.num, self.b.num, self.c.num, self.d.num)[i]
 
