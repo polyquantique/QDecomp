@@ -34,8 +34,8 @@ def test_float_D(num: int, denom: int) -> None:
     + [uniform(-500, 500) for _ in range(5)],
 )
 @pytest.mark.parametrize("n2", [D(randint(-500, 500), randint(0, 50)) for _ in range(10)])
-def test_comparaisons_D(n1, n2) -> None:
-    """Test the different comparaisons of D objects."""
+def test_comparisons_D(n1, n2) -> None:
+    """Test the different comparisons of D objects."""
     assert (
         n2 == n2
         and float(n2) == n2
@@ -335,7 +335,7 @@ def test_get_item_domega() -> None:
 
 
 def test_equality_domega() -> None:
-    """Test the comparaison of Domega objects."""
+    """Test the comparison of Domega objects."""
     domega_element = Domega(
         (randint(-100, 100), randint(0, 100)),
         (randint(-100, 100), randint(0, 100)),
@@ -357,7 +357,7 @@ def test_equality_domega() -> None:
         Domega((0, 0), (1, 0), (0, 0), (1, 1))
     )
     assert Zsqrt2(0, 0) == 0 and Domega((0, 0), (0, 0), (0, 0), (0, 0)) == 0
-    with pytest.raises(TypeError, match="Comparaison between"):
+    with pytest.raises(TypeError, match="Comparison between"):
         domega_element == "1"
 
 
@@ -564,3 +564,24 @@ def test_zsqrt2_init_errors() -> None:
 def test_float_dsqrt2_zsqrt2(nb: Dsqrt2 | Zsqrt2) -> None:
     """Test the float representation of the Dsqrt2 and Zsqrt2 class."""
     assert math.isclose(float(nb), float(nb.p) + float(nb.q) * math.sqrt(2))
+
+
+def test_comparison_dsqrt2():
+    """Test the >, <, >= and <= comparison operators for the Dsqrt2 class."""
+    n1 = Dsqrt2((1, 1), (1, 1))
+    n2 = Dsqrt2((1, 2), (1, 1))
+    assert n1 <= n1 and n1 >= n1 and n2 <= n2 and n2 >= n2
+    assert (n1 < n2) == (float(n1) < (float(n2))) and (n1 > n2) == (float(n1) > (float(n2)))
+
+def test_comparison_zsqrt2():
+    """Test the >, <, >= and <= comparison operators for the Zsqrt2 class."""
+    n1 = Zsqrt2(1, 1)
+    n2 = Zsqrt2(2, 1)
+    assert n1 <= n1 and n1 >= n1 and n2 <= n2 and n2 >= n2
+    assert (n1 < n2) == (float(n1) < (float(n2))) and (n1 > n2) == (float(n1) > (float(n2)))
+
+def test_Zomega_getitem():
+    """Test the get_item method of the Zomega_class."""
+    a, b, c, d = 1, 2, 3, 4
+    nb = Zomega(a, b, c, d)
+    assert nb.a == a and nb.b == b and nb.c == c and nb.d == d

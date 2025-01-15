@@ -36,7 +36,7 @@ from __future__ import annotations
 
 import math
 from decimal import Decimal, getcontext
-from numbers import Integral, Number
+from numbers import Integral, Complex, Real
 from typing import Any, Callable, Iterator, Union
 
 
@@ -494,12 +494,12 @@ class Domega:
             return self.a == nb.a and self.b == nb.b and self.c == nb.c and self.d == nb.d
         elif isinstance(nb, (D, Integral)):
             return self._is_D and self.d == nb
-        elif isinstance(nb, Number):
+        elif isinstance(nb, (Real, Complex)):
             return math.isclose(self.real(), complex(nb).real) and math.isclose(
                 self.imag(), complex(nb).imag
             )
         raise TypeError(
-                    f"Comparaison between {self.__class__.__name__} and {type(nb).__name__} is not possible."
+                    f"Comparison between {self.__class__.__name__} and {type(nb).__name__} is not possible."
                 )
     
     def __neg__(self) -> Ring:
@@ -640,6 +640,9 @@ class Zomega(Domega):
                     f"Class arguments must be integers, but got {arg} of type {type(arg).__name__}"
                 )
         super().__init__((a, 0), (b, 0), (c, 0), (d, 0))
+    
+    def __getitem__(self, i):
+        return (self.a.num, self.b.num, self.c.num, self.d.num)[i]
 
 
 class Dsqrt2(Domega):
@@ -772,6 +775,22 @@ class Zsqrt2(Domega):
         """Define the float representation of the class."""
         return self.real()
 
+    def __lt__(self, nb: Any) -> bool:
+        """Define the < operation for the class."""
+        return float(self) < nb
+
+    def __le__(self, nb: Any) -> bool:
+        """Define the <= operation for the class."""
+        return self.__lt__(nb) or self.__eq__(nb)
+
+    def __gt__(self, nb: Any) -> bool:
+        """Define the > operation for the class."""
+        return float(self) > nb
+
+    def __ge__(self, nb: Any) -> bool:
+        """Define the >= operation for the class."""
+        return self.__gt__(nb) or self.__eq__(nb)
+
 
 def _output_type(*types: type) -> type:
     """Return the output type of class operations.
@@ -800,3 +819,9 @@ def _output_type(*types: type) -> type:
 
 
 Ring = Union[D, Domega, Zomega, Dsqrt2, Zsqrt2]
+
+# lambda = 1 + \u221A2 is used to scale 1D grid problems.
+lamb: Zsqrt2 = Zsqrt2(1, 1)
+
+# inv_lambda = -1 + \u221A2 is the inverse of lambda. It is used to scale 1D grid problem.
+inv_lamb: Zsqrt2 = -lamb.sqrt2_conjugate()
