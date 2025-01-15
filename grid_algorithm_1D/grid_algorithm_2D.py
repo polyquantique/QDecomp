@@ -1,18 +1,24 @@
-from Rings import Zomega, Zsqrt2
-from grid_algorithm_1D.grid_algorithm_1D import solve_grid_problem_1d
+from __future__ import annotations
+
 import math
-import numpy as np
-import matplotlib.pyplot as plt
-from typing import Sequence
-from pathlib import Path
 import os
+from collections.abc import Sequence
+from pathlib import Path
+from typing import Sequence
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+from grid_algorithm_1D import solve_grid_problem_1d
+from Rings import Zomega, Zsqrt2
+
 
 def solve_grid_problem_2D(A: Sequence[Sequence[float | int]], B: Sequence[Sequence[float | int]]) -> list[Zomega]:
     """
     Solves the 2-dimensional grid problem for two upright rectangle sets and returns the result.
 
     Given two real 2D closed sets A and B of the form [a b] x [c, d], find all the solutions x in 
-    the ring of cyclotomic integers of degree 8 Z[ω] such that x is in A and the √2-conjugate of x is in B.
+    the ring of cyclotomic integers of degree 8 \u2124[\u03C9] such that x is in A and the \u221a2-conjugate of x is in B.
 
     Args:
         A (Sequence[Sequence[float | int]]): Bounds of the first upright rectangle. Rows correspond to the x and y axis respectively. 
@@ -22,19 +28,22 @@ def solve_grid_problem_2D(A: Sequence[Sequence[float | int]], B: Sequence[Sequen
         list[Domega]: The list of solutions to the grid problem.
 
     Raises:
-        TypeError: If A or B are not subscriptable 2x2 sequences.
-        TypeError: If interval entries are not integers or floats.
+        TypeError: If A or B are not 2x2 sequences.
+        TypeError: If interval entries are not real numbers.
         ValueError: If interval bounds are not in ascending order.
     """
 
-    if not hasattr(A, "__getitem__") or not hasattr(B, "__getitem__"):
-        raise TypeError(
-            f"Expected input intervals to be subscriptable, but got {A if not hasattr(A, '__getitem__') else B}.\nInput intervals must have a 2x2 shape where the first and second rows correspond to the bounds for the x and y axis respectively."
-        )
-    elif any([not hasattr(ax, '__getitem__') for ax in A]) or any([not hasattr(ax, '__getitem__') for ax in B]):
-        raise TypeError(
-            f"Expected input intervals to be subscriptable but got {A if any([not hasattr(ax, '__getitem__') for ax in A]) else B}.\nInput intervals must have a 2x2 shape where the first and second rows correspond to the bounds on the x and y axis respectively."
-        )
+    # Type check of function arguments
+    for interval in (A, B):
+        if not isinstance(interval, Sequence):
+            raise TypeError(f"Expected input intervals to be 2x2 sequences but got {interval}.")
+        if len(interval) != 2:
+            raise TypeError(f"Expected input intervals to be 2x2 sequences but got {interval}.")
+        for axis in interval:
+            if not isinstance(axis, Sequence):
+                raise TypeError(f"Expected input intervals to be 2x2 sequences but got {interval}.")
+            if len(axis) != 2:
+                raise TypeError(f"Expected input intervals to be 2x2 sequences but got {interval}.")
 
     # Define the intervals for A and B rectangles
     Ax: np.ndarray = np.array(A[0])
@@ -49,18 +58,18 @@ def solve_grid_problem_2D(A: Sequence[Sequence[float | int]], B: Sequence[Sequen
     beta: list[Zsqrt2] = solve_grid_problem_1d(Ay, By)
     for a in alpha:
         for b in beta:
-            solutions.append(Zomega(a = b[1] - a[1], b = b[0], c = b[1] + a[1], d = a[0]))
+            solutions.append(Zomega(a = b.q - a.q, b = b.p, c = b.q + a.q, d = a.p))
     
     # Solve two 1D grid problems for solutions of the form a + bi + ω, where a and b are in Z[√2] and ω = (1 + i)/√2
     alpha2: list[Zsqrt2] = solve_grid_problem_1d(Ax - 1/math.sqrt(2), Bx + 1/math.sqrt(2))
     beta2: list[Zsqrt2] = solve_grid_problem_1d(Ay - 1/math.sqrt(2), By + 1/math.sqrt(2))
     for a in alpha2:
         for b in beta2:
-            solutions.append(Zomega(b[1] - a[1], b[0], b[1] + a[1] + 1, a[0]))
+            solutions.append(Zomega(b.q - a.q, b.p, b.q + a.q + 1, a.p))
 
     return solutions
 
-def plot_solutions(A: Sequence[Sequence[float | int]], B: Sequence[Sequence[float | int]], solutions: list[Domega], show: bool = False):
+def plot_solutions(A: Sequence[Sequence[float | int]], B: Sequence[Sequence[float | int]], solutions: list[Zomega], show: bool = False):
     
     alpha_x = [solution.real() for solution in solutions]
     alpha_y = [solution.imag() for solution in solutions]
