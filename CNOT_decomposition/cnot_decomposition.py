@@ -22,9 +22,9 @@ def kronecker_decomposition(M: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         ValueError: If M is not a 4x4 matrix.
     """
     if not isinstance(M, np.ndarray):
-        raise TypeError("bla")
+        raise TypeError(f"Matrix must be a numpy object, but got {type(M).__name__}.")
     elif M.shape != (4, 4):
-        raise ValueError("")
+        raise ValueError(f"Matrix must be 4x4 but received {M.shape}.")
     M = M.reshape(2, 2, 2, 2)
     M = M.transpose(0, 2, 1, 3)
     M = M.reshape(4, 4)
@@ -61,7 +61,7 @@ def canonical_decomposition(
         ValueError: If the matrix is not 4x4 and unitary.
     """
     if not isinstance(U, np.ndarray):
-        raise TypeError(f"Matrix M must be a numpy object, but received {type(U).__name__}.")
+        raise TypeError(f"Matrix U must be a numpy object, but received {type(U).__name__}.")
     elif U.shape != (4, 4) or not np.allclose(U @ U.T.conj(), np.identity(4)):
         raise ValueError("M must be a 4x4 unitary matrix.")
 
@@ -72,7 +72,7 @@ def canonical_decomposition(
     )
     det_U = np.linalg.det(U)
     phase = np.angle(det_U) / 4
-    U *= det_U ** (-1 / 4)
+    U = U * det_U ** (-1 / 4)
 
     V = M.T.conj() @ U @ M
     VV = V.T @ V
@@ -99,16 +99,6 @@ def can(tx: float, ty: float, tz: float) -> np.ndarray:
     XX = np.array([[0, 0, 0, 1], [0, 0, 1, 0], [0, 1, 0, 0], [1, 0, 0, 0]])
     YY = np.array([[0, 0, 0, -1], [0, 0, 1, 0], [0, 1, 0, 0], [-1, 0, 0, 0]])
     ZZ = np.array([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
-    exponent = -1.0j * math.pi / 2 * (tx * XX + ty * YY + tz * ZZ)
+    exponent = -1.j * math.pi / 2 * (tx * XX + ty * YY + tz * ZZ)
     return expm(exponent)
 
-from scipy.stats import unitary_group
-U = unitary_group.rvs(4)
-det = np.linalg.det(U)
-print(f"{det = }")
-phase = np.angle(det) / 4
-
-A, B, t, alpha = canonical_decomposition(U)
-print(np.linalg.det(np.exp(-1.j*alpha) * U))
-print(U)
-print(B@can(t[0], t[1], t[2])@A * np.exp(1.j*phase))
