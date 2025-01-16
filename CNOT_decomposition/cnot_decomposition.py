@@ -1,58 +1,114 @@
+from __future__ import annotations
+
+import math
+
 import numpy as np
+from scipy.linalg import expm
 
 
-def cnot_decomposition(U):
+def kronecker_decomposition(M: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """
-    Decompose a 2-qubit special unitary into CNOT gates and single qubit gates.
-    
-    :param U: 2-qubit special unitary matrix
-    :return: list of CNOT gates and single qubit gates
-    """
-    # Check if the input matrix is 2x2
-    if U.shape != (4, 4):
-        raise ValueError(f'Input matrix shape must be 4x4. Got shape {U.shape}.')
-    
-    # Check if the input matrix is special
-    if not np.isclose(np.linalg.det(U), 1):
-        raise ValueError(f'The input matrix must be special (det(U) = 1). Got det(U) = {np.linalg.det(U)}.')
-    
-    # Check if the matrix is unitary
-    if not np.allclose(U @ U.T.conj(), np.eye(4)):
-        raise ValueError(f'The input matrix must be unitary.')
-    
-    # Magic gate
-    M = np.array([
-        [1, 1.j, 0, 0],
-        [0, 0, 1.j, 1],
-        [0, 0, 1.j, -1],
-        [1, -1.j, 0, 0]
-    ]) / np.sqrt(2)
+    Given a 4x4 unitary matrix M, find the two 2x2 matrix A and B such that their Kronecker
+    product is the closest to the matrix M in the Frobenius norm.
 
-    V = M @ U @ M.T.conj()
+    Args:
+        M (np.ndarray): 4x4 unitary matrix.
+
+    Returns:
+        tuple[np.ndarray, np.ndarray]: The two 2x2 matrix of the decomposition.
+
+    Raises:
+        TypeError: If M is not a numpy matrix.
+        ValueError: If M is not a 4x4 matrix.
+    """
+    if not isinstance(M, np.ndarray):
+        raise TypeError("bla")
+    elif M.shape != (4, 4):
+        raise ValueError("")
+    M = M.reshape(2, 2, 2, 2)
+    M = M.transpose(0, 2, 1, 3)
+    M = M.reshape(4, 4)
+
+    u, sv, vh = np.linalg.svd(M)
+
+    A = np.sqrt(sv[0]) * u[:, 0].reshape(2, 2)
+    B = np.sqrt(sv[0]) * vh[0, :].reshape(2, 2)
+    return A, B
+
+
+def canonical_decomposition(
+    U: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray, tuple[float, ...], float]:
+    """
+    Perform the canonical decomposition of a given 4x4 unitary.
+
+    Given a 4x4 unitary matrix, find the phase alpha, the two 4x4 local unitaries A and B, and
+    the three parameters of the canonical gate to decompose the input matrix U like
+
+    U = exp(i*alpha) * B @ Can(tx, ty, tz) @ A.
+
+    Args:
+        U (np.ndarray): 4xy unitary matrix.
+
+    Returns:
+        np.ndarray: 4x4 matrix A of the decomposition. A is the Kronecker product of two 2x2 matrix.
+        np.ndarray: 4x4 matrix B of the decomposition. B is the Kronecker product of two 2x2 matrix.
+        tuple[float, ...]: Sequence of the three canonical parameters (tx, ty, tz).
+        float: Phase of the unitary matrix.
+
+    Raises:
+        TypeError: If the input is not a numpy object.
+        ValueError: If the matrix is not 4x4 and unitary.
+    """
+    if not isinstance(U, np.ndarray):
+        raise TypeError(f"Matrix M must be a numpy object, but received {type(U).__name__}.")
+    elif U.shape != (4, 4) or not np.allclose(U @ U.T.conj(), np.identity(4)):
+        raise ValueError("M must be a 4x4 unitary matrix.")
+
+    M = (
+        1
+        / math.sqrt(2)
+        * np.array([[1, 1.0j, 0, 0], [0, 0, 1.0j, 1], [0, 0, 1.0j, -1], [1, -1.0j, 0, 0]])
+    )
+    det_U = np.linalg.det(U)
+    phase = np.angle(det_U) / 4
+    U *= det_U ** (-1 / 4)
+
+    V = M.T.conj() @ U @ M
     VV = V.T @ V
+    eigenval, eigenvec = np.linalg.eig(VV)
+    if np.linalg.det(eigenvec) < 0:
+        eigenvec[:, [0, 1]] = eigenvec[:, [1, 0]]
+        eigenval[[0, 1]] = eigenval[[1, 0]]
+    Q1 = eigenvec.T
+    D = np.sqrt(eigenval)
+    if np.prod(D) < 0:
+        D[0] = -D[0]
+    Q2 = V @ Q1.T @ np.diag(1 / D)
 
-    # Eigenvalue decomposition
-    eigvals, eigvecs = np.linalg.eig(VV)
-    D2 = np.diag(eigvals)
-    Q1 = eigvecs
+    diag_angles = -np.angle(D) / np.pi
+    tx = diag_angles[0] + diag_angles[2]
+    ty = diag_angles[1] + diag_angles[2]
+    tz = diag_angles[0] + diag_angles[1]
 
-    print()
-    print("eigvals")
-    print(eigvals)
-    print()
-    print("eigvecs")
-    print(eigvecs)
-    print()
-    print("D2")
-    print(D2)
-    print()
+    return M @ Q1 @ M.T.conj(), M @ Q2 @ M.T.conj(), (tx, ty, tz), phase
 
-    VV_reconstructed = Q1.T @ D2 @ Q1
-    print("VV")
-    print(VV)
-    print()
-    print("VV_reconstructed")
-    print(VV_reconstructed)
-    print()
-    print(f"{np.allclose(VV, VV_reconstructed) = }")
-    print("Error: ", np.linalg.norm(VV - VV_reconstructed))
+
+def can(tx: float, ty: float, tz: float) -> np.ndarray:
+    """Return the matrix form of the canonical gate for the given parameters."""
+    XX = np.array([[0, 0, 0, 1], [0, 0, 1, 0], [0, 1, 0, 0], [1, 0, 0, 0]])
+    YY = np.array([[0, 0, 0, -1], [0, 0, 1, 0], [0, 1, 0, 0], [-1, 0, 0, 0]])
+    ZZ = np.array([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
+    exponent = -1.0j * math.pi / 2 * (tx * XX + ty * YY + tz * ZZ)
+    return expm(exponent)
+
+from scipy.stats import unitary_group
+U = unitary_group.rvs(4)
+det = np.linalg.det(U)
+print(f"{det = }")
+phase = np.angle(det) / 4
+
+A, B, t, alpha = canonical_decomposition(U)
+print(np.linalg.det(np.exp(-1.j*alpha) * U))
+print(U)
+print(B@can(t[0], t[1], t[2])@A * np.exp(1.j*phase))
