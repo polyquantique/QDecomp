@@ -1,14 +1,14 @@
 import math
 
 import numpy as np
-from Grid_Operator import A, B, I, K, R, X, Z, grid_operator
+from grid_operator import A, B, I, K, R, X, Z, Grid_Operator
 from Rings import D, Domega, Dsqrt2, inv_lamb, lamb
-from State import inv_special_sigma, special_sigma, state
+from state import inv_special_sigma, special_sigma, State
 
 
-def find_grid_operator(A: np.matrix, B: np.matrix) -> grid_operator:
+def find_grid_operator(A: np.matrix, B: np.matrix) -> Grid_Operator:
     """To do: docstrings, comments and error messages"""
-    initial_state = state(A, B)
+    initial_state = State(A, B)
     initial_state_bias = initial_state.bias
     inv_grid_op = I
     if abs(initial_state_bias) > 1:
@@ -30,7 +30,7 @@ def find_grid_operator(A: np.matrix, B: np.matrix) -> grid_operator:
     return grid_op
 
 
-def find_special_grid_operator(ellipse_state: state) -> grid_operator:
+def find_special_grid_operator(ellipse_state: State) -> Grid_Operator:
     """To do: docstrings, comments and error messages"""
     special_grid_operator = I
     z = ellipse_state.z
@@ -68,5 +68,5 @@ def find_special_grid_operator(ellipse_state: state) -> grid_operator:
                 n = math.ceil(float(lamb) ** c / math.sqrt(8))
             special_grid_operator *= A**n
         else:
-            ValueError("To do")
+            ValueError("Encountered unaccounted-for values for the state parameters in Step-Lemma")
     return special_grid_operator

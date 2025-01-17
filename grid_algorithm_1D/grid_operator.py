@@ -20,7 +20,7 @@ import numpy as np
 from Rings import D, Domega, Dsqrt2, Zsqrt2, inv_lamb, lamb
 
 
-class grid_operator:
+class Grid_Operator:
     """Class to initialize a grid operator.
 
     A grid operator is defined in detail in Section 5.3 of https://arxiv.org/pdf/1403.2975.
@@ -75,27 +75,30 @@ class grid_operator:
 
         # Assign attributes
         self.G = G
+        self.a = G[0, 0]
+        self.b = G[0, 1]
+        self.c = G[1, 0]
+        self.d = G[1, 1]
 
     def __repr__(self) -> str:
         """Define the string representation of the grid operator"""
         G = self.G
         return f"{G}"
 
-    def __neg__(self) -> grid_operator:
+    def __neg__(self) -> Grid_Operator:
         """Define the negation of the grid operator"""
         G = self.G
-        return grid_operator(-G)
+        return Grid_Operator(-G)
 
     def det(self) -> Union[int, D, Zsqrt2, Dsqrt2]:
         """Computes the determinant of the grid operator"""
         G = self.G
         return G[0, 0] * G[1, 1] - G[0, 1] * G[1, 0]
 
-    def dag(self) -> grid_operator:
+    def dag(self) -> Grid_Operator:
         """Define the dag operation of the grid operator"""
-        G = self.G
         # Since G is Real, the dag operation is the transpose operation
-        return np.transpose(G)
+        return Grid_Operator([self.a, self.c, self.b, self.d])
 
     def conjugate(self):
         """Define the conjugation of the grid operator"""
@@ -113,77 +116,74 @@ class grid_operator:
                 else:
                     raise TypeError(f"Invalid type at G[{i}, {j}]: {type(element)}")
 
-        return grid_operator(G_conj)  # Return the conjugated grid
+        return Grid_Operator(G_conj)  # Return the conjugated grid
 
-    def inv(self) -> grid_operator:
+    def inv(self) -> Grid_Operator:
         """Define the inversion of the grid operator"""
         determinant = self.det()
         if determinant == 0:
             raise ValueError("Determinant must be non-zero")
         elif determinant == 1:
-            return grid_operator([self.d, -self.b, -self.c, self.a])
+            return Grid_Operator([self.d, -self.b, -self.c, self.a])
         elif determinant == -1:
-            return grid_operator([-self.d, self.b, self.c, -self.a])
+            return Grid_Operator([-self.d, self.b, self.c, -self.a])
         else:
             raise ValueError("The inversion is not defined for grid operators with determinant different from -1 or 1")
+        
+    def as_float(self) -> np.matrix:
+        return np.matrix([[float(self.a), float(self.b)], [float(self.c), float(self.d)]])
 
-    def __add__(self, other: grid_operator | np.matrix) -> grid_operator | np.matrix:
+    def __add__(self, other: Grid_Operator) -> Grid_Operator:
         """Define the summation operation of the grid operator"""
-        if not isinstance(other, (grid_operator, np.matrix)):
-            return "Both elements must be grid operators or numpy matrices"
+        if not isinstance(other, Grid_Operator):
+            raise "The elements must be grid operators"
         G = self.G
-        if isinstance(other, np.matrix):
-            G_p = np.matrix([[float(other.a), float(other.b)], [float(other.c), float(other.d)]])
-            return G + G_p
-        else:
-            G_p = other.G
-            return grid_operator(G + G_p)
+        G_p = other.G
+        return Grid_Operator(G + G_p)
 
-    def __radd__(self, other: grid_operator | np.matrix) -> grid_operator | np.matrix:
+    def __radd__(self, other: Grid_Operator) -> Grid_Operator:
         """Define the right summation operation of the grid operator"""
         return self.__add__(other)
 
-    def __sub__(self, other: grid_operator | np.matrix) -> grid_operator | np.matrix:
+    def __sub__(self, other: Grid_Operator) -> Grid_Operator:
         """Define the substraction operation of the grid operator"""
         return self.__add__(-other)
 
-    def __rsub__(self, other: grid_operator | np.matrix) -> grid_operator | np.matrix:
+    def __rsub__(self, other: Grid_Operator) -> Grid_Operator:
         """Define the right substraction operation of the grid operator"""
         return -self.__add__(other)
 
     def __mul__(
-        self, other: int | D | Zsqrt2 | Dsqrt2 | grid_operator | np.matrix | float
-    ) -> grid_operator | np.matrix:
+        self, other: int | D | Zsqrt2 | Dsqrt2 | Grid_Operator) -> Grid_Operator:
         """Define the multiplication operation of the grid operator"""
         G = self.G
         if isinstance(other, (int, D, Zsqrt2, Dsqrt2)):
-            return grid_operator(other * G)
+            return Grid_Operator(other * G)
         elif isinstance(other, (float, np.matrix)):
             float_G = np.matrix([[float(self.a), float(self.b)], [float(self.c), float(self.d)]])
-            return float_G * other
-        elif isinstance(other, grid_operator):
+            if isinstance(other, float):
+                return float_G * other
+            else:
+                return float_G @ other
+        elif isinstance(other, Grid_Operator):
             G_p = other.G
-            return grid_operator(G * G_p)
+            return Grid_Operator(G @ G_p)
         else:
             raise TypeError("Product must be with a valid type")
 
     def __rmul__(
-        self, other: int | D | Dsqrt2 | grid_operator | np.matrix | float
-    ) -> grid_operator | np.matrix:
+        self, other: int | D | Zsqrt2 | Dsqrt2 | Grid_Operator) -> Grid_Operator:
         """Define the right multiplication operation of the grid operator"""
         G = self.G
         if isinstance(other, (int, D, Zsqrt2, Dsqrt2)):
             return self.__mul__(other)
-        elif isinstance(other, grid_operator):
+        elif isinstance(other, Grid_Operator):
             G_p = other.G
-            return grid_operator(G_p * G)
-        elif isinstance(other, (float, np.matrix)):
-            float_G = np.matrix([[float(self.a), float(self.b)], [float(self.c), float(self.d)]])
-            return other * float_G
+            return Grid_Operator(G_p @ G)
         else:
             raise TypeError("Product must be with a valid type")
 
-    def __pow__(self, exponent: int) -> grid_operator:
+    def __pow__(self, exponent: int) -> Grid_Operator:
         """Define the exponentiation of the grid operator"""
         if not isinstance(exponent, int):
             raise TypeError("Exponent must be an integer.")
@@ -192,7 +192,7 @@ class grid_operator:
         else:
             base = self
 
-        result = grid_operator([1, 0, 0, 1])  # Start with identity
+        result = Grid_Operator([1, 0, 0, 1])  # Start with identity
 
         for _ in range(abs(exponent)):
             result = result * base  # Uses the __mul__ method already defined
@@ -200,9 +200,9 @@ class grid_operator:
         return result
 
 
-I: grid_operator = grid_operator([1, 0, 0, 1])
+I: Grid_Operator = Grid_Operator([1, 0, 0, 1])
 
-R: grid_operator = grid_operator(
+R: Grid_Operator = Grid_Operator(
     [
         Dsqrt2(D(0, 0), D(1, 1)),
         -Dsqrt2(D(0, 0), D(1, 1)),
@@ -211,7 +211,7 @@ R: grid_operator = grid_operator(
     ]
 )
 
-K: grid_operator = grid_operator(
+K: Grid_Operator = Grid_Operator(
     [
         Dsqrt2(D(-1, 0), D(1, 1)),
         -Dsqrt2(D(0, 0), D(1, 1)),
@@ -220,10 +220,10 @@ K: grid_operator = grid_operator(
     ]
 )
 
-X: grid_operator = grid_operator([0, 1, 1, 0])
+X: Grid_Operator = Grid_Operator([0, 1, 1, 0])
 
-Z: grid_operator = grid_operator([1, 0, 0, -1])
+Z: Grid_Operator = Grid_Operator([1, 0, 0, -1])
 
-A: grid_operator = grid_operator([1, -2, 0, 1])
+A: Grid_Operator = Grid_Operator([1, -2, 0, 1])
 
-B: grid_operator = grid_operator([1, Zsqrt2(0, 1), 0, 1])
+B: Grid_Operator = Grid_Operator([1, Zsqrt2(0, 1), 0, 1])
