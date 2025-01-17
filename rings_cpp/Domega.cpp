@@ -15,7 +15,6 @@
 
 #include <string>
 #include <stdexcept>
-#include <cmath>
 #include <iostream>
 
 #include "Domega.hpp"
@@ -33,6 +32,11 @@ Domega::Domega(int a, int la, int b, int lb, int c, int lc, int d, int ld)
 
 Domega::Domega(D a, D b, D c, D d) : _a(a), _b(b), _c(c), _d(d) {}
 
+
+const D& Domega::a() const {return _a;}
+const D& Domega::b() const {return _b;}
+const D& Domega::c() const {return _c;}
+const D& Domega::d() const {return _d;}
 
 const D& Domega::operator[](int i) const {
     switch (i) {
@@ -175,7 +179,7 @@ Domega Domega::operator*(const int& other) const {return Domega(_a * other, _b *
 
 Domega Domega::pow(int n) const {
     if (n < 0) {
-        throw std::invalid_argument("Exponent must be positive. Got " + std::to_string(n));
+        throw std::invalid_argument("The exponent must be positive. Got " + std::to_string(n));
     }
 
     Domega nth_power = *this;
