@@ -1,4 +1,4 @@
-/* Copyright 2022-2023 Olivier Romain, Francis Blais, Vincent Girouard, Marius Trudeau
+/* Copyright 2024-2025 Olivier Romain, Francis Blais, Vincent Girouard, Marius Trudeau
  * 
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 Domega::Domega(int a, int la, int b, int lb, int c, int lc, int d, int ld)
     : _a(a, la), _b(b, lb), _c(c, lc), _d(d, ld) {
     if (la < 0 or lb < 0 or lc < 0 or ld < 0) {
-        throw std::invalid_argument("Denominator must be positive. Got" + 
+        throw std::invalid_argument("Denominator must be positive. Got " + 
             std::to_string(la) + ", " + std::to_string(lb) + ", " + 
             std::to_string(lc) + ", " + std::to_string(ld)
         );

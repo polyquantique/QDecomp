@@ -1,4 +1,4 @@
-/* Copyright 2022-2023 Olivier Romain, Francis Blais, Vincent Girouard, Marius Trudeau
+/* Copyright 2024-2025 Olivier Romain, Francis Blais, Vincent Girouard, Marius Trudeau
  * 
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 
 
 /**
- * @class D
+ * @class Domega
  * @brief A class representing elements of the D[\u03C9] ring.
  * 
  * This class represents D[\u03C9] elements with 4 elements from the D ring, the four powers of \u039C.
@@ -307,7 +307,7 @@ class Domega {
 
 
         /**
-         * @brief Convert the number to a string.
+         * @brief Get a string representation of the number.
          * 
          * @return std::string The string representation of the number.
          */

@@ -1,4 +1,4 @@
-/* Copyright 2022-2023 Olivier Romain, Francis Blais, Vincent Girouard, Marius Trudeau
+/* Copyright 2024-2025 Olivier Romain, Francis Blais, Vincent Girouard, Marius Trudeau
  * 
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -247,7 +247,7 @@ class D {
 
 
         /**
-         * @brief Convert the number to a string.
+         * @brief Get a string representation of the number.
          * 
          * @return std::string The string representation of the number.
          */
