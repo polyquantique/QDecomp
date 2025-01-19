@@ -17,7 +17,7 @@
 #include <stdexcept>
 #include <iostream>
 
-#include "Domega.hpp"
+#include "Rings.hpp"
 
 
 Domega::Domega(int a, int la, int b, int lb, int c, int lc, int d, int ld)
@@ -50,8 +50,8 @@ const D& Domega::operator[](int i) const {
 } 
 
 
-// Dsqrt2 Domega::real() const {return Dsqrt2(d_, (_c - _a) * D(1, 1));}
-// Dsqrt2 Domega::imag() const {return Dsqrt2(b_, (_c + _a) * D(1, 1));}
+Dsqrt2 Domega::real() const {return Dsqrt2(_d, (_c - _a) * D(1, 1));}
+Dsqrt2 Domega::imag() const {return Dsqrt2(_b, (_c + _a) * D(1, 1));}
 
 
 Domega Domega::sqrt2_conjugate() const {return Domega(-_a, _b, -_c, _d);}
@@ -109,29 +109,29 @@ bool Domega::is_D() const {return _a == 0 and _b == 0 and _c == 0;}
 bool Domega::is_int() const {return is_D() and _d.is_int();}
 
 
-// Zomega Domega::to_Zomega() const {
-//     if (! is_Zomega()) {
-//         throw std::runtime_error("The number to convert is not in Zomega. Got " + to_string());
-//     }
-// 
-//     return Zomega(_a.num(), _b.num(), _c.num(), _d.num());
-// }
-// 
-// Dsqrt2 Domega::to_Dsqrt2() const {
-//     if (! is_Dsqrt2()) {
-//         throw std::runtime_error("The number to convert is not in Dsqrt2. Got " + to_string());
-//     }
-//     
-//     return Dsqrt2(_d, _c);
-// }
-// 
-// Zsqrt2 Domega::to_Zsqrt2() const {
-//     if (! is_Zsqrt2()) {
-//         throw std::runtime_error("The number to convert is not in Zsqrt2. Got " + to_string());
-//     }
-// 
-//     return Zsqrt2(_d.num(), _c.num());
-// }
+Zomega Domega::to_Zomega() const {
+    if (! is_Zomega()) {
+        throw std::runtime_error("The number to convert is not in Zomega. Got " + to_string());
+    }
+
+    return Zomega(_a.num(), _b.num(), _c.num(), _d.num());
+}
+
+Dsqrt2 Domega::to_Dsqrt2() const {
+    if (! is_Dsqrt2()) {
+        throw std::runtime_error("The number to convert is not in Dsqrt2. Got " + to_string());
+    }
+    
+    return Dsqrt2(_d, _c);
+}
+
+Zsqrt2 Domega::to_Zsqrt2() const {
+    if (! is_Zsqrt2()) {
+        throw std::runtime_error("The number to convert is not in Zsqrt2. Got " + to_string());
+    }
+
+    return Zsqrt2(_d.num(), _c.num());
+}
 
 D Domega::to_D() const {
     if (! is_D()) {
@@ -154,7 +154,9 @@ bool Domega::operator==(const Domega& other) const {
     return (_a == other._a) and (_b == other._b) and (_c == other._c) and (_d == other._d);
 }
 
+bool Domega::operator==(const int& other) const {return is_int() and (_d == other);}
 bool Domega::operator!=(const Domega& other) const {return !(*this == other);}
+bool Domega::operator!=(const int& other) const {return !(*this == other);}
 
 
 Domega Domega::operator+(const Domega& other) const {
@@ -183,7 +185,7 @@ Domega Domega::pow(int n) const {
     }
 
     Domega nth_power = *this;
-    Domega result(0, 0, 0, 0, 0, 0, 0, 1);
+    Domega result(0, 0, 0, 0, 0, 0, 1, 0);
 
     while (n) {
         if (n & 1) {result = result * nth_power;}

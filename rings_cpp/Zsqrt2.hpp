@@ -18,6 +18,9 @@
 
 #include <string>
 
+#include "Rings.hpp"
+
+
 /**
  * @class Zsqrt2
  * @brief A class representing elements of the Z[\u221A2] ring.
@@ -69,7 +72,7 @@ class Zsqrt2 {
          *
          * @return true If the number is an integer.
          */
-        bool is_int();
+        bool is_int() const;
 
 
         /**
@@ -109,6 +112,13 @@ class Zsqrt2 {
          */
         int to_int() const;
 
+        /**
+         * @brief Convert the number to a float.
+         * 
+         * @return float The float.
+         */
+        float to_float() const;
+
 
         /**
          * @brief Check if the number is equal to another Z[\u221A2] object.
@@ -117,7 +127,16 @@ class Zsqrt2 {
          * @return true If the numbers are equal.
          * @return false If the numbers are not equal.
          */
-        bool operator==(const Dsqrt2& other) const;
+        bool operator==(const Zsqrt2& other) const;
+
+        /**
+         * @brief Check if the number is equal to an integer.
+         * 
+         * @param other The integer.
+         * @return true If the numbers are equal.
+         * @return false If the numbers are not equal.
+         */
+        bool operator==(const int& other) const;
 
         /**
          * @brief Check if the number is not equal to another Z[\u221A2] object.
@@ -126,7 +145,27 @@ class Zsqrt2 {
          * @return true If the numbers are not equal.
          * @return false If the numbers are equal.
          */
-        bool operator!=(const Dsqrt2& other) const;
+        bool operator!=(const Zsqrt2& other) const;
+
+        /**
+         * @brief Check if the number is not equal to an integer.
+         * 
+         * @param other The integer.
+         * @return true If the numbers are not equal.
+         * @return false If the numbers are equal.
+         */
+        bool operator!=(const int& other) const;
+
+        /**
+         * @brief Check if the number is similar to another Z[\u221A2] object.
+         * 
+         * Two numbers in Z[\u221A2] are similar if they only differ by a unit.
+         * 
+         * @param other The other Z[\u221A2] object.
+         * @return true If the number is similar to the other number.
+         * @return false If the number is not similar to the other number.
+         */
+        bool operator||(const Zsqrt2& other) const;
 
 
         /**
@@ -184,4 +223,17 @@ class Zsqrt2 {
         void print() const;
 };
 
-#endif // ZSQRT2_HPP
+
+/**
+ * @brief Perform the Euclidean division of two Z[\u221A2] objects.
+ * 
+ * This function returns q and r such that num = q * div + r.
+ * 
+ * @param num The numerator.
+ * @param div The denominator.
+ * @return std::tuple<Zsqrt2, Zsqrt2> The quotient and the remainder.
+ */
+std::tuple<Zsqrt2, Zsqrt2> euclidean_div(const Zsqrt2& num, const Zsqrt2& div);
+
+
+#endif  // ZSQRT2_HPP

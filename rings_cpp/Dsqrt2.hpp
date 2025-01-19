@@ -18,7 +18,7 @@
 
 #include <string>
 
-#include "D.hpp"
+#include "Rings.hpp"
 
 
 /**
@@ -44,7 +44,7 @@ class Dsqrt2 {
          * @param lq The denominator's power of 2 of the \u221A2 coefficient.
          * @throw std::invalid_argument if any denominator power is negative.
          */
-        Domega(int p, int lp, int q, int lq);
+        Dsqrt2(int p, int lp, int q, int lq);
 
         /**
          * @brief Construct a new D[\u221A] object.
@@ -52,7 +52,7 @@ class Dsqrt2 {
          * @param p The integer coefficient.
          * @param q The \u221A2 coefficient.
          */
-        Domega(D p, D q);
+        Dsqrt2(D p, D q);
 
 
         /**
@@ -139,6 +139,13 @@ class Dsqrt2 {
          */
         int to_int() const;
 
+        /**
+         * @brief Convert the number to a float.
+         * 
+         * @return float The float.
+         */
+        float to_float() const;
+
         
         /**
          * @brief Check if the number is equal to another D[\221A2] object.
@@ -150,6 +157,15 @@ class Dsqrt2 {
         bool operator==(const Dsqrt2& other) const;
 
         /**
+         * @brief Check if the number is equal to an integer.
+         * 
+         * @param other The integer.
+         * @return true If the numbers are equal.
+         * @return false If the numbers are not equal.
+         */
+        bool operator==(const int& other) const;
+
+        /**
          * @brief Check if the number is not equal to another D[\u221A2] object.
          * 
          * @param other The other D[\u221A2] object.
@@ -157,6 +173,15 @@ class Dsqrt2 {
          * @return false If the numbers are equal.
          */
         bool operator!=(const Dsqrt2& other) const;
+
+        /**
+         * @brief Check if the number is not equal to an integer.
+         * 
+         * @param other The integer.
+         * @return true If the numbers are not equal.
+         * @return false If the numbers are equal.
+         */
+        bool operator!=(const int& other) const;
 
 
         /**

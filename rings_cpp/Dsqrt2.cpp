@@ -17,7 +17,7 @@
 #include <stdexcept>
 #include <iostream>
 
-#include "Dsqrt2.hpp"
+#include "Rings.hpp"
 
 
 Dsqrt2::Dsqrt2(int p, int lp, int q, int lq) : _p(p, lp), _q(q, lq) {
@@ -40,7 +40,7 @@ bool Dsqrt2::is_Zsqrt2() const {return _p.is_int() and _q.is_int();}
 bool Dsqrt2::is_D() const {return _q == 0;}
 bool Dsqrt2::is_int() const {return _p.is_int() and _q == 0;}
 
-Domega Dsqrt2::to_Domega() const {return Domega(-_q, 0, _q, _p);}
+Domega Dsqrt2::to_Domega() const {return Domega(-_q, D(0, 0), _q, _p);}
 
 Zomega Dsqrt2::to_Zomega() const {
     if (! is_Zsqrt2()) {
@@ -74,9 +74,13 @@ int Dsqrt2::to_int() const {
     return _p.num();
 }
 
+float Dsqrt2::to_float() const {return _p.to_float() + _q.to_float() * std::sqrt(2.0);}
+
 
 bool Dsqrt2::operator==(const Dsqrt2& other) const {return (_p == other._p) and (_q == other._q);}
+bool Dsqrt2::operator==(const int& other) const {return (_p == other) and (_q == 0);}
 bool Dsqrt2::operator!=(const Dsqrt2& other) const {return !(*this == other);}
+bool Dsqrt2::operator!=(const int& other) const {return !(*this == other);}
 
 Dsqrt2 Dsqrt2::operator+(const Dsqrt2& other) const {return Dsqrt2(_p + other._p, _q + other._q);}
 Dsqrt2 Dsqrt2::operator-() const {return Dsqrt2(-_p, -_q);}

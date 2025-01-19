@@ -18,6 +18,8 @@
 
 #include <string>
 
+#include "Rings.hpp"
+
 
 /**
  * @class Zomega
@@ -183,6 +185,15 @@ class Zomega {
         bool operator==(const Zomega& other) const;
 
         /**
+         * @brief Check if the number is equal to an integer.
+         * 
+         * @param other The integer.
+         * @return true If the numbers are equal.
+         * @return false If the numbers are not equal.
+         */
+        bool operator==(const int& other) const;
+
+        /**
          * @brief Check if the number is not equal to another Z[\u03C9] object.
          * 
          * @param other The other Z[\u03C9] object.
@@ -190,6 +201,15 @@ class Zomega {
          * @return false If the numbers are equal.
          */
         bool operator!=(const Zomega& other) const;
+
+        /**
+         * @brief Check if the number is not equal to an integer.
+         * 
+         * @param other The integer.
+         * @return true If the numbers are not equal.
+         * @return false If the numbers are equal.
+         */
+        bool operator!=(const int& other) const;
 
 
         /**
@@ -271,4 +291,25 @@ class Zomega {
         void print() const;
 };
 
-#endif // ZOMEGA_HPP
+
+/**
+ * @brief Perform the Euclidean division of two Z[\u03C9] objects.
+ * 
+ * This function returns q and r such that num = q * div + r.
+ * 
+ * @param num The numerator.
+ * @param div The denominator.
+ * @return std::tuple<Zomega, Zomega> The quotient and the remainder.
+ */
+std::tuple<Zomega, Zomega> euclidean_div(const Zomega& num, const Zomega& div);
+
+/**
+ * @brief Compute the greatest common divisor of two Z[\u03C9] numbers.
+ * 
+ * @param x The first Z[\u03C9] number.
+ * @param b The second Z[\u03C9] number.
+ * @return Zomega The greatest common divisor of the two numbers.
+ */
+Zomega gcd(const Zomega& x, const Zomega& y);
+
+#endif  // ZOMEGA_HPP

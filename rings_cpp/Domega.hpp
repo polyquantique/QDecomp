@@ -18,7 +18,7 @@
 
 #include <string>
 
-#include "D.hpp"
+#include "Rings.hpp"
 
 
 /**
@@ -109,14 +109,14 @@ class Domega {
          * 
          * @return Dsqrt2 The real part of the number.
          */
-        // Dsqrt2 real() const;
+        Dsqrt2 real() const;
 
         /**
          * @brief Get the imaginary part of the number.
          * 
          * @return Dsqrt2 The imaginary part of the number.
          */
-        // Dsqrt2 imag() const;
+        Dsqrt2 imag() const;
 
 
         /**
@@ -186,7 +186,7 @@ class Domega {
          * @return Zomega The number in the ring Z[\u03C9].
          * @throw std::runtime_error if the number is not in Z[\u03C9].
          */
-        // Zomega to_Zomega() const;
+        Zomega to_Zomega() const;
 
         /**
          * @brief Convert the number in the ring D[\u221A2].
@@ -194,7 +194,7 @@ class Domega {
          * @return Dsqrt2 The number in the ring D[\u221A2].
          * @throw std::runtime_error if the number is not in D[\u221A2].
          */
-        // Dsqrt2 to_Dsqrt2() const;
+        Dsqrt2 to_Dsqrt2() const;
 
         /**
          * @brief Convert the number in the ring Z[\u221A2].
@@ -202,7 +202,7 @@ class Domega {
          * @return Zsqrt2 The number in the ring Z[\u221A2].
          * @throw std::runtime_error if the number is not in Z[\u221A2].
          */
-        // Zsqrt2 to_Zsqrt2() const;
+        Zsqrt2 to_Zsqrt2() const;
 
         /**
          * @brief Convert the number in the ring D.
@@ -231,6 +231,15 @@ class Domega {
         bool operator==(const Domega& other) const;
 
         /**
+         * @brief Check if the number is equal to an integer.
+         * 
+         * @param other The integer.
+         * @return true If the numbers are equal.
+         * @return false If the numbers are not equal.
+         */
+        bool operator==(const int& other) const;
+
+        /**
          * @brief Check if the number is not equal to another D[\u03C9] object.
          * 
          * @param other The other D[\u03C9] object.
@@ -238,6 +247,15 @@ class Domega {
          * @return false If the numbers are equal.
          */
         bool operator!=(const Domega& other) const;
+
+        /**
+         * @brief Check if the number is not equal to an integer.
+         * 
+         * @param other The integer.
+         * @return true If the numbers are not equal.
+         * @return false If the numbers are equal.
+         */
+        bool operator!=(const int& other) const;
 
 
         /**

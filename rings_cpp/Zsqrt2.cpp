@@ -16,8 +16,9 @@
 #include <string>
 #include <stdexcept>
 #include <iostream>
+#include <cmath>
 
-#include "Zsqrt2.hpp"
+#include "Rings.hpp"
 
 
 Zsqrt2::Zsqrt2(int p, int q) : _p(p), _q(q) {}
@@ -27,7 +28,7 @@ int Zsqrt2::q() const {return _q;}
 
 Zsqrt2 Zsqrt2::sqrt2_conjugate() const {return Zsqrt2(_p, -_q);}
 
-bool Zsqrt2::is_int() {return _q == 0;}
+bool Zsqrt2::is_int() const {return _q == 0;}
 
 Domega Zsqrt2::to_Domega() const {return Domega(-_q, 0, 0, 0, _q, 0, _p, 0);}
 Zomega Zsqrt2::to_Zomega() const {return Zomega(-_q, 0, _q, _p);}
@@ -49,9 +50,21 @@ int Zsqrt2::to_int() const {
     return _p;
 }
 
+float Zsqrt2::to_float() const {return _p + _q * std::sqrt(2.0);}
+
 
 bool Zsqrt2::operator==(const Zsqrt2& other) const {return (_p == other._p) and (_q == other._q);}
+bool Zsqrt2::operator==(const int& other) const {return (_p == other) and (_q == 0);}
 bool Zsqrt2::operator!=(const Zsqrt2& other) const {return !(*this == other);}
+bool Zsqrt2::operator!=(const int& other) const {return !(*this == other);}
+
+bool Zsqrt2::operator||(const Zsqrt2& other) const {
+    Zsqrt2 r1(0, 0);
+    Zsqrt2 r2(0, 0);
+    std::tie(std::ignore, r1) = euclidean_div(*this, other);
+    std::tie(std::ignore, r2) = euclidean_div(other, *this);
+    return (r1 == 0) and (r2 == 0);
+}
 
 Zsqrt2 Zsqrt2::operator+(const Zsqrt2& other) const {return Zsqrt2(_p + other._p, _q + other._q);}
 Zsqrt2 Zsqrt2::operator-() const {return Zsqrt2(-_p, -_q);}
@@ -88,3 +101,18 @@ std::string Zsqrt2::to_string() const {
 }
 
 void Zsqrt2::print() const {std::cout << to_string() << std::endl;}
+
+
+/// Functions in the Z[\u221A2] ring
+std::tuple<Zsqrt2, Zsqrt2> euclidean_div(const Zsqrt2& num, const Zsqrt2& div) {
+    Zsqrt2 num_ = num * div.sqrt2_conjugate();
+    int den_ = (div * div.sqrt2_conjugate()).p();
+
+    int a = std::round(static_cast<float>(num_.p()) / den_);
+    int b = std::round(static_cast<float>(num_.q()) / den_);
+
+    Zsqrt2 q(a, b);
+    Zsqrt2 r = num - q * div;
+
+    return {q, r};
+}

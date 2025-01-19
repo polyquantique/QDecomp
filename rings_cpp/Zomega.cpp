@@ -17,15 +17,15 @@
 #include <stdexcept>
 #include <iostream>
 
-#include "Domega.hpp"
+#include "Rings.hpp"
 
 
 Zomega::Zomega(int a, int b, int c, int d) : _a(a), _b(b), _c(c), _d(d) {}
 
-const int Zomega::a() const {return _a;}
-const int Zomega::b() const {return _b;}
-const int Zomega::c() const {return _c;}
-const int Zomega::d() const {return _d;}
+int Zomega::a() const {return _a;}
+int Zomega::b() const {return _b;}
+int Zomega::c() const {return _c;}
+int Zomega::d() const {return _d;}
 
 int Zomega::operator[](int i) const {
     switch (i) {
@@ -95,11 +95,13 @@ int Zomega::to_int() const {
     return _d;
 }
 
-Zomega Zomega::operator==(const Zomega& other) const {
+bool Zomega::operator==(const Zomega& other) const {
     return (_a == other._a) and (_b == other._b) and (_c == other._c) and (_d == other._d);
 }
 
-Zomega Zomega::operator!=(const Zomega& other) const {return !(*this == other);}
+bool Zomega::operator==(const int& other) const {return is_int() and (_d == other);}
+bool Zomega::operator!=(const Zomega& other) const {return !(*this == other);}
+bool Zomega::operator!=(const int& other) const {return !(*this == other);}
 
 
 Zomega Zomega::operator+(const Zomega& other) const {
@@ -108,7 +110,7 @@ Zomega Zomega::operator+(const Zomega& other) const {
 
 Zomega Zomega::operator+(const int& other) const {return Zomega(_a, _b, _c, _d + other);}
 Zomega Zomega::operator-() const {return Zomega(-_a, -_b, -_c, -_d);}
-Zomega Zomega::operator-(const Zomega& other) const {return *this + (-ohter);}
+Zomega Zomega::operator-(const Zomega& other) const {return *this + (-other);}
 Zomega Zomega::operator-(const int& other) const {return *this + (-other);}
 
 Zomega Zomega::operator*(const Zomega& other) const {
@@ -124,7 +126,7 @@ Zomega Zomega::operator*(const int& other) const {
     return Zomega(_a * other, _b * other, _c * other, _d * other);
 }
 
-Zomega Zoemga::pow(int n) const {
+Zomega Zomega::pow(int n) const {
     if (n < 0) {
         throw std::invalid_argument("The exponent must be positive. Got " + std::to_string(n));
     }
@@ -146,3 +148,38 @@ std::string Zomega::to_string() const {
 }
 
 void Zomega::print() const {std::cout << to_string() << std::endl;}
+
+
+/// Functions in the Z[\u03C9] ring
+std::tuple<Zomega, Zomega> euclidean_div(const Zomega& num, const Zomega& div) {
+    Zomega div_cc = div.complex_conjugate();
+    Zomega div_div_cc = div * div_cc;
+
+    // Convert the denominator into an integer     
+    int denom = (div_div_cc * div_div_cc.sqrt2_conjugate()).to_int();
+    // Apply the same multiplication to the numerator
+    Zomega numer = num * div_cc * div_div_cc.sqrt2_conjugate();
+
+    Zomega q = Zomega(
+        std::round(static_cast<float>(numer.a()) / denom),
+        std::round(static_cast<float>(numer.b()) / denom),
+        std::round(static_cast<float>(numer.c()) / denom),
+        std::round(static_cast<float>(numer.d()) / denom)
+    );
+
+    return {q, num - q * div};
+}
+
+Zomega gcd(const Zomega& x, const Zomega& y) {
+    Zomega a = x;
+    Zomega b = y;
+    
+    Zomega r(0, 0, 0, 0);
+    do {
+        std::tie(std::ignore, r) = euclidean_div(a, b);
+        a = b;
+        b = r;
+    } while (b != 0);
+
+    return a;
+}
