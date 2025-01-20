@@ -94,6 +94,8 @@ class State:
         detA = np.linalg.det(A)
         B = self.B
         detB = np.linalg.det(B)
+        if np.isclose(detA, 0) or np.isclose(detB, 0) or detA < 0 or detB < 0:
+            raise ValueError("The determinant of A and B must be positive and non-zero")
         if np.isclose(detA, 1):
             pass
         else:
@@ -174,15 +176,15 @@ class State:
             raise ValueError("k must be an integer")
         if k >= 0:
             # kth power of sigma
-            sigma_k = (special_sigma ** k).as_float() * (math.sqrt(float(inv_lamb)) ** k)
+            sigma_k = (special_sigma ** k).as_float() * math.sqrt(float(inv_lamb ** k))
             # kth power of tau
-            tau_k = (special_tau ** k).as_float() * (math.sqrt(float(inv_lamb)) ** k)
+            tau_k = (special_tau ** k).as_float() * math.sqrt(float(inv_lamb ** k))
         else:
             # Since k is negative, we have to take the inverse
             sigma_k = (inv_special_sigma ** -k).as_float() * (math.sqrt(float(lamb)) ** -k)
             tau_k = (inv_special_tau ** -k).as_float() * (math.sqrt(float(lamb)) ** -k)
-        shift_A = sigma_k * A * sigma_k
-        shift_B = tau_k * B * tau_k
+        shift_A = sigma_k @ A @ sigma_k
+        shift_B = tau_k @ B @ tau_k
         return State(shift_A, shift_B)
 
 """Important grid operators
