@@ -20,7 +20,7 @@ def find_grid_operator(A: np.matrix, B: np.matrix) -> Grid_Operator:
         TypeError: If `A` or `B` are not of type `np.matrix`.
         ValueError: If `A` or `B` are not 2x2 matrices or are incompatible with the `State` class.
     """
-    
+
     initial_state = State(A, B)
     initial_state_bias = initial_state.bias
     # Set the inverse grid operator to the identity
@@ -39,9 +39,9 @@ def find_grid_operator(A: np.matrix, B: np.matrix) -> Grid_Operator:
         inv_grid_op = G_i * inv_grid_op
         new_state = new_state.transform(G_i)
     if k < 0:
-        inv_grid_op = (inv_special_sigma ** -k) * inv_grid_op * (special_sigma ** -k)
+        inv_grid_op = (inv_special_sigma**-k) * inv_grid_op * (special_sigma**-k)
     else:
-        inv_grid_op = (special_sigma ** k) * inv_grid_op * (inv_special_sigma ** k)
+        inv_grid_op = (special_sigma**k) * inv_grid_op * (inv_special_sigma**k)
     grid_op = inv_grid_op.inv()
     return grid_op
 
@@ -68,7 +68,7 @@ def find_special_grid_operator(ellipse_state: State) -> Grid_Operator:
     b = ellipse_state.b
     beta = ellipse_state.beta
 
-    # Flip b and beta when beta is negative 
+    # Flip b and beta when beta is negative
     if beta <= 0:
         special_grid_operator = Z * special_grid_operator
 
@@ -86,7 +86,7 @@ def find_special_grid_operator(ellipse_state: State) -> Grid_Operator:
                 n = 1
             else:
                 n = math.ceil(float(lamb) ** c / 4)
-            special_grid_operator = A ** n * special_grid_operator
+            special_grid_operator = A**n * special_grid_operator
         elif z >= 0.8 and zeta <= 0.3:
             special_grid_operator = K.conjugate() * special_grid_operator
         else:
@@ -101,7 +101,7 @@ def find_special_grid_operator(ellipse_state: State) -> Grid_Operator:
                 n = 1
             else:
                 n = math.ceil(float(lamb) ** c / math.sqrt(8))
-            special_grid_operator = B ** n * special_grid_operator
+            special_grid_operator = B**n * special_grid_operator
         else:
             # The algorithm should never reach this line
             ValueError("Encountered unaccounted-for values for the state parameters in Step-Lemma")

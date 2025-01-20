@@ -191,8 +191,8 @@ class D:
             return nb.__rmul__(self)
         except AttributeError:
             raise TypeError(
-                    f"Product operation is not defined between {self.__class__.__name__} and {type(nb).__name__}."
-                )
+                f"Product operation is not defined between {self.__class__.__name__} and {type(nb).__name__}."
+            )
 
     def __rmul__(self, nb: Any) -> D | Zsqrt2 | Dsqrt2 | Zomega | Domega:
         """Define the right multiplication of integers with the D class."""
@@ -469,8 +469,8 @@ class Domega:
     def __repr__(self) -> str:
         """Define the string representation of the class."""
         sign: Callable[[D], str] = lambda coeff: "+" if coeff.num >= 0 else "-"
-        value: Callable[[D], str] = lambda coeff: str(coeff) if coeff.num >= 0 else str(-coeff)
-        omega: Callable[[int], str] = lambda index: "ω" + str(index) if index > 0 else ""
+        value: Callable[[D], str] = lambda coeff: (str(coeff) if coeff.num >= 0 else str(-coeff))
+        omega: Callable[[int], str] = lambda index: ("ω" + str(index) if index > 0 else "")
         if all([coeff.num == 0 for coeff in self]):
             return "0"
         else:
@@ -574,8 +574,8 @@ class Domega:
             return nb.__rmul__(self)
         except AttributeError:
             raise TypeError(
-                    f"Product operation is not defined between {self.__class__.__name__} and {type(nb).__name__}."
-                )
+                f"Product operation is not defined between {self.__class__.__name__} and {type(nb).__name__}."
+            )
 
     def __rmul__(self, nb: Any) -> Zsqrt2 | Dsqrt2 | Zomega | Domega:
         """Define the right multiplication of integers and D objects with the Domega class."""

@@ -67,10 +67,30 @@ def test_float_repr(a: int, b: int) -> None:
 
 
 @pytest.mark.parametrize(
-    "n1", [-10, 5, 0, Zsqrt2(-10, 5), Zsqrt2(5, 5), Zsqrt2(5, -10), Zsqrt2(-10, -10), Zsqrt2(0, 0)]
+    "n1",
+    [
+        -10,
+        5,
+        0,
+        Zsqrt2(-10, 5),
+        Zsqrt2(5, 5),
+        Zsqrt2(5, -10),
+        Zsqrt2(-10, -10),
+        Zsqrt2(0, 0),
+    ],
 )
 @pytest.mark.parametrize(
-    "n2", [-10, 5, 0, Zsqrt2(-10, 5), Zsqrt2(5, 5), Zsqrt2(5, -10), Zsqrt2(-10, -10), Zsqrt2(0, 0)]
+    "n2",
+    [
+        -10,
+        5,
+        0,
+        Zsqrt2(-10, 5),
+        Zsqrt2(5, 5),
+        Zsqrt2(5, -10),
+        Zsqrt2(-10, -10),
+        Zsqrt2(0, 0),
+    ],
 )
 def test_addition(n1: Zsqrt2 | int, n2: Zsqrt2 | int) -> None:
     """Test the addition definition of Zsqrt2 class"""
@@ -86,7 +106,8 @@ def test_addition(n1: Zsqrt2 | int, n2: Zsqrt2 | int) -> None:
 
 
 @pytest.mark.parametrize(
-    "nb", [1.0, 1 + 1.0j, "1", float(Zsqrt2(1, 1)), [1], (1,), {1}, {1: 1}, None, range(5)]
+    "nb",
+    [1.0, 1 + 1.0j, "1", float(Zsqrt2(1, 1)), [1], (1,), {1}, {1: 1}, None, range(5)],
 )
 def test_addition_type_exceptions(nb: Any) -> None:
     """Test the raise of a type error when doing a summation of a Z[sqrt2] with an element that is not of type int or Z[sqrt2]."""
@@ -98,10 +119,30 @@ def test_addition_type_exceptions(nb: Any) -> None:
 
 
 @pytest.mark.parametrize(
-    "n1", [-10, 5, 0, Zsqrt2(-10, 5), Zsqrt2(5, 5), Zsqrt2(5, -10), Zsqrt2(-10, -10), Zsqrt2(0, 0)]
+    "n1",
+    [
+        -10,
+        5,
+        0,
+        Zsqrt2(-10, 5),
+        Zsqrt2(5, 5),
+        Zsqrt2(5, -10),
+        Zsqrt2(-10, -10),
+        Zsqrt2(0, 0),
+    ],
 )
 @pytest.mark.parametrize(
-    "n2", [-10, 5, 0, Zsqrt2(-10, 5), Zsqrt2(5, 5), Zsqrt2(5, -10), Zsqrt2(-10, -10), Zsqrt2(0, 0)]
+    "n2",
+    [
+        -10,
+        5,
+        0,
+        Zsqrt2(-10, 5),
+        Zsqrt2(5, 5),
+        Zsqrt2(5, -10),
+        Zsqrt2(-10, -10),
+        Zsqrt2(0, 0),
+    ],
 )
 def test_subtraction(n1: Zsqrt2 | int, n2: Zsqrt2 | int) -> None:
     """Test the subtraction definition of Zsqrt2 class"""
@@ -117,7 +158,8 @@ def test_subtraction(n1: Zsqrt2 | int, n2: Zsqrt2 | int) -> None:
 
 
 @pytest.mark.parametrize(
-    "nb", [1.0, 1 + 1.0j, "1", float(Zsqrt2(1, 1)), [1], (1,), {1}, {1: 1}, None, range(5)]
+    "nb",
+    [1.0, 1 + 1.0j, "1", float(Zsqrt2(1, 1)), [1], (1,), {1}, {1: 1}, None, range(5)],
 )
 def test_subtraction_type_exceptions(nb: Any) -> None:
     """Test the raise of a type error when doing a subtraction of a Z[sqrt2] with an element that is not of type int or Z[sqrt2]."""
@@ -129,10 +171,30 @@ def test_subtraction_type_exceptions(nb: Any) -> None:
 
 
 @pytest.mark.parametrize(
-    "n1", [-10, 5, 0, Zsqrt2(-10, 5), Zsqrt2(5, 5), Zsqrt2(5, -10), Zsqrt2(-10, -10), Zsqrt2(0, 0)]
+    "n1",
+    [
+        -10,
+        5,
+        0,
+        Zsqrt2(-10, 5),
+        Zsqrt2(5, 5),
+        Zsqrt2(5, -10),
+        Zsqrt2(-10, -10),
+        Zsqrt2(0, 0),
+    ],
 )
 @pytest.mark.parametrize(
-    "n2", [-10, 5, 0, Zsqrt2(-10, 5), Zsqrt2(5, 5), Zsqrt2(5, -10), Zsqrt2(-10, -10), Zsqrt2(0, 0)]
+    "n2",
+    [
+        -10,
+        5,
+        0,
+        Zsqrt2(-10, 5),
+        Zsqrt2(5, 5),
+        Zsqrt2(5, -10),
+        Zsqrt2(-10, -10),
+        Zsqrt2(0, 0),
+    ],
 )
 def test_product(n1: Zsqrt2 | int, n2: Zsqrt2 | int) -> None:
     """Test the product definition of Zsqrt2 class"""
@@ -148,7 +210,8 @@ def test_product(n1: Zsqrt2 | int, n2: Zsqrt2 | int) -> None:
 
 
 @pytest.mark.parametrize(
-    "nb", [1.0, 1 + 1.0j, "1", float(Zsqrt2(1, 1)), [1], (1,), {1}, {1: 1}, None, range(5)]
+    "nb",
+    [1.0, 1 + 1.0j, "1", float(Zsqrt2(1, 1)), [1], (1,), {1}, {1: 1}, None, range(5)],
 )
 def test_product_type_exceptions(nb: Any) -> None:
     """Test the raise of a type error when doing a multiplication of a Z[sqrt2] with an element that is not of type int or Z[sqrt2]."""
@@ -160,7 +223,8 @@ def test_product_type_exceptions(nb: Any) -> None:
 
 
 @pytest.mark.parametrize(
-    "base", [Zsqrt2(randint(-20, 20), randint(-20, 20)) for i in range(15)] + [Zsqrt2(0, 0)]
+    "base",
+    [Zsqrt2(randint(-20, 20), randint(-20, 20)) for i in range(15)] + [Zsqrt2(0, 0)],
 )
 @pytest.mark.parametrize("power", np.arange(0, 10, 1))
 def test_power(base: Zsqrt2, power: int) -> None:
@@ -176,7 +240,8 @@ def test_power(base: Zsqrt2, power: int) -> None:
 
 
 @pytest.mark.parametrize(
-    "nb", [1.0, 1 + 1.0j, "1", float(Zsqrt2(1, 1)), [1], (1,), {1}, {1: 1}, None, range(5)]
+    "nb",
+    [1.0, 1 + 1.0j, "1", float(Zsqrt2(1, 1)), [1], (1,), {1}, {1: 1}, None, range(5)],
 )
 def test_power_type_exceptions(nb: Any) -> None:
     """Test the raise of a type error when raising a Z[sqrt2] element to a non-integer power."""
@@ -203,7 +268,8 @@ def test_negation(nb: Zsqrt2) -> None:
 
 
 @pytest.mark.parametrize(
-    "nb", [Zsqrt2(randint(-100, 101), randint(-100, 101)) for i in range(15)] + [Zsqrt2(0, 0)]
+    "nb",
+    [Zsqrt2(randint(-100, 101), randint(-100, 101)) for i in range(15)] + [Zsqrt2(0, 0)],
 )
 @pytest.mark.parametrize("precision", [-5, -3, -1, 1, 1, 3, 5, None])
 def test_rounding(nb: Zsqrt2, precision: int) -> None:
@@ -212,7 +278,8 @@ def test_rounding(nb: Zsqrt2, precision: int) -> None:
 
 
 @pytest.mark.parametrize(
-    "nb", [Zsqrt2(randint(-100, 101), randint(-100, 101)) for i in range(15)] + [Zsqrt2(0, 0)]
+    "nb",
+    [Zsqrt2(randint(-100, 101), randint(-100, 101)) for i in range(15)] + [Zsqrt2(0, 0)],
 )
 def test_floor(nb: Zsqrt2) -> None:
     """Test the floor rounding of a Zsqrt2 element."""
@@ -220,7 +287,8 @@ def test_floor(nb: Zsqrt2) -> None:
 
 
 @pytest.mark.parametrize(
-    "nb", [Zsqrt2(randint(-100, 101), randint(-100, 101)) for i in range(15)] + [Zsqrt2(0, 0)]
+    "nb",
+    [Zsqrt2(randint(-100, 101), randint(-100, 101)) for i in range(15)] + [Zsqrt2(0, 0)],
 )
 def test_ceil(nb: Zsqrt2) -> None:
     """Test the ceil rounding of a Zsqrt2 element."""
@@ -235,10 +303,30 @@ def test_conjugate(a: int, b: int) -> None:
 
 
 @pytest.mark.parametrize(
-    "n1", [-10, 5, 0, Zsqrt2(-10, 5), Zsqrt2(5, 5), Zsqrt2(5, -10), Zsqrt2(-10, -10), Zsqrt2(0, 0)]
+    "n1",
+    [
+        -10,
+        5,
+        0,
+        Zsqrt2(-10, 5),
+        Zsqrt2(5, 5),
+        Zsqrt2(5, -10),
+        Zsqrt2(-10, -10),
+        Zsqrt2(0, 0),
+    ],
 )
 @pytest.mark.parametrize(
-    "n2", [-10, 5, 0, Zsqrt2(-10, 5), Zsqrt2(5, 5), Zsqrt2(5, -10), Zsqrt2(-10, -10), Zsqrt2(0, 0)]
+    "n2",
+    [
+        -10,
+        5,
+        0,
+        Zsqrt2(-10, 5),
+        Zsqrt2(5, 5),
+        Zsqrt2(5, -10),
+        Zsqrt2(-10, -10),
+        Zsqrt2(0, 0),
+    ],
 )
 def test__eq__(n1: Zsqrt2 | int, n2: Zsqrt2 | int):
     """Test the equality of Zsqrt2 class."""

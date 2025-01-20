@@ -35,9 +35,9 @@ class State:
     """Class to initialize a state given a pair of 2x2 matrices.
 
     A state is of the form (A, B), where A and B are both 2x2 matrices and have
-    a determinant of 1. A state is assigned to a pair of ellipses with the matrices 
-    A and B representing their dimensions and angles. This module is pulled from 
-    Appendix A of https://arxiv.org/pdf/1403.2975. This module is useful in the 
+    a determinant of 1. A state is assigned to a pair of ellipses with the matrices
+    A and B representing their dimensions and angles. This module is pulled from
+    Appendix A of https://arxiv.org/pdf/1403.2975. This module is useful in the
     context of achieving at least 1/6 uprightness for both ellipses of the state.
 
     Attributes:
@@ -176,16 +176,17 @@ class State:
             raise ValueError("k must be an integer")
         if k >= 0:
             # kth power of sigma
-            sigma_k = (special_sigma ** k).as_float() * math.sqrt(float(inv_lamb ** k))
+            sigma_k = (special_sigma**k).as_float() * math.sqrt(float(inv_lamb**k))
             # kth power of tau
-            tau_k = (special_tau ** k).as_float() * math.sqrt(float(inv_lamb ** k))
+            tau_k = (special_tau**k).as_float() * math.sqrt(float(inv_lamb**k))
         else:
             # Since k is negative, we have to take the inverse
-            sigma_k = (inv_special_sigma ** -k).as_float() * (math.sqrt(float(lamb)) ** -k)
-            tau_k = (inv_special_tau ** -k).as_float() * (math.sqrt(float(lamb)) ** -k)
+            sigma_k = (inv_special_sigma**-k).as_float() * (math.sqrt(float(lamb)) ** -k)
+            tau_k = (inv_special_tau**-k).as_float() * (math.sqrt(float(lamb)) ** -k)
         shift_A = sigma_k @ A @ sigma_k
         shift_B = tau_k @ B @ tau_k
         return State(shift_A, shift_B)
+
 
 """Important grid operators
 

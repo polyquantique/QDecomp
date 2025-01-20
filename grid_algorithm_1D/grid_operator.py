@@ -102,7 +102,7 @@ class Grid_Operator:
     def conjugate(self):
         """Define the conjugation of the grid operator"""
         G = self.G
-        G_conj = np.zeros_like(G, dtype=object)  
+        G_conj = np.zeros_like(G, dtype=object)
 
         for i in range(G.shape[0]):  # Iterate over rows
             for j in range(G.shape[1]):  # Iterate over columns
@@ -124,10 +124,15 @@ class Grid_Operator:
         elif determinant == -1:
             return Grid_Operator([-self.d, self.b, self.c, -self.a])
         else:
-            raise ValueError("The inversion is not defined for grid operators with determinant different from -1 or 1")
-        
+            raise ValueError(
+                "The inversion is not defined for grid operators with determinant different from -1 or 1"
+            )
+
     def as_float(self) -> np.ndarray:
-        return np.array([[float(self.a), float(self.b)], [float(self.c), float(self.d)]], dtype=object)
+        return np.array(
+            [[float(self.a), float(self.b)], [float(self.c), float(self.d)]],
+            dtype=object,
+        )
 
     def __add__(self, other: Grid_Operator) -> Grid_Operator:
         """Define the summation operation of the grid operator"""
@@ -139,8 +144,7 @@ class Grid_Operator:
         """Define the substraction operation of the grid operator"""
         return self.__add__(-other)
 
-    def __mul__(
-        self, other: int | D | Zsqrt2 | Dsqrt2 | Grid_Operator) -> Grid_Operator:
+    def __mul__(self, other: int | D | Zsqrt2 | Dsqrt2 | Grid_Operator) -> Grid_Operator:
         """Define the multiplication operation of the grid operator"""
         if isinstance(other, (int, D, Zsqrt2, Dsqrt2)):
             return Grid_Operator([other * self.a, other * self.b, other * self.c, other * self.d])
@@ -151,8 +155,7 @@ class Grid_Operator:
         else:
             raise TypeError("Product must be with a valid type")
 
-    def __rmul__(
-        self, other: int | D | Zsqrt2 | Dsqrt2 | Grid_Operator) -> Grid_Operator:
+    def __rmul__(self, other: int | D | Zsqrt2 | Dsqrt2 | Grid_Operator) -> Grid_Operator:
         """Define the right multiplication operation of the grid operator"""
         if isinstance(other, (int, D, Zsqrt2, Dsqrt2)):
             return self.__mul__(other)

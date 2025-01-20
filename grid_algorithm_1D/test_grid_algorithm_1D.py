@@ -21,7 +21,8 @@ def test_indexable_type_error(not_subscriptable: Any) -> None:
 
 
 @pytest.mark.parametrize(
-    "interval", [(1, 2, 3), (1,), [1, 2, 3], [1], "123", "1", np.array([1, 2, 3]), np.array([1])]
+    "interval",
+    [(1, 2, 3), (1,), [1, 2, 3], [1], "123", "1", np.array([1, 2, 3]), np.array([1])],
 )
 def test_len_type_error(interval: Sequence[float | int]) -> None:
     """Test the raise of type errors when giving intervals that are not of length 2."""
@@ -95,7 +96,8 @@ def test_indexable_type_error_plot_function(not_subscriptable: Any) -> None:
 
 
 @pytest.mark.parametrize(
-    "interval", [(1, 2, 3), (1,), [1, 2, 3], [1], "123", "1", np.array([1, 2, 3]), np.array([1])]
+    "interval",
+    [(1, 2, 3), (1,), [1, 2, 3], [1], "123", "1", np.array([1, 2, 3]), np.array([1])],
 )
 def test_len_type_error_plot_function(interval: Sequence[float | int]) -> None:
     """Test the raise of type errors when plotting if giving intervals that are not of length 2."""
@@ -122,7 +124,9 @@ def test_float_type_error_plot_function(a: Any) -> None:
 
 
 @pytest.mark.parametrize("interval", [(0, -1), (1, 0), (1, 1)])
-def test_interval_ascending_value_error_plot_function(interval: Sequence[float]) -> None:
+def test_interval_ascending_value_error_plot_function(
+    interval: Sequence[float],
+) -> None:
     """Test the raise of value error when plotting if the intervals limits are not in increasing order."""
     with pytest.raises(ValueError, match="Intervals A and B must have"):
         plot_grid_problem((1, 2), interval, [])
