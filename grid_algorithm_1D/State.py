@@ -41,8 +41,8 @@ class State:
     context of achieving at least 1/6 uprightness for both ellipses of the state.
 
     Attributes:
-        A (np.matrix): First matrix of the state.
-        B (np.matrix): Second matrix of the state.
+        A (np.ndarray): First matrix of the state.
+        B (np.ndarray): Second matrix of the state.
         z (float): Exponent of \u03BB in A.
         zeta (float): Exponent of \u03BB in B.
         e (float): Diagonal component of A.
@@ -51,12 +51,12 @@ class State:
         beta (float): Antidiagonal component of B.
     """
 
-    def __init__(self, A: np.matrix, B: np.matrix) -> None:
+    def __init__(self, A: np.ndarray, B: np.ndarray) -> None:
         """Initialize the state class.
 
         Args:
-            A (np.matrix): First matrix of the class.
-            B (np.matrix): Second matrix of the class.
+            A (np.ndarray): First matrix of the class.
+            B (np.ndarray): Second matrix of the class.
 
         Raises:
             TypeError: If A or B cannot be converted to a numpy array.
@@ -66,8 +66,8 @@ class State:
         """
         # Ensure A and B are numpy arrays
         try:
-            A = np.matrix(A, dtype=float)
-            B = np.matrix(B, dtype=float)
+            A = np.array(A, dtype=float)
+            B = np.array(B, dtype=float)
         except Exception:
             raise TypeError("A and B must be convertible to numpy arrays of floats.")
 
@@ -111,27 +111,27 @@ class State:
     def z(self) -> float:
         """Refer to (34) in https://arxiv.org/pdf/1403.2975"""
         A = self.A
-        return -0.5 * np.log(A[0, 0] / A[1, 1]) / np.log(1 + np.sqrt(2))
+        return -0.5 * math.log(A[0, 0] / A[1, 1]) / math.log(1 + math.sqrt(2))
 
     @property
     def zeta(self) -> float:
         """Refer to (34) in https://arxiv.org/pdf/1403.2975"""
         B = self.B
-        return -0.5 * np.log(B[0, 0] / B[1, 1]) / np.log(1 + np.sqrt(2))
+        return -0.5 * math.log(B[0, 0] / B[1, 1]) / math.log(1 + math.sqrt(2))
 
     @property
     def e(self) -> float:
         """Refer to (34) in https://arxiv.org/pdf/1403.2975"""
         z = self.z
         A = self.A
-        return A[0, 0] * (1 + np.sqrt(2)) ** z
+        return A[0, 0] * (1 + math.sqrt(2)) ** z
 
     @property
     def epsilon(self) -> float:
         """Refer to (34) in https://arxiv.org/pdf/1403.2975"""
         zeta = self.zeta
         B = self.B
-        return B[0, 0] * (1 + np.sqrt(2)) ** zeta
+        return B[0, 0] * (1 + math.sqrt(2)) ** zeta
 
     @property
     def b(self) -> float:

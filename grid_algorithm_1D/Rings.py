@@ -187,7 +187,12 @@ class D:
             return D(self.num * nb, self.denom)
         elif issubclass(type(nb), Domega):
             return nb.__mul__(self)
-        raise TypeError(f"Product operation is not defined between D and {type(nb).__name__}.")
+        try:
+            return nb.__rmul__(self)
+        except AttributeError:
+            raise TypeError(
+                    f"Product operation is not defined between {self.__class__.__name__} and {type(nb).__name__}."
+                )
 
     def __rmul__(self, nb: Any) -> D | Zsqrt2 | Dsqrt2 | Zomega | Domega:
         """Define the right multiplication of integers with the D class."""
@@ -565,9 +570,12 @@ class Domega:
             c: D = -(self.a * nb.b) + -(self.b * nb.a) + (self.c * nb.d) + (self.d * nb.c)
             d: D = -(self.a * nb.c) + -(self.b * nb.b) + -(self.c * nb.a) + (self.d * nb.d)
             return Domega(a, b, c, d).convert(output_type(type(self), type(nb)))
-        raise TypeError(
-            f"Product operation is not defined between {self.__class__.__name__} and {type(nb).__name__}."
-        )
+        try:
+            return nb.__rmul__(self)
+        except AttributeError:
+            raise TypeError(
+                    f"Product operation is not defined between {self.__class__.__name__} and {type(nb).__name__}."
+                )
 
     def __rmul__(self, nb: Any) -> Zsqrt2 | Dsqrt2 | Zomega | Domega:
         """Define the right multiplication of integers and D objects with the Domega class."""

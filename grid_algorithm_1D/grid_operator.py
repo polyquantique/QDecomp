@@ -73,7 +73,6 @@ class Grid_Operator:
             if not isinstance(element, (int, D, Zsqrt2, Dsqrt2)):
                 raise TypeError(f"Element {element} must be an int, D, Zsqrt2, or Dsqrt2.")
 
-        # Assign attributes
         self.G = G
         self.a = G[0, 0]
         self.b = G[0, 1]
@@ -103,18 +102,15 @@ class Grid_Operator:
     def conjugate(self):
         """Define the conjugation of the grid operator"""
         G = self.G
-        # Initialize G_conj with the same shape as G, using np.array for flexibility
-        G_conj = np.zeros_like(G, dtype=object)  # or dtype=G.dtype if you need consistency in types
+        G_conj = np.zeros_like(G, dtype=object)  
 
         for i in range(G.shape[0]):  # Iterate over rows
             for j in range(G.shape[1]):  # Iterate over columns
                 element = G[i, j]
-                if isinstance(element, (int, D)):
-                    G_conj[i, j] = element  # No change for integers or D types
-                elif isinstance(element, (Zsqrt2, Dsqrt2)):
+                if isinstance(element, (Zsqrt2, Dsqrt2)):
                     G_conj[i, j] = element.sqrt2_conjugate()  # Apply conjugation
                 else:
-                    raise TypeError(f"Invalid type at G[{i}, {j}]: {type(element)}")
+                    G_conj[i, j] = element  # No change for int or D types
 
         return Grid_Operator(G_conj)  # Return the conjugated grid
 
@@ -130,42 +126,26 @@ class Grid_Operator:
         else:
             raise ValueError("The inversion is not defined for grid operators with determinant different from -1 or 1")
         
-    def as_float(self) -> np.matrix:
-        return np.matrix([[float(self.a), float(self.b)], [float(self.c), float(self.d)]])
+    def as_float(self) -> np.ndarray:
+        return np.array([[float(self.a), float(self.b)], [float(self.c), float(self.d)]], dtype=object)
 
     def __add__(self, other: Grid_Operator) -> Grid_Operator:
         """Define the summation operation of the grid operator"""
         if not isinstance(other, Grid_Operator):
             raise "The elements must be grid operators"
-        G = self.G
-        G_p = other.G
-        return Grid_Operator(G + G_p)
-
-    def __radd__(self, other: Grid_Operator) -> Grid_Operator:
-        """Define the right summation operation of the grid operator"""
-        return self.__add__(other)
+        return Grid_Operator(self.G + other.G)
 
     def __sub__(self, other: Grid_Operator) -> Grid_Operator:
         """Define the substraction operation of the grid operator"""
         return self.__add__(-other)
 
-    def __rsub__(self, other: Grid_Operator) -> Grid_Operator:
-        """Define the right substraction operation of the grid operator"""
-        return -self.__add__(other)
-
     def __mul__(
         self, other: int | D | Zsqrt2 | Dsqrt2 | Grid_Operator) -> Grid_Operator:
         """Define the multiplication operation of the grid operator"""
-        G = self.G
         if isinstance(other, (int, D, Zsqrt2, Dsqrt2)):
-            return Grid_Operator(other * G)
-        elif isinstance(other, (float, np.matrix)):
-            float_G = np.matrix([[float(self.a), float(self.b)], [float(self.c), float(self.d)]])
-            if isinstance(other, float):
-                return float_G * other
-            else:
-                return float_G @ other
+            return Grid_Operator([other * self.a, other * self.b, other * self.c, other * self.d])
         elif isinstance(other, Grid_Operator):
+            G = self.G
             G_p = other.G
             return Grid_Operator(G @ G_p)
         else:
@@ -174,10 +154,10 @@ class Grid_Operator:
     def __rmul__(
         self, other: int | D | Zsqrt2 | Dsqrt2 | Grid_Operator) -> Grid_Operator:
         """Define the right multiplication operation of the grid operator"""
-        G = self.G
         if isinstance(other, (int, D, Zsqrt2, Dsqrt2)):
             return self.__mul__(other)
         elif isinstance(other, Grid_Operator):
+            G = self.G
             G_p = other.G
             return Grid_Operator(G_p @ G)
         else:
