@@ -1,23 +1,85 @@
 import math
 
 import numpy as np
+
 from grid_operator import A, B, I, K, R, X, Z, Grid_Operator
 from Rings import D, Domega, Dsqrt2, inv_lamb, lamb
 from state import inv_special_sigma, special_sigma, State
 
 
-def find_grid_operator(A: np.matrix, B: np.matrix) -> Grid_Operator:
+def find_points(theta, epsilon):
+    """Find the three points which define the slice \u211B_\u03B5 as shown in Section 7.2 of 
+    https://arxiv.org/pdf/1403.2975.
+
+    Args:
+        theta (float): The angle \u03B8 (0 \u2264 \u03B8 < 4\u03C0) of the R_z gate.
+        epsilon (float): The error of the approximation of R_z.
+
+    Returns:
+        tuple: A tuple containing three points (p1, p2, p3), where:
+            - p1 (list[float]): The origin point [0, 0].
+            - p2 (list[float]): The first computed point on the slice.
+            - p3 (list[float]): The second computed point on the slice.
+
+    Raises:
+        ValueError: If theta is not in the range [0, 4\u03C0].
+        ValueError: If epsilon is not less than 0.5.
+        ValueError: If theta or epsilon cannot be converted to floats.
+
+    """
+    # Verify the value of theta
+    if theta > 4 * math.pi or theta < 0:
+        raise ValueError("The value of theta must be between 0 and 4\u03C0")
+
+    # Verify the value of epsilon
+    if epsilon >= 0.5:
+        raise ValueError("The maximal allowebale error is 0.5")
+
+    # Attempt to convert the input parameters to floats
+    try:
+        theta = float(theta)
+        epsilon = float(epsilon)
+    except (ValueError, TypeError):
+        raise ValueError("Both theta and epsilon must be convertible to floats.")
+
+    # Compute important values only once
+    sine = math.sin(theta / 2)
+    cosine = math.cos(theta / 2)
+    p1 = [0, 0]
+
+    """
+    The calculations needed to find the points are the solving of a trivial quadratic equation which is not 
+    solved in detail here. Refer to Section 7.2 of https://arxiv.org/pdf/1403.2975 to understand the problem 
+    statement. Note that in order to have sufficient precision on the values of the points, the intersection 
+    between the unit disk and the vector z is set to be the origin. 
+    """
+    # Handle the special case where the sine is 0
+    if np.isclose(sine, 0):
+        p2 = [-(cosine * epsilon**2) / 2, math.sqrt(epsilon**2 - epsilon**4 / 2)]
+        p3 = [-(cosine * epsilon**2) / 2, -math.sqrt(epsilon**2 - epsilon**4 / 2)]
+    else:
+        # Set the proper values for x2 and x3 in order to find the points p2 and p3
+        delta = math.sqrt((4 * epsilon**2) / (sine**3) - epsilon**4 / (sine**4))
+        x2 = (-(epsilon**2 * cosine) / (sine**3) + delta) / (2 * cosine**2 / sine**2 + 2)
+        x3 = (-(epsilon**2 * cosine) / (sine**3) - delta) / (2 * cosine**2 / sine**2 + 2)
+        p2 = [x2, cosine * x2 / sine + (epsilon**2 / 2) * 1 / (sine**2)]
+        p3 = [x3, cosine * x3 / sine + (epsilon**2 / 2) * 1 / (sine**2)]
+
+    return p1, p2, p3
+
+
+def find_grid_operator(A: np.ndarray, B: np.ndarray) -> Grid_Operator:
     """Find the grid operator which reduces the skew of a state to less than 15.
 
     Args:
-        A (np.matrix): The 2x2 matrix defining the first ellipse.
-        B (np.matrix): The 2x2 matrix defining the second ellipse.
+        A (np.ndarray): The 2x2 matrix defining the first ellipse.
+        B (np.ndarray): The 2x2 matrix defining the second ellipse.
 
     Returns:
         grid_op (Grid_Operator): The resulting grid operator that satisfies the initial criteria.
 
     Raises:
-        TypeError: If `A` or `B` are not of type `np.matrix`.
+        TypeError: If `A` or `B` are not of type `np.ndarray` or convertable to it.
         ValueError: If `A` or `B` are not 2x2 matrices or are incompatible with the `State` class.
     """
 
@@ -43,7 +105,7 @@ def find_grid_operator(A: np.matrix, B: np.matrix) -> Grid_Operator:
     else:
         inv_grid_op = (special_sigma**k) * inv_grid_op * (inv_special_sigma**k)
     grid_op = inv_grid_op.inv()
-    return grid_op
+    return inv_grid_op, grid_op
 
 
 def find_special_grid_operator(ellipse_state: State) -> Grid_Operator:
