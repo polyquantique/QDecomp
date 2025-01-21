@@ -5,8 +5,8 @@ from scipy.stats import unitary_group
 from cnot_decomposition import *
 
 
-@pytest.mark.parametrize("A", [np.random.uniform(-100, 100, (2, 2)) for _ in range(10)])
-@pytest.mark.parametrize("B", [np.random.uniform(-100, 100, (2, 2)) for _ in range(10)])
+@pytest.mark.parametrize("A", [np.random.uniform(-100, 100, (2, 2)) for _ in range(10)] + [np.zeros((2, 2)), np.identity(2), np.arange(1, 5).reshape(2, 2)])
+@pytest.mark.parametrize("B", [np.random.uniform(-100, 100, (2, 2)) for _ in range(10)] + [np.zeros((2, 2)), np.identity(2), np.arange(1, 5).reshape(2, 2)])
 def test_kronecker_decomposition(A, B):
     """Test the kronecker decomposition of 4x4 matrix."""
     M = np.kron(A, B)
@@ -45,8 +45,9 @@ def test_canonical_decomposition_errors():
         np.random.randint(-100, 100, (3, 3)),
         np.random.randint(-100, 100, (3, 4)),
         np.random.randint(-100, 100, (4, 3)),
-        np.random.randint(-100, 100, (5, 5)),
-        unitary_group.rvs(4) * 2,
+        np.random.randint(-100, 100, (5, 5))
     ]:
-        with pytest.raises(ValueError, match="M must be a 4x4 unitary matrix"):
+        with pytest.raises(ValueError, match="U must be 4x4."):
             canonical_decomposition(M)
+    with pytest.raises(ValueError, match="U must be unitary."):
+        canonical_decomposition(unitary_group.rvs(4) * 2)
