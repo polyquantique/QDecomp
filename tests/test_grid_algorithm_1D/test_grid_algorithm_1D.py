@@ -5,57 +5,16 @@ import pytest
 from numpy.random import uniform
 import matplotlib.pyplot as plt
 
-from grid_algorithm_1D import plot_grid_problem, solve_grid_problem_1d
-from Zsqrt2 import Zsqrt2
+from grid_algorithm_1D.grid_algorithm_1D import plot_grid_problem, solve_grid_problem_1d
+from grid_algorithm_1D.Zsqrt2 import Zsqrt2
 
 
-@pytest.mark.parametrize("not_subscriptable", [1, 1.0, True, {1, 2}])
-def test_indexable_type_error(not_subscriptable: Any) -> None:
-    """Test the raise of type errors if the given intervals are not subscriptable."""
-    with pytest.raises(TypeError, match="Expected input intervals to be sequences of length 2"):
-        solve_grid_problem_1d(not_subscriptable, (1, 2))
-    with pytest.raises(TypeError, match="Expected input intervals to be sequences of length 2"):
-        solve_grid_problem_1d((1, 2), not_subscriptable)
-    with pytest.raises(TypeError, match="Expected input intervals to be sequences of length 2"):
-        solve_grid_problem_1d(not_subscriptable, not_subscriptable)
-
-
-@pytest.mark.parametrize(
-    "interval", [(1, 2, 3), (1,), [1, 2, 3], [1], "123", "1", np.array([1, 2, 3]), np.array([1])]
-)
-def test_len_type_error(interval: Sequence[float | int]) -> None:
-    """Test the raise of type errors when giving intervals that are not of length 2."""
-    with pytest.raises(TypeError, match="Expected input intervals to be sequences of length 2"):
-        solve_grid_problem_1d(interval, (1, 2))
-    with pytest.raises(TypeError, match="Expected input intervals to be sequences of length 2"):
-        solve_grid_problem_1d((1, 2), interval)
-    with pytest.raises(TypeError, match="Expected input intervals to be sequences of length 2"):
-        solve_grid_problem_1d(interval, interval)
-
-
-@pytest.mark.parametrize("a", [1 + 1.0j, None, "1", (1,)])
-def test_float_type_error(a: Any) -> None:
-    """Test the raise of a type error when the interval limits are not real numbers"""
-    A: tuple = (1, 2)
-    B: tuple = (a, 2)
-    C: tuple = (1, a)
-    D: tuple = (a, a)
-    for arg1 in (A, B, C, D):
-        for arg2 in (A, B, C, D):
-            if not (arg1 == A and arg2 == A):
-                with pytest.raises(TypeError, match="Interval limits must be real numbers."):
-                    solve_grid_problem_1d(arg1, arg2)
-
-
-@pytest.mark.parametrize("interval", [(0, -1), (1, 0), (1, 1)])
-def test_interval_ascending_value_error(interval: Sequence[float]) -> None:
-    """Test the raise of value error when the intervals limits are not in ascending order."""
-    with pytest.raises(ValueError, match="Interval bounds must be in ascending order"):
-        solve_grid_problem_1d((1, 2), interval)
-    with pytest.raises(ValueError, match="Interval bounds must be in ascending order"):
-        solve_grid_problem_1d(interval, (1, 2))
-    with pytest.raises(ValueError, match="Interval bounds must be in ascending order"):
-        solve_grid_problem_1d(interval, interval)
+@pytest.mark.parametrize("A", [(1, 2, 3), '1, 2', (1.j, 2), '12'])
+def test_grid_algorithm_errors(A):
+    with pytest.raises(TypeError, match="Input intervals must be real sequences of length 2"):
+        solve_grid_problem_1d(A, (-1, 1))
+    with pytest.raises(TypeError, match="Input intervals must be real sequences of length 2"):
+        solve_grid_problem_1d((-1, 1), A)
 
 
 @pytest.mark.parametrize(

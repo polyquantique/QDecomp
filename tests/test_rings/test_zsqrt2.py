@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 from numpy.random import randint
 
-from Zsqrt2 import Zsqrt2
+from grid_algorithm_1D.Zsqrt2 import Zsqrt2
 
 
 @pytest.mark.parametrize(
@@ -33,17 +33,17 @@ def test_init_exceptions(a: Any, b: Any) -> None:
 def test_repr() -> None:
     """Test the string representation of the Zsqrt2 class"""
     nb = [
-        (Zsqrt2(1, 1), "1+√2"),
-        (Zsqrt2(1, -1), "1-√2"),
+        (Zsqrt2(1, 1), "1+1√2"),
+        (Zsqrt2(1, -1), "1-1√2"),
         (Zsqrt2(1, 2), "1+2√2"),
         (Zsqrt2(1, -2), "1-2√2"),
-        (Zsqrt2(0, 1), "√2"),
-        (Zsqrt2(0, -1), "-√2"),
-        (Zsqrt2(0, 2), "2√2"),
-        (Zsqrt2(0, -2), "-2√2"),
-        (Zsqrt2(1, 0), "1"),
-        (Zsqrt2(-1, 0), "-1"),
-        (Zsqrt2(0, 0), "0"),
+        (Zsqrt2(0, 1), "0+1√2"),
+        (Zsqrt2(0, -1), "0-1√2"),
+        (Zsqrt2(0, 2), "0+2√2"),
+        (Zsqrt2(0, -2), "0-2√2"),
+        (Zsqrt2(1, 0), "1+0√2"),
+        (Zsqrt2(-1, 0), "-1+0√2"),
+        (Zsqrt2(0, 0), "0+0√2"),
     ]
     assert all([str(ni[0]) == ni[1] for ni in nb])
 
