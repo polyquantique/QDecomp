@@ -1,4 +1,4 @@
-# Copyright 2022-2023 Olivier Romain, Francis Blais, Vincent Girouard, Marius Trudeau
+# Copyright 2024 Olivier Romain, Francis Blais, Vincent Girouard, Marius Trudeau
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -75,7 +75,6 @@ class Zsqrt2:
         
         Returns:
             Zsqrt2: \u221A2-conjugate of the ring element.
-
         """
         return Zsqrt2(self.a, -self.b)
 
@@ -84,7 +83,7 @@ class Zsqrt2:
         bsqrt = self.b * math.sqrt(2)
         if math.isclose(self.a, -bsqrt, rel_tol=1e-4):
             getcontext().prec = 50
-            return float(Decimal(int(self.a)) + Decimal(int(self.b)) * Decimal(2).sqrt())    
+            return float(self.a + self.b * Decimal(2).sqrt())    
         return self.a + bsqrt
 
     def __getitem__(self, i: int) -> int:
@@ -94,19 +93,11 @@ class Zsqrt2:
     def __repr__(self) -> str:
         """Define the string representation of the ring element."""
         repr: str = ""
-        if self.a != 0:
-            repr += str(self.a)
-            if self.b != 0:
-                if self.b > 0:
-                    repr += f"+{self.b if self.b != 1 else ''}\u221A2"
-                elif self.b < 0:
-                    repr += f"-{-self.b if self.b != -1 else ''}\u221A2"
-        elif self.b != 0:
-            if self.b == -1:
-                repr += "-"
-            repr += f"{self.b if self.b != 1 and self.b != -1 else ''}\u221A2"
+        repr += str(self.a)
+        if self.b < 0:
+            repr += str(self.b) + "\u221A2"
         else:
-            repr += str(0)
+            repr += "+" + str(self.b) + "\u221A2"
         return repr
 
     def __eq__(self, nb: Any) -> bool:
@@ -209,7 +200,6 @@ class Zsqrt2:
 
         Returns:
             (int | float): Ring element rounded to the given precision.
-
         """
         if precision is None:
             return round(float(self))
@@ -224,8 +214,8 @@ class Zsqrt2:
         """Define the ceil operation."""
         return math.ceil(float(self))
 
-# lambda = 1 + \u221A2 is used to scale 1D grid problems.
-lamb: Zsqrt2 = Zsqrt2(1, 1)
+# LAMBDA = 1 + \u221A2 is used to scale 1D grid problems.
+LAMBDA: Zsqrt2 = Zsqrt2(1, 1)
 
-# inv_lambda = -1 + \u221A2 is the inverse of lambda. It is used to scale 1D grid problem.
-inv_lamb: Zsqrt2 = -lamb.conjugate()
+# INVERSE_LAMBDA = -1 + \u221A2 is the inverse of LAMBDA. It is used to scale 1D grid problem.
+INVERSE_LAMBDA: Zsqrt2 = -LAMBDA.conjugate()
