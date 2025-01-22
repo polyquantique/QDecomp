@@ -27,5 +27,5 @@ license = {file = "LICENSE"}
 [project.urls]
 Homepage = "https://github.com/polyquantique/CliffordPlusT"
 
-[tool.setuptools.packages]
-find = {}
+[tool.setuptools.packages.find]
+where = ["src"]   
