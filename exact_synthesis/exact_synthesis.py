@@ -1,13 +1,13 @@
+import os
+import sys
+
 import numpy as np
 
-import sys
-import os
-
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from Domega import Domega, H, T, T_inv, I
+from Domega import Domega, H, I, T, T_inv
 
 
-def exact_synthesis(U: np.array) -> str:
+def exact_synthesis_alg(U: np.array) -> str:
     """Exact synthesis of a unitary 2x2 matrix with D[ω] elements into a sequence
     of H and T gates.
 
@@ -108,7 +108,7 @@ if __name__ == "__main__":
     print(f"Initial sequence : {init_seq}")
     U = apply_sequence(init_seq)
     print(f"Initial gate : \n{U}")
-    sequence, U_f = exact_synthesis(U)
+    sequence, U_f = exact_synthesis_alg(U)
     print(f"Sequence : {sequence}")
     print(f"Matrix with s<3 : \n{U_f}")
     print(f"Final matrix : \n{apply_sequence(sequence, U_f)}")

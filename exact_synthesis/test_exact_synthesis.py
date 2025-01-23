@@ -1,17 +1,13 @@
-import sys
 import os
+import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import numpy as np
 import pytest
-from exact_synthesis import (
-    random_sequence,
-    apply_sequence,
-    is_unitary,
-    exact_synthesis,
-)
-from Domega import Domega, H, T, T_inv, I
+
+from Domega import Domega, H, I, T, T_inv
+from exact_synthesis import apply_sequence, exact_synthesis, is_unitary, random_sequence
 
 
 def test_random_sequence_length():
