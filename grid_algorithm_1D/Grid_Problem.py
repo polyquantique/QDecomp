@@ -7,7 +7,7 @@ from Rings import D, Domega, Dsqrt2, inv_lamb, lamb
 from state import inv_special_sigma, special_sigma, State
 
 
-def find_points(theta, epsilon):
+def find_points(epsilon: float, theta: float) -> np.ndarray:
     """Find the three points which define the slice \u211B_\u03B5 as shown in Section 7.2 of 
     https://arxiv.org/pdf/1403.2975.
 
@@ -27,20 +27,21 @@ def find_points(theta, epsilon):
         ValueError: If theta or epsilon cannot be converted to floats.
 
     """
-    # Verify the value of theta
-    if theta > 4 * math.pi or theta < 0:
-        raise ValueError("The value of theta must be between 0 and 4\u03C0")
-
-    # Verify the value of epsilon
-    if epsilon >= 0.5:
-        raise ValueError("The maximal allowebale error is 0.5")
 
     # Attempt to convert the input parameters to floats
     try:
         theta = float(theta)
         epsilon = float(epsilon)
     except (ValueError, TypeError):
-        raise ValueError("Both theta and epsilon must be convertible to floats.")
+        raise TypeError("Both theta and epsilon must be convertible to floats.")
+
+    # Verify the value of theta
+    if theta > 4 * math.pi or theta < 0:
+        raise ValueError("The value of theta must be between 0 and 4\u03C0.")
+
+    # Verify the value of epsilon
+    if epsilon >= 0.5:
+        raise ValueError("The maximal allowebale error is 0.5.")
 
     # Compute important values only once
     sine = math.sin(theta / 2)
@@ -55,17 +56,19 @@ def find_points(theta, epsilon):
     """
     # Handle the special case where the sine is 0
     if np.isclose(sine, 0):
-        p2 = [-(cosine * epsilon**2) / 2, math.sqrt(epsilon**2 - epsilon**4 / 2)]
-        p3 = [-(cosine * epsilon**2) / 2, -math.sqrt(epsilon**2 - epsilon**4 / 2)]
+        p2 = [-(cosine * epsilon**2) / 2, math.sqrt(epsilon**2 - epsilon**4 / 4)]
+        p3 = [-(cosine * epsilon**2) / 2, -math.sqrt(epsilon**2 - epsilon**4 / 4)]
     else:
         # Set the proper values for x2 and x3 in order to find the points p2 and p3
-        delta = math.sqrt((4 * epsilon**2) / (sine**3) - epsilon**4 / (sine**4))
-        x2 = (-(epsilon**2 * cosine) / (sine**3) + delta) / (2 * cosine**2 / sine**2 + 2)
-        x3 = (-(epsilon**2 * cosine) / (sine**3) - delta) / (2 * cosine**2 / sine**2 + 2)
-        p2 = [x2, cosine * x2 / sine + (epsilon**2 / 2) * 1 / (sine**2)]
-        p3 = [x3, cosine * x3 / sine + (epsilon**2 / 2) * 1 / (sine**2)]
+        delta = epsilon * math.sqrt(4 / (sine**2) - epsilon**2 / (sine**2))
+        b = (epsilon**2 * cosine) / (sine**2)
+        denom = 2 * cosine**2 / sine**2 + 2
+        x2 = (-b + delta) / denom
+        x3 = (-b - delta) / denom
+        p2 = [x2, cosine * x2 / sine + (epsilon**2 / 2) / sine]
+        p3 = [x3, cosine * x3 / sine + (epsilon**2 / 2) / sine]
 
-    return p1, p2, p3
+    return np.array(p1), np.array(p2), np.array(p3)
 
 
 def find_grid_operator(A: np.ndarray, B: np.ndarray) -> Grid_Operator:

@@ -435,7 +435,7 @@ def solve_xi_eq_ttdag_in_d(xi):
         xi (Dsqrt2): A number
 
     Returns:
-        Domega of None: A number t for which ξ = t * t†, or None if no solution exists
+        Domega or None: A number t for which ξ = t * t†, or None if no solution exists
     """
     # The equation only has a solution if ξ is doubly positive, i.e. ξ >= 0 and ξ• >= 0.
     if float(xi) < 0 or float(xi.sqrt2_conjugate()) < 0:
