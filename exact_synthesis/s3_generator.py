@@ -39,6 +39,13 @@ def generate_sequences(max_h=3, max_consecutive_t=4, max_length=19):
     return valid_sequences
 
 
+def is_gate_equal(gate1, gate2):
+    for elements in zip(gate1, gate2):
+        if elements[0] != elements[1]:
+            return False
+    return True
+
+
 if __name__ == "__main__":
     init_seq = random_sequence(10)
     print(f"Initial sequence : {init_seq}")
@@ -47,7 +54,7 @@ if __name__ == "__main__":
     sequence, U_f = exact_synthesis_alg(U)
     assert U.all() == apply_sequence(sequence, U_f).all()
     remaining_seq = init_seq.replace(sequence, "", 1)
-    print(remaining_seq)
+    print(f"Remaining sequence : {remaining_seq}")
     sequences = generate_sequences()
 
     with open("exact_synthesis/sequences.txt", "w") as file:
@@ -55,8 +62,14 @@ if __name__ == "__main__":
             file.write(f"{seq}\n")
 
     s3_dict = {seq: apply_sequence(seq) for seq in sequences}
-    # u_f_seq = s3_dict.get(U_f, None)
-    # print(f"Sequence : {sequence + u_f_seq}")
 
+    for key, value in s3_dict.items():
+        if np.array_equal(value, U_f):
+            u_f_seq = key
+            print(f"Sequence : {key}")
+            break
+
+    print(f"Sequence : {sequence + u_f_seq}")
+    final_sequence = sequence + u_f_seq
     print(f"Matrix with s<3 : \n{U_f}")
-    print(f"Final matrix : \n{apply_sequence(sequence, U_f)}")
+    print(f"Final matrix : \n{apply_sequence(final_sequence)}")
