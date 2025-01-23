@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 from numpy.random import uniform
-from Zsqrt2 import Zsqrt2
 
 from grid_algorithm_1D import plot_grid_problem, solve_grid_problem_1d
 
@@ -12,11 +11,11 @@ from grid_algorithm_1D import plot_grid_problem, solve_grid_problem_1d
 @pytest.mark.parametrize("not_subscriptable", [1, 1.0, True, {1, 2}])
 def test_indexable_type_error(not_subscriptable: Any) -> None:
     """Test the raise of type errors if the given intervals are not subscriptable."""
-    with pytest.raises(TypeError, match="Expected input intervals to be subscriptable."):
+    with pytest.raises(TypeError, match="Expected input intervals to be sequences of length 2"):
         solve_grid_problem_1d(not_subscriptable, (1, 2))
-    with pytest.raises(TypeError, match="Expected input intervals to be subscriptable."):
+    with pytest.raises(TypeError, match="Expected input intervals to be sequences of length 2"):
         solve_grid_problem_1d((1, 2), not_subscriptable)
-    with pytest.raises(TypeError, match="Expected input intervals to be subscriptable."):
+    with pytest.raises(TypeError, match="Expected input intervals to be sequences of length 2"):
         solve_grid_problem_1d(not_subscriptable, not_subscriptable)
 
 
@@ -26,11 +25,11 @@ def test_indexable_type_error(not_subscriptable: Any) -> None:
 )
 def test_len_type_error(interval: Sequence[float | int]) -> None:
     """Test the raise of type errors when giving intervals that are not of length 2."""
-    with pytest.raises(TypeError, match="Intervals must be of length 2 but got length"):
+    with pytest.raises(TypeError, match="Expected input intervals to be sequences of length 2"):
         solve_grid_problem_1d(interval, (1, 2))
-    with pytest.raises(TypeError, match="Intervals must be of length 2 but got length"):
+    with pytest.raises(TypeError, match="Expected input intervals to be sequences of length 2"):
         solve_grid_problem_1d((1, 2), interval)
-    with pytest.raises(TypeError, match="Intervals must be of length 2 but got length"):
+    with pytest.raises(TypeError, match="Expected input intervals to be sequences of length 2"):
         solve_grid_problem_1d(interval, interval)
 
 
@@ -50,12 +49,12 @@ def test_float_type_error(a: Any) -> None:
 
 @pytest.mark.parametrize("interval", [(0, -1), (1, 0), (1, 1)])
 def test_interval_ascending_value_error(interval: Sequence[float]) -> None:
-    """Test the raise of value error when the intervals limits are not in increasing order."""
-    with pytest.raises(ValueError, match="Intervals A and B must have"):
+    """Test the raise of value error when the intervals limits are not in ascending order."""
+    with pytest.raises(ValueError, match="Interval bounds must be in ascending order"):
         solve_grid_problem_1d((1, 2), interval)
-    with pytest.raises(ValueError, match="Intervals A and B must have"):
+    with pytest.raises(ValueError, match="Interval bounds must be in ascending order"):
         solve_grid_problem_1d(interval, (1, 2))
-    with pytest.raises(ValueError, match="Intervals A and B must have"):
+    with pytest.raises(ValueError, match="Interval bounds must be in ascending order"):
         solve_grid_problem_1d(interval, interval)
 
 
@@ -74,8 +73,8 @@ def test_grid_algorithm_1D_solutions(A, B):
                 (
                     float(solution) <= A[1]
                     and float(solution) >= A[0]
-                    and float(solution.conjugate()) <= B[1]
-                    and float(solution.conjugate()) >= B[0]
+                    and float(solution.sqrt2_conjugate()) <= B[1]
+                    and float(solution.sqrt2_conjugate()) >= B[0]
                 )
                 for solution in solutions
             ]
@@ -85,13 +84,13 @@ def test_grid_algorithm_1D_solutions(A, B):
 @pytest.mark.parametrize("not_subscriptable", [1, 1.0, True, {1, 2}])
 def test_indexable_type_error_plot_function(not_subscriptable: Any) -> None:
     """Test the raise of type errors when plotting if the given intervals are not subscriptable."""
-    with pytest.raises(TypeError, match="to be subscriptable."):
+    with pytest.raises(TypeError, match="Expected input intervals to be sequences of length 2"):
         plot_grid_problem(not_subscriptable, (1, 2), [])
-    with pytest.raises(TypeError, match="to be subscriptable."):
+    with pytest.raises(TypeError, match="Expected input intervals to be sequences of length 2"):
         plot_grid_problem((1, 2), not_subscriptable, [])
-    with pytest.raises(TypeError, match="to be subscriptable."):
+    with pytest.raises(TypeError, match="Expected input intervals to be sequences of length 2"):
         plot_grid_problem(not_subscriptable, not_subscriptable, [])
-    with pytest.raises(TypeError, match="to be subscriptable."):
+    with pytest.raises(TypeError, match="Expected solutions to be subscriptable"):
         plot_grid_problem([1, 2], [1, 2], not_subscriptable)
 
 
@@ -101,11 +100,11 @@ def test_indexable_type_error_plot_function(not_subscriptable: Any) -> None:
 )
 def test_len_type_error_plot_function(interval: Sequence[float | int]) -> None:
     """Test the raise of type errors when plotting if giving intervals that are not of length 2."""
-    with pytest.raises(TypeError, match="Intervals must have 2 bounds"):
+    with pytest.raises(TypeError, match="Expected input intervals to be sequences of length 2"):
         plot_grid_problem(interval, (1, 2), [])
-    with pytest.raises(TypeError, match="Intervals must have 2 bounds"):
+    with pytest.raises(TypeError, match="Expected input intervals to be sequences of length 2"):
         plot_grid_problem((1, 2), interval, [])
-    with pytest.raises(TypeError, match="Intervals must have 2 bounds"):
+    with pytest.raises(TypeError, match="Expected input intervals to be sequences of length 2"):
         plot_grid_problem(interval, interval, [])
 
 
@@ -124,15 +123,13 @@ def test_float_type_error_plot_function(a: Any) -> None:
 
 
 @pytest.mark.parametrize("interval", [(0, -1), (1, 0), (1, 1)])
-def test_interval_ascending_value_error_plot_function(
-    interval: Sequence[float],
-) -> None:
-    """Test the raise of value error when plotting if the intervals limits are not in increasing order."""
-    with pytest.raises(ValueError, match="Intervals A and B must have"):
+def test_interval_ascending_value_error_plot_function(interval: Sequence[float]) -> None:
+    """Test the raise of value error when plotting if the intervals limits are not in ascending order."""
+    with pytest.raises(ValueError, match="Interval bounds must be in ascending order"):
         plot_grid_problem((1, 2), interval, [])
-    with pytest.raises(ValueError, match="Intervals A and B must have"):
+    with pytest.raises(ValueError, match="Interval bounds must be in ascending order"):
         plot_grid_problem(interval, (1, 2), [])
-    with pytest.raises(ValueError, match="Intervals A and B must have"):
+    with pytest.raises(ValueError, match="Interval bounds must be in ascending order"):
         plot_grid_problem(interval, interval, [])
 
 

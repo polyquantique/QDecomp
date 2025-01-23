@@ -17,7 +17,7 @@ This file contains the functions solve_grid_problem_1d and plot_grid_problem.
 
 1) solve_grid_problem_1d
 Given two real closed intervals A and B, solve_grid_problem_1d finds all the solutions alpha in 
-the ring of quadratic integers with radicand 2, Z[√2], such that alpha is in A and the √2-conjugate 
+the ring of quadratic integers with radicand 2, \u2124[\u221A2], such that alpha is in A and the \u221A2-conjugate 
 of alpha is in B. This function is a sub-algorithm to solve 2D grid problems for upright
 rectangles. For more information, see
 Neil J. Ross and Peter Selinger, Optimal ancilla-free Clifford+T approximation of z-rotations, https://arxiv.org/pdf/1403.2975
@@ -27,21 +27,30 @@ The function plot_grid_problem plots the solutions of the grid problem for the i
 conjugate on the real axis. The plot also contains the intervals A and B.
 """
 
+from __future__ import annotations
+
 import math
+import numbers as num
 import os
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
+from typing import Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
+<<<<<<< HEAD
 from Zsqrt2 import Zsqrt2, inv_lamb, lamb
+=======
+
+from Rings import Zsqrt2, inv_lamb, lamb
+>>>>>>> 22030d19b2ee07af4ed136c8986f9ca9e1c297ce
 
 
 def solve_grid_problem_1d(A: Sequence[float | int], B: Sequence[float | int]) -> list[Zsqrt2]:
     """Solves the 1 dimensional grid problem for two sets and returns the result.
 
-    Given two real closed sets A and B, this function finds all the solutions x in the ring Z[√2] such that
-    x is in A and the √2-conjugate of x is in B.
+    Given two real closed sets A and B, this function finds all the solutions x in the ring \u2124[\u221A2] such that
+    x is in A and the \u221A2-conjugate of x is in B.
 
     Args:
         A (Sequence[float | int]): Bounds of the first interval.
@@ -51,48 +60,33 @@ def solve_grid_problem_1d(A: Sequence[float | int], B: Sequence[float | int]) ->
         list[Zsqrt2]: The list of solutions to the grid problem.
 
     Raises:
-        TypeError: If A and B intervals are not subscriptable sequences of length 2.
-
+        TypeError: If A and B intervals are not sequences of length 2.
         TypeError: If intervals limits are not real numbers.
         ValueError: If intervals limits are not in ascending order.
     """
-    if not hasattr(A, "__getitem__") or not hasattr(B, "__getitem__"):
-        raise TypeError(
-            f"Expected input intervals to be subscriptable, but got {A if not hasattr(A, '__getitem__') else B}."
-        )
-    elif len(list(A)) != 2 or len(list(B)) != 2:
-        raise TypeError(
-            f"Intervals must be of length 2 but got length {len(list(A)) if len(list(A)) != 2 else len(list(B))}"
-        )
-    elif not all([isinstance(i, (float, int, np.int32, np.int64)) for i in list(A) + list(B)]):
-        raise TypeError("Interval limits must be real numbers.")
-    elif A[0] >= A[1] or B[0] >= B[1]:
-        raise ValueError("Intervals A and B must have A[0] < A[1] and B[0] < B[1].")
+    for interval in (A, B):
+        if not isinstance(interval, (Sequence, np.ndarray)):
+            raise TypeError(
+                f"Expected input intervals to be sequences of length 2 but got {interval}"
+            )
+        elif len(interval) != 2:
+            raise TypeError(
+                f"Expected input intervals to be sequences of length 2 but got {interval}"
+            )
+        elif not all([isinstance(bound, num.Real) for bound in interval]):
+            raise TypeError("Interval limits must be real numbers.")
+        elif interval[0] >= interval[1]:
+            raise ValueError(f"Interval bounds must be in ascending order, but got {interval}.")
 
     # Definitions of the intervals and deltaA
-    A_interval: np.ndarray = np.array(A)
-    B_interval: np.ndarray = np.array(B)
+    A_interval = np.array(A)
+    B_interval = np.array(B)
     deltaA: float = A_interval[1] - A_interval[0]
 
     # Scaling of the intervals to have lamb^-1 <= deltaA < 1
-    is_smaller_case: bool = False
-    if deltaA > 1:
-        n_scaling: int = math.ceil(-math.log(deltaA) / math.log(float(inv_lamb)))
-        A_scaled: np.ndarray = A_interval * float(inv_lamb) ** n_scaling
-        B_scaled: np.ndarray = B_interval * float(-lamb) ** n_scaling
-    elif deltaA == 1:
-        n_scaling = 1
-        A_scaled = A_interval * float(inv_lamb)
-        B_scaled = B_interval * float(-lamb)
-    elif deltaA < float(inv_lamb):
-        is_smaller_case = True
-        n_scaling = math.ceil(math.log(float(inv_lamb) / deltaA) / math.log(float(lamb)))
-        A_scaled = A_interval * float(lamb) ** n_scaling
-        B_scaled = B_interval * float(lamb.conjugate()) ** n_scaling
-    else:
-        n_scaling = 0
-        A_scaled = A_interval
-        B_scaled = B_interval
+    n_scaling = math.floor(math.log(float(lamb) * deltaA) / math.log(float(lamb)))
+    A_scaled = A_interval * float(lamb) ** -n_scaling
+    B_scaled = B_interval * float(-lamb) ** n_scaling
 
     # Flip the interval if multiplied by a negative number
     if n_scaling % 2 == 1:
@@ -106,14 +100,15 @@ def solve_grid_problem_1d(A: Sequence[float | int], B: Sequence[float | int]) ->
 
     # Integers in the interval
     if math.isclose(b_interval_scaled[0], round(b_interval_scaled[0])):
-        b_start: int = round(b_interval_scaled[0])
+        b_start = round(b_interval_scaled[0])
     else:
         b_start = math.ceil(b_interval_scaled[0])
     if math.isclose(b_interval_scaled[-1], round(b_interval_scaled[-1])):
-        b_end: int = round(b_interval_scaled[-1])
+        b_end = round(b_interval_scaled[-1])
     else:
         b_end = math.floor(b_interval_scaled[-1])
 
+    # List of solutions
     alpha: list[Zsqrt2] = []
     for bi in range(b_start, b_end + 1):
         # Interval to look for a (Integer coefficient of the ring element)
@@ -127,17 +122,15 @@ def solve_grid_problem_1d(A: Sequence[float | int], B: Sequence[float | int]) ->
 
         # If there is an integer if this interval
         if math.ceil(a_interval_scaled[0]) == math.floor(a_interval_scaled[1]):
-            ai: int = math.ceil(a_interval_scaled[0])
-            alpha_i_scaled: Zsqrt2 = Zsqrt2(a=ai, b=bi)
+            ai = math.ceil(a_interval_scaled[0])
+            alpha_i_scaled = Zsqrt2(p=ai, q=bi)
 
             # Compute the unscaled solution
-            alpha_i: Zsqrt2 = (
-                alpha_i_scaled
-                * (lambda is_smaller: inv_lamb if is_smaller else lamb)(is_smaller_case)
-                ** n_scaling
-            )
+            alpha_i: Zsqrt2 = alpha_i_scaled * (
+                lambda n_scaling: lamb if n_scaling >= 0 else inv_lamb
+            )(n_scaling) ** abs(n_scaling)
             fl_alpha_i = float(alpha_i)
-            fl_alpha_i_conjugate = float(alpha_i.conjugate())
+            fl_alpha_i_conjugate = float(alpha_i.sqrt2_conjugate())
 
             # See if the solution is a solution to the unscaled grid problem for A and B
             if (
@@ -147,7 +140,6 @@ def solve_grid_problem_1d(A: Sequence[float | int], B: Sequence[float | int]) ->
                 and fl_alpha_i_conjugate <= B[1]
             ):
                 alpha.append(alpha_i)
-
     return alpha
 
 
@@ -155,7 +147,7 @@ def plot_grid_problem(
     A: Sequence[float | int],
     B: Sequence[float | int],
     solutions: Sequence[Zsqrt2],
-    show: bool = False,
+    show: Optional[bool] = False,
 ) -> None:
     """Plot the solutions of the 1D grid problem on the real axis.
 
@@ -165,28 +157,29 @@ def plot_grid_problem(
     Args:
         A (Sequence[float | int]): Bounds of the first interval.
         B (Sequence[float | int]): Bounds of the second interval.
-        solutions (Sequence[Zsqrt2]): Solutions of the 1D grid problem for A and B in Z[√2].
-        show (bool): If set to True, open the plot in a window. Default = False.
+        solutions (Sequence[Zsqrt2]): Solutions of the 1D grid problem for A and B in \u2124[\u221A2].
+        show (bool, optional): If set to True, show the plot in a window. Default = False.
 
     Raises:
-        TypeError: If A and B intervals are not subscriptable sequences of length 2.
+        TypeError: If A and B intervals are not sequences of length 2.
         TypeError: If intervals limits are not real numbers.
         ValueError: If intervals limits are not in ascending order.
-        TypeError: If solutions are not subscriptable of Zsqrt2 objects.
+        TypeError: If solutions are not a sequence of Zsqrt2 objects.
     """
-    if not hasattr(A, "__getitem__") or not hasattr(B, "__getitem__"):
-        raise TypeError(
-            f"Expected input intervals to be subscriptable, but got {A if not hasattr(A, '__getitem__') else B}."
-        )
-    elif len(list(A)) != 2 or len(list(B)) != 2:
-        raise TypeError(
-            f"Intervals must have 2 bounds, but got {len(list(A)) if len(list(A)) != 2 else len(list(B))} bounds."
-        )
-    elif not all([isinstance(i, (float, int, np.int32, np.int64)) for i in list(A) + list(B)]):
-        raise TypeError("Interval limits must be real numbers.")
-    elif A[0] >= A[1] or B[0] >= B[1]:
-        raise ValueError("Intervals A and B must have A[0] < A[1] and B[0] < B[1].")
-    if not hasattr(solutions, "__getitem__"):
+    for interval in (A, B):
+        if not isinstance(interval, (Sequence, np.ndarray)):
+            raise TypeError(
+                f"Expected input intervals to be sequences of length 2 but got {interval}"
+            )
+        elif len(interval) != 2:
+            raise TypeError(
+                f"Expected input intervals to be sequences of length 2 but got {interval}"
+            )
+        elif not all([isinstance(bound, num.Real) for bound in interval]):
+            raise TypeError("Interval limits must be real numbers.")
+        elif interval[0] >= interval[1]:
+            raise ValueError(f"Interval bounds must be in ascending order, but got {interval}.")
+    if not isinstance(solutions, (Sequence, np.ndarray)):
         raise TypeError(f"Expected solutions to be subscriptable, but got {solutions}.")
     if not all([isinstance(solution, Zsqrt2) for solution in solutions]):
         raise TypeError("Solutions must be Zsqrt2 objects.")
@@ -203,7 +196,7 @@ def plot_grid_problem(
         label=r"$\alpha$",
     )
     plt.scatter(
-        [float(i.conjugate()) for i in solutions],
+        [float(i.sqrt2_conjugate()) for i in solutions],
         [0] * len(solutions),
         color="red",
         s=20,

@@ -14,7 +14,7 @@
 
 """
 This module contains the definition of the Zsqrt2 class, which allows for symbolic calculation with element of 
-the ring of quadratic integers with radicand 2 Z[√2]. The ring elements have the form a + b√2, 
+the ring of quadratic integers with radicand 2 \u2124[\u221A2]. The ring elements have the form a + b\u221A2, 
 where a and b are integers. This class is useful among others to solve 1 dimensional grid problems, where 
 solutions are found inside this ring. For more information see 
 Neil J. Ross and Peter Selinger, Optimal ancilla-free Clifford+T approximation of z-rotations, 
@@ -25,6 +25,7 @@ https://arxiv.org/pdf/1403.2975
 from __future__ import annotations
 
 import math
+import numbers as num
 from decimal import Decimal, getcontext
 from typing import Any, Optional
 
@@ -32,13 +33,13 @@ import numpy as np
 
 
 class Zsqrt2:
-    """A simple class to do symbolic computation with elements of the ring Z[√2].
+    """A simple class to do symbolic computation with elements of the ring \u2124[\u221A2].
 
-    The ring element has the form a + b√2, where a and b are integers.
+    The ring element has the form a + b\u221A2, where a and b are integers.
 
     Attributes:
         a (int): Integer coefficient of the ring element.
-        b (int): √2 coefficient of the ring element.
+        b (int): \u221A2 coefficient of the ring element.
     """
 
     def __init__(self, a: int, b: int) -> None:
@@ -46,13 +47,13 @@ class Zsqrt2:
 
         Args:
             a (int): Integer coefficient of the ring element.
-            b (int): √2 coefficient of the ring element.
+            b (int): \u221A2 coefficient of the ring element.
 
         Raises:
             TypeError: If a or b are not integers.
         """
         for input in (a, b):
-            if not isinstance(input, (int, np.int32, np.int64)):
+            if not isinstance(input, num.Integral):
                 raise TypeError(
                     f"Expected class inputs to be of type int, but got {type(input).__name__}."
                 )
@@ -61,26 +62,30 @@ class Zsqrt2:
 
     @property
     def a(self) -> int:
+        """Integer coefficient of the ring element."""
         return self._a
 
     @property
     def b(self) -> int:
+        """\u221A2 coefficient of the ring element."""
         return self._b
 
     def conjugate(self) -> Zsqrt2:
-        """Define the √2-conjugation operation."""
+        """Define the \u221A2-conjugation operation.
+
+        Returns:
+            Zsqrt2: \u221A2-conjugate of the ring element.
+
+        """
         return Zsqrt2(self.a, -self.b)
 
     def __float__(self) -> float:
         """Define the float representation of the ring element."""
-        a: float = float(self.a)
-        bsqrt: float = float(self.b) * math.sqrt(2)
-        if ((a < 0) != (bsqrt < 0)) and math.isclose(a, -bsqrt, rel_tol=1e-4):
+        bsqrt = self.b * math.sqrt(2)
+        if math.isclose(self.a, -bsqrt, rel_tol=1e-4):
             getcontext().prec = 50
-            result = float(Decimal(int(self.a)) + Decimal(int(self.b)) * Decimal(2).sqrt())
-            return result
-        else:
-            return a + bsqrt
+            return float(Decimal(int(self.a)) + Decimal(int(self.b)) * Decimal(2).sqrt())
+        return self.a + bsqrt
 
     def __getitem__(self, i: int) -> int:
         """Access the values of a and b with their index."""
@@ -93,20 +98,24 @@ class Zsqrt2:
             repr += str(self.a)
             if self.b != 0:
                 if self.b > 0:
-                    repr += f"+{self.b if self.b != 1 else ''}√2"
+                    repr += f"+{self.b if self.b != 1 else ''}\u221A2"
                 elif self.b < 0:
-                    repr += f"-{-self.b if self.b != -1 else ''}√2"
+                    repr += f"-{-self.b if self.b != -1 else ''}\u221A2"
         elif self.b != 0:
             if self.b == -1:
                 repr += "-"
-            repr += f"{self.b if self.b != 1 and self.b != -1 else ''}√2"
+            repr += f"{self.b if self.b != 1 and self.b != -1 else ''}\u221A2"
         else:
             repr += str(0)
         return repr
 
     def __eq__(self, nb: Any) -> bool:
         """Define the equality of Zsqrt2 class."""
-        return float(self) == nb
+        if isinstance(nb, Zsqrt2):
+            return self.a == nb.a and self.b == nb.b
+        elif isinstance(nb, num.Integral):
+            return self.a == nb and self.b == 0
+        return False
 
     def __neg__(self) -> Zsqrt2:
         """Define the negation of a ring element."""
@@ -125,10 +134,9 @@ class Zsqrt2:
         """
         if isinstance(nb, Zsqrt2):
             return Zsqrt2(self.a + nb.a, self.b + nb.b)
-        elif isinstance(nb, (int, np.int32, np.int64)):
+        elif isinstance(nb, num.Integral):
             return Zsqrt2(self.a + nb, self.b)
-        else:
-            raise TypeError(f"Summation operation is not defined with {type(nb).__name__}.")
+        raise TypeError(f"Summation operation is not defined with {type(nb).__name__}.")
 
     def __radd__(self, nb: int) -> Zsqrt2:
         """Define the right summation of int with the Zsqrt2 class."""
@@ -145,14 +153,13 @@ class Zsqrt2:
         """
         if isinstance(nb, Zsqrt2):
             return Zsqrt2(self.a - nb.a, self.b - nb.b)
-        elif isinstance(nb, (int, np.int32, np.int64)):
+        elif isinstance(nb, num.Integral):
             return Zsqrt2(self.a - nb, self.b)
-        else:
-            raise TypeError(f"Subtraction operation is not defined with {type(nb).__name__}.")
+        raise TypeError(f"Subtraction operation is not defined with {type(nb).__name__}.")
 
     def __rsub__(self, nb: int) -> Zsqrt2:
         """Define the right subtraction of int with the Zsqrt2 class."""
-        return -self + nb
+        return (-self).__add__(nb)
 
     def __isub__(self, nb: Zsqrt2 | int) -> Zsqrt2:
         """Define in-place subtraction operation for the class."""
@@ -165,10 +172,9 @@ class Zsqrt2:
         """
         if isinstance(nb, Zsqrt2):
             return Zsqrt2(self.a * nb.a + 2 * self.b * nb.b, self.a * nb.b + self.b * nb.a)
-        elif isinstance(nb, (int, np.int32, np.int64)):
+        elif isinstance(nb, num.Integral):
             return Zsqrt2(self.a * nb, self.b * nb)
-        else:
-            raise TypeError(f"Multiplication operation is not defined with {type(nb).__name__}")
+        raise TypeError(f"Multiplication operation is not defined with {type(nb).__name__}")
 
     def __rmul__(self, nb: int) -> Zsqrt2:
         """Define the right multiplication of int with the Zsqrt2 class."""
@@ -179,14 +185,14 @@ class Zsqrt2:
         return self.__mul__(nb)
 
     def __pow__(self, n: int) -> Zsqrt2:
-        """Define the power operation for the Zsqrt2 class.
+        """Define the power operation for the Zsqrt2 class. Computed using the binomial theorem.
 
         Exponent must be a positive integer.
         """
-        if not isinstance(n, (int, np.int32, np.int64)):
+        if not isinstance(n, num.Integral):
             raise TypeError(f"Expected power to be of type int, but got {type(n).__name__}.")
         elif n < 0:
-            raise ValueError(f"Expected power to be a positive integer, but got {n}.")
+            raise ValueError(f"Expected power to be a positive integer, but got {n} < 0.")
 
         a: int = 0
         b: int = 0
@@ -199,7 +205,7 @@ class Zsqrt2:
 
     def __ipow__(self, nb: int) -> Zsqrt2:
         """Define in-place power."""
-        return self**nb
+        return self.__pow__(nb)
 
     def __round__(self, precision: Optional[int] = None) -> int | float:
         """Define the round operation.
@@ -225,5 +231,8 @@ class Zsqrt2:
         return math.ceil(float(self))
 
 
+# lambda = 1 + \u221A2 is used to scale 1D grid problems.
 lamb: Zsqrt2 = Zsqrt2(1, 1)
+
+# inv_lambda = -1 + \u221A2 is the inverse of lambda. It is used to scale 1D grid problem.
 inv_lamb: Zsqrt2 = -lamb.conjugate()
