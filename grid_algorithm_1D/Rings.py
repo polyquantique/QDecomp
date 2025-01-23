@@ -705,8 +705,8 @@ class Dsqrt2(Domega):
         elif self.p != 0:
             repr += str(self.p) + " "
         if self.q != 0:
-            repr += f"{"- " if self.q < 0 else "+ "}"
-            repr += f"{str(abs(self.q)) if abs(self.q) != 1 else ""}"
+            repr += f"{'- ' if self.q < 0 else '+ '}"
+            repr += f"{str(abs(self.q)) if abs(self.q) != 1 else ''}"
             repr += "\u221a2"
         return repr
 

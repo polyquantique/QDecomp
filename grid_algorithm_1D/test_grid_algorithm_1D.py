@@ -5,6 +5,7 @@ import numpy as np
 import pytest
 from numpy.random import uniform
 
+from Rings import Zsqrt2
 from grid_algorithm_1D import plot_grid_problem, solve_grid_problem_1d
 
 

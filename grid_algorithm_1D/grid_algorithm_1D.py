@@ -38,12 +38,8 @@ from typing import Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
-<<<<<<< HEAD
-from Zsqrt2 import Zsqrt2, inv_lamb, lamb
-=======
 
 from Rings import Zsqrt2, inv_lamb, lamb
->>>>>>> 22030d19b2ee07af4ed136c8986f9ca9e1c297ce
 
 
 def solve_grid_problem_1d(A: Sequence[float | int], B: Sequence[float | int]) -> list[Zsqrt2]:
