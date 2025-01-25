@@ -6,11 +6,11 @@ build-backend = "setuptools.build_meta"
 name = "cliffordplust"
 version = "0.0.1"
 authors = [
-  { name="Francis Blais", email="francis-2.blais@polymtl.ca" },
+  { name="Francis Blais", email="francis.blais@polymtl.ca" },
   { name="Marius Trudeau", email="marius.trudeau@polymtl.ca" },
   { name="Olivier Romain", email="olivier.romain@polymtl.ca" },
-  { name="Theodor Isacsson"},
   { name="Vincent Girouard", email="vincent-2.girouard@polymtl.ca" },
+  { name="Theodor Isacsson"}, 
 ]
 description = "Clifford+T quantum gate compiler."
 readme = "README.md"
