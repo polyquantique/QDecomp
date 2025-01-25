@@ -20,7 +20,7 @@ def test_grid_algorithm_errors(A):
 @pytest.mark.parametrize(
     "A",
     [np.sort(uniform(-50, 50, 2)) for i in range(10)]
-    + [[0, 1], [-1, 0], [0, 0.9], [-0.9, 0], [0, 0.4], [-0.4, 0]],
+    + [[0, 1], [-1, 0], [0, 0.9], [-0.9, 0], [0, 0.4], [-0.4, 0], [-1, 1]],
 )
 @pytest.mark.parametrize("B", [np.sort(uniform(-50, 50, 2)) for i in range(9)] + [[-1, 1]])
 def test_grid_algorithm_1D_solutions(A, B):
