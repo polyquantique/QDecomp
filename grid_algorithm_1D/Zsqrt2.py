@@ -1,4 +1,4 @@
-# Copyright 2024 Olivier Romain, Francis Blais, Vincent Girouard, Marius Trudeau
+# Copyright 2024-2025 Olivier Romain, Francis Blais, Vincent Girouard, Marius Trudeau
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -13,13 +13,12 @@
 #    limitations under the License.
 
 """
-This module contains the definition of the Zsqrt2 class, which allows for symbolic calculation with element of 
+This module contains the definition of the Zsqrt2 class, which allows for symbolic calculation with elements of 
 the ring of quadratic integers with radicand 2 \u2124[\u221A2]. The ring elements have the form a + b\u221A2, 
 where a and b are integers. This class is useful among others to solve 1 dimensional grid problems, where 
 solutions are found inside this ring. For more information see 
 Neil J. Ross and Peter Selinger, Optimal ancilla-free Clifford+T approximation of z-rotations, 
-https://arxiv.org/pdf/1403.2975
-
+https://arxiv.org/pdf/1403.2975.
 """
 
 from __future__ import annotations
@@ -28,8 +27,6 @@ import math
 import numbers as num
 from decimal import Decimal, getcontext
 from typing import Any, Optional
-
-import numpy as np
 
 
 class Zsqrt2:
