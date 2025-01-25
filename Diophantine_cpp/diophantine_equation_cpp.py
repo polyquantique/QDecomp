@@ -1,14 +1,26 @@
+import os
 import sys
 
-sys.path.append("../../CliffordPlusT")
+sys.path.append(os.path.split(os.path.dirname(__file__))[0])
 
+import platform
 import ctypes
 from grid_algorithm_1D.Rings import *
 
 
 # Import the C++ library
-path = ".\\diophantine_equation_lib.dll"
-dioph_lib = ctypes.cdll.LoadLibrary(path)
+platf = platform.system()
+match (platf):
+    case "Windows":
+        lib_file = os.path.join(os.path.dirname(__file__), "diophantine_equation_lib.dll")
+    # case "Linux":
+    #     lib_file = os.path.join(os.path.dirname(__file__), "libdiophantine_equation_lib.so")
+    # case "Darwin":
+    #     lib_file = os.path.join(os.path.dirname(__file__), "libdiophantine_equation_lib.dylib")
+    case _:
+        raise Exception(f"Unsupported platform: {platf}")
+
+dioph_lib = ctypes.cdll.LoadLibrary(lib_file)
 
 # Define the output data structure
 class Domega_struct(ctypes.Structure):

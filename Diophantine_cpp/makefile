@@ -9,5 +9,4 @@ clean:
 	g++ -shared -fPIC -static -o $@ $< -lstdc++
 
 %.o: %.cpp
-	g++ -c -fPIC -static -o $@ $< -lstdc++
-
+	g++ -c -fPIC -o $@ $< -lstdc++
