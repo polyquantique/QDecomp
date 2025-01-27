@@ -22,14 +22,12 @@
 #
 #
 
-import sys
-import os
-sys.path.append(os.path.dirname(os.getcwd()))
-from Zsqrt2 import Zsqrt2
+
+from cliffordplust.Rings import Zsqrt2
 
 # +
-alpha = Zsqrt2(a = 2, b = 5)
-beta = Zsqrt2(a = 6, b = -3)
+alpha = Zsqrt2(a=2, b=5)
+beta = Zsqrt2(a=6, b=-3)
 
 # String representation
 print(f"{alpha = }, {beta = }")
@@ -40,7 +38,7 @@ print(f"Conjugation: {alpha.conjugate() = }")
 # Summation
 print(f"Summation: {alpha + beta = }")
 
-#Subtraction
+# Subtraction
 print(f"Subtraction: {alpha - beta = }")
 
 # Multiplication
@@ -53,7 +51,6 @@ print(f"Power: {alpha ** 3 = }")
 print(f"Float: {float(alpha) = }")
 
 # Rounding
-
 print(f"Round: {round(alpha) = }")
 # -
 
@@ -71,18 +68,16 @@ print(f"Round: {round(alpha) = }")
 #
 # # Usage example
 
-from grid_algorithm_1D import solve_grid_problem_1d, plot_grid_problem
-from matplotlib import pyplot
-pyplot.rcParams['figure.dpi'] = 150
+from cliffordplust.grid_problem import solve_grid_problem_1d, plot_grid_problem
 
 # Let's consider the two arbitrary intervals $A = [1, 6]$ and $B = [-11, -5]$. We can define the limits of those intervals as tuples:
 
-A: tuple[int, int] = (1, 6)
-B: tuple[int, int] = (-11, -5)
+A = (1, 6)
+B = (-11, -5)
 
 # The 1D grid problem for those intervals can be solved using the `solve_grid_problem_1d()` function:
 
-solutions: list[Zsqrt2] = solve_grid_problem_1d(A = A, B = B)
+solutions: list[Zsqrt2] = solve_grid_problem_1d(A=A, B=B)
 print(f"{len(solutions)} solutions were found.")
 print("Solutions: ", solutions)
 
@@ -94,12 +89,12 @@ print(f"{solution_1.conjugate() = } = {float(solution_1.conjugate()):.3f}")
 
 # We can also use the `plot_grid_problem()` function to plot the solutions of the grid problem:
 
-plot_grid_problem(A = A, B = B, solutions = solutions)
+plot_grid_problem(A=A, B=B, solutions=solutions)
 
-# An important fact is that the number of solutions found increase linearly with the size of A and B. If the intervals are too small, no solution will be found. 
+# An important fact is that the number of solutions found increase linearly with the size of A and B. If the intervals are too small, no solution will be found.
 
-A: tuple[int, int] = (4, 9)
-B: tuple[float, float] = (0.2, 1)
-solutions: list[Zsqrt2] = solve_grid_problem_1d(A = A, B = B)
-print(f"Solutions = {solutions}")
-plot_grid_problem(A = A, B = B, solutions = solutions)
+A = (4, 9)
+B = (0.2, 1)
+solutions: list[Zsqrt2] = solve_grid_problem_1d(A=A, B=B)
+print(f"Solutions: {solutions}")
+plot_grid_problem(A=A, B=B, solutions=solutions)
