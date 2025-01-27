@@ -39,7 +39,7 @@ from typing import Optional
 import matplotlib.pyplot as plt
 import numpy as np
 
-from Zsqrt2 import INVERSE_LAMBDA, LAMBDA, Zsqrt2
+from cliffordplust.Rings import INVERSE_LAMBDA, LAMBDA, Zsqrt2
 
 
 def solve_grid_problem_1d(A: Sequence[num.Real], B: Sequence[num.Real]) -> list[Zsqrt2]:
@@ -202,6 +202,5 @@ def plot_grid_problem(
     if show:
         plt.show()
     else:
-        save_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Solutions")
-        Path(save_path).mkdir(parents=True, exist_ok=True)
-        plt.savefig(os.path.join(save_path, "solutions.png"), dpi=200)
+        Path("Solutions").mkdir(exist_ok=True)
+        plt.savefig(os.path.join("Solutions", f"solutions_1D_A{A[0]}_{A[1]}_B{B[0]}_{B[1]}.png"), dpi=200)
