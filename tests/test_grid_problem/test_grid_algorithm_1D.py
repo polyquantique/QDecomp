@@ -5,8 +5,8 @@ import pytest
 from numpy.random import uniform
 import matplotlib.pyplot as plt
 
-from grid_algorithm_1D.grid_algorithm_1D import plot_grid_problem, solve_grid_problem_1d
-from grid_algorithm_1D.Zsqrt2 import Zsqrt2
+from cliffordplust.grid_problem import plot_grid_problem, solve_grid_problem_1d
+from cliffordplust.Rings import Zsqrt2
 
 
 @pytest.mark.parametrize("A", [(1, 2, 3), '1, 2', (1.j, 2), '12'])

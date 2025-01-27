@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 from numpy.random import randint
 
-from grid_algorithm_1D.Zsqrt2 import Zsqrt2
+from cliffordplust.Rings import Zsqrt2
 
 
 @pytest.mark.parametrize(
