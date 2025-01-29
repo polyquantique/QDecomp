@@ -12,7 +12,23 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-"""This module contains functions to decompose general 2-qubits quantum gates into single-qubit and canonical gates."""
+"""This module contains functions to decompose general 2-qubits quantum gates into single-qubit and canonical gates.
+
+The canonical gate is a 3 parameters gate that can be decomposed into CNOT gates and single-qubit gates. It is defined as 
+Can(tx, ty, tz) = exp(-i*pi/2 * (tx * XX + ty * YY + tz * ZZ)), where XX, YY, and ZZ are Kronecker products of the Pauli matrices.
+
+The module contains the following functions:
+- kronecker_decomposition: Decompose a 4x4 matrix into two 2x2 matrices such that their Kronecker product is the closet to the original matrix.
+- canonical_decomposition: Decompose a 4x4 unitary matrix into a global phase, two local 4x4 matrices, and the three parameters of the canonical gate.
+- can: Return the matrix form of the canonical gate for the given parameters.
+
+For more details on the theory, see 
+G. E. Crooks, “Quantum gates,” March 2024, version 0.11.0, https://threeplusone.com/pubs/on_gates.pdf
+and
+Jun Zhang, Jiri Vala, Shankar Sastry, and K. Birgitta Whaley. Geometric theory of nonlocal two-qubit operations. Phys. Rev. A, 67:042313 (2003), https://arxiv.org/pdf/quant-ph/0209120
+
+The module also contains tests for the functions. The tests are written using pytest and can be run with the command `pytest` in the terminal.
+"""
 
 from __future__ import annotations
 
@@ -41,7 +57,7 @@ def kronecker_decomposition(M: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         raise TypeError(f"Matrix must be a numpy object, but got {type(M).__name__}.")
     elif M.shape != (4, 4):
         raise ValueError(f"Matrix must be 4x4, but received {M.shape}.")
-        
+
     M = M.reshape(2, 2, 2, 2)
     M = M.transpose(0, 2, 1, 3)
     M = M.reshape(4, 4)
@@ -86,35 +102,46 @@ def canonical_decomposition(
 
     # Magic gate
     M = (
-        1 / math.sqrt(2)
+        1
+        / math.sqrt(2)
         * np.array([[1, 1.0j, 0, 0], [0, 0, 1.0j, 1], [0, 0, 1.0j, -1], [1, -1.0j, 0, 0]])
     )
-    det_U = np.linalg.det(U)
+    det_U = np.complex128(np.linalg.det(U))
     phase = np.angle(det_U) / 4
     U = U * det_U ** (-1 / 4)
 
     # Transform U into the magic basis to get V and diagonalize V.T@V.
     V = M.T.conj() @ U @ M
     VV = V.T @ V
-    eigenval, eigenvec = np.linalg.eig(VV)
 
-    # Q1 must be a special unitary matrix. If its determinant is -1, swap two eigenvalues 
+    # For numerical precision purpose, we use the eigh function when dealing with hermitian or symmetric matrices.
+    if np.allclose(VV.T.conj(), VV):
+        eigenval, eigenvec = np.linalg.eigh((VV + VV.T.conj()) / 2)
+    elif np.allclose(1.0j * VV, -1.0j * VV.T.conj()):
+        VV = 1.0j * VV
+        eigenval, eigenvec = np.linalg.eigh((VV + VV.T.conj()) / 2)
+        eigenval = -1.0j * eigenval
+    else:
+        eigenval, eigenvec = np.linalg.eig(VV)
+
+    # Q1 must be a special unitary matrix. If its determinant is -1, swap two eigenvalues
     # and the two associated eigenvectors to get invert the sign of the determinant.
     if np.linalg.det(eigenvec) < 0:
         eigenvec[:, [0, 1]] = eigenvec[:, [1, 0]]
         eigenval[[0, 1]] = eigenval[[1, 0]]
-    
+
     # Compute Q1 and D from the eigenvectors and the eigenvalues of the decomposition.
     Q1 = eigenvec.T
-    D = np.sqrt(eigenval)
+    D = np.sqrt(np.complex128(eigenval))
 
-    # Q2 must be a special unitary matrix. Since Q2 = V@Q1.T@D^-1, and det(V) = det(Q1) = 1, det(D) must be 1. 
+    # Q2 must be a special unitary matrix. Since Q2 = V@Q1.T@D^-1, and det(V) = det(Q1) = 1, det(D) must be 1.
     # D is obtained from a sqrt(D^2) and all its values are defined up to a sign. We can thus ensure det(D) = 1 by changing the
     # sign to one of its value without influencing Q1.
     if np.prod(D) < 0:
         D[0] = -D[0]
     Q2 = V @ Q1.T @ np.diag(1 / D)
 
+    # Compute the canonical parameters.
     diag_angles = -np.angle(D) / np.pi
     tx = diag_angles[0] + diag_angles[2]
     ty = diag_angles[1] + diag_angles[2]
@@ -125,16 +152,15 @@ def canonical_decomposition(
 
 def can(tx: float, ty: float, tz: float) -> np.ndarray:
     """Return the matrix form of the canonical gate for the given parameters.
-    
+
     Args:
         tx, ty, tz (floats): Parameters of the canonical gates
 
     Returns:
-        np.ndarray: Matrix form of the canonical gate. 
+        np.ndarray: Matrix form of the canonical gate.
     """
     XX = np.array([[0, 0, 0, 1], [0, 0, 1, 0], [0, 1, 0, 0], [1, 0, 0, 0]])
     YY = np.array([[0, 0, 0, -1], [0, 0, 1, 0], [0, 1, 0, 0], [-1, 0, 0, 0]])
     ZZ = np.array([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
     exponent = -1.0j * math.pi / 2 * (tx * XX + ty * YY + tz * ZZ)
     return expm(exponent)
-
