@@ -2,7 +2,7 @@ import math
 
 import numpy as np
 import pytest
-from scipy.stats import unitary_group
+from scipy.stats import unitary_group, ortho_group
 
 from cliffordplust.decomposition import *
 
@@ -27,6 +27,7 @@ def test_kronecker_decomposition(A, B):
 @pytest.mark.parametrize(
     "U",
     [unitary_group.rvs(4) for _ in range(40)]
+    + [ortho_group.rvs(4) for _ in range(10)]
     + [
         np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 0, 0, 1]]),  # SWAP gate
         np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]]),  # CNOT gate
