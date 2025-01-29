@@ -10,12 +10,12 @@ from cliffordplust.decomposition import *
 @pytest.mark.parametrize(
     "A",
     [np.random.uniform(-100, 100, (2, 2)) for _ in range(10)]
-    + [np.zeros((2, 2)), np.identity(2), np.arange(1, 5).reshape(2, 2)],
+    + [np.zeros((2, 2)), np.identity(2), np.arange(1, 5).reshape(2, 2), np.ones((2, 2))]
 )
 @pytest.mark.parametrize(
     "B",
     [np.random.uniform(-100, 100, (2, 2)) for _ in range(10)]
-    + [np.zeros((2, 2)), np.identity(2), np.arange(1, 5).reshape(2, 2)],
+    + [np.zeros((2, 2)), np.identity(2), np.arange(1, 5).reshape(2, 2), np.ones((2, 2))]
 )
 def test_kronecker_decomposition(A, B):
     """Test the kronecker decomposition of 4x4 matrix."""
