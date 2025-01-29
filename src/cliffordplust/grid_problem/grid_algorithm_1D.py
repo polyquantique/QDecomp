@@ -39,7 +39,7 @@ from typing import Optional
 import matplotlib.pyplot as plt
 import numpy as np
 
-from cliffordplust.Rings import INVERSE_LAMBDA, LAMBDA, Zsqrt2
+from cliffordplust.rings import INVERSE_LAMBDA, LAMBDA, Zsqrt2
 
 
 def solve_grid_problem_1d(A: Sequence[num.Real], B: Sequence[num.Real]) -> list[Zsqrt2]:

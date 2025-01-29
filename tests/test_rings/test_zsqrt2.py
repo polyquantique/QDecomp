@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 from numpy.random import randint
 
-from cliffordplust.Rings import Zsqrt2
+from cliffordplust.rings import Zsqrt2
 
 
 @pytest.mark.parametrize(

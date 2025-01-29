@@ -1,1 +1,1 @@
-from cliffordplust.Rings.Zsqrt2 import *
+from cliffordplust.rings.z_sqrt2 import *

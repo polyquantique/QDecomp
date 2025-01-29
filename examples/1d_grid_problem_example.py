@@ -23,7 +23,7 @@
 #
 
 
-from cliffordplust.Rings import Zsqrt2
+from cliffordplust.rings import Zsqrt2
 
 # +
 alpha = Zsqrt2(a=2, b=5)
