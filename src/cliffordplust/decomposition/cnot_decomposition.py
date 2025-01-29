@@ -23,19 +23,20 @@ The module contains the following functions:
 - can: Return the matrix form of the canonical gate for the given parameters.
 
 For more details on the theory, see 
-G. E. Crooks, “Quantum gates,” March 2024, version 0.11.0, https://threeplusone.com/pubs/on_gates.pdf
+G. E. Crooks, “Quantum gates,” March 2024, version 0.11.0, https://threeplusone.com/pubs/on_gates.pdf,
+C. F. Van Loan, “The ubiquitous Kronecker product”, J. Comput. Appl. Math., vol. 123, no. 1–2, pp. 85–100, Nov. 2000, https://doi.org/10.1016/S0377-0427(00)00393-9,
 and
-Jun Zhang, Jiri Vala, Shankar Sastry, and K. Birgitta Whaley. Geometric theory of nonlocal two-qubit operations. Phys. Rev. A, 67:042313 (2003), https://arxiv.org/pdf/quant-ph/0209120
+Jun Zhang, Jiri Vala, Shankar Sastry, and K. Birgitta Whaley. Geometric theory of nonlocal two-qubit operations. Phys. Rev. A, 67:042313 (2003), https://arxiv.org/pdf/quant-ph/0209120.
 
 The module also contains tests for the functions. The tests are written using pytest and can be run with the command `pytest` in the terminal.
 """
 
 from __future__ import annotations
 
-import math
-
 import numpy as np
 from scipy.linalg import expm
+
+SQRT_2 = np.sqrt(2)
 
 
 def kronecker_decomposition(M: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -52,6 +53,11 @@ def kronecker_decomposition(M: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     Raises:
         TypeError: If M is not a numpy matrix.
         ValueError: If M is not a 4x4 matrix.
+
+    References:
+        G. E. Crooks, “Quantum gates,” March 2024, version 0.11.0, https://threeplusone.com/pubs/on_gates.pdf.
+        C. F. Van Loan, “The ubiquitous Kronecker product”, J. Comput. Appl. Math., vol. 123, no. 1–2, pp. 85–100, Nov. 2000,
+        https://doi.org/10.1016/S0377-0427(00)00393-9.
     """
     if not isinstance(M, np.ndarray):
         raise TypeError(f"Matrix must be a numpy object, but got {type(M).__name__}.")
@@ -92,6 +98,11 @@ def canonical_decomposition(
     Raises:
         TypeError: If the input is not a numpy object.
         ValueError: If the matrix is not 4x4 and unitary.
+
+    References:
+        G. E. Crooks, “Quantum gates,” March 2024, version 0.11.0, https://threeplusone.com/pubs/on_gates.pdf
+        Jun Zhang, Jiri Vala, Shankar Sastry, and K. Birgitta Whaley. Geometric theory of nonlocal two-qubit operations.
+        Phys. Rev. A, 67:042313 (2003), https://arxiv.org/pdf/quant-ph/0209120
     """
     if not isinstance(U, np.ndarray):
         raise TypeError(f"Matrix U must be a numpy object, but received {type(U).__name__}.")
@@ -103,7 +114,7 @@ def canonical_decomposition(
     # Magic gate
     M = (
         1
-        / math.sqrt(2)
+        / SQRT_2
         * np.array([[1, 1.0j, 0, 0], [0, 0, 1.0j, 1], [0, 0, 1.0j, -1], [1, -1.0j, 0, 0]])
     )
     det_U = np.complex128(np.linalg.det(U))
@@ -162,5 +173,5 @@ def can(tx: float, ty: float, tz: float) -> np.ndarray:
     XX = np.array([[0, 0, 0, 1], [0, 0, 1, 0], [0, 1, 0, 0], [1, 0, 0, 0]])
     YY = np.array([[0, 0, 0, -1], [0, 0, 1, 0], [0, 1, 0, 0], [-1, 0, 0, 0]])
     ZZ = np.array([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
-    exponent = -1.0j * math.pi / 2 * (tx * XX + ty * YY + tz * ZZ)
+    exponent = -1.0j * np.pi / 2 * (tx * XX + ty * YY + tz * ZZ)
     return expm(exponent)
