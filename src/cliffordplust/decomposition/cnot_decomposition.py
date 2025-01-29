@@ -71,7 +71,7 @@ def kronecker_decomposition(M: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
 
 def canonical_decomposition(
     U: np.ndarray,
-) -> tuple[np.ndarray, np.ndarray, tuple[float, ...], float]:
+) -> tuple[np.ndarray, np.ndarray, tuple[float, float, float], float]:
     """
     Perform the canonical decomposition of a given 4x4 unitary.
 
