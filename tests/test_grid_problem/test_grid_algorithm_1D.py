@@ -11,6 +11,7 @@ from cliffordplust.Rings import Zsqrt2
 
 @pytest.mark.parametrize("A", [(1, 2, 3), '1, 2', (1.j, 2), '12'])
 def test_grid_algorithm_errors(A):
+    """Test the raise of type errors when solving the 1D grid problem if the input intervals are not valid."""
     with pytest.raises(TypeError, match="Input intervals must be real sequences of length 2"):
         solve_grid_problem_1d(A, (-1, 1))
     with pytest.raises(TypeError, match="Input intervals must be real sequences of length 2"):
@@ -19,10 +20,10 @@ def test_grid_algorithm_errors(A):
 
 @pytest.mark.parametrize(
     "A",
-    [np.sort(uniform(-50, 50, 2)) for i in range(10)]
-    + [[0, 1], [-1, 0], [0, 0.9], [-0.9, 0], [0, 0.4], [-0.4, 0], [-1, 1]],
+    [np.sort(uniform(-50, 50, 2)) for _ in range(10)]
+    + [[0, 1], [-1, 0], [0, 0.9], [-0.9, 0], [0, 0.4], [-0.4, 0], [-1, 1], [-5, 5], [-10, 10], [-10, 0], [0, 10]],
 )
-@pytest.mark.parametrize("B", [np.sort(uniform(-50, 50, 2)) for i in range(9)] + [[-1, 1]])
+@pytest.mark.parametrize("B", [np.sort(uniform(-50, 50, 2)) for _ in range(9)] + [[-1, 1], [-5, 5], [-10, 10], [-10, 0], [0, 10]])
 def test_grid_algorithm_1D_solutions(A, B):
     """Test the validity of the solutions found for the 1D grid problem for A and B."""
     solutions = solve_grid_problem_1d(A, B)
@@ -41,7 +42,7 @@ def test_grid_algorithm_1D_solutions(A, B):
 
 
 @pytest.mark.parametrize("not_subscriptable", [1, 1.0, True, {1, 2}])
-def test_indexable_type_error_plot_function(not_subscriptable: Any) -> None:
+def test_indexable_type_error_plot_function(not_subscriptable) -> None:
     """Test the raise of type errors when plotting if the given intervals are not subscriptable."""
     with pytest.raises(TypeError, match="Expected input intervals to be sequences of length 2"):
         plot_grid_problem(not_subscriptable, (1, 2), [])
