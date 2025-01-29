@@ -84,8 +84,8 @@ def canonical_decomposition(
         U (np.ndarray): 4x4 unitary matrix.
 
     Returns:
-        np.ndarray: 4x4 matrix A of the decomposition. A is the Kronecker product of two 2x2 matrix.
-        np.ndarray: 4x4 matrix B of the decomposition. B is the Kronecker product of two 2x2 matrix.
+        np.ndarray: 4x4 matrix A of the decomposition. A is the Kronecker product of two 2x2 matrices.
+        np.ndarray: 4x4 matrix B of the decomposition. B is the Kronecker product of two 2x2 matrices.
         tuple[float, float, float]: Sequence of the three canonical parameters (tx, ty, tz).
         float: Phase of the unitary matrix.
 
