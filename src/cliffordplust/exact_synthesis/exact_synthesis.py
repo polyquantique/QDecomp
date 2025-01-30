@@ -1,10 +1,16 @@
-import os
-import sys
-
 import numpy as np
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from Domega import Domega, H, I, T, T_inv
+from cliffordplust.Rings import Domega
+
+H_11 = Domega((-1, 1), (0, 0), (1, 1), (0, 0))
+T_11 = Domega((0, 0), (0, 0), (0, 0), (1, 0))
+T_12 = Domega((0, 0), (0, 0), (0, 0), (0, 0))
+T_22 = Domega((0, 0), (0, 0), (1, 0), (0, 0))
+T_22_inv = Domega((-1, 0), (0, 0), (0, 0), (0, 0))
+H = np.array([[H_11, H_11], [H_11, -H_11]], dtype=Domega)
+T = np.array([[T_11, T_12], [T_12, T_22]], dtype=Domega)
+T_inv = np.array([[T_11, T_12], [T_12, T_22_inv]], dtype=Domega)
+I = np.array([[T_11, T_12], [T_12, T_11]], dtype=Domega)
 
 
 def exact_synthesis_alg(U: np.array) -> str:
@@ -59,7 +65,7 @@ def is_unitary(matrix):
     Returns:
         bool: True if matrix is unitary, False otherwise
     """
-    conj_transpose = conj_transpose = np.array(
+    conj_transpose = np.array(
         [[element.complex_conjugate() for element in row] for row in matrix.T]
     )
     product = np.dot(matrix, conj_transpose)
@@ -103,15 +109,15 @@ def random_sequence(n: int) -> str:
     return sequence
 
 
-if __name__ == "__main__":
-    init_seq = random_sequence(10)
-    print(f"Initial sequence : {init_seq}")
-    U = apply_sequence(init_seq)
-    print(f"Initial gate : \n{U}")
-    sequence, U_f = exact_synthesis_alg(U)
-    print(f"Sequence : {sequence}")
-    print(f"Matrix with s<3 : \n{U_f}")
-    print(f"Final matrix : \n{apply_sequence(sequence, U_f)}")
-    assert U.all() == apply_sequence(sequence, U_f).all()
-    remaining_seq = init_seq.replace(sequence, "", 1)
-    print(remaining_seq)
+# if __name__ == "__main__":
+#     init_seq = random_sequence(10)
+#     print(f"Initial sequence : {init_seq}")
+#     U = apply_sequence(init_seq)
+#     print(f"Initial gate : \n{U}")
+#     sequence, U_f = exact_synthesis_alg(U)
+#     print(f"Sequence : {sequence}")
+#     print(f"Matrix with s<3 : \n{U_f}")
+#     print(f"Final matrix : \n{apply_sequence(sequence, U_f)}")
+#     assert U.all() == apply_sequence(sequence, U_f).all()
+#     remaining_seq = init_seq.replace(sequence, "", 1)
+#     print(remaining_seq)

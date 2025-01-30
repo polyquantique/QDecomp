@@ -1,14 +1,9 @@
-import os
-import sys
-
 import numpy as np
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from Domega import Domega, H, I, T
-from exact_synthesis import (
-    apply_sequence,
-    is_unitary,
+from cliffordplust.Rings import Domega
+from cliffordplust.exact_synthesis import (
     exact_synthesis_alg,
+    apply_sequence,
     random_sequence,
 )
 

@@ -6,8 +6,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import numpy as np
 import pytest
 
-from Domega import Domega, H, I, T, T_inv
-from exact_synthesis import apply_sequence, exact_synthesis, is_unitary, random_sequence
+from cliffordplust.exact_synthesis import *
 
 
 def test_random_sequence_length():
@@ -55,7 +54,7 @@ def test_exact_synthesis_invalid_elements():
     """Test if exact_synthesis raises TypeError for invalid matrix elements."""
     matrix = np.array([[1, 0], [0, 1]])  # Not Domega elements
     with pytest.raises(TypeError, match="Matrix elements must be of class"):
-        exact_synthesis(matrix)
+        exact_synthesis_alg(matrix)
 
 
 def test_exact_synthesis_non_2x2():
@@ -63,22 +62,24 @@ def test_exact_synthesis_non_2x2():
     D = Domega((1, 0), (0, 1), (0, 0), (0, 0))
     matrix = np.array([[D, D, D], [D, D, D], [D, D, D]])  # 3x3 matrix
     with pytest.raises(TypeError, match="Matrix must be of size 2x2"):
-        exact_synthesis(matrix)
+        exact_synthesis_alg(matrix)
 
 
 def test_exact_synthesis_non_unitary():
     """Test if exact_synthesis raises ValueError for non-unitary matrices."""
     matrix = 2 * H  # Non-unitary matrix
     with pytest.raises(ValueError, match="Matrix must be unitary"):
-        exact_synthesis(matrix)
+        exact_synthesis_alg(matrix)
 
 
 # Needs to be changed once S3 sequence is added
+# Add more tests for different sequences
+@pytest.mark.parametrize("run", range(10))
 def test_exact_synthesis_valid():
     """Test if exact_synthesis returns the correct sequence and final matrix for a valid input."""
     initial_sequence = random_sequence(20)
     initial_matrix = apply_sequence(initial_sequence)
-    sequence, temp_matrix = exact_synthesis(initial_matrix)
+    sequence, temp_matrix = exact_synthesis_alg(initial_matrix)
     final_matrix = apply_sequence(sequence, temp_matrix)
     assert isinstance(sequence, str)
     assert final_matrix.shape == (2, 2)
