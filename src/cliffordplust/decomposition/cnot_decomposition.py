@@ -14,11 +14,11 @@
 
 """This module contains functions to decompose general 2-qubits quantum gates into single-qubit and canonical gates.
 
-The canonical gate is a 3 parameters gate that can be decomposed into CNOT gates and single-qubit gates. It is defined as 
+The canonical gate is a 3 parameter gate that can be decomposed into CNOT gates and single-qubit gates. It is defined as 
 Can(tx, ty, tz) = exp(-i*pi/2 * (tx * XX + ty * YY + tz * ZZ)), where XX, YY, and ZZ are Kronecker products of the Pauli matrices.
 
 The module contains the following functions:
-- kronecker_decomposition: Decompose a 4x4 matrix into two 2x2 matrices such that their Kronecker product is the closet to the original matrix.
+- kronecker_decomposition: Decompose a 4x4 matrix into two 2x2 matrices such that their Kronecker product is the closest to the original matrix.
 - canonical_decomposition: Decompose a 4x4 unitary matrix into a global phase, two local 4x4 matrices, and the three parameters of the canonical gate.
 - can: Return the matrix form of the canonical gate for the given parameters.
 
@@ -27,8 +27,6 @@ G. E. Crooks, “Quantum gates,” March 2024, version 0.11.0, https://threeplus
 C. F. Van Loan, “The ubiquitous Kronecker product”, J. Comput. Appl. Math., vol. 123, no. 1–2, pp. 85–100, Nov. 2000, https://doi.org/10.1016/S0377-0427(00)00393-9,
 and
 Jun Zhang, Jiri Vala, Shankar Sastry, and K. Birgitta Whaley. Geometric theory of nonlocal two-qubit operations. Phys. Rev. A, 67:042313 (2003), https://arxiv.org/pdf/quant-ph/0209120.
-
-The module also contains tests for the functions. The tests are written using pytest and can be run with the command `pytest` in the terminal.
 """
 
 from __future__ import annotations
