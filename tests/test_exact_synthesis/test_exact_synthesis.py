@@ -74,7 +74,6 @@ def test_exact_synthesis_non_unitary():
 
 
 # Needs to be changed once S3 sequence is added
-# Problems with found sequence : do not match initial sequence but still produces the right matrix (initial is maybe not optimal)
 def test_exact_synthesis_valid():
     """Test if exact_synthesis returns the correct sequence and final matrix for a valid input."""
     initial_sequence = random_sequence(20)
@@ -85,4 +84,3 @@ def test_exact_synthesis_valid():
     assert final_matrix.shape == (2, 2)
     assert is_unitary(final_matrix)
     assert initial_matrix.all() == final_matrix.all()
-    # assert sequence in initial_sequence ### PROBLEM HERE /!\
