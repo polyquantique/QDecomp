@@ -1,1 +1,2 @@
-# CliffordPlusT
+# CliffordPlusT Compiler
+
