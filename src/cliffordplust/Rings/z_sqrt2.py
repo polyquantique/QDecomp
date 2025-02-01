@@ -28,6 +28,8 @@ import numbers as num
 from decimal import Decimal, getcontext
 from typing import Any, Optional
 
+__all__ = ["Zsqrt2", "LAMBDA", "INVERSE_LAMBDA"]
+
 
 class Zsqrt2:
     """A simple class to do symbolic computation with elements of the ring \u2124[\u221A2].
@@ -69,7 +71,7 @@ class Zsqrt2:
 
     def conjugate(self) -> Zsqrt2:
         """Define the \u221A2-conjugation operation.
-        
+
         Returns:
             Zsqrt2: \u221A2-conjugate of the ring element.
         """
@@ -78,9 +80,9 @@ class Zsqrt2:
     def __float__(self) -> float:
         """Define the float representation of the ring element."""
         bsqrt = self.b * math.sqrt(2)
-        if math.isclose(self.a, -bsqrt, rel_tol=1e-4):
+        if math.isclose(self.a, -bsqrt, rel_tol=1e-5):
             getcontext().prec = 50
-            return float(self.a + self.b * Decimal(2).sqrt())    
+            return float(self.a + self.b * Decimal(2).sqrt())
         return self.a + bsqrt
 
     def __getitem__(self, i: int) -> int:
@@ -156,7 +158,7 @@ class Zsqrt2:
             return Zsqrt2(self.a * nb.a + 2 * self.b * nb.b, self.a * nb.b + self.b * nb.a)
         elif isinstance(nb, num.Integral):
             return Zsqrt2(self.a * nb, self.b * nb)
-        raise TypeError(f"Multiplication operation is not defined with {type(nb).__name__}")
+        raise TypeError(f"Multiplication operation is not defined with {type(nb).__name__}.")
 
     def __rmul__(self, nb: int) -> Zsqrt2:
         """Define the right multiplication of int with the Zsqrt2 class."""
@@ -198,10 +200,7 @@ class Zsqrt2:
         Returns:
             (int | float): Ring element rounded to the given precision.
         """
-        if precision is None:
-            return round(float(self))
-        else:
-            return round(float(self), precision)
+        return round(float(self), precision)
 
     def __floor__(self) -> int:
         """Define the floor operation."""
@@ -210,6 +209,7 @@ class Zsqrt2:
     def __ceil__(self) -> int:
         """Define the ceil operation."""
         return math.ceil(float(self))
+
 
 # LAMBDA = 1 + \u221A2 is used to scale 1D grid problems.
 LAMBDA: Zsqrt2 = Zsqrt2(1, 1)
