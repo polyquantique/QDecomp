@@ -17,7 +17,7 @@ Symbolic Computation with Ring Elements.
 
 The Ring module provides tools for symbolic computations with elements of various mathematical rings.
 Rings are used in many algorithms for the approximation of z-rotation gates into Clifford+T unitaries.
-For more information see 
+For more information, see 
 Neil J. Ross and Peter Selinger, Optimal ancilla-free Clifford+T approximation of z-rotations, 
 https://arxiv.org/pdf/1403.2975.
 
@@ -95,9 +95,9 @@ class D:
         if self.num == 0:
             self.__denom = 0
             return
-        while (self.num & 1) == 0 and self.denom > 0:
-            self.__num >>= 1
-            self.__denom -= 1
+        while (self.num & 1) == 0 and self.denom > 0:  # Do while the numerator and denominator can be divided by two
+            self.__num >>= 1  # Divide the numerator by two
+            self.__denom -= 1  # Reduce the denominator by a factor 2
 
     def __neg__(self) -> D:
         """Define the negation of the D class."""
@@ -117,7 +117,7 @@ class D:
 
     def __float__(self) -> float:
         """Define the float value of the D class."""
-        return self.num / 2**self.denom
+        return self.num >> self.denom
 
     def __eq__(self, nb: Any) -> bool:
         """Define the equality of the D class."""
@@ -134,7 +134,7 @@ class D:
         return float(self) < nb
 
     def __gt__(self, nb: Any) -> bool:
-        """Define the < operation of the D class."""
+        """Define the > operation of the D class."""
         return float(self) > nb
 
     def __le__(self, nb: Any) -> bool:
@@ -149,12 +149,12 @@ class D:
         """Define the summation operation for the D class."""
         if isinstance(nb, D):
             if self.denom >= nb.denom:
-                num: int = self.num + nb.num * 2 ** (self.denom - nb.denom)
+                num: int = self.num + nb.num << (self.denom - nb.denom)
                 return D(num, self.denom)
-            num = nb.num + self.num * 2 ** (nb.denom - self.denom)
+            num = nb.num + self.num << (nb.denom - self.denom)
             return D(num, nb.denom)
         elif isinstance(nb, Integral):
-            return D(self.num + nb * 2**self.denom, self.denom)
+            return D(self.num + nb << self.denom, self.denom)
         raise TypeError(f"Summation operation is not defined between D and {type(nb).__name__}.")
 
     def __radd__(self, nb: Any) -> D:
@@ -226,7 +226,7 @@ class Domega:
     The coefficients a, b, c, d are dyadic fractions of the form m / 2^n, where m is an integer and n is a positive integer.
     The coefficients will be automatically reduced when the class is initialized.
 
-    The ring element can also be expressed as \u03B1 + i*\u03B2, where i = \u221a-1, and \u03B1 and \u03B2 are numbers in te ring \u2145[\u221a2]
+    The ring element can also be expressed as \u03B1 + i*\u03B2, where i = \u221a-1, and \u03B1 and \u03B2 are numbers in the ring \u2145[\u221a2]
     and are equal to \u03B1 = d + (c-a)/2 \u221a2 and \u03B2 = b + (c+a)/2 \u221a2.
 
     Attributes:
@@ -646,7 +646,7 @@ class Zomega(Domega):
 
 
 class Dsqrt2(Domega):
-    """Class to do symbolic computation with element in the ring of quadratic dyadic fractions \u2145[\u221a2].
+    """Class to do symbolic computation with elements in the ring of quadratic dyadic fractions \u2145[\u221a2].
 
     The ring element has the form p + q\u221a2, where p, q are dyadic fractions of the form m / 2^n,
     where m is an integer and n is a positive integer.
@@ -678,7 +678,7 @@ class Dsqrt2(Domega):
                     raise ValueError(f"Denominator value must be positive but got {input[1]} < 0.")
             elif not isinstance(input, D):
                 raise TypeError(
-                    f"Class arguments must be of type tuple[int, int] or D objects but received {type(input).__name__}."
+                    f"Class arguments must be of type tuple[int, int] or D objects, but received {type(input).__name__}."
                 )
         self.__p: D = p if isinstance(p, D) else D(p[0], p[1])
         self.__q: D = q if isinstance(q, D) else D(q[0], q[1])
@@ -702,8 +702,8 @@ class Dsqrt2(Domega):
         elif self.p != 0:
             repr += str(self.p) + " "
         if self.q != 0:
-            repr += f"{"- " if self.q < 0 else "+ "}"
-            repr += f"{str(abs(self.q)) if abs(self.q) != 1 else ""}"
+            repr += f"{'- ' if self.q < 0 else '+ '}"
+            repr += f"{str(abs(self.q)) if abs(self.q) != 1 else ''}"
             repr += "\u221a2"
         return repr
 
@@ -731,11 +731,11 @@ class Dsqrt2(Domega):
 class Zsqrt2(Domega):
     """A simple class to do symbolic computation with elements of the ring \u2124[\u221a2].
 
-    The ring element has the form p + q\u2124[\u221a2], where p and q are integers.
+    The ring element has the form p + q\u221a2, where p and q are integers.
 
     Attributes:
         p (int): Integer coefficient of the ring element.
-        q (int): \u2124[\u221a2] coefficient of the ring element.
+        q (int): \u221a2 coefficient of the ring element.
     """
 
     def __init__(self, p: int, q: int) -> None:
@@ -743,7 +743,7 @@ class Zsqrt2(Domega):
 
         Args:
             p (int): Integer coefficient of the ring element.
-            q (int): \u2124[\u221a2] coefficient of the ring element.
+            q (int): \u221a2 coefficient of the ring element.
 
         Raises:
             TypeError: If p or q are not integers.
@@ -764,7 +764,7 @@ class Zsqrt2(Domega):
 
     @property
     def q(self) -> int:
-        """\u2124[\u221a2] coefficient of the ring element."""
+        """\u221a2 coefficient of the ring element."""
         return self._q
 
     def __repr__(self) -> str:
@@ -820,8 +820,3 @@ def _output_type(*types: type) -> type:
 
 Ring = Union[D, Domega, Zomega, Dsqrt2, Zsqrt2]
 
-# lambda = 1 + \u221A2 is used to scale 1D grid problems.
-lamb: Zsqrt2 = Zsqrt2(1, 1)
-
-# inv_lambda = -1 + \u221A2 is the inverse of lambda. It is used to scale 1D grid problem.
-inv_lamb: Zsqrt2 = -lamb.sqrt2_conjugate()
