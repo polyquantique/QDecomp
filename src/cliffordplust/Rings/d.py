@@ -4,6 +4,8 @@ from typing import Any
 
 import numpy as np
 
+__all__ = ["D"]
+
 
 class D:
     """Class to do symbolic computation with elements of the ring of dyadic fractions \u2145.
@@ -171,8 +173,7 @@ class D:
         elif n < 0:
             raise ValueError(f"Expected power to be a positive integer, but got {n}.")
         return D(self.num**n, n * self.denom)
-    
+
     def __ipow__(self, n: int) -> D:
         """Define the inplace-power operation for the D class."""
         return self.__pow__(n)
-
