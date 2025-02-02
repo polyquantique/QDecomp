@@ -13,9 +13,9 @@
 #    limitations under the License.
 
 """
-This module allow to find the smallest ellipse englobing three points using the Steiner algorithm.
-The module also contains useful functions allowing to plot an ellipse, find its bounding box (BBOX)
-and determine wether points are inside an ellipse using its matrix definition.
+This module allows to find the smallest ellipse englobing three points using the Steiner algorithm.
+The module also contains useful functions allowing find the bounding box (BBOX) of an ellipse and
+determine wether points are inside an ellipse using its matrix definition.
 
 See this page for more information:
 https://en.wikipedia.org/wiki/Steiner_ellipse
@@ -23,9 +23,7 @@ https://en.wikipedia.org/wiki/Steiner_ellipse
 
 from __future__ import annotations
 
-import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.patches import Rectangle
 
 
 def can_def_steiner_ellipse(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> str:
@@ -200,52 +198,3 @@ def ellipse_bbox(D: np.ndarray, p: np.ndarray) -> np.ndarray:
     bbox = np.outer(np.sqrt(diag), np.array([-1, 1])) + np.outer(p, np.ones(n_dim))  # BBOX
 
     return bbox
-
-
-def plot_ellipse(D: np.ndarray, p: np.ndarray, points: np.ndarray | None = None) -> None:
-    """
-    Plot the ellipse defined by matrix D and center p. The function also plots the BBOX of the
-    ellipse and its center. Moreover, the (optional) points to plot are cyan if they lie inside the
-    ellipse of magenta if they are not.
-
-    Args:
-        D (np.ndarray): Matrix defining the ellipse's shape and orientation
-        p (np.ndarray): Center of the ellipse
-        points (np.ndarray): Points to plot
-    """
-    # Find the BBOX of the ellipse
-    bbox = ellipse_bbox(D, p)  # BBOX of the ellipse
-    edges = bbox[:, 1] - bbox[:, 0]  # Length of the edges of the BBOX
-
-    # Generate a grid for visualizing the ellipse's interior region
-    density = 200
-    x = np.linspace(*(bbox[0] + edges[0] * np.array([-0.2, 0.2])), density)
-    y = np.linspace(*(bbox[1] + edges[1] * np.array([-0.2, 0.2])), density)
-    x_mesh, y_mesh = np.meshgrid(x, y)
-    point_mesh = np.stack([x_mesh, y_mesh], axis=-1)
-
-    # Determine which points of the meshgrid lie inside the ellipse
-    in_ellipse = is_inside_ellipse(point_mesh, D, p)
-
-    # Plot the meshgrid
-    plt.pcolormesh(x_mesh, y_mesh, in_ellipse, cmap="Wistia")  # Ellipse region
-    plt.scatter(*p, marker="*", color="b", label="Center")  # Center of the ellipse
-
-    # Plot the points (if given)
-    if points is not None:  # Convert points into a numpy array
-        points_ = np.array(points)
-        color = np.full(points_.shape[:-1], fill_value="m")
-        color[is_inside_ellipse(points_, D, p)] = "c"
-        plt.scatter(points_[:, 0], points_[:, 1], marker="x", c=color, label="Points")
-
-    # Plot the BBOX of the ellipse
-    rect = Rectangle(
-        p - edges / 2, *edges, linewidth=1, edgecolor="g", facecolor="none", label="BBOX"
-    )
-    plt.gca().add_patch(rect)
-
-    # Appearance
-    plt.title("Plot of the ellipse")
-    plt.legend()
-    plt.axis("equal")
-    plt.show()

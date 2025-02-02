@@ -71,7 +71,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Import the Steiner function
-import steiner_ellipse as se
+import cliffordplust.grid_problem.steiner_ellipse as se
+from cliffordplust.plot import plot_ellipse
 
 # -
 
@@ -95,15 +96,19 @@ print("\nCenter of the ellipse:")
 print(p)
 # -
 
-# Plot the resulting ellipse. The first argument is the matrix definition of the ellipse and the second is its center.
-# Points can be passed as third argument (optional).
+# Plot the resulting ellipse.
+# The first argument is a plt.Axes in which to plot the ellipse.
+# The second argument is the matrix definition of the ellipse and the third is its center.
+# Points can be passed as fourth argument (optional).
 # The function will plot them in cyan if they are inside the ellipse or in magenta if they are not.
 # For this example, we used the points defining the ellipse and the origin.
 #
 # Other than the points, the figure includes the center of the ellipse (blue star) and its bounding box (green cadre).
 
-points_to_plot = [p1, p2, p3, (0, 0)]
-se.plot_ellipse(D, p, points_to_plot)
+points_to_plot = [p1, p2, p3, (0.4, 0.1)]
+_, ax = plt.subplots()
+plot_ellipse(ax, D, p, points_to_plot)
+plt.show()
 
 # The `plot_ellipse()` function uses the `is_inside_ellipse`() function to determine wether a point is inside the ellipse or not and decide its color.
 # The first argument is the list of point which may have any shape as long as the last dimension is of the same size as the ellipse (2D in our case).

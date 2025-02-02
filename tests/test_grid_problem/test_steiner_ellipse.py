@@ -16,8 +16,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
-import steiner_ellipse as se
-
+from cliffordplust.grid_problem import steiner_ellipse as se
+from cliffordplust.plot import plot_steiner_ellipse as pse
 
 test_points_collin = [
     [(0, 1), (0, 2), (0, -5)],
@@ -144,7 +144,8 @@ def test_plot_ellipse():
     points_to_plot = np.random.rand(3, 2)
     D, p = se.steiner_ellipse_def(p1, p2, p3)
 
-    se.plot_ellipse(D, p, points_to_plot)
+    _, ax = plt.subplots()
+    pse.plot_ellipse(ax, D, p, points_to_plot)
     assert True  # The code has run so far
 
 
