@@ -17,7 +17,7 @@ Any single qubit gate can be decomposed into a series of three rotations around 
 and a phase (refer Section 4.1 of "Quantum Gates" by Gavin E. Crooks at
 https://threeplusone.com/pubs/on_gates.pdf).
 
-This module defines the function that computes this decomposition of an unitary 2x2 matrix.
+This module defines the function that computes this decomposition of a unitary 2x2 matrix.
 It returns the three rotation angles and the phase.
 
 Input: U, a unitary 2x2 matrix
