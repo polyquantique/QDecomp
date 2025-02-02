@@ -138,8 +138,6 @@ def test_plot_ellipse():
     """
     Test the plot_ellipse() function.
     """
-    plt.switch_backend("Agg")  # To test a function that creates a plot.
-
     p1, p2, p3 = (0, 0), (1, 0), (0, 1)
     points_to_plot = np.random.rand(3, 2)
     D, p = se.steiner_ellipse_def(p1, p2, p3)
