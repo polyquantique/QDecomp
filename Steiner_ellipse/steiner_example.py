@@ -1,19 +1,34 @@
+# # License
+# Copyright 2024-2025 Olivier Romain, Francis Blais, Vincent Girouard, Marius Trudeau
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 # # Using the `steiner_ellipse.py` module
 
 # ## Steiner algorithm
-# The **Steiner algorithm** is used to find the smallest that encloses three given points: 
+# The **Steiner algorithm** is used to find the smallest that encloses three given points:
 # $\vec{p}_1$, $\vec{p}_2$ and $\vec{p}_3$.
-# This minimal enclosing ellipse is known as the *Steiner ellipse*, and it is centered at the 
+# This minimal enclosing ellipse is known as the *Steiner ellipse*, and it is centered at the
 # **centroid** of the triangle formed by these three points.
 #
-# In this notebook, we will implement the Steiner algorithm to find the enclosing ellipse and 
-# visualize it. 
+# In this notebook, we will implement the Steiner algorithm to find the enclosing ellipse and
+# visualize it.
 #
-# The centroid $\vec{p}$ of the ellipse is calculated as the average of the three input points, 
-# ensuring that the ellipse is symmetrically centered with respect to these points. 
+# The centroid $\vec{p}$ of the ellipse is calculated as the average of the three input points,
+# ensuring that the ellipse is symmetrically centered with respect to these points.
 # The resulting ellipse is the smallest possible ellipse that passes through the given points.
 #
-# For further details on the mathematical formulation and properties of the Steiner ellipse, you can 
+# For further details on the mathematical formulation and properties of the Steiner ellipse, you can
 # refer to its [Wikipedia page](https://en.wikipedia.org/wiki/Steiner_ellipse).
 #
 # ---
@@ -27,19 +42,19 @@
 # ## Steiner algorithm implementation
 # This module contains four key functions for working with ellipses:
 #
-# 1. **`steiner_ellipse_def()`**:  
+# 1. **`steiner_ellipse_def()`**:
 #    This function implements the **Steiner algorithm** to find the smallest ellipse that encloses the three input points. It returns the matrix definition of the ellipse, which can be used to describe the ellipse mathematically. The returned result includes:
 #    - **D**: The matrix that defines the ellipse.
 #    - **p**: The center of the ellipse.
 #
-# 2. **`plot_ellipse()`**:  
+# 2. **`plot_ellipse()`**:
 #    This function plots an ellipse using its matrix definition and its center.
 #
-# 3. **`is_inside_ellipse()`**:  
+# 3. **`is_inside_ellipse()`**:
 #    This function checks whether a given point lies inside the ellipse.
 #    It accepts either a single point or an array of points and returns a boolean value indicating if each point is inside the ellipse.
 #
-# 4. **`ellipse_bbox()`**:  
+# 4. **`ellipse_bbox()`**:
 #    This function finds the bounding box of an ellipse.
 #    It returns the minimum and maximum values reached by the ellipse for each dimension.
 
@@ -57,6 +72,7 @@ import numpy as np
 
 # Import the Steiner function
 import steiner_ellipse as se
+
 # -
 
 # Define the three point for which to find the smallest ellipse.

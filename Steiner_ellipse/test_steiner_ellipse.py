@@ -1,8 +1,23 @@
+# Copyright 2024-2025 Olivier Romain, Francis Blais, Vincent Girouard, Marius Trudeau
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
 import steiner_ellipse as se
+
 
 test_points_collin = [
     [(0, 1), (0, 2), (0, -5)],
@@ -16,7 +31,12 @@ def test_collinearity_error(p1, p2, p3):
     """
     Check if a ValueError is raised when the given points are collinear.
     """
-    with pytest.raises(ValueError, match="The three points must not be collinear."):
+    expected_msg = "The three points must not be collinear."
+
+    err_msg = se.can_def_steiner_ellipse(np.array(p1), np.array(p2), np.array(p3))
+    assert err_msg == expected_msg
+
+    with pytest.raises(ValueError, match=expected_msg):
         se.steiner_ellipse_def(p1, p2, p3)
 
 
@@ -33,7 +53,12 @@ def test_same_pts_error(p1, p2, p3):
     """
     Check if a ValueError is raised when at least two of the given points are the same.
     """
-    with pytest.raises(ValueError, match="The three points must be distinct."):
+    expected_msg = "The three points must be distinct."
+
+    err_msg = se.can_def_steiner_ellipse(np.array(p1), np.array(p2), np.array(p3))
+    assert err_msg == expected_msg
+
+    with pytest.raises(ValueError, match=expected_msg):
         se.steiner_ellipse_def(p1, p2, p3)
 
 
@@ -50,8 +75,8 @@ def test_ellipse_def(p1, p2, p3):
     Check that the D matrix and p vector are a good definition of the ellipse.
     """
     D, p = se.steiner_ellipse_def(p1, p2, p3)
-    for pi in (p1, p2, p3):
-        vec = pi - p
+    for p_i in (p1, p2, p3):
+        vec = p_i - p
         assert (vec @ D @ vec) == pytest.approx(1)
 
     assert np.allclose(p, np.mean((p1, p2, p3), axis=0))
