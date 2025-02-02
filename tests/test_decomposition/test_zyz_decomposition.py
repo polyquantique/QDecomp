@@ -1,6 +1,6 @@
 import pytest
 
-from zyz_decomposition import *
+from cliffordplust.decomposition.zyz_decomposition import *
 
 
 # Rotation and phase matrices
