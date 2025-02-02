@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 from sympy import factorint, primerange
 
-from cliffordplust.diophantine.diophantine_equation import *
+from cliffordplust.diophantine import *
 
 
 @pytest.mark.parametrize("n", range(2, 20))
