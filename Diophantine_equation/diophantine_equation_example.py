@@ -18,7 +18,7 @@ import sys
 sys.path.append("..")  # Required to load the Rings module from parent directory
 
 from grid_algorithm_1D.Rings import *
-from diophantine_equation import solve_xi_eq_ttdag_in_d
+from cliffordplust.diophantine.diophantine_equation import solve_xi_eq_ttdag_in_d
 
 # +
 # Solve the Diophantine equation

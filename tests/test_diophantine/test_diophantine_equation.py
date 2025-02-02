@@ -2,9 +2,9 @@ import itertools
 
 import numpy as np
 import pytest
-from sympy import factorint, primerange, randprime
+from sympy import factorint, primerange
 
-from diophantine_equation import *
+from cliffordplust.diophantine.diophantine_equation import *
 
 
 @pytest.mark.parametrize("n", range(2, 20))
@@ -90,23 +90,28 @@ def test_xi_i_fact_into_ti(n):
         assert are_sim_Zsqrt2(xi_i, xi_i_calculated_to_Zsqrt2)
 
 
-@pytest.mark.parametrize("xi, is_prime", [
-    (Zsqrt2(0, 1), True),
-    (Zsqrt2(1, 0), False),
-    (Zsqrt2(1, 1), False),
-    (Zsqrt2(2, 0), False),
-    (Zsqrt2(0, 2), False),
-    (Zsqrt2(3, 0), True),
-    (Zsqrt2(0, 3), False),
-    (Zsqrt2(0, 15), False),
-    (Zsqrt2(15, 0), False),
-])
+@pytest.mark.parametrize(
+    "xi, is_prime",
+    [
+        (Zsqrt2(0, 1), True),
+        (Zsqrt2(1, 0), False),
+        (Zsqrt2(1, 1), False),
+        (Zsqrt2(2, 0), False),
+        (Zsqrt2(0, 2), False),
+        (Zsqrt2(3, 0), True),
+        (Zsqrt2(0, 3), False),
+        (Zsqrt2(0, 15), False),
+        (Zsqrt2(15, 0), False),
+    ],
+)
 def test_xi_fact_into_ti_error(xi, is_prime):
     """
     Test the error raised by the xi_fact_into_ti() function.
     """
     if not is_prime:
-        with pytest.raises(ValueError, match=r"The input argument must be a prime in Z\[sqrt\(2\)\]."):
+        with pytest.raises(
+            ValueError, match=r"The input argument must be a prime in Z\[sqrt\(2\)\]."
+        ):
             xi_i_fact_into_ti(xi, check_prime=True)
 
     else:

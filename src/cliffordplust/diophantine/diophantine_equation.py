@@ -13,10 +13,10 @@
 #    limitations under the License.
 
 """
-This module solves the Diophantine equation ξ = t† t for t where ξ is given.
+This module solves the Diophantine equation \u03BE = t\u2020 t for t where \u03BE is given.
 
-Input: ξ in D[√2]
-Output: t in D[ω] such that ξ = t† t
+Input: \u03Be in D[\u221A2]
+Output: t in D[\u03C9] such that \u03Be = t\u2020 t
 """
 
 import sys
@@ -34,8 +34,9 @@ from grid_algorithm_1D.Rings import *
 # ----------------------------- #
 def gcd_Zomega(x, y):
     """
-    Find the greatest common divider (gcd) of x and y in the ring Z[ω]. x and y are elements of
-    the ring Z[ω]. The algorithm implemented is the Euler method extended to the ring Z[ω].
+    Find the greatest common divider (gcd) of x and y in the ring Z[\u03C9]. x and y are elements of
+    the ring Z[\u03C9]. The algorithm implemented is the Euler method extended to the ring
+    Z[\u03C9].
 
     Args:
         x (Zomega): First number
@@ -54,13 +55,13 @@ def gcd_Zomega(x, y):
 
 def euclidean_div_Zomega(num, div):
     """
-    Compute the euclidean division of num by div where num and div are elements of Z[ω]. This
+    Compute the euclidean division of num by div where num and div are elements of Z[\u03C9]. This
     function return q and r such that num = q * div + r.
 
     Args:
         num (Zomega): Number to be divided
         div (Zomega): Divider
-    
+
     Returns:
         tuple: (q, r) where q is the result of the division and r is the rest
     """
@@ -91,7 +92,7 @@ def euclidean_div_Zomega(num, div):
 
 def euclidean_div_Zsqrt2(num, div):
     """
-    Perform the euclidean division of num in Z[√2]. This function returns q and r such that
+    Perform the euclidean division of num in Z[\u221A2]. This function returns q and r such that
     num = q * div + r.
 
     Args:
@@ -115,15 +116,15 @@ def euclidean_div_Zsqrt2(num, div):
 
 def are_sim_Zsqrt2(x, y):
     """
-    Determine if x ~ y. Equivalently, x ~ y if there exists a unit u such that x = u * y. x, y and u
-    are elements of Z[√2].
+    Determine if x \u223C y. Equivalently, x \u223C y if there exists a unit u such that x = u * y.
+    x, y and u are elements of Z[\u221A2].
 
     Args:
         x (Zsqrt2): First number
         y (Zsqrt2): Second number
 
     Returns:
-        bool: True if x ~ y, False otherwise
+        bool: True if x \u223C y, False otherwise
     """
     # Test if y is a divider of x and y is a divider of x
     _, r1 = euclidean_div_Zsqrt2(x, y)
@@ -133,11 +134,11 @@ def are_sim_Zsqrt2(x, y):
 
 def is_unit_Zsqrt2(x):
     """
-    Determine if x is a unit in the ring Z[√2].
+    Determine if x is a unit in the ring Z[\u221A2].
 
     Args:
         x (Zsqrt2): The number to test
-    
+
     Returns:
         bool: True if x is a unit, False otherwise
     """
@@ -150,7 +151,7 @@ def is_unit_Zsqrt2(x):
 # ----------------------------- #
 def solve_usquare_eq_a_mod_p(a, p):
     """
-    Solve the diophantine equation u**2 = -a (mod p) where a, p and u are integers. This function
+    Solve the diophantine equation u\u00B2 = -a (mod p) where a, p and u are integers. This function
     returns the first integer solution of the equation. p is a prime.
 
     Args:
@@ -158,7 +159,7 @@ def solve_usquare_eq_a_mod_p(a, p):
         p (int): A prime integer
 
     Returns:
-        int: The first positive integer solution u to the equation u**2 = -a (mod p)
+        int: The first positive integer solution u to the equation u\u00B2 = -a (mod p)
     """
     # The equation to solve is u**2 = q * p - a where q is an integer
     q, u, t = symbols("q u t", integer=True)
@@ -178,11 +179,11 @@ def integer_fact(p):
 
     Args:
         n (int): Number to factorize
-    
+
     Returns:
         list of tuples: The prime factors of n and their powers. Each tuple is of the form
         (p_i, m_i) where p_i is a prime factor of n and m_i is its power.
-    
+
     Raises:
         ValueError: If the number is less than 2.
         ValueError: If the number is not an integer.
@@ -228,16 +229,16 @@ def integer_fact(p):
 
 def xi_fact(xi):
     """
-    Finds the factorization of ξ (up to a prime) in the ring Z[√2] where ξ is an element of
-    Z[√2]. This function returns a list of tuples (ξ_i, m_i), where ξ_i is a prime factor of
-    ξ in Z[√2] and m_i is its power.
+    Finds the factorization of \u03BE (up to a prime) in the ring Z[\u221A2] where \u03BE is an
+    element of Z[\u221A2]. This function returns a list of tuples (\u03BE_i, m_i), where \u03BE_i is
+    a prime factor of \u03Be in Z[\u221A2] and m_i is its power.
 
     Args:
-        xi (Zsqrt2): An element of Z[√2]
-    
+        xi (Zsqrt2): An element of Z[\u221A2]
+
     Returns:
-        list of tuples: The prime factors of ξ and their powers. Each tuple is of the form
-        (ξ_i, m_i) where ξ_i is a prime factor of ξ and m_i is its power.
+        list of tuples: The prime factors of \u03BE and their powers. Each tuple is of the form
+        (\u03BE _i, m_i) where \u03BE _i is a prime factor of \u03BE  and m_i is its power.
     """
     if xi == 0:  # 0 cannot be factorized
         return [
@@ -291,15 +292,17 @@ def xi_fact(xi):
 
 def pi_fact_into_xi(pi):
     """
-    Solve the equation pi = ξ_i * ξ_i⋅ = a**2 - 2 * b**2 where ⋅ denotes the √2 conjugate.
-    pi is a prime integer and ξ_i = a + b √2 is an element of Z[√2]. pi has a factorization
-    only if pi % 8 = 1 or 7 or pi = 2. In any other case, the function returns None.
+    Solve the equation pi = \u03BE _i * \u03BE _i\u2022 = a\u00B2 - 2 * b\u00B2 where \u2022 denotes
+    the \u221A2 conjugate. pi is a prime integer and \u03BE _i = a + b \u221A2 is an element of
+    Z[\u221A2]. pi has a factorization only if pi % 8 = 1 or 7 or pi = 2. In any other case, the
+    function returns None.
 
     Args:
         pi (int): A prime integer
 
     Returns:
-        Zsqrt2 or None: A number ξ_i for which pi = ξ_i * xi_i⋅, or None if pi % 8 != 1 or 7
+        Zsqrt2 or None: A number \u03BE_i for which pi = \u03BE_i * \u03BE_i\u2022, or None if
+            pi % 8 != 1 or 7
     """
     if pi == 2:
         return Zsqrt2(0, 1)
@@ -321,23 +324,25 @@ def pi_fact_into_xi(pi):
 
 def xi_i_fact_into_ti(xi_i, check_prime=False):
     """
-    Solve the equation ξ_i = t_i * t_i† where † denotes the complex conjugate. ξ_i is a prime
-    element in Z[√2] and t_i is an element of Z[omega]. ξ_i has a factorization only if
-    pi % 8 = 1, 3 or 5, where pi = ξ_i * ξ_i⋅ or if pi = 2.
+    Solve the equation \u03BE_i = t_i * t_i\u2020 where \u2020 denotes the complex conjugate.
+    \u03BE_i is a prime element in Z[\u221A2] and t_i is an element of Z[\u03C9]. \u03BE_i has a
+    factorization only if pi % 8 = 1, 3 or 5, where pi = \u03BE_i * \u03BE_i\u2022 or if pi = 2.
 
-    Note: this function assumes ξ_i is a prime element in Z[√2]. No check is performed to
+    Note: this function assumes \u03BE_i is a prime element in Z[\u221A2]. No check is performed to
     verify this assumption unless specified by the check_prime argument.
 
     Args:
-        xi_i (Zsqrt2): A prime element in Z[√2]
-        check_prime (bool): If set to True, the function will check if ξ_i is a prime in Z[√2]
-    
+        xi_i (Zsqrt2): A prime element in Z[\u221A2]
+        check_prime (bool): If set to True, the function will check if \u03Be_i is a prime in
+            Z[\u221A2]
+
     Returns:
-        Zomega or None: A number ti_i for which ξ_i = t_i * t_i†, or None if ξ_i % 8 = 7
-    
+        Zomega or None: A number ti_i for which \u03Be_i = t_i * t_i\u2020, or None if
+            \u03BE_i % 8 = 7
+
     Raises:
-        ValueError: If the input argument is not a prime in Z[√2] (only if check_prime is True,
-        because this verification is computationally expensive)
+        ValueError: If the input argument is not a prime in Z[\u221A2] (only if check_prime is True,
+            because this verification is computationally expensive)
     """
     # Verify if ξ_i is a prime in Z[√2]
     if check_prime:
@@ -346,7 +351,7 @@ def xi_i_fact_into_ti(xi_i, check_prime=False):
 
         if len(factors) >= 3:  # The first factor might be a unit
             is_prime = False
-        
+
         if len(factors) == 1:  # Check if the factor is not a unit
             if is_unit_Zsqrt2(factors[0][0]):
                 is_prime = False
@@ -354,7 +359,7 @@ def xi_i_fact_into_ti(xi_i, check_prime=False):
         if len(factors) == 2:  # Check if a least one factor is a unit
             if not (is_unit_Zsqrt2(factors[0][0]) or is_unit_Zsqrt2(factors[1][0])):
                 is_prime = False
-        
+
         for _, m in factors:
             if m > 1:
                 is_prime = False
@@ -362,7 +367,6 @@ def xi_i_fact_into_ti(xi_i, check_prime=False):
 
         if not is_prime:
             raise ValueError("The input argument must be a prime in Z[sqrt(2)].")
-
 
     if xi_i == Zsqrt2(0, 1):  # xi_i = √2
         delta = Zomega(0, 0, 1, 1)  # δ = 1 + ω
@@ -391,15 +395,15 @@ def xi_i_fact_into_ti(xi_i, check_prime=False):
 
 def solve_xi_sim_ttdag_in_z(xi):
     """
-    Solve the equation ξ ~ t * t† for t where † denotes the complex conjugate. ξ is an element of
-    Z[√2] and t is an element of Z[ω]. This function returns the first solution of the
-    equation. If no solution exists, the function returns None.
+    Solve the equation \u03BE \u223C t * t\2020 for t where \2020 denotes the complex conjugate.
+    \u03BE is an element of Z[\u221A2] and t is an element of Z[\u03C9]. This function returns the
+    first solution of the equation. If no solution exists, the function returns None.
 
     Args:
         xi (Zsqrt2): A number
 
     Returns:
-        Zomega or None: A number t for which ξ = t * t†, or None if no solution exists
+        Zomega or None: A number t for which \u03BE = t * t\u2020, or None if no solution exists
     """
     xi_fact_list = xi_fact(xi)
 
@@ -427,15 +431,15 @@ def solve_xi_sim_ttdag_in_z(xi):
 
 def solve_xi_eq_ttdag_in_d(xi):
     """
-    Solve the equation ξ = t * t† or t where † denotes the complex conjugate. ξ is an element of
-    D[√2] and t is an element of D[ω]. This function returns the first solution of the
-    equation. If no solution exists, the function returns None.
+    Solve the equation \u03BE = t * t\u2020 or t where \u2020 denotes the complex conjugate. \u03BE
+    is an element of D[\u221A2] and t is an element of D[\u03C9]. This function returns the first
+    solution of the equation. If no solution exists, the function returns None.
 
     Args:
         xi (Dsqrt2): A number
 
     Returns:
-        Domega of None: A number t for which ξ = t * t†, or None if no solution exists
+        Domega of None: A number t for which \u03BE = t * t\u2020, or None if no solution exists
     """
     # The equation only has a solution if ξ is doubly positive, i.e. ξ >= 0 and ξ• >= 0.
     if float(xi) < 0 or float(xi.sqrt2_conjugate()) < 0:
