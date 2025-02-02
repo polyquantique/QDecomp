@@ -19,14 +19,10 @@ Input: \u03Be in D[\u221A2]
 Output: t in D[\u03C9] such that \u03Be = t\u2020 t
 """
 
-import sys
-
-sys.path.append("../CliffordPlusT")
-
 import numpy as np
 from sympy import diophantine, symbols
 
-from grid_algorithm_1D.Rings import *
+from cliffordplust.rings import *
 
 
 # ----------------------------- #
