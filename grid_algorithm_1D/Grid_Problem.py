@@ -17,9 +17,9 @@ def find_points(epsilon: float, theta: float) -> np.ndarray:
 
     Returns:
         tuple: A tuple containing three points (p1, p2, p3), where:
-            - p1 (list[float]): The origin point [0, 0].
-            - p2 (list[float]): The first computed point on the slice.
-            - p3 (list[float]): The second computed point on the slice.
+            - p1 (array[float]): The origin point [0, 0].
+            - p2 (array[float]): The first computed point on the slice.
+            - p3 (array[float]): The second computed point on the slice.
 
     Raises:
         ValueError: If theta is not in the range [0, 4\u03C0].
@@ -86,39 +86,42 @@ def find_grid_operator(A: np.ndarray, B: np.ndarray) -> Grid_Operator:
         ValueError: If `A` or `B` are not 2x2 matrices or are incompatible with the `State` class.
     """
 
-    initial_state = State(A, B)
-    initial_state_bias = initial_state.bias
+    state = State(A, B)
+
     # Set the inverse grid operator to the identity
     inv_grid_op = I
-    if abs(initial_state_bias) > 1:
-        # Find the value of k and apply the shift
-        k_upper = (1 - initial_state_bias) / 2
-        k = math.floor(k_upper)
-        new_state = initial_state.shift(k)
-    else:
-        new_state = initial_state
-        k = 0
-    while new_state.skew >= 15:
+    
+    while state.skew >= 15:
+        # Adjust the bias
+        if abs(state.bias) > 1:
+            # Find the value of k and apply the shift
+            k_upper = (1 - state.bias) / 2
+            k = math.floor(k_upper)
+            state = state.shift(k)
+        else:
+            k = 0
+
         # Finds G_i such that the skew is reduced by at least 10%
-        G_i = find_special_grid_operator(new_state)
+        G_i = find_special_grid_operator(state)
         inv_grid_op = G_i * inv_grid_op
-        new_state = new_state.transform(G_i)
-    if k < 0:
-        inv_grid_op = (inv_special_sigma**-k) * inv_grid_op * (special_sigma**-k)
-    else:
-        inv_grid_op = (special_sigma**k) * inv_grid_op * (inv_special_sigma**k)
+        state = state.transform(G_i)
+        if k < 0:
+            inv_grid_op = (inv_special_sigma**-k) * inv_grid_op * (special_sigma**-k)
+        else:
+            inv_grid_op = (special_sigma**k) * inv_grid_op * (inv_special_sigma**k)
+        
     grid_op = inv_grid_op.inv()
     return inv_grid_op, grid_op
 
 
-def find_special_grid_operator(ellipse_state: State) -> Grid_Operator:
+def find_special_grid_operator(state: State) -> Grid_Operator:
     """Find the special grid operator which reduces the skew of a state by at least 10%.
 
     Args:
-        ellipse_state (State): The state defined by a pair of ellipses.
+        state (State): The state defined by a pair of ellipses.
 
     Returns:
-        special_grid_operator (Grid_Operator): The resulting grid operator that satisfies the initial criteria.
+        special_grid_operator (Grid_Operator): The resulting special grid operator that satisfies the initial criteria.
 
     Raises:
         ValueError: If the algorithm encountered unaccounted-for values of z and zeta
@@ -127,47 +130,37 @@ def find_special_grid_operator(ellipse_state: State) -> Grid_Operator:
     # Initialize the special grid operator as the identity operator
     special_grid_operator = I
 
-    # Extract parameters from the state
-    z = ellipse_state.z
-    zeta = ellipse_state.zeta
-    b = ellipse_state.b
-    beta = ellipse_state.beta
-
     # Flip b and beta when beta is negative
-    if beta <= 0:
-        special_grid_operator = Z * special_grid_operator
-
+    if state.beta < 0:
+        special_grid_operator = special_grid_operator * Z
+        state = state.transform(Z)
+    
+    # Flip the signs of both z and zeta 
+    if state.zeta < -state.z:
+            special_grid_operator = special_grid_operator * X
+            state = state.transform(X)
+            
     # Refer to Figure 7 of Appendix A in https://arxiv.org/pdf/1403.2975 for this part (it really helps)
-    if abs(z) <= 0.8 and abs(zeta) <= 0.8:
-        special_grid_operator = R * special_grid_operator
-    elif b >= 0:
-        if zeta <= -z:
-            special_grid_operator = X * special_grid_operator
-        if z <= 0.3 and zeta >= 0.8:
-            special_grid_operator = K * special_grid_operator
-        elif z >= 0.3 and zeta >= 0.3:
-            c = min(z, zeta)
-            if math.floor(float(lamb) ** c / 2) < 1:
-                n = 1
-            else:
-                n = math.ceil(float(lamb) ** c / 4)
-            special_grid_operator = A**n * special_grid_operator
-        elif z >= 0.8 and zeta <= 0.3:
-            special_grid_operator = K.conjugate() * special_grid_operator
+    if abs(state.z) <= 0.8 and abs(state.zeta) <= 0.8:
+        special_grid_operator = special_grid_operator * R
+    elif state.b >= 0:
+        if state.z <= 0.3 and state.zeta >= 0.8:
+            special_grid_operator = special_grid_operator * K
+        elif state.z >= 0.3 and state.zeta >= 0.3:
+            c = min(state.z, state.zeta)
+            n = max(1, math.floor(float(lamb) ** c / 2))
+            special_grid_operator = special_grid_operator * A**n
+        elif state.z >= 0.8 and state.zeta <= 0.3:
+            special_grid_operator = special_grid_operator * K.conjugate()
         else:
             # The algorithm should never reach this line
-            ValueError("Encountered unaccounted-for values for the state parameters in Step-Lemma")
+            raise ValueError("Encountered unaccounted-for values for the state parameters in Step-Lemma")
     else:
-        if zeta <= -z:
-            special_grid_operator = X * special_grid_operator
-        elif z >= -0.2 and zeta >= -0.2:
-            c = min(z, zeta)
-            if math.floor(float(lamb) ** c / math.sqrt(2)) < 1:
-                n = 1
-            else:
-                n = math.ceil(float(lamb) ** c / math.sqrt(8))
-            special_grid_operator = B**n * special_grid_operator
+        if state.z >= -0.2 and state.zeta >= -0.2:
+            c = min(state.z, state.zeta)
+            n = max(1, math.floor(float(lamb) ** c / math.sqrt(2)))
+            special_grid_operator = special_grid_operator * B**n
         else:
             # The algorithm should never reach this line
-            ValueError("Encountered unaccounted-for values for the state parameters in Step-Lemma")
+            raise ValueError("Encountered unaccounted-for values for the state parameters in Step-Lemma")
     return special_grid_operator

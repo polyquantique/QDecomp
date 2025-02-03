@@ -130,8 +130,8 @@ class Grid_Operator:
 
     def as_float(self) -> np.ndarray:
         return np.array(
-            [[float(self.a), float(self.b)], [float(self.c), float(self.d)]],
-            dtype=object,
+            [[self.a, self.b], [self.c, self.d]],
+            dtype=float,
         )
 
     def __add__(self, other: Grid_Operator) -> Grid_Operator:
