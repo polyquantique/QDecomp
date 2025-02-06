@@ -28,3 +28,4 @@ def test_valid_slolutions(epsilon, theta):
 
     assert np.isclose(n1, n2)
     assert np.allclose(p1, 0)
+

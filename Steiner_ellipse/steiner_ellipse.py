@@ -123,8 +123,6 @@ def is_inside_ellipse(u, D, p):
 
     # Test that the dimensions of the arguments are compatible
     n_dim = len(p)
-    print(D.shape)
-    print(D.shape != (n_dim, n_dim))
     if D.shape != (n_dim, n_dim):
         raise IndexError(
             f"The matrix definition (shape {D.shape}) and center (shape {p.shape}) \

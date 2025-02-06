@@ -97,18 +97,22 @@ def find_grid_operator(A: np.ndarray, B: np.ndarray) -> Grid_Operator:
             # Find the value of k and apply the shift
             k_upper = (1 - state.bias) / 2
             k = math.floor(k_upper)
-            state = state.shift(k)
+            temp_state = state.shift(k)
         else:
+            temp_state = state
             k = 0
+        print(temp_state.bias)
 
         # Finds G_i such that the skew is reduced by at least 10%
-        G_i = find_special_grid_operator(state)
-        inv_grid_op = G_i * inv_grid_op
-        state = state.transform(G_i)
+        G_i = find_special_grid_operator(temp_state)
+        print(G_i)
         if k < 0:
-            inv_grid_op = (inv_special_sigma**-k) * inv_grid_op * (special_sigma**-k)
+            G_i = (inv_special_sigma**-k) * G_i * (special_sigma**-k)
         else:
-            inv_grid_op = (special_sigma**k) * inv_grid_op * (inv_special_sigma**k)
+            G_i = (special_sigma**k) * G_i * (inv_special_sigma**k)
+        inv_grid_op = inv_grid_op * G_i
+        state = state.transform(G_i)
+        print(state.skew)
         
     grid_op = inv_grid_op.inv()
     return inv_grid_op, grid_op

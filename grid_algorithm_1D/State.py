@@ -164,8 +164,8 @@ class State:
         if not isinstance(G, Grid_Operator):
             raise TypeError("G must be a grid operator")
         G_conj = G.conjugate()
-        new_A = (G.dag()).as_float() @ A @ G.as_float()
-        new_B = (G_conj.dag()).as_float() @ B @ G_conj.as_float()
+        new_A = G.dag().as_float() @ A @ G.as_float()
+        new_B = G_conj.dag().as_float() @ B @ G_conj.as_float()
         return State(new_A, new_B)
 
     def shift(self, k: int) -> State:

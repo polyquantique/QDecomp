@@ -22,11 +22,7 @@ Output: t in D[ω] such that ξ = t† t
 import numpy as np
 from sympy import diophantine, symbols
 
-import sys
-
-sys.path.append("CliffordPlusT")
-
-from grid_algorithm_1D.Rings import *
+from Rings import *
 
 
 # ----------------------------- #
