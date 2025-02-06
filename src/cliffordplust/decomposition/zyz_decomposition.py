@@ -44,27 +44,31 @@ def zyz_decomposition(U: np.ndarray | list[list[float]]) -> tuple[float, ...]:
         ValueError: If the input matrix is not unitary.
 
     Example:
-        # Define rotation and phase matrices
-        ry = lambda teta: np.array([[np.cos(teta / 2), -np.sin(teta / 2)], [np.sin(teta / 2), np.cos(teta / 2)]])
-        rz = lambda teta: np.array([[np.exp(-1.0j * teta / 2), 0], [0, np.exp(1.0j * teta / 2)]])
-        phase = lambda alpha: np.exp(1.0j * alpha)
-
-        # Create a unitary matrix U
-        a = complex(1, 1) / np.sqrt(3)
-        b = np.sqrt(complex(1, 0) - np.abs(a) ** 2)  # Ensure that U is unitary
-        alpha = np.pi/3
-        U = np.exp(1.0j * alpha) * np.array([[a, -b.conjugate()], [b, a.conjugate()]])
-
-        # Compute the decomposition of U
-        t0, t1, t2, alpha_ = zyz_decomposition(U)
-
-        # Recreate U from the decomposition
-        U_calculated = phase(alpha_) * Rz(t2) @ Ry(t1) @ Rz(t0)
-
-        # Print the results
-        print(f"U =\n{U}\n")
-        print(f"U_calculated =\n{U_calculated}\n")
-        print(f"Error = {np.linalg.norm(U - U_calculated)}")
+    .. code-block:: python
+    # Define rotation and phase matrices
+    ry = lambda teta: np.array([[np.cos(teta / 2), -np.sin(teta / 2)], [np.sin(teta / 2), np.cos(teta / 2)]])
+    rz = lambda teta: np.array([[np.exp(-1.0j * teta / 2), 0], [0, np.exp(1.0j * teta / 2)]])
+    phase = lambda alpha: np.exp(1.0j * alpha)
+        
+    # Create a unitary matrix U
+    a = complex(1, 1) / np.sqrt(3)
+    b = np.sqrt(complex(1, 0) - np.abs(a) ** 2)  # Ensure that U is unitary
+    alpha = np.pi/3
+    U = np.exp(1.0j * alpha) * np.array([[a, -b.conjugate()], [b, a.conjugate()]])
+        
+    # Compute the decomposition of U
+    t0, t1, t2, alpha_ = zyz_decomposition(U)
+        
+    # Recreate U from the decomposition
+    U_calculated = phase(alpha_) * Rz(t2) @ Ry(t1) @ Rz(t0)
+        
+    # Print the results
+    print("U =")
+    print(U)
+    print("U_calculated =")
+    print(U_calculated)
+    print("Error =")
+    print(np.linalg.norm(U - U_calculated))
     """
     # Convert U to a np.ndarray if it is not already
     U = np.asarray(U)
