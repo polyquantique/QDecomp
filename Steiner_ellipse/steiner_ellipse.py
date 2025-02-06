@@ -211,3 +211,4 @@ def plot_ellipse(D, p, points=None):
     plt.legend()
     plt.axis("equal")
     plt.show()
+
