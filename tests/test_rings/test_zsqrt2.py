@@ -1,4 +1,5 @@
 from cliffordplust.rings import Zsqrt2
+from cliffordplust import rings as r
 import pytest
 import math
 
@@ -121,7 +122,6 @@ def test_power_value_error():
 
 def test_from_ring():
     """Test the from_ring method of the Zsqrt2 class."""
-    from cliffordplust import rings as r
     assert Zsqrt2.from_ring(-15) == Zsqrt2(-15, 0)
     assert Zsqrt2.from_ring(r.D(6, 1)) == Zsqrt2(3, 0)
     assert Zsqrt2.from_ring(Zsqrt2(1, 1)) == Zsqrt2(1, 1)
