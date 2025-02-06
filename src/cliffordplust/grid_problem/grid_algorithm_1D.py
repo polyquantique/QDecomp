@@ -120,7 +120,7 @@ def solve_grid_problem_1d(A: Sequence[num.Real], B: Sequence[num.Real]) -> list[
                 lambda n_scaling: LAMBDA if n_scaling >= 0 else INVERSE_LAMBDA
             )(n_scaling) ** abs(n_scaling)
             fl_alpha_i = float(alpha_i)
-            fl_alpha_i_conjugate = float(alpha_i.conjugate())
+            fl_alpha_i_conjugate = float(alpha_i.sqrt2_conjugate())
 
             # See if the solution is a solution to the unscaled grid problem for A and B
             if (
@@ -186,7 +186,7 @@ def plot_grid_problem(
         label=r"$\alpha$",
     )
     plt.scatter(
-        [float(i.conjugate()) for i in solutions],
+        [float(i.sqrt2_conjugate()) for i in solutions],
         [0] * len(solutions),
         color="red",
         s=20,
