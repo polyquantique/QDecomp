@@ -33,8 +33,8 @@ def test_grid_algorithm_1D_solutions(A, B):
                 (
                     float(solution) <= A[1]
                     and float(solution) >= A[0]
-                    and float(solution.conjugate()) <= B[1]
-                    and float(solution.conjugate()) >= B[0]
+                    and float(solution.sqrt2_conjugate()) <= B[1]
+                    and float(solution.sqrt2_conjugate()) >= B[0]
                 )
                 for solution in solutions
             ]
