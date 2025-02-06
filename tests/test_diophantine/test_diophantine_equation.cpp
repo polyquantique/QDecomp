@@ -1,8 +1,8 @@
 #include <stdexcept>
 
-#include "..\rings_cpp\Rings.hpp"
-#include "diophantine_equation.hpp"
-#include "diophantine_equation.cpp"
+#include "..\..\src\cliffordplust\rings\cpp\Rings.hpp"
+#include "..\..\src\cliffordplust\diophantine\cpp\diophantine_equation.hpp"
+#include "..\..\src\cliffordplust\diophantine\cpp\diophantine_equation.cpp"
 
 
 void test_integer_fact() {

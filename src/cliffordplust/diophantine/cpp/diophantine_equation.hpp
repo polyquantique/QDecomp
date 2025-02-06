@@ -19,7 +19,7 @@
 #include <vector>
 #include <tuple>
 
-#include "..\rings_cpp\Rings.hpp"
+#include "..\..\rings\cpp\Rings.hpp"
 
 
 /**

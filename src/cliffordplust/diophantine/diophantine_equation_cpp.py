@@ -23,7 +23,8 @@ Output: t in D[\u03C9] such that \u03Be = t\u2020 t
 import os
 import sys
 
-sys.path.append(os.path.split(os.path.dirname(__file__))[0])
+path_list = os.path.dirname(__file__).split(os.sep)
+sys.path.append(os.sep.join(path_list[:-3]))
 
 import platform
 import ctypes
@@ -34,11 +35,11 @@ from grid_algorithm_1D.Rings import *
 platf = platform.system()
 match (platf):
     case "Windows":
-        lib_file = os.path.join(os.path.dirname(__file__), "diophantine_equation_lib.dll")
+        lib_file = os.path.join(os.path.dirname(__file__), "cpp", "diophantine_lib.dll")
     # case "Linux":
-    #     lib_file = os.path.join(os.path.dirname(__file__), "libdiophantine_equation_lib.so")
+    #     lib_file = os.path.join(os.path.dirname(__file__), "cpp", "libdiophantine_equation_lib.so")
     # case "Darwin":
-    #     lib_file = os.path.join(os.path.dirname(__file__), "libdiophantine_equation_lib.dylib")
+    #     lib_file = os.path.join(os.path.dirname(__file__), "cpp", "libdiophantine_equation_lib.dylib")
     case _:
         raise Exception(f"Unsupported platform: {platf}")
 
@@ -95,3 +96,6 @@ def solve_xi_eq_ttdag_in_d_cpp(xi: Dsqrt2) -> Domega | None:
         (res.c, res.lc),
         (res.d, res.ld),
     )
+
+# print(solve_xi_eq_ttdag_in_d_cpp(Dsqrt2((13, 1), (2, 1))))
+# print(solve_xi_eq_ttdag_in_d_cpp(Dsqrt2((13, 2), (2, 1))))

@@ -6,7 +6,7 @@
 #include <future>
 #include <iostream>
 
-#include "..\rings_cpp\Rings.hpp"
+#include "..\..\rings\cpp\Rings.hpp"
 #include "diophantine_equation.hpp"
 
 

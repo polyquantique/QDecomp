@@ -1,4 +1,4 @@
-object=diophantine_equation_lib
+object=diophantine_lib
 
 all: ${object}.dll
 
