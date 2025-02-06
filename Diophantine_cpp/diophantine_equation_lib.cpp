@@ -24,17 +24,38 @@
 
 extern "C" {
     struct Domega_struct {
-        int a, la;
-        int b, lb;
-        int c, lc;
-        int d, ld;
+        bool has_solution = false;
+        int a = 0, la = 0;
+        int b = 0, lb = 0;
+        int c = 0, lc = 0;
+        int d = 0, ld = 0;
     };
 
     Domega_struct solve_xi_eq_ttdag_in_d_helper(int a, int la, int b, int lb) {
+        // Data structure to return the solution
+        Domega_struct res;
+
+        // Passed this if statement, if solution == 0, then there is no solution.
+        if (a == 0 and b == 0) {
+            res.has_solution = true;
+            return res;
+        }
+
+        // Create the Dsqrt2 object of xi
         Dsqrt2 xi(a, la, b, lb);
+
+        // Compute the solution
         Domega solution = solve_xi_eq_ttdag_in_d(xi);
 
-        Domega_struct res;
+        // Check if there is a solution
+        if (solution == 0) {
+            res.has_solution = false;
+            return res;
+        }
+
+        // Store the solution in the data structure
+        res.has_solution = true;
+
         res.a = solution.a().num();
         res.b = solution.b().num();
         res.c = solution.c().num();
