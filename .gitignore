@@ -164,7 +164,9 @@ cython_debug/
 .vscode/
 Local_only/
 *_debug.py
+*_debug.cpp
 *.ipynb
+*.dll
 
 Solutions/
 *.png
