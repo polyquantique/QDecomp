@@ -66,12 +66,12 @@ def euclidean_div_Zomega(num, div):
 
     # Convert the denominator into an integer
     denom_D = div_div_cc * div_div_cc.sqrt2_conjugate()  # Element of the ring D
-    denom = denom_D.d.num  # Convert to an integer
+    denom = denom_D.d  # Convert to an integer
     # Apply the same multiplication on the numerator
     numer = num * div_cc * div_div_cc.sqrt2_conjugate()
 
     n = numer
-    a, b, c, d = n.a.num, n.b.num, n.c.num, n.d.num  # Extract the coefficients of numer
+    a, b, c, d = n.a, n.b, n.c, n.d  # Extract the coefficients of numer
     # Divide the coefficients by the integer denominator and round them
     a_, b_, c_, d_ = (
         round(a / denom),
@@ -99,9 +99,9 @@ def euclidean_div_Zsqrt2(num, div):
         tuple: (q, r) where q is the result of the division and r is the rest
     """
     num_ = num * div.sqrt2_conjugate()
-    den_ = (div * div.sqrt2_conjugate()).p
+    den_ = (div * div.sqrt2_conjugate()).a
 
-    a_, b_ = num_.p, num_.q
+    a_, b_ = num_.a, num_.b
     a, b = round(a_ / den_), round(b_ / den_)
 
     q = Zsqrt2(a, b)
@@ -242,7 +242,7 @@ def xi_fact(xi):
         ]
 
     xi_fact_list = []
-    p = (xi * xi.sqrt2_conjugate()).p
+    p = (xi * xi.sqrt2_conjugate()).a
 
     if p == 1 or p == -1:  # ξ is a unit, so it cannot be factorized
         return [
@@ -368,20 +368,20 @@ def xi_i_fact_into_ti(xi_i, check_prime=False):
         delta = Zomega(0, 0, 1, 1)  # δ = 1 + ω
         return delta
 
-    if xi_i.q == 0:  # ξ_i is already a prime integer
-        pi = xi_i.p
+    if xi_i.b == 0:  # ξ_i is already a prime integer
+        pi = xi_i.a
     else:
-        pi = (xi_i * xi_i.sqrt2_conjugate()).p
+        pi = (xi_i * xi_i.sqrt2_conjugate()).a
 
     if pi % 4 == 1:
         u = solve_usquare_eq_a_mod_p(1, pi)
-        xi_i_converted = Zomega(-xi_i.q, 0, xi_i.q, xi_i.p)
+        xi_i_converted = Zomega.from_ring(xi_i)
         ti = gcd_Zomega(xi_i_converted, Zomega(0, 1, 0, u))  # Second term: u + i
         return ti
 
     if pi % 8 == 3:  # ξ_i = pi which is an integer in that case
         u = solve_usquare_eq_a_mod_p(2, pi)
-        xi_i_converted = Zomega(0, 0, 0, xi_i.p)
+        xi_i_converted = Zomega.from_ring(xi_i)
         ti = gcd_Zomega(xi_i_converted, Zomega(1, 0, 1, u))  # Second term: u + i √2
         return ti
 
@@ -410,10 +410,7 @@ def solve_xi_sim_ttdag_in_z(xi):
 
         if mi % 2 == 0:  # For even exponents, ξ_i ** mi = ξ_i ** (mi // 2) * ξ_i ** (mi // 2)
             factor = xi_i ** (mi // 2)
-            d = factor.p
-            c = factor.q
-            a = -c
-            t *= Zomega(a, 0, c, d)
+            t *= Zomega.from_ring(factor)
 
         else:
             ti_i = xi_i_fact_into_ti(xi_i)
@@ -441,9 +438,9 @@ def solve_xi_eq_ttdag_in_d(xi):
     if float(xi) < 0 or float(xi.sqrt2_conjugate()) < 0:
         return None
 
-    l = (xi * xi.sqrt2_conjugate()).p.denom  # Greatest denominator power of 2
+    l = (xi * xi.sqrt2_conjugate()).a.denom  # Greatest denominator power of 2
     xi_prime_temp = Dsqrt2(D(0, 0), D(1, 0)) ** l * xi  # ξ_prime is in Z[√2]
-    xi_prime = Zsqrt2(xi_prime_temp.p.num, xi_prime_temp.q.num)  # Convert ξ_prime to Z[√2]
+    xi_prime = Zsqrt2.from_ring(xi_prime_temp)  # Convert ξ_prime to Z[√2]
 
     s = solve_xi_sim_ttdag_in_z(xi_prime)  # Solve the equation ξ' ~ s * s†
     if s is None:  # If there is no solution to the equation ξ' ~ s * s†
@@ -452,21 +449,19 @@ def solve_xi_eq_ttdag_in_d(xi):
     delta = Zomega(0, 0, 1, 1)  # δ = 1 + ω
     # δ**-1 = δ * λ**-1 * ω**-1 / √2
     delta_inv = (
-        delta * Domega((-1, 0), (0, 0), (1, 0), (-1, 0)) * Domega((0, 0), (-1, 1), (0, 0), (1, 1))
+        Domega.from_ring(delta)
+        * Domega((-1, 0), (0, 0), (1, 0), (-1, 0))
+        * Domega((0, 0), (-1, 1), (0, 0), (1, 1))
     )
-
     delta_inv_l = delta_inv**l  # δ_l = δ ** l
 
-    t = delta_inv_l * s  # t = δ**-l * s
-
-    tt = t * t.complex_conjugate()  # tt = t * t†
-
-    tt = tt.convert(Dsqrt2)
+    t = delta_inv_l * Domega.from_ring(s)  # t = δ**-l * s
+    tt = Dsqrt2.from_ring(t * t.complex_conjugate())  # tt = t * t†
 
     # Find u such that ξ = u * t * t†
-    denom = (tt * tt.sqrt2_conjugate()).d  # Element of ring D
+    denom = (tt * tt.sqrt2_conjugate()).a  # Element of ring D
     u_temp = xi * tt.sqrt2_conjugate() * int(2**denom.denom)
-    u = Zsqrt2(u_temp.p.num // denom.num, u_temp.q.num // denom.num)
+    u = Zsqrt2(u_temp.a.num // denom.num, u_temp.b.num // denom.num)
 
     # u is of the form u = λ**2n => n = ln(u) / 2 ln(λ)
     n = round(np.log(float(u)) / (2 * np.log(float(Zsqrt2(1, 1)))))
