@@ -2,20 +2,38 @@ import math
 
 import numpy as np
 import pytest
-from scipy.stats import unitary_group, ortho_group
+from scipy.stats import ortho_group, unitary_group
 
-from cliffordplust.decomposition import *
+from cliffordplust.decompositions import *
 
 
 @pytest.mark.parametrize(
     "A",
-    [np.random.uniform(-100, 100, (2, 2)) for _ in range(10)]
-    + [np.zeros((2, 2)), np.identity(2), np.arange(1, 5).reshape(2, 2), np.ones((2, 2))]
+    [
+        np.zeros((2, 2)),
+        np.identity(2),
+        np.arange(1, 5).reshape(2, 2),
+        np.ones((2, 2)),
+        np.array([[1, -2], [-3, 1]]),
+        np.array([[1.2, 3.4], [5, -1]]),
+        np.array([[np.pi, np.e], [np.log(2), np.sqrt(3)]]),
+        np.array([[1, 1], [1, -1]]) / math.sqrt(2),
+        np.eye(2) / math.sqrt(2),
+    ],
 )
 @pytest.mark.parametrize(
     "B",
-    [np.random.uniform(-100, 100, (2, 2)) for _ in range(10)]
-    + [np.zeros((2, 2)), np.identity(2), np.arange(1, 5).reshape(2, 2), np.ones((2, 2))]
+    [
+        np.zeros((2, 2)),
+        np.identity(2),
+        np.arange(1, 5).reshape(2, 2),
+        np.ones((2, 2)),
+        np.array([[1, -2], [-3, 1]]),
+        np.array([[1.2, 3.4], [5, -1]]),
+        np.array([[np.pi, np.e], [np.log(2), np.sqrt(3)]]),
+        np.array([[1, 1], [1, -1]]) / math.sqrt(2),
+        np.eye(2) / math.sqrt(2),
+    ],
 )
 def test_kronecker_decomposition(A, B):
     """Test the kronecker decomposition of 4x4 matrix."""
@@ -26,8 +44,8 @@ def test_kronecker_decomposition(A, B):
 
 @pytest.mark.parametrize(
     "U",
-    [unitary_group.rvs(4) for _ in range(40)]
-    + [ortho_group.rvs(4) for _ in range(10)]
+    [unitary_group(dim=4, seed=42).rvs() for _ in range(40)]
+    + [ortho_group(dim=4, seed=42).rvs() for _ in range(10)]
     + [
         np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 0, 0, 1]]),  # SWAP gate
         np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]]),  # CNOT gate
@@ -49,7 +67,9 @@ def test_kronecker_decomposition(A, B):
 def test_canonical_decomposition(U):
     """Test the canonical decomposition of 4x4 unitary matrix."""
     A, B, t, alpha = canonical_decomposition(U)
-    assert np.allclose(U, B @ can(t[0], t[1], t[2]) @ A * np.exp(1.0j * alpha), rtol=1e-8)
+    assert np.allclose(
+        U, B @ canonical_gate(t[0], t[1], t[2]) @ A * np.exp(1.0j * alpha), rtol=1e-8
+    )
     a, b = kronecker_decomposition(A)
     alpha, beta = kronecker_decomposition(B)
     assert np.allclose(A, np.kron(a, b)) and np.allclose(B, np.kron(alpha, beta))
@@ -58,7 +78,7 @@ def test_canonical_decomposition(U):
 def test_kronecker_decomposition_errors():
     """Test the raise of errors when calling kronecker decomposition with wrong arguments."""
     for M in [((1, 2), (3, 4)), [[1, 2], [3, 4]], 1, "1", 1.0]:
-        with pytest.raises(TypeError, match="Matrix must be a numpy object"):
+        with pytest.raises(TypeError, match="The input matrix must be a numpy object"):
             kronecker_decomposition(M)
     for M in [
         np.arange(1, 10).reshape(3, 3),
@@ -66,7 +86,7 @@ def test_kronecker_decomposition_errors():
         np.arange(1, 13).reshape(4, 3),
         np.arange(1, 26).reshape(5, 5),
     ]:
-        with pytest.raises(ValueError, match="Matrix must be 4x4"):
+        with pytest.raises(ValueError, match="The input matrix must be 4x4"):
             kronecker_decomposition(M)
 
 

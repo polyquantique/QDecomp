@@ -1,15 +1,15 @@
 from typing import Any, Sequence
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 from numpy.random import uniform
-import matplotlib.pyplot as plt
 
 from cliffordplust.grid_problem import plot_grid_problem, solve_grid_problem_1d
 from cliffordplust.rings import Zsqrt2
 
 
-@pytest.mark.parametrize("A", [(1, 2, 3), '1, 2', (1.j, 2), '12'])
+@pytest.mark.parametrize("A", [(1, 2, 3), "1, 2", (1.0j, 2), "12"])
 def test_grid_algorithm_errors(A):
     """Test the raise of type errors when solving the 1D grid problem if the input intervals are not valid."""
     with pytest.raises(TypeError, match="Input intervals must be real sequences of length 2"):
@@ -21,9 +21,25 @@ def test_grid_algorithm_errors(A):
 @pytest.mark.parametrize(
     "A",
     [np.sort(uniform(-50, 50, 2)) for _ in range(10)]
-    + [[0, 1], [-1, 0], [0, 0.9], [-0.9, 0], [0, 0.4], [-0.4, 0], [-1, 1], [-5, 5], [-10, 10], [-10, 0], [0, 10]],
+    + [
+        [0, 1],
+        [-1, 0],
+        [0, 0.9],
+        [-0.9, 0],
+        [0, 0.4],
+        [-0.4, 0],
+        [-1, 1],
+        [-5, 5],
+        [-10, 10],
+        [-10, 0],
+        [0, 10],
+    ],
 )
-@pytest.mark.parametrize("B", [np.sort(uniform(-50, 50, 2)) for _ in range(9)] + [[-1, 1], [-5, 5], [-10, 10], [-10, 0], [0, 10]])
+@pytest.mark.parametrize(
+    "B",
+    [np.sort(uniform(-50, 50, 2)) for _ in range(9)]
+    + [[-1, 1], [-5, 5], [-10, 10], [-10, 0], [0, 10]],
+)
 def test_grid_algorithm_1D_solutions(A, B):
     """Test the validity of the solutions found for the 1D grid problem for A and B."""
     solutions = solve_grid_problem_1d(A, B)
@@ -97,7 +113,7 @@ def test_solutions_type_error_plot_function(solutions: Sequence[Any]) -> None:
     """Test the raise of a type error if the given solutions are not Zsqrt objects"""
     with pytest.raises(TypeError, match="Solutions must be Zsqrt2 objects"):
         plot_grid_problem([1, 2], [1, 2], solutions)
-    
+
 
 def test_plot_grid_problem():
     """
