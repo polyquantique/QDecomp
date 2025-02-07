@@ -13,10 +13,43 @@
 #    limitations under the License.
 
 """
-This module solves the Diophantine equation \u03BE = t\u2020 t for t where \u03BE is given.
+This module solves the Diophantine equation \u03BE = t\u2020 t for t \u2208 D[\u03C9] where \u03BE
+\u2208 D[\u221A2] is given. The solution t is returned if it exists, or `None` otherwise. This
+module is an implementation of the algorithm presented in Section 6 and Appendix C of
+[Optimal ancilla-free Clifford+T approximation of z-rotations](https://arxiv.org/abs/1403.2975) by Ross and Selinger.
 
-Input: \u03Be in D[\u221A2]
-Output: t in D[\u03C9] such that \u03Be = t\u2020 t
+**Input:** \u03BE \u2208 D[\u221A2] \\
+**Output:** t \u2208 D[\u03C9], the solution to the equation \u03BE = t\u2020 t, or `None` if no
+solution exists for the specified \u03BE
+
+**Example:**
+.. code-block:: python
+    # Import libraries
+    from cliffordplust.rings import *
+    from cliffordplust.diophantine import solve_xi_eq_ttdag_in_d
+
+    
+    # Solve a Diophantine equation that has a solution
+    xi = Dsqrt2(D(13, 1), D(4, 1))  # Input
+    t = solve_xi_eq_ttdag_in_d(xi)  # Compute the solution
+
+    print(f"{xi = }")  # xi = 13/2^1+2/2^0√2
+    print(f"{t = }")   # t = -2/2^0ω3 + 1/2^1ω2 + 0/2^0ω + 3/2^1
+
+    # Check the solution
+    xi_calculated_in_Domega = t * t.complex_conjugate()        # Calculate (t * t†)
+    xi_calculated = Dsqrt2.from_ring(xi_calculated_in_Domega)  # Convert the result from D[omega] to D[sqrt(2)]
+
+    print(f"{xi_calculated = }")        # xi_calculated = 13/2^1+2/2^0√2
+    print(f"{xi == xi_calculated = }")  # xi == xi_calculated = True
+
+    
+    # Solve a Diophantine equation that doesn't have any solution
+    xi = Dsqrt2(D(9, 1), D(3, 1))   # Input
+    t = solve_xi_eq_ttdag_in_d(xi)  # Compute the solution
+
+    print(f"{xi = }")  # xi = 9/2^1+3/2^1√2
+    print(f"{t = }")   # t = None
 """
 
 import numpy as np
