@@ -1,17 +1,3 @@
-# ---
-# jupyter:
-#   jupytext:
-#     text_representation:
-#       extension: .py
-#       format_name: light
-#       format_version: '1.5'
-#       jupytext_version: 1.16.6
-#   kernelspec:
-#     display_name: Python 3
-#     language: python
-#     name: python3
-# ---
-
 # # Using the `grid_algorithm_1D.py` module
 #
 # In this notebook, the `grid_algorithm_1D.py` module is presented with examples. This module allows to find all the solutions of a **1-dimensional grid problem** in the ring $\mathbf{\mathbb{Z}[\sqrt{2}]}$.
