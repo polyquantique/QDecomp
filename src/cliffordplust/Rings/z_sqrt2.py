@@ -69,7 +69,7 @@ class Zsqrt2:
 
     def conjugate(self) -> Zsqrt2:
         """Define the \u221A2-conjugation operation.
-        
+
         Returns:
             Zsqrt2: \u221A2-conjugate of the ring element.
         """
@@ -80,7 +80,7 @@ class Zsqrt2:
         bsqrt = self.b * math.sqrt(2)
         if math.isclose(self.a, -bsqrt, rel_tol=1e-4):
             getcontext().prec = 50
-            return float(self.a + self.b * Decimal(2).sqrt())    
+            return float(self.a + self.b * Decimal(2).sqrt())
         return self.a + bsqrt
 
     def __getitem__(self, i: int) -> int:
@@ -210,6 +210,7 @@ class Zsqrt2:
     def __ceil__(self) -> int:
         """Define the ceil operation."""
         return math.ceil(float(self))
+
 
 # LAMBDA = 1 + \u221A2 is used to scale 1D grid problems.
 LAMBDA: Zsqrt2 = Zsqrt2(1, 1)

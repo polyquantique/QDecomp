@@ -68,7 +68,7 @@ print(f"Round: {round(alpha) = }")
 #
 # # Usage example
 
-from cliffordplust.grid_problem import solve_grid_problem_1d, plot_grid_problem
+from cliffordplust.grid_problem import plot_grid_problem, solve_grid_problem_1d
 
 # Let's consider the two arbitrary intervals $A = [1, 6]$ and $B = [-11, -5]$. We can define the limits of those intervals as tuples:
 
