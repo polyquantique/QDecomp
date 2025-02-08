@@ -13,7 +13,15 @@ def test_solve_xi_eq_ttdag_in_d_cpp(a, a_, b, b_):
     """
     xi = Dsqrt2(D(a, a_), D(b, b_))
 
-    t_py = solve_xi_eq_ttdag_in_d(xi)
     t_cpp = solve_xi_eq_ttdag_in_d_cpp(xi)
 
-    assert t_py == t_cpp
+    if t_cpp is not None:
+        recombination = t_cpp * t_cpp.complex_conjugate()
+
+        assert recombination == Domega.from_ring(xi)
+        assert float(xi) >= 0 and float(xi.sqrt2_conjugate()) >= 0  # xi is doubly positive
+    
+    else:
+        t_py = solve_xi_eq_ttdag_in_d(xi)
+        assert t_py is None  # Both implementations should return None if there is no solution
+

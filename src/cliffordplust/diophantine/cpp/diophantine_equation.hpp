@@ -53,11 +53,11 @@ int solve_usquare_eq_a_mod_p(int a, int p);
 std::vector<std::tuple<int, int>> int_fact(int n);
 
 /**
- * @brief Find the factorization of a number in Z[\u221A2].
+ * @brief Find the factorization, up to a prime, of a number in Z[\u221A2].
  * 
  * @param xi The number to factorize in Z[\u221A2].
  * @return The factorization of xi as a vector of tuples (p, xi_i, m) where p is an integer prime
- *  number assotiated to xi_i, xi_i is a prime of xi in Z[\u221A2], and m is the exponent of xi_i in
+ *  number associated to xi_i, xi_i is a prime of xi in Z[\u221A2], and m is the exponent of xi_i in
  *  the factorization of n.
  */
 std::vector<std::tuple<int, Zsqrt2, int>> xi_fact(Zsqrt2 xi);

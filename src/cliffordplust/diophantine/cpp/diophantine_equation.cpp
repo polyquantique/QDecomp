@@ -84,6 +84,9 @@ std::vector<std::tuple<int, Zsqrt2, int>> xi_fact(Zsqrt2 xi) {
 
     auto pi = int_fact(p);  // Factorize p
     for (auto [p_i, m_i] : pi) {
+        // If p_i = 1 or -1, xi_i is a unit and we can ignore it.
+        if (p_i == 1) or (p_i == -1) {continue;}
+
         switch (p_i % 8) {
             // If p_i = 2, xi_i = sqrt(2)
             case 2:
@@ -118,7 +121,7 @@ std::vector<std::tuple<int, Zsqrt2, int>> xi_fact(Zsqrt2 xi) {
                 break;
 
             default:
-                throw std::runtime_error("There has been an erro while calculating the factorization of xi");
+                throw std::runtime_error("There has been an error while calculating the factorization of xi");
         }
     }
    
