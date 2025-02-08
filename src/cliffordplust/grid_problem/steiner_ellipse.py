@@ -21,27 +21,27 @@ See this page for more information:
 https://en.wikipedia.org/wiki/Steiner_ellipse
 """
 
-from __future__ import annotations
-
 import numpy as np
 
 
-def can_def_steiner_ellipse(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> str:
+def assert_steiner_ellipse(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> None:
     """
     Check if the three given points can be used to define a Steiner ellipse. The three points must
-    be distinct and non-collinear to define a valid ellipse.
+    be distinct and non-collinear to define a valid ellipse. If the points are not valid, a
+    ValueError is raised.
 
     Args:
         p1 (list[float]): First point
         p2 (list[float]): Second point
         p3 (list[float]): Third point
 
-    Returns:
-        str: "" if the points can be used to define a Steiner ellipse, otherwise an error message
+    Raises:
+        ValueError: If at least two of the points are the same
+        ValueError: If the three points are collinear
     """
     # Ensure all three points are distinct
     if (p1 == p2).all() or (p1 == p3).all() or (p2 == p3).all():
-        return "The three points must be distinct."
+        raise ValueError("The three points must be distinct.")
 
     # Ensure the points are not collinear
     delta1 = p2 - p1
@@ -52,14 +52,12 @@ def can_def_steiner_ellipse(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> s
         slope1 = delta1[1] / delta1[0]
         slope2 = delta2[1] / delta2[0]
         if slope1 == slope2:
-            return "The three points must not be collinear."
+            raise ValueError("The three points must not be collinear.")
 
     else:
         # Handle vertical lines to ensure they are not collinear
         if (delta1[0] == 0) and (delta2[0] == 0):
-            return "The three points must not be collinear."
-
-    return ""  # No error
+            raise ValueError("The three points must not be collinear.")
 
 
 def steiner_ellipse_def(
@@ -78,18 +76,12 @@ def steiner_ellipse_def(
 
     Returns:
         typle[np.ndarray, np.ndarray]: D matrix (defines the shape and orientation of the ellipse), p (center of the ellipse)
-
-    Raises:
-        ValueError: If at least two of the points are the same
-        ValueError: If the three points are collinear
     """
     # Convert the points to numpy arrays
     p1_, p2_, p3_ = np.array(p1), np.array(p2), np.array(p3)
 
     # Check that the ellipse can be defined by the three points
-    err_msg = can_def_steiner_ellipse(p1_, p2_, p3_)
-    if err_msg != "":
-        raise ValueError(err_msg)
+    assert_steiner_ellipse(p1_, p2_, p3_)
 
     # Calculate the center of the ellipse
     p = (p1_ + p2_ + p3_) / 3  # Center of the ellipse

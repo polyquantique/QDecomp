@@ -31,13 +31,8 @@ def test_collinearity_error(p1, p2, p3):
     """
     Check if a ValueError is raised when the given points are collinear.
     """
-    expected_msg = "The three points must not be collinear."
-
-    err_msg = se.can_def_steiner_ellipse(np.array(p1), np.array(p2), np.array(p3))
-    assert err_msg == expected_msg
-
-    with pytest.raises(ValueError, match=expected_msg):
-        se.steiner_ellipse_def(p1, p2, p3)
+    with pytest.raises(ValueError, match="The three points must not be collinear."):
+        se.assert_steiner_ellipse(np.asarray(p1), np.asarray(p2), np.asarray(p3))
 
 
 test_points_same_pts = [
@@ -53,13 +48,8 @@ def test_same_pts_error(p1, p2, p3):
     """
     Check if a ValueError is raised when at least two of the given points are the same.
     """
-    expected_msg = "The three points must be distinct."
-
-    err_msg = se.can_def_steiner_ellipse(np.array(p1), np.array(p2), np.array(p3))
-    assert err_msg == expected_msg
-
-    with pytest.raises(ValueError, match=expected_msg):
-        se.steiner_ellipse_def(p1, p2, p3)
+    with pytest.raises(ValueError, match="The three points must be distinct."):
+        se.assert_steiner_ellipse(np.asarray(p1), np.asarray(p2), np.asarray(p3))
 
 
 test_points_def = [
