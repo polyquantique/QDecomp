@@ -471,6 +471,10 @@ def solve_xi_eq_ttdag_in_d(xi):
     if float(xi) < 0 or float(xi.sqrt2_conjugate()) < 0:
         return None
 
+    # If ξ = 0, the solution is 0
+    if xi == 0:
+        return Domega((0, 0), (0, 0), (0, 0), (0, 0))
+
     l = (xi * xi.sqrt2_conjugate()).a.denom  # Greatest denominator power of 2
     xi_prime_temp = Dsqrt2(D(0, 0), D(1, 0)) ** l * xi  # ξ_prime is in Z[√2]
     xi_prime = Zsqrt2.from_ring(xi_prime_temp)  # Convert ξ_prime to Z[√2]
