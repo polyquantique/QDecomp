@@ -28,7 +28,7 @@ sys.path.append(os.sep.join(path_list[:-3]))
 
 import platform
 import ctypes
-from grid_algorithm_1D.Rings import *
+from cliffordplust.rings import *
 
 
 # Import the C++ library
@@ -83,7 +83,7 @@ def solve_xi_eq_ttdag_in_d_cpp(xi: Dsqrt2) -> Domega | None:
         Domega of None: A number t for which \u03BE = t * t\u2020, or None if no solution exists
     """
     # Solve the diophantine equation using the C++ library
-    res = dioph_lib.solve_xi_eq_ttdag_in_d_helper(xi.p.num, xi.p.denom, xi.q.num, xi.q.denom)
+    res = dioph_lib.solve_xi_eq_ttdag_in_d_helper(xi.a.num, xi.a.denom, xi.b.num, xi.b.denom)
 
     # If there is no solution, return None
     if not res.has_solution:
@@ -96,6 +96,3 @@ def solve_xi_eq_ttdag_in_d_cpp(xi: Dsqrt2) -> Domega | None:
         (res.c, res.lc),
         (res.d, res.ld),
     )
-
-# print(solve_xi_eq_ttdag_in_d_cpp(Dsqrt2((13, 1), (2, 1))))
-# print(solve_xi_eq_ttdag_in_d_cpp(Dsqrt2((13, 2), (2, 1))))
