@@ -43,7 +43,7 @@ def exact_synthesis_alg(U: np.array) -> str:
     sequence: str = ""
     norm_z = U[0, 0] * U[0, 0].complex_conjugate()
     s = norm_z.sde()
-    print(s)
+    # print(f"sde: {s}")
     while s > 3:
         for k in [0, 1, 2, 3]:
             U_prime = H @ np.linalg.matrix_power(T_inv, k) @ U

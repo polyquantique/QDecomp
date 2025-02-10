@@ -1,8 +1,3 @@
-import os
-import sys
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
 import numpy as np
 import pytest
 
@@ -74,7 +69,6 @@ def test_exact_synthesis_non_unitary():
 
 # Needs to be changed once S3 sequence is added
 # Add more tests for different sequences
-@pytest.mark.parametrize("run", range(10))
 def test_exact_synthesis_valid():
     """Test if exact_synthesis returns the correct sequence and final matrix for a valid input."""
     initial_sequence = random_sequence(20)
