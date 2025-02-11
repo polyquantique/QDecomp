@@ -10,37 +10,37 @@
 #include "diophantine_equation.hpp"
 
 
-bool is_square(int n) {
+bool is_square(long long int n) {
     // Check if n is a square
     if (n < 0) {return 0;}
     
     // A square must have a modulo 16 of 0, 1, 4 or 9
-    int mod = n % 16;
+    short int mod = static_cast<short int>(n % 16);
     if (mod != 0 and mod != 1 and mod != 4 and mod != 9) {return false;}
 
     // Check if n is a square
-    int sqrt_n = std::sqrt(n);
+    long long int sqrt_n = static_cast<long long int>(std::sqrt(n));
     return sqrt_n * sqrt_n == n;
 }
 
-int solve_usquare_eq_a_mod_p(int a, int p) {
+long long int solve_usquare_eq_a_mod_p(long long int a, long long int p) {
     // Solve the equation u^2 = a (mod p) <=> u^2 = q * p - a
-    int x = p - a;
+    long long int x = p - a;
     while (not is_square(x)) {
         x += p;
     }
-    return std::sqrt(x);
+    return static_cast<long long int>(std::sqrt(x));
 }
 
 
-std::vector<std::tuple<int, int>> int_fact(int n) {
+std::vector<std::tuple<long long int, unsigned short>> int_fact(long long int n) {
     // Factorize an integer n
     if (n < 1) {throw std::invalid_argument("n must be greater than 1");}
     
-    std::vector<std::tuple<int, int>> factors;
+    std::vector<std::tuple<long long int, unsigned short>> factors;
 
     // Factorize by 2
-    int counter = 0;
+    unsigned short counter = 0;
     while ( !(n & 1) ) {
         n = (n >> 1);
         counter++;
@@ -48,7 +48,7 @@ std::vector<std::tuple<int, int>> int_fact(int n) {
     if (counter) {factors.push_back({2, counter});}
 
     // Factorize by odd numbers
-    int factor = 3;
+    long long int factor = 3;
     while (n > 1 and factor * factor <= n) {
         counter = 0;
 
@@ -67,16 +67,19 @@ std::vector<std::tuple<int, int>> int_fact(int n) {
     return factors;
 }
 
-std::vector<std::tuple<int, Zsqrt2, int>> xi_fact(Zsqrt2 xi) {
+std::vector<std::tuple<long long int, Zsqrt2, unsigned short>> xi_fact(Zsqrt2 xi) {
     // Factorize a Zsqrt2 xi
     if (xi == 0) {throw std::invalid_argument("xi must be different from 0");}
 
-    std::vector<std::tuple<int, Zsqrt2, int>> factors;
-
-    int p = (xi * xi.sqrt2_conjugate()).p();
+    long long int p = (xi * xi.sqrt2_conjugate()).p();
 
     // If xi is a prime number, it cannot be factorized
-    if (p == 1 or p == -1) {return std::vector<std::tuple<int, Zsqrt2, int>>{{p, xi, 1}};}
+    if (p == 1 or p == -1) {
+        return std::vector<std::tuple<long long int, Zsqrt2, unsigned short>>{{p, xi, 1}};
+    }
+
+    // Vector of tuples (prime, exponent) to return
+    std::vector<std::tuple<long long int, Zsqrt2, unsigned short>> factors;
 
     // We can only factorize if p is positive. Since -1 is a prime number, we can ignore it because,
     // we want to factorize xi up to a prime.
@@ -85,7 +88,7 @@ std::vector<std::tuple<int, Zsqrt2, int>> xi_fact(Zsqrt2 xi) {
     auto pi = int_fact(p);  // Factorize p
     for (auto [p_i, m_i] : pi) {
         // If p_i = 1 or -1, xi_i is a unit and we can ignore it.
-        if (p_i == 1) or (p_i == -1) {continue;}
+        if ((p_i == 1) or (p_i == -1)) {continue;}
 
         switch (p_i % 8) {
             // If p_i = 2, xi_i = sqrt(2)
@@ -103,14 +106,16 @@ std::vector<std::tuple<int, Zsqrt2, int>> xi_fact(Zsqrt2 xi) {
                 // many times
                 Zsqrt2 xi_temp = xi;
                 Zsqrt2 r(0, 0);
-                int nb_fact;
+                unsigned short nb_fact;
                 for (nb_fact=0; nb_fact<m_i+1; nb_fact++) {
                     std::tie(xi_temp, r) = euclidean_div(xi_temp, xi_i);
                     if (r != 0) {break;}
                 }
 
                 if (nb_fact != 0) {factors.push_back({p_i, xi_i, nb_fact});}
-                if (nb_fact != m_i) {factors.push_back({p_i, xi_i.sqrt2_conjugate(), m_i - nb_fact});}
+                if (nb_fact != m_i) {
+                    factors.push_back({p_i, xi_i.sqrt2_conjugate(), m_i - nb_fact});
+                }
                 break;
             }
             
@@ -121,14 +126,16 @@ std::vector<std::tuple<int, Zsqrt2, int>> xi_fact(Zsqrt2 xi) {
                 break;
 
             default:
-                throw std::runtime_error("There has been an error while calculating the factorization of xi");
+                throw std::runtime_error(
+                    "There has been an error while calculating the factorization of xi"
+                );
         }
     }
    
     return factors;
 }
 
-Zsqrt2 pi_fact_into_xi(int pi) {
+Zsqrt2 pi_fact_into_xi(long long int pi) {
     // Factorize an integer prime pi into a Zsqrt2 xi factor
     switch (pi % 8) {
         case 2:
@@ -141,10 +148,12 @@ Zsqrt2 pi_fact_into_xi(int pi) {
         case 1:
         case 7:
         {
-            int b = 1;
-            while ( not is_square(pi + 2 * std::pow(b, 2)) ) {b++;}
+            long long int b = 1;
+            while ( not is_square(pi + 2 * static_cast<long long int>(std::pow(b, 2))) ) {b++;}
 
-            return Zsqrt2( std::sqrt(pi + 2 * pow(b, 2)) , b);
+            return Zsqrt2( static_cast<long long int>(
+                std::sqrt(pi + 2 * static_cast<long long int>(std::pow(b, 2)))
+            ), b);
         }
 
         default:
@@ -153,7 +162,7 @@ Zsqrt2 pi_fact_into_xi(int pi) {
     return Zsqrt2(0, 0);
 }
 
-Zomega xi_i_fact_into_ti(int pi, Zsqrt2 xi_i) {
+Zomega xi_i_fact_into_ti(long long int pi, Zsqrt2 xi_i) {
     // Factorize a Zsqrt2 xi_i into a Zomega ti factor if possible
     switch (pi % 8) {
         case 2:
@@ -162,13 +171,13 @@ Zomega xi_i_fact_into_ti(int pi, Zsqrt2 xi_i) {
         case 1:
         case 5:
         {
-            int u = solve_usquare_eq_a_mod_p(1, pi);
+            long long int u = solve_usquare_eq_a_mod_p(1, pi);
             return gcd(xi_i.to_Zomega(), Zomega(0, 1, 0, u));
         }
 
         case 3:
         {
-            int u = solve_usquare_eq_a_mod_p(2, pi);
+            long long int u = solve_usquare_eq_a_mod_p(2, pi);
             return gcd(xi_i.to_Zomega(), Zomega(1, 0, 1, u));
         }
         
@@ -190,11 +199,13 @@ Zomega solve_xi_sim_ttdag_in_z(Zsqrt2 xi) {
 
     std::vector<std::future<Zomega>> threads;
     for (auto [pi, xi_i, m_i] : xi_fact_list) {
-        if (m_i & 1 and pi != -1) {threads.push_back(std::async(std::launch::async, xi_i_fact_into_ti, pi, xi_i));}
+        if (m_i & 1 and pi != -1) {
+            threads.push_back(std::async(std::launch::async, xi_i_fact_into_ti, pi, xi_i));
+        }
     }
 
     Zomega result(0, 0, 0, 1);
-    int thread_nb = 0;
+    unsigned short thread_nb = 0;
     for (auto [pi, xi_i, m_i] : xi_fact_list) {
         if (m_i & 1 and pi != -1) {
             result = result * (threads[thread_nb].get()).pow(m_i);
@@ -213,7 +224,7 @@ Domega solve_xi_eq_ttdag_in_d(Dsqrt2 xi) {
         return Domega(0, 0, 0, 0, 0, 0, 0, 0);
     }
 
-    int l = (xi * xi.sqrt2_conjugate()).p().denom();
+    unsigned short l = (xi * xi.sqrt2_conjugate()).p().denom();
     Zsqrt2 xi_prime = (Dsqrt2(0, 0, 1, 0).pow(l) * xi).to_Zsqrt2();
 
     Zomega s = solve_xi_sim_ttdag_in_z(xi_prime);
@@ -228,23 +239,24 @@ Domega solve_xi_eq_ttdag_in_d(Dsqrt2 xi) {
 
     // Find u such that xi = u * t * t†
     D denom = (tt * tt.sqrt2_conjugate()).to_D();
-    int num_ = denom.num();
-    int denom_ = denom.denom();
+    long long int num_ = denom.num();
+    unsigned short denom_ = denom.denom();
     Zsqrt2 u_temp = (xi * tt.sqrt2_conjugate() * Dsqrt2(1 << denom_, 0, 0, 0)).to_Zsqrt2();
     Zsqrt2 u(u_temp.p() / num_, u_temp.q() / num_);
 
-
     // u is of the form u = λ**2n => n = ln(u) / 2 ln(λ)
-    int n = std::round(std::log(u.to_float()) / (2 * std::log(1+std::sqrt(2))));
+    short n = static_cast<short>(
+        std::round(std::log(u.to_float()) / (2 * std::log(1+std::sqrt(2.0))))
+    );
 
     // v**2 = u => v = λ**n
     Domega v(0, 0, 0, 0, 0, 0, 0, 0);
     if (n > 0) {
-        v = Zsqrt2(1, 1).pow(n).to_Domega();  // λ**n
+        v = Zsqrt2(1, 1).pow(static_cast<unsigned short>(n)).to_Domega();  // λ**n
     } else if (n == 0) {
         v = Domega(0, 0, 0, 0, 0, 0, 1, 0);
     } else {
-        v = Zsqrt2(-1, 1).pow(-n).to_Domega();  // (λ**-1)**n
+        v = Zsqrt2(-1, 1).pow(static_cast<unsigned short>(-n)).to_Domega();  // (λ**-1)**n
     }
 
     return t * v;

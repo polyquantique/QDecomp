@@ -31,10 +31,10 @@
  */
 class Zomega {
     private:
-        int _a;  ///< \u03C9^3 coefficient of the ring element
-        int _b;  ///< \u03C9^2 coefficient of the ring element
-        int _c;  ///< \u03C9^1 coefficient of the ring element
-        int _d;  ///< \u03C9^0 coefficient of the ring element
+        long long int _a;  ///< \u03C9^3 coefficient of the ring element
+        long long int _b;  ///< \u03C9^2 coefficient of the ring element
+        long long int _c;  ///< \u03C9^1 coefficient of the ring element
+        long long int _d;  ///< \u03C9^0 coefficient of the ring element
 
     public:
         /**
@@ -45,7 +45,7 @@ class Zomega {
          * @param c The numerator of the \u03C9^1 coefficient.
          * @param d The numerator of the \u03C9^0 coefficient.
          */
-        Zomega(int a, int b, int c, int d);
+        Zomega(long long int a, long long int b, long long int c, long long int d);
 
 
         /**
@@ -53,28 +53,28 @@ class Zomega {
          * 
          * @return int The \u03C9^3 coefficient.
          */
-        int a() const;
+        long long int a() const;
 
         /**
          * @brief Get the \u03C9^2 coefficient of the ring element.
          * 
          * @return int The \u03C9^2 coefficient.
          */
-        int b() const;
+        long long int b() const;
 
         /**
          * @brief Get the \u03C9^1 coefficient of the ring element.
          * 
          * @return int The \u03C9^1 coefficient.
          */
-        int c() const;
+        long long int c() const;
 
         /**
          * @brief Get the \u03C9^0 coefficient of the ring element.
          * 
          * @return int The \u03C9^0 coefficient.
          */
-        int d() const;
+        long long int d() const;
 
 
         /**
@@ -87,7 +87,7 @@ class Zomega {
          * @return int The coefficient.
          * @throw std::invalid_argument if the index is not between 0 and 3.
          */
-        int operator[](int i) const;
+        long long int operator[](unsigned short i) const;
 
 
         /**
@@ -172,7 +172,7 @@ class Zomega {
          * @return int The integer.
          * @throw std::runtime_error if the number is not an integer.
          */
-        int to_int() const;
+        long long int to_int() const;
 
 
         /**
@@ -191,7 +191,7 @@ class Zomega {
          * @return true If the numbers are equal.
          * @return false If the numbers are not equal.
          */
-        bool operator==(const int& other) const;
+        bool operator==(const long long int& other) const;
 
         /**
          * @brief Check if the number is not equal to another Z[\u03C9] object.
@@ -209,7 +209,7 @@ class Zomega {
          * @return true If the numbers are not equal.
          * @return false If the numbers are equal.
          */
-        bool operator!=(const int& other) const;
+        bool operator!=(const long long int& other) const;
 
 
         /**
@@ -226,7 +226,7 @@ class Zomega {
          * @param other The integer.
          * @return Zomega The result of the addition.
          */
-        Zomega operator+(const int& other) const;
+        Zomega operator+(const long long int& other) const;
 
         /**
          * @brief Negate the number.
@@ -249,7 +249,7 @@ class Zomega {
          * @param other The integer.
          * @return Zomega The result of the subtraction.
          */
-        Zomega operator-(const int& other) const;
+        Zomega operator-(const long long int& other) const;
 
         /**
          * @brief Multiply the number by another Z[\u03C9] object.
@@ -265,7 +265,7 @@ class Zomega {
          * @param other The integer.
          * @return Zomega The result of the multiplication.
          */
-        Zomega operator*(const int& other) const;
+        Zomega operator*(const long long int& other) const;
 
 
         /**
@@ -273,9 +273,8 @@ class Zomega {
          * 
          * @param n The power.
          * @return Zomega The result of the power.
-         * @throw std::invalid_argument if the exponent is negative.
          */
-        Zomega pow(int n) const;
+        Zomega pow(unsigned short n) const;
 
 
         /**

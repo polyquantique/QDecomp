@@ -1,19 +1,18 @@
 #include <stdexcept>
 
 #include "..\..\src\cliffordplust\rings\cpp\Rings.hpp"
-#include "..\..\src\cliffordplust\diophantine\cpp\diophantine_equation.hpp"
 #include "..\..\src\cliffordplust\diophantine\cpp\diophantine_equation.cpp"
 
 
 void test_integer_fact() {
-    int res;
+    long long int res;
     for (int i=2; i<21; i++) {
         std::cout << "Testing integer_fact() for " << i << " ...";
         res = 1;
 
-        std::vector<std::tuple<int, int>> factors = int_fact(i);
+        std::vector<std::tuple<long long int, unsigned short>> factors = int_fact(i);
         for (auto [pi, mi] : factors) {
-            res *= pow(pi, mi);
+            res *= static_cast<long long int>(std::pow(pi, mi));
         }
 
         if (res != i) {
@@ -38,7 +37,7 @@ void test_xi_fact() {
             continue;
         }
 
-        std::vector<std::tuple<int, Zsqrt2, int>> factors = xi_fact(xi);
+        std::vector<std::tuple<long long int, Zsqrt2, unsigned short>> factors = xi_fact(xi);
 
         for (auto [pi, xi_i, mi] : factors) {
             xi_calculated = xi_calculated * xi_i.pow(mi);
@@ -152,9 +151,9 @@ void test_solve_usquare_eq_a_mod_p() {
             continue;
         }
 
-        int u = solve_usquare_eq_a_mod_p(a, p);
+        long long int u = solve_usquare_eq_a_mod_p(a, p);
         if ((u * u) % p != -a + p) {
-            throw std::runtime_error("Error in solve_usquare_eq_a_mod_p. Expected u^2 \% p = " + std::to_string((u*u)%p+p) + " but got " + std::to_string(-a+p));
+            throw std::runtime_error("Error in solve_usquare_eq_a_mod_p. Expected u^2 = " + std::to_string((u*u)%p+p) + " (mod p) but got " + std::to_string(-a+p));
         }
 
         std::cout << " OK!" << std::endl;
@@ -191,10 +190,10 @@ void test_solve_xi_sim_ttdag_in_z() {
 }
 
 void test_solve_xi_eq_ttdag_in_d() {
-    for (int a=-1; a<10; a++) {
-    for (int a_=0; a_<3; a_++) {
-    for (int b=-5; b<4; b++) {
-    for (int b_=0; b_<3; b_++) {
+    for (long long int a=-1; a<10000; a++) {
+    for (unsigned short a_=0; a_<3; a_++) {
+    for (long long int b=-5; b<4; b++) {
+    for (unsigned short b_=0; b_<3; b_++) {
         Dsqrt2 xi(a, a_, b, b_);
         std::cout << "Testing solve_xi_eq_ttdag_in_d() for xi = " << xi.to_string() << " ...";
 

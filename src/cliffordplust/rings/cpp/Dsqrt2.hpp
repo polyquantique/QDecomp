@@ -42,9 +42,8 @@ class Dsqrt2 {
          * @param lp The denominator's power of 2 of the integer coefficient.
          * @param q The numerator of the \u221A2 coefficient.
          * @param lq The denominator's power of 2 of the \u221A2 coefficient.
-         * @throw std::invalid_argument if any denominator power is negative.
          */
-        Dsqrt2(int p, int lp, int q, int lq);
+        Dsqrt2(long long int p, unsigned short lp, long long int q, unsigned short lq);
 
         /**
          * @brief Construct a new D[\u221A] object.
@@ -137,7 +136,7 @@ class Dsqrt2 {
          * @return int The integer.
          * @throw std::runtime_error if the number is not an integer.
          */
-        int to_int() const;
+        long long int to_int() const;
 
         /**
          * @brief Convert the number to a float.
@@ -163,7 +162,7 @@ class Dsqrt2 {
          * @return true If the numbers are equal.
          * @return false If the numbers are not equal.
          */
-        bool operator==(const int& other) const;
+        bool operator==(const long long int& other) const;
 
         /**
          * @brief Check if the number is not equal to another D[\u221A2] object.
@@ -181,7 +180,7 @@ class Dsqrt2 {
          * @return true If the numbers are not equal.
          * @return false If the numbers are equal.
          */
-        bool operator!=(const int& other) const;
+        bool operator!=(const long long int& other) const;
 
 
         /**
@@ -221,9 +220,8 @@ class Dsqrt2 {
          * 
          * @param n The exponent.
          * @return Dsqrt2 The result of the exponentiation.
-         * @throw std::invalid_argument if the exponent is negative.
          */
-        Dsqrt2 pow(int n) const;
+        Dsqrt2 pow(unsigned short n) const;
 
 
         /**
