@@ -21,11 +21,6 @@ Output: t in D[\u03C9] such that \u03Be = t\u2020 t
 """
 
 import os
-import sys
-
-path_list = os.path.dirname(__file__).split(os.sep)
-sys.path.append(os.sep.join(path_list[:-3]))
-
 import platform
 import ctypes
 from Rings import *

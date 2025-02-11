@@ -1,4 +1,4 @@
-# Copyright 2024-2025 Olivier Romain, Francis Blais, Vincent Girouard, Marius Trudeau
+# Copyright 2022-2023 Olivier Romain, Francis Blais, Vincent Girouard, Marius Trudeau
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -39,44 +39,50 @@ from typing import Optional
 import matplotlib.pyplot as plt
 import numpy as np
 
-from cliffordplust.rings import INVERSE_LAMBDA, LAMBDA, Zsqrt2
+from Rings import Zsqrt2, inv_lamb, lamb
 
 
-def solve_grid_problem_1d(A: Sequence[num.Real], B: Sequence[num.Real]) -> list[Zsqrt2]:
+def solve_grid_problem_1d(A: Sequence[float | int], B: Sequence[float | int]) -> list[Zsqrt2]:
     """Solves the 1 dimensional grid problem for two sets and returns the result.
 
     Given two real closed sets A and B, this function finds all the solutions x in the ring \u2124[\u221A2] such that
     x is in A and the \u221A2-conjugate of x is in B.
 
     Args:
-        A (Sequence[Real, Real]): Bounds of the first interval.
-        B (Sequence[Real, Real]): Bounds of the second interval.
+        A (Sequence[float | int]): Bounds of the first interval.
+        B (Sequence[float | int]): Bounds of the second interval.
 
     Returns:
         list[Zsqrt2]: The list of solutions to the grid problem.
 
     Raises:
-        TypeError: If A and B intervals are not real sequences of length 2.
+        TypeError: If A and B intervals are not sequences of length 2.
+        TypeError: If intervals limits are not real numbers.
+        ValueError: If intervals limits are not in ascending order.
     """
-    try:
-        A_interval: np.ndarray = np.asarray(A, dtype=float)
-        B_interval: np.ndarray = np.asarray(B, dtype=float)
-        if A_interval.shape != (2,) or B_interval.shape != (2,):
+    for interval in (A, B):
+        if not isinstance(interval, (Sequence, np.ndarray)):
             raise TypeError(
-                f"Input intervals must have two bounds (lower, upper) but received {A if A_interval.shape != (2,) else B}."
+                f"Expected input intervals to be sequences of length 2 but got {interval}"
             )
-        A_interval.sort()
-        B_interval.sort()
+        elif len(interval) != 2:
+            raise TypeError(
+                f"Expected input intervals to be sequences of length 2 but got {interval}"
+            )
+        elif not all([isinstance(bound, num.Real) for bound in interval]):
+            raise TypeError("Interval limits must be real numbers.")
+        elif interval[0] >= interval[1]:
+            raise ValueError(f"Interval bounds must be in ascending order, but got {interval}.")
 
-    except (TypeError, ValueError) as e:
-        raise TypeError(f"Input intervals must be real sequences of length 2.\nOrigin: {e}") from e
-
+    # Definitions of the intervals and deltaA
+    A_interval = np.array(A)
+    B_interval = np.array(B)
     deltaA: float = A_interval[1] - A_interval[0]
 
-    # Scaling of the intervals to have LAMBDA^-1 <= deltaA < 1
-    n_scaling = math.floor(math.log(float(LAMBDA) * deltaA) / math.log(float(LAMBDA)))
-    A_scaled = A_interval * float(LAMBDA) ** -n_scaling
-    B_scaled = B_interval * float(-LAMBDA) ** n_scaling
+    # Scaling of the intervals to have lamb^-1 <= deltaA < 1
+    n_scaling = math.floor(math.log(float(lamb) * deltaA) / math.log(float(lamb)))
+    A_scaled = A_interval * float(lamb) ** -n_scaling
+    B_scaled = B_interval * float(-lamb) ** n_scaling
 
     # Flip the interval if multiplied by a negative number
     if n_scaling % 2 == 1:
@@ -113,21 +119,21 @@ def solve_grid_problem_1d(A: Sequence[num.Real], B: Sequence[num.Real]) -> list[
         # If there is an integer if this interval
         if math.ceil(a_interval_scaled[0]) == math.floor(a_interval_scaled[1]):
             ai = math.ceil(a_interval_scaled[0])
-            alpha_i_scaled = Zsqrt2(a=ai, b=bi)
+            alpha_i_scaled = Zsqrt2(p=ai, q=bi)
 
             # Compute the unscaled solution
             alpha_i: Zsqrt2 = alpha_i_scaled * (
-                lambda n_scaling: LAMBDA if n_scaling >= 0 else INVERSE_LAMBDA
+                lambda n_scaling: lamb if n_scaling >= 0 else inv_lamb
             )(n_scaling) ** abs(n_scaling)
             fl_alpha_i = float(alpha_i)
-            fl_alpha_i_conjugate = float(alpha_i.conjugate())
+            fl_alpha_i_conjugate = float(alpha_i.sqrt2_conjugate())
 
             # See if the solution is a solution to the unscaled grid problem for A and B
             if (
-                fl_alpha_i >= A_interval[0]
-                and fl_alpha_i <= A_interval[1]
-                and fl_alpha_i_conjugate >= B_interval[0]
-                and fl_alpha_i_conjugate <= B_interval[1]
+                fl_alpha_i >= A[0]
+                and fl_alpha_i <= A[1]
+                and fl_alpha_i_conjugate >= B[0]
+                and fl_alpha_i_conjugate <= B[1]
             ):
                 alpha.append(alpha_i)
     return alpha
@@ -186,7 +192,7 @@ def plot_grid_problem(
         label=r"$\alpha$",
     )
     plt.scatter(
-        [float(i.conjugate()) for i in solutions],
+        [float(i.sqrt2_conjugate()) for i in solutions],
         [0] * len(solutions),
         color="red",
         s=20,
@@ -202,7 +208,6 @@ def plot_grid_problem(
     if show:
         plt.show()
     else:
-        Path("Solutions").mkdir(exist_ok=True)
-        plt.savefig(
-            os.path.join("Solutions", f"solutions_1D_A{A[0]}_{A[1]}_B{B[0]}_{B[1]}.png"), dpi=200
-        )
+        save_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Solutions")
+        Path(save_path).mkdir(parents=True, exist_ok=True)
+        plt.savefig(os.path.join(save_path, "solutions.png"), dpi=200)
