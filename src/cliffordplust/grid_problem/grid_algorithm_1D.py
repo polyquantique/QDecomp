@@ -38,7 +38,6 @@ from typing import Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
-
 from cliffordplust.rings import INVERSE_LAMBDA, LAMBDA, Zsqrt2
 
 
@@ -203,4 +202,6 @@ def plot_grid_problem(
         plt.show()
     else:
         Path("Solutions").mkdir(exist_ok=True)
-        plt.savefig(os.path.join("Solutions", f"solutions_1D_A{A[0]}_{A[1]}_B{B[0]}_{B[1]}.png"), dpi=200)
+        plt.savefig(
+            os.path.join("Solutions", f"solutions_1D_A{A[0]}_{A[1]}_B{B[0]}_{B[1]}.png"), dpi=200
+        )
