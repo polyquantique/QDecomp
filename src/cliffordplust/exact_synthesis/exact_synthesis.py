@@ -1,5 +1,8 @@
 import numpy as np
 
+import os
+import json
+
 from cliffordplust.Rings import Domega
 
 H_11 = Domega((-1, 1), (0, 0), (1, 1), (0, 0))
@@ -11,11 +14,13 @@ H = np.array([[H_11, H_11], [H_11, -H_11]], dtype=Domega)
 T = np.array([[T_11, T_12], [T_12, T_22]], dtype=Domega)
 T_inv = np.array([[T_11, T_12], [T_12, T_22_inv]], dtype=Domega)
 I = np.array([[T_11, T_12], [T_12, T_11]], dtype=Domega)
+omega = Domega((0, 0), (0, 0), (1, 0), (0, 0))
+W = np.multiply(omega, I)
 
 
 def exact_synthesis_alg(U: np.array) -> str:
-    """Exact synthesis of a unitary 2x2 matrix with D[ω] elements into a sequence
-    of H and T gates.
+    """Exact synthesis reduction of a unitary 2x2 matrix with D[ω] elements into a sequence
+    of W, H and T gates.
 
     Implementation of Algorithm 1 from paper Vadym Kliuchnikov,
     Dmitri Maslov, and Michele Mosca. Fast and efficient exact synthesis of single
@@ -27,6 +32,22 @@ def exact_synthesis_alg(U: np.array) -> str:
 
     Returns:
         str: Sequence of H and T gates to synthesize the matrix
+    """
+    u3_sequence, u3 = exact_synthesis_reduc(U)
+    s3_sequence = lookup_sequence(u3)
+    final_sequence = u3_sequence + s3_sequence
+    return final_sequence
+
+
+def exact_synthesis_reduc(U: np.array) -> str:
+    """Exact synthesis reduction of a unitary 2x2 matrix with D[ω] elements into a matrix with sde <3.
+
+    Args:
+        U (np.array): Unitary 2x2 array to synthesize with elements in Domega
+
+    Returns:
+        str: Sequence of H and T gates to synthesize the matrix
+        np.array: Remaining matrix after reduction
 
     Raises:
         TypeError: If matrix elements are not of class D[ω] or matrix is not 2x2
@@ -56,6 +77,33 @@ def exact_synthesis_alg(U: np.array) -> str:
     return sequence, U
 
 
+def lookup_sequence(U):
+    """Lookup the sequence of W, H and T gates to synthesize a matrix with D[ω] elements
+    Args:
+        U (np.array): Matrix to synthesize
+    Returns:
+        str: Sequence of W, H and T gates to synthesize the matrix
+    """
+    with open(os.path.join(os.path.dirname(__file__), "s3_table.json"), "r") as f:
+        s3_dict = json.load(f)
+        s3_dict = {
+            k: tuple(tuple(tuple(inner) for inner in outer) for outer in v)
+            for k, v in s3_dict.items()
+        }
+    for i in range(8):
+        U_t = np.multiply(omega**i, U)
+        for key, value in s3_dict.items():
+            if convert_to_tuple(U_t) == value:
+                print(f"Sequence : {key}")
+                U_w = apply_sequence(key + "W" * (8 - i))
+                k = evaluate_omega_exponent(U[1, 1], U[0, 0].complex_conjugate())
+                k_pp = evaluate_omega_exponent(U_w[1, 1], U_w[0, 0].complex_conjugate())
+                k_prime = (k - k_pp) % 8
+                key += "T" * k_prime
+                key += "W" * (8 - i)
+                return key
+
+
 def is_unitary(matrix):
     """Check if a matrix with D[ω] elements is unitary
 
@@ -76,7 +124,7 @@ def apply_sequence(sequence: str, U: np.array = I) -> np.array:
     """Apply a sequence of H and T gates to a matrix
 
     Args:
-        sequence (str): Sequence H and T gates
+        sequence (str): Sequence W, H and T gates
         U (np.array): Matrix to apply the sequence to (default is identity matrix)
 
     Returns:
@@ -91,6 +139,10 @@ def apply_sequence(sequence: str, U: np.array = I) -> np.array:
             U = H @ U
         elif char == "T":
             U = T @ U
+        elif char == "W":
+            U = np.multiply(omega, U)
+        elif char == "":
+            continue
         else:
             raise ValueError("Invalid character in sequence")
     return U
@@ -109,15 +161,56 @@ def random_sequence(n: int) -> str:
     return sequence
 
 
-# if __name__ == "__main__":
-#     init_seq = random_sequence(10)
-#     print(f"Initial sequence : {init_seq}")
-#     U = apply_sequence(init_seq)
-#     print(f"Initial gate : \n{U}")
-#     sequence, U_f = exact_synthesis_alg(U)
-#     print(f"Sequence : {sequence}")
-#     print(f"Matrix with s<3 : \n{U_f}")
-#     print(f"Final matrix : \n{apply_sequence(sequence, U_f)}")
-#     assert U.all() == apply_sequence(sequence, U_f).all()
-#     remaining_seq = init_seq.replace(sequence, "", 1)
-#     print(remaining_seq)
+def convert_to_tuple(array):
+    """Convert a 2x2 array of D[ω] elements to a tuple of tuples of (num, denom)
+    Args:
+        array (np.array): 2x2 array of D[ω] elements
+    Returns:
+        tuple: Tuple of tuples of (num, denom)
+    """
+    return tuple(
+        tuple((Domega[i].num, Domega[i].denom) for i in range(4))
+        for Domega in array[:, 0]
+    )
+
+
+def evaluate_omega_exponent(z_1, z_2):
+    """Evaluate how many powers of omega are needed to transform z_2 into z_1
+    Args:
+        z_1 (Domega): First D[ω] element
+        z_2 (Domega): Second D[ω] element
+    Returns:
+        int: Number of powers of omega needed to transform z_2 into z_1
+    """
+    z_1_angle = np.angle(z_1.real() + 1j * z_1.imag())
+    z_2_angle = np.angle(z_2.real() + 1j * z_2.imag())
+    angle = z_1_angle - z_2_angle
+    omega_exponent = int(np.round(angle / (np.pi / 4))) % 8
+    return omega_exponent
+
+
+def lookup_sequence(U):
+    """Lookup the sequence of W, H and T gates to synthesize a matrix with D[ω] elements
+    Args:
+        U (np.array): Matrix to synthesize
+    Returns:
+        str: Sequence of W, H and T gates to synthesize the matrix
+    """
+    with open(os.path.join(os.path.dirname(__file__), "s3_table.json"), "r") as f:
+        s3_dict = json.load(f)
+        s3_dict = {
+            k: tuple(tuple(tuple(inner) for inner in outer) for outer in v)
+            for k, v in s3_dict.items()
+        }
+    for i in range(8):
+        U_t = np.multiply(omega**i, U)
+        for key, value in s3_dict.items():
+            if convert_to_tuple(U_t) == value:
+                print(f"Sequence : {key}")
+                U_w = apply_sequence(key + "W" * (8 - i))
+                k = evaluate_omega_exponent(U[1, 1], U[0, 0].complex_conjugate())
+                k_pp = evaluate_omega_exponent(U_w[1, 1], U_w[0, 0].complex_conjugate())
+                k_prime = (k - k_pp) % 8
+                key += "T" * k_prime
+                key += "W" * (8 - i)
+                return key

@@ -20,9 +20,9 @@ def test_random_sequence_characters():
 
 def test_apply_sequence_identity():
     """Test if apply_sequence correctly applies a sequence of gates to the identity matrix."""
-    sequence = "HTHTTHTHTH"
+    sequence = "HTHTTHTHTHW"
     result = apply_sequence(sequence)
-    expected = H @ T @ H @ T @ T @ H @ T @ H @ T @ H
+    expected = H @ T @ H @ T @ T @ H @ T @ H @ T @ H @ W
     assert np.array_equal(result, expected)
 
 
@@ -35,7 +35,7 @@ def test_apply_sequence_invalid_character():
 
 def test_is_unitary_true():
     """Test if is_unitary correctly identifies unitary matrices."""
-    matrix = I  # Identity matrix
+    matrix = H  # Identity matrix
     assert is_unitary(matrix)
 
 
@@ -49,7 +49,7 @@ def test_exact_synthesis_invalid_elements():
     """Test if exact_synthesis raises TypeError for invalid matrix elements."""
     matrix = np.array([[1, 0], [0, 1]])  # Not Domega elements
     with pytest.raises(TypeError, match="Matrix elements must be of class"):
-        exact_synthesis_alg(matrix)
+        exact_synthesis_reduc(matrix)
 
 
 def test_exact_synthesis_non_2x2():
@@ -57,25 +57,78 @@ def test_exact_synthesis_non_2x2():
     D = Domega((1, 0), (0, 1), (0, 0), (0, 0))
     matrix = np.array([[D, D, D], [D, D, D], [D, D, D]])  # 3x3 matrix
     with pytest.raises(TypeError, match="Matrix must be of size 2x2"):
-        exact_synthesis_alg(matrix)
+        exact_synthesis_reduc(matrix)
 
 
 def test_exact_synthesis_non_unitary():
     """Test if exact_synthesis raises ValueError for non-unitary matrices."""
     matrix = 2 * H  # Non-unitary matrix
     with pytest.raises(ValueError, match="Matrix must be unitary"):
-        exact_synthesis_alg(matrix)
+        exact_synthesis_reduc(matrix)
 
 
-# Needs to be changed once S3 sequence is added
-# Add more tests for different sequences
-def test_exact_synthesis_valid():
-    """Test if exact_synthesis returns the correct sequence and final matrix for a valid input."""
-    initial_sequence = random_sequence(20)
+def test_evaluate_omega_exponent():
+    """Test if evaluate_omega_exponent returns the correct exponent."""
+    omega = Domega((0, 0), (0, 0), (1, 0), (0, 0))
+    z_1 = Domega((1, 0), (0, 0), (0, 0), (0, 0))
+    z_2 = Domega((0, 0), (0, 0), (1, 0), (0, 0))
+    result = evaluate_omega_exponent(z_1, z_2)
+    assert result == 2
+    assert omega**2 * z_2 == z_1
+
+
+@pytest.mark.parametrize("length", [1, 2, 3, 4, 5, 10, 20, 30, 50, 100, 200])
+def test_exact_sythesis_sde(length):
+    """Test if the sde of the initial matrix is greater than 3, algorithm reduces to smaller than 3, otherwise remains the same."""
+    initial_sequence = random_sequence(length)
+    U_i = apply_sequence(initial_sequence)
+    sequence, U_f = exact_synthesis_alg(U_i)
+    if (U_i[0, 0] * U_i[0, 0].complex_conjugate()).sde() > 3:
+        assert (U_f[0, 0] * U_f[0, 0].complex_conjugate()).sde() <= 3
+    else:
+        assert U_i.all() == U_f.all()
+        assert (U_i[0, 0] * U_i[0, 0].complex_conjugate()).sde() == (
+            U_f[0, 0] * U_f[0, 0].complex_conjugate()
+        ).sde()
+
+
+@pytest.mark.parametrize("length", [1, 2, 3, 4, 5, 10, 20, 30, 50, 100, 200])
+def test_exact_synthesis_valid(length):
+    """Test if exact_synthesis_reduc returns the correct sequence and final matrix for a valid input."""
+    initial_sequence = random_sequence(length)
     initial_matrix = apply_sequence(initial_sequence)
-    sequence, temp_matrix = exact_synthesis_alg(initial_matrix)
+    sequence, temp_matrix = exact_synthesis_reduc(initial_matrix)
     final_matrix = apply_sequence(sequence, temp_matrix)
     assert isinstance(sequence, str)
     assert final_matrix.shape == (2, 2)
     assert is_unitary(final_matrix)
     assert initial_matrix.all() == final_matrix.all()
+
+
+def test_gen_seq_no_ending_T():
+    """Test if the generated sequence does not end with a T gate."""
+    sequences = generate_sequences()
+    assert all(not seq.endswith("T") for seq in sequences)
+
+
+@pytest.mark.parametrize("initial_sequence", generate_sequences())
+def test_lookup_table_find_entries(initial_sequence):
+    """Test if the lookup table is generated correctly."""
+    U_3 = apply_sequence(initial_sequence)
+    U_3_first_column = convert_to_tuple(U_3)
+    found_sequence = lookup_sequence(U_3)
+    found_U3 = apply_sequence(found_sequence)
+    found_U3_first_column = convert_to_tuple(found_U3)
+    assert found_sequence != None
+    assert U_3_first_column == found_U3_first_column
+
+
+@pytest.mark.parametrize("length", [1, 2, 3, 4, 5, 10, 20, 30, 50, 100, 200])
+def test_full_es_alg(length):
+    """Test if the full exact synthesis algorithm returns the correct sequence and final matrix."""
+    for _ in range(10):
+        initial_sequence = random_sequence(length)
+        initial_matrix = apply_sequence(initial_sequence)
+        final_sequence = exact_synthesis_alg(initial_matrix)
+        final_matrix = apply_sequence(final_sequence)
+        assert final_matrix.all() == initial_matrix.all()
