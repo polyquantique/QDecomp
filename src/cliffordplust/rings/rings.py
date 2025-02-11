@@ -1159,7 +1159,7 @@ class Domega:
         return iter([self.a, self.b, self.c, self.d])
 
     def __eq__(self, nb: Any) -> bool:
-        """Define the equality of Domega classes"""
+        """Define the equality of Domega classes."""
         if isinstance(nb, Domega):
             return self.a == nb.a and self.b == nb.b and self.c == nb.c and self.d == nb.d
         elif isinstance(nb, (D, int, np.integer)):
