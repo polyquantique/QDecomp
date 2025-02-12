@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cliffordplust"
+version = "0.0.1"
+authors = [
+  { name="Francis Blais", email="francis.blais@polymtl.ca" },
+  { name="Marius Trudeau", email="marius.trudeau@polymtl.ca" },
+  { name="Olivier Romain", email="olivier.romain@polymtl.ca" },
+  { name="Vincent Girouard", email="vincent-2.girouard@polymtl.ca" },
+]
+description = "Clifford+T quantum gate compiler."
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "numpy>=1.24.4",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = {file = "LICENSE"}
+
+[project.urls]
+Homepage = "https://github.com/polyquantique/CliffordPlusT"
+
+[tool.setuptools.packages.find]
+where = ["src"]   
