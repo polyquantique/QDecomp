@@ -278,7 +278,9 @@ def xi_fact(xi):
     p = (xi * xi.sqrt2_conjugate()).a
 
     if p == 1 or p == -1:  # ξ is a unit, so it cannot be factorized
-        return [(Zsqrt2(1, 0), 1), ]  # Return 1, since we factorize up to a unit.
+        return [
+            (Zsqrt2(1, 0), 1),
+        ]  # Return 1, since we factorize up to a unit.
 
     if p < 0:  # If p is negative, we factorize -p > 0 instead
         p = -p
@@ -514,9 +516,3 @@ def solve_xi_eq_ttdag_in_d(xi):
         v = Domega((-1, 0), (0, 0), (1, 0), (-1, 0)) ** -n  # (λ**-1)**n
 
     return t * v
-
-xi = Dsqrt2(D(1, 0), D(-2, 2))  # Input
-t = solve_xi_eq_ttdag_in_d(xi)  # Compute the solution
-print(t)
-print(xi)
-print(Dsqrt2.from_ring(t * t.complex_conjugate()))

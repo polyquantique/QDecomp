@@ -1,4 +1,5 @@
 import itertools
+
 import pytest
 
 from cliffordplust.diophantine import *
@@ -20,8 +21,7 @@ def test_solve_xi_eq_ttdag_in_d_cpp(a, a_, b, b_):
 
         assert recombination == Domega.from_ring(xi)
         assert float(xi) >= 0 and float(xi.sqrt2_conjugate()) >= 0  # xi is doubly positive
-    
+
     else:
         t_py = solve_xi_eq_ttdag_in_d(xi)
         assert t_py is None  # Both implementations should return None if there is no solution
-
