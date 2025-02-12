@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from grid_algorithm_1D import solve_grid_problem_1d
-from Rings import Zomega, Zsqrt2
+from cliffordplust.rings import Zomega, Zsqrt2
 
 
 def solve_grid_problem_2D(
