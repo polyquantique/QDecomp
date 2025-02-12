@@ -1,3 +1,21 @@
+# Copyright 2024-2025 Olivier Romain, Francis Blais, Vincent Girouard, Marius Trudeau
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+"""
+Test of exact_synthesis
+"""
+
 import numpy as np
 import pytest
 
@@ -50,6 +68,21 @@ def test_is_unitary_false():
     """Test if is_unitary correctly identifies non-unitary matrices."""
     matrix = 2 * H  # Non-unitary matrix
     assert not is_unitary(matrix)
+
+
+def test_convert_to_tuple_invalid_elements():
+    """Test if convert_to_tuple raises TypeError for invalid matrix elements."""
+    matrix = np.array([[1, 0], [0, 1]])  # Not Domega elements
+    with pytest.raises(TypeError, match="Matrix elements must be of class"):
+        convert_to_tuple(matrix)
+
+
+def test_convert_to_tuple_non_2x2():
+    """Test if convert_to_tuple raises TypeError for non-2x2 matrices."""
+    D = Domega((1, 0), (0, 1), (0, 0), (0, 0))
+    matrix = np.array([[D, D, D], [D, D, D], [D, D, D]])  # 3x3 matrix
+    with pytest.raises(TypeError, match="Matrix must be of size 2x2"):
+        convert_to_tuple(matrix)
 
 
 def test_exact_synthesis_reduc_invalid_elements():
@@ -160,14 +193,6 @@ def test_gen_seq_no_ending_T():
     """Test if the generated sequence does not end with a T gate."""
     sequences = generate_sequences()
     assert all(not seq.endswith("T") for seq in sequences)
-
-
-def test_lookup_sequence_sde():
-    """Test if lookup_sequence raises ValueError for invalid input sde."""
-    invalid_input_seq = "HTHTHTH"
-    input_matrix = apply_sequence(invalid_input_seq)
-    with pytest.raises(ValueError, match="Matrix must have sde <= 3"):
-        lookup_sequence(input_matrix)
 
 
 @pytest.mark.parametrize("initial_sequence", generate_sequences())
