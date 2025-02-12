@@ -1,47 +1,170 @@
-from cliffordplust.rings import Dsqrt2, D
-import cliffordplust.rings as r
 import math
+
 import pytest
+
+import cliffordplust.rings as r
+from cliffordplust.rings import D, Dsqrt2
+
 SQRT2 = math.sqrt(2)
 
 """Test the Dsqrt2 class."""
 
-@pytest.mark.parametrize("n", [Dsqrt2((1, 1), (1, 1)), Dsqrt2((0, 0), (0, 0)), Dsqrt2((-1, 1), (1, 1)), Dsqrt2((1, 1), (-1, 1)), Dsqrt2((-55, 14), (29, 15)), Dsqrt2((36, 71), (41, 1)), Dsqrt2((302, 85), (711, 66))])
+
+@pytest.mark.parametrize(
+    "n",
+    [
+        Dsqrt2((1, 1), (1, 1)),
+        Dsqrt2((0, 0), (0, 0)),
+        Dsqrt2((-1, 1), (1, 1)),
+        Dsqrt2((1, 1), (-1, 1)),
+        Dsqrt2((-55, 14), (29, 15)),
+        Dsqrt2((36, 71), (41, 1)),
+        Dsqrt2((302, 85), (711, 66)),
+    ],
+)
 def test_float(n):
     """Test the float value of the Dsqrt2 class."""
     assert math.isclose(n, float(n.a) + float(n.b) * SQRT2)
 
-@pytest.mark.parametrize("n1", [Dsqrt2((1, 1), (1, 1)), Dsqrt2((0, 0), (0, 0)), Dsqrt2((-1, 1), (1, 1)), Dsqrt2((1, 1), (-1, 1)), Dsqrt2((-55, 14), (29, 15)), Dsqrt2((36, 71), (41, 1)), Dsqrt2((302, 85), (711, 66)), 0, 5, -10])
-@pytest.mark.parametrize("n2", [Dsqrt2((1, 1), (1, 1)), Dsqrt2((0, 0), (0, 0)), Dsqrt2((-1, 1), (1, 1)), Dsqrt2((1, 1), (-1, 1)), Dsqrt2((-55, 14), (29, 15)), Dsqrt2((36, 71), (41, 1)), Dsqrt2((302, 85), (711, 66)), D(1, 1), D(-55, 14), D(302, 85)])
+
+@pytest.mark.parametrize(
+    "n1",
+    [
+        Dsqrt2((1, 1), (1, 1)),
+        Dsqrt2((0, 0), (0, 0)),
+        Dsqrt2((-1, 1), (1, 1)),
+        Dsqrt2((1, 1), (-1, 1)),
+        Dsqrt2((-55, 14), (29, 15)),
+        Dsqrt2((36, 71), (41, 1)),
+        Dsqrt2((302, 85), (711, 66)),
+        0,
+        5,
+        -10,
+    ],
+)
+@pytest.mark.parametrize(
+    "n2",
+    [
+        Dsqrt2((1, 1), (1, 1)),
+        Dsqrt2((0, 0), (0, 0)),
+        Dsqrt2((-1, 1), (1, 1)),
+        Dsqrt2((1, 1), (-1, 1)),
+        Dsqrt2((-55, 14), (29, 15)),
+        Dsqrt2((36, 71), (41, 1)),
+        Dsqrt2((302, 85), (711, 66)),
+        D(1, 1),
+        D(-55, 14),
+        D(302, 85),
+    ],
+)
 def test_summation(n1, n2):
     """Test the summation of two Dsqrt2 instances."""
     n = n1
     n += n2
-    assert math.isclose(float(n1 + n2), float(n1) + float(n2)) and math.isclose(float(n1) + float(n2), float(n))
+    assert math.isclose(float(n1 + n2), float(n1) + float(n2)) and math.isclose(
+        float(n1) + float(n2), float(n)
+    )
 
-@pytest.mark.parametrize("n1", [Dsqrt2((1, 1), (1, 1)), Dsqrt2((0, 0), (0, 0)), Dsqrt2((-1, 1), (1, 1)), Dsqrt2((1, 1), (-1, 1)), Dsqrt2((-55, 14), (29, 15)), Dsqrt2((36, 71), (41, 1)), Dsqrt2((302, 85), (711, 66)), 0, 5, -10])
-@pytest.mark.parametrize("n2", [Dsqrt2((1, 1), (1, 1)), Dsqrt2((0, 0), (0, 0)), Dsqrt2((-1, 1), (1, 1)), Dsqrt2((1, 1), (-1, 1)), Dsqrt2((-55, 14), (29, 15)), Dsqrt2((36, 71), (41, 1)), Dsqrt2((302, 85), (711, 66)), D(1, 1), D(-55, 14), D(302, 85)])
+
+@pytest.mark.parametrize(
+    "n1",
+    [
+        Dsqrt2((1, 1), (1, 1)),
+        Dsqrt2((0, 0), (0, 0)),
+        Dsqrt2((-1, 1), (1, 1)),
+        Dsqrt2((1, 1), (-1, 1)),
+        Dsqrt2((-55, 14), (29, 15)),
+        Dsqrt2((36, 71), (41, 1)),
+        Dsqrt2((302, 85), (711, 66)),
+        0,
+        5,
+        -10,
+    ],
+)
+@pytest.mark.parametrize(
+    "n2",
+    [
+        Dsqrt2((1, 1), (1, 1)),
+        Dsqrt2((0, 0), (0, 0)),
+        Dsqrt2((-1, 1), (1, 1)),
+        Dsqrt2((1, 1), (-1, 1)),
+        Dsqrt2((-55, 14), (29, 15)),
+        Dsqrt2((36, 71), (41, 1)),
+        Dsqrt2((302, 85), (711, 66)),
+        D(1, 1),
+        D(-55, 14),
+        D(302, 85),
+    ],
+)
 def test_subtraction(n1, n2):
     """Test the subtraction of two Dsqrt2 instances."""
     n = n1
     n -= n2
-    assert math.isclose(float(n1 - n2), float(n1) - float(n2)) and math.isclose(float(n1) - float(n2), float(n))
+    assert math.isclose(float(n1 - n2), float(n1) - float(n2)) and math.isclose(
+        float(n1) - float(n2), float(n)
+    )
 
-@pytest.mark.parametrize("n1", [Dsqrt2((1, 1), (1, 1)), Dsqrt2((0, 0), (0, 0)), Dsqrt2((-1, 1), (1, 1)), Dsqrt2((1, 1), (-1, 1)), Dsqrt2((-55, 14), (29, 15)), Dsqrt2((36, 71), (41, 1)), Dsqrt2((302, 85), (711, 66)), 0, 5, -10])
-@pytest.mark.parametrize("n2", [Dsqrt2((1, 1), (1, 1)), Dsqrt2((0, 0), (0, 0)), Dsqrt2((-1, 1), (1, 1)), Dsqrt2((1, 1), (-1, 1)), Dsqrt2((-55, 14), (29, 15)), Dsqrt2((36, 71), (41, 1)), Dsqrt2((302, 85), (711, 66)), D(1, 1), D(-55, 14), D(302, 85)])
+
+@pytest.mark.parametrize(
+    "n1",
+    [
+        Dsqrt2((1, 1), (1, 1)),
+        Dsqrt2((0, 0), (0, 0)),
+        Dsqrt2((-1, 1), (1, 1)),
+        Dsqrt2((1, 1), (-1, 1)),
+        Dsqrt2((-55, 14), (29, 15)),
+        Dsqrt2((36, 71), (41, 1)),
+        Dsqrt2((302, 85), (711, 66)),
+        0,
+        5,
+        -10,
+    ],
+)
+@pytest.mark.parametrize(
+    "n2",
+    [
+        Dsqrt2((1, 1), (1, 1)),
+        Dsqrt2((0, 0), (0, 0)),
+        Dsqrt2((-1, 1), (1, 1)),
+        Dsqrt2((1, 1), (-1, 1)),
+        Dsqrt2((-55, 14), (29, 15)),
+        Dsqrt2((36, 71), (41, 1)),
+        Dsqrt2((302, 85), (711, 66)),
+        D(1, 1),
+        D(-55, 14),
+        D(302, 85),
+    ],
+)
 def test_multiplication(n1, n2):
     """Test the multiplication of two Dsqrt2 instances."""
     n = n1
     n *= n2
-    assert math.isclose(float(n1 * n2), float(n1) * float(n2)) and math.isclose(float(n1) * float(n2), float(n))
+    assert math.isclose(float(n1 * n2), float(n1) * float(n2)) and math.isclose(
+        float(n1) * float(n2), float(n)
+    )
 
-@pytest.mark.parametrize("base", [Dsqrt2((1, 1), (1, 1)), Dsqrt2((0, 0), (0, 0)), Dsqrt2((-1, 1), (1, 1)), Dsqrt2((1, 1), (-1, 1)), Dsqrt2((-55, 14), (29, 15)), Dsqrt2((36, 71), (41, 1)), Dsqrt2((302, 85), (711, 66))])
+
+@pytest.mark.parametrize(
+    "base",
+    [
+        Dsqrt2((1, 1), (1, 1)),
+        Dsqrt2((0, 0), (0, 0)),
+        Dsqrt2((-1, 1), (1, 1)),
+        Dsqrt2((1, 1), (-1, 1)),
+        Dsqrt2((-55, 14), (29, 15)),
+        Dsqrt2((36, 71), (41, 1)),
+        Dsqrt2((302, 85), (711, 66)),
+    ],
+)
 @pytest.mark.parametrize("exp", [0, 1, 3, 6, 10])
 def test_power(base, exp):
     """Test the power of a Dsqrt2 instance."""
     n = base
     n **= exp
-    assert math.isclose(float(base ** exp), float(base) ** exp) and math.isclose(float(base) ** exp, float(n))
+    assert math.isclose(float(base**exp), float(base) ** exp) and math.isclose(
+        float(base) ** exp, float(n)
+    )
+
 
 def test_equality():
     """Test the equality of two Dsqrt2 instances."""
@@ -54,10 +177,12 @@ def test_equality():
     assert Dsqrt2((0, 0), (10, 0)) == 10 * SQRT2
     assert Dsqrt2((0, 0), (0, 0)) != [0]
 
+
 def test_sqrt2_conjugate():
     """Test the conjugate of a Dsqrt2 instance."""
     assert Dsqrt2((1, 1), (1, 1)).sqrt2_conjugate() == Dsqrt2((1, 1), (-1, 1))
     assert Dsqrt2((1, 1), (-1, 1)).sqrt2_conjugate() == Dsqrt2((1, 1), (1, 1))
+
 
 def test_init_type_error_tuple():
     """Test the TypeError of the Dsqrt2 class when the arguments are tuples."""
@@ -68,7 +193,8 @@ def test_init_type_error_tuple():
     with pytest.raises(TypeError, match="Tuples must take two integer values"):
         Dsqrt2((1, 1.0), (1, 1))
     with pytest.raises(TypeError, match="Tuples must take two integer values"):
-        Dsqrt2((1, 1), (1.j, 1))
+        Dsqrt2((1, 1), (1.0j, 1))
+
 
 def test_init_type_error_wrong_type():
     """Test the TypeError of the Dsqrt2 class when the arguments are not tuple or D objects."""
@@ -77,7 +203,8 @@ def test_init_type_error_wrong_type():
     with pytest.raises(TypeError, match="Class arguments must be of type tuple"):
         Dsqrt2((1, 1), [1, 1])
     with pytest.raises(TypeError, match="Class arguments must be of type tuple"):
-        Dsqrt2('11', (1, 1))
+        Dsqrt2("11", (1, 1))
+
 
 def test_init_value_error():
     """Test the ValueError of the Dsqrt2 class when the denominator exponents are not positive."""
@@ -86,20 +213,26 @@ def test_init_value_error():
     with pytest.raises(ValueError, match="Denominator value must be positive but"):
         Dsqrt2((1, 1), (1, -1))
 
+
 def test_get_item():
     """Test the __getitem__ method of the Dsqrt2 class."""
     n = Dsqrt2((1, 2), (3, 4))
     assert n[0] == D(1, 2)
     assert n[1] == D(3, 4)
 
-@pytest.mark.parametrize("nb", [
+
+@pytest.mark.parametrize(
+    "nb",
+    [
         (Dsqrt2((0, 0), (0, 0)), "0/2^0+0/2^0√2"),
         (Dsqrt2((1, 1), (1, 1)), "1/2^1+1/2^1√2"),
-        (Dsqrt2((-1, 2), (-3, 1)), "-1/2^2-3/2^1√2")
-    ])
+        (Dsqrt2((-1, 2), (-3, 1)), "-1/2^2-3/2^1√2"),
+    ],
+)
 def test_repr(nb):
     """Test the __repr__ method of the Dsqrt2 class."""
     assert str(nb[0]) == nb[1]
+
 
 def test_summation_type_error():
     """Test the TypeError of the Dsqrt2 class when summed with the wrong type."""
@@ -109,6 +242,7 @@ def test_summation_type_error():
     with pytest.raises(TypeError, match="Summation operation is not defined between Dsqrt2 and"):
         n + 1.0
 
+
 def test_subtraction_type_error():
     """Test the TypeError of the Dsqrt2 class when subtracted with the wrong type."""
     n = Dsqrt2((1, 1), (1, 1))
@@ -117,13 +251,19 @@ def test_subtraction_type_error():
     with pytest.raises(TypeError, match="Subtraction operation is not defined between Dsqrt2 and"):
         n - 1.0
 
+
 def test_multiplication_type_error():
     """Test the TypeError of the Dsqrt2 class when multiplied with the wrong type."""
     n = Dsqrt2((1, 1), (1, 1))
-    with pytest.raises(TypeError, match="Multiplication operation is not defined between Dsqrt2 and"):
+    with pytest.raises(
+        TypeError, match="Multiplication operation is not defined between Dsqrt2 and"
+    ):
         n * "1"
-    with pytest.raises(TypeError, match="Multiplication operation is not defined between Dsqrt2 and"):
+    with pytest.raises(
+        TypeError, match="Multiplication operation is not defined between Dsqrt2 and"
+    ):
         n * 1.0
+
 
 def test_power_type_error():
     """Test the TypeError of the Dsqrt2 class when powered with a non-integer."""
@@ -131,35 +271,47 @@ def test_power_type_error():
     with pytest.raises(TypeError, match="Expected power to be of type int"):
         n ** "1"
     with pytest.raises(TypeError, match="Expected power to be of type int"):
-        n ** 1.0
+        n**1.0
+
 
 def test_power_value_error():
     """Test the ValueError of the Dsqrt2 class when powered with a negative integer."""
     n = Dsqrt2((1, 1), (1, 1))
     with pytest.raises(ValueError, match="Expected power to be a positive integer"):
-        n ** -1
+        n**-1
 
-@pytest.mark.parametrize("n", [(Dsqrt2((1, 1), (1, 1)), Dsqrt2((1, 1), (1, 1))),
-                               (-25, Dsqrt2((-25, 0), (0, 0))),
-                               (D(3, 7), Dsqrt2((3, 7), (0, 0))),
-                               (r.Zsqrt2(-11, 17), Dsqrt2((-11, 0), (17, 0))),
-                               (r.Zomega(5, 0, -5, -71), Dsqrt2((-71, 0), (-5, 0))),
-                               (r.Domega((-17, 41), (0, 0), (17, 41), (13, 5)), Dsqrt2((13, 5), (17, 41)))])
+
+@pytest.mark.parametrize(
+    "n",
+    [
+        (Dsqrt2((1, 1), (1, 1)), Dsqrt2((1, 1), (1, 1))),
+        (-25, Dsqrt2((-25, 0), (0, 0))),
+        (D(3, 7), Dsqrt2((3, 7), (0, 0))),
+        (r.Zsqrt2(-11, 17), Dsqrt2((-11, 0), (17, 0))),
+        (r.Zomega(5, 0, -5, -71), Dsqrt2((-71, 0), (-5, 0))),
+        (r.Domega((-17, 41), (0, 0), (17, 41), (13, 5)), Dsqrt2((13, 5), (17, 41))),
+    ],
+)
 def test_from_ring(n):
     """Test the from_ring method of the Dsqrt2 class."""
     assert Dsqrt2.from_ring(n[0]) == n[1]
 
-@pytest.mark.parametrize("n", [1.0, 1.j, '1', [2], r.Zomega(1, 0, 1, 0), r.Domega((1, 1), (1, 1), (1, 1), (1, 1))])
+
+@pytest.mark.parametrize(
+    "n", [1.0, 1.0j, "1", [2], r.Zomega(1, 0, 1, 0), r.Domega((1, 1), (1, 1), (1, 1), (1, 1))]
+)
 def test_from_ring_value_error(n):
     """Test the ValueError of the Dsqrt2 class when the ring value is not a Dsqrt2 instance."""
     with pytest.raises(ValueError, match="Cannot convert"):
         Dsqrt2.from_ring(n)
-    
+
+
 def test_is_zomega():
     """Test the is_zomega method of the Dsqrt2 class."""
     assert Dsqrt2((1, 1), (1, 1)).is_zomega == False
     assert Dsqrt2((1, 0), (1, 0)).is_zomega == True
     assert Dsqrt2((1, 0), (0, 0)).is_zomega == True
+
 
 def test_is_zsqrt2():
     """Test the is_zsqrt2 method of the Dsqrt2 class."""
@@ -167,11 +319,13 @@ def test_is_zsqrt2():
     assert Dsqrt2((1, 0), (1, 0)).is_zsqrt2 == True
     assert Dsqrt2((1, 0), (0, 0)).is_zsqrt2 == True
 
+
 def test_is_integer():
     """Test the is_integer method of the Dsqrt2 class."""
     assert Dsqrt2((1, 1), (0, 0)).is_integer == False
     assert Dsqrt2((1, 0), (1, 0)).is_integer == False
     assert Dsqrt2((1, 0), (0, 0)).is_integer == True
+
 
 def test_is_d():
     """Test the is_d method of the Dsqrt2 class."""

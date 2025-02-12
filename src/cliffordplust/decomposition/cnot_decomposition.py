@@ -33,6 +33,7 @@ Jun Zhang, Jiri Vala, Shankar Sastry, and K. Birgitta Whaley. Geometric theory o
 """
 
 from collections import namedtuple
+
 import numpy as np
 from scipy.linalg import expm
 
@@ -116,8 +117,10 @@ def canonical_decomposition(
     # The magic basis has those interesting properties:
     # - The tensor product of two single-qubit gates is a special orthogonal matrix Q in the magic basis;
     # - The canonical gate is a diagonal matrix D in the magic basis.
-    magic = 1 / SQRT_2 * np.array(
-        [[1, 1.0j, 0, 0], [0, 0, 1.0j, 1], [0, 0, 1.0j, -1], [1, -1.0j, 0, 0]]
+    magic = (
+        1
+        / SQRT_2
+        * np.array([[1, 1.0j, 0, 0], [0, 0, 1.0j, 1], [0, 0, 1.0j, -1], [1, -1.0j, 0, 0]])
     )
     det_U = np.complex128(np.linalg.det(U))
     phase = np.angle(det_U) / 4
@@ -163,10 +166,10 @@ def canonical_decomposition(
     # Construct the namedtuple to return the canonical decomposition
     CanonicalDecomposition = namedtuple("CanonicalDecomposition", ["A", "B", "t", "alpha"])
     return_tuple = CanonicalDecomposition(
-        A = magic @ q1 @ magic.T.conj(),
-        B = magic @ q2 @ magic.T.conj(),
-        t = (tx, ty, tz),
-        alpha = phase,
+        A=magic @ q1 @ magic.T.conj(),
+        B=magic @ q2 @ magic.T.conj(),
+        t=(tx, ty, tz),
+        alpha=phase,
     )
 
     return return_tuple
