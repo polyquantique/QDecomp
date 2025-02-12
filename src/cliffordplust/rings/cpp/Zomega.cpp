@@ -153,7 +153,7 @@ std::tuple<Zomega, Zomega> euclidean_div(const Zomega& num, const Zomega& div) {
     // Convert the denominator into an integer, and apply the same transformation to the numerator
     Zomega coef = div.sqrt2_conjugate() * div.complex_conjugate() * div.sqrt2_conjugate().complex_conjugate();
 
-    long long int denom = (div * mult).to_int();
+    long long int denom = (div * coef).to_int();
     Zomega numer = num * coef;
 
     // Perform the division

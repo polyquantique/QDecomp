@@ -190,15 +190,16 @@ void test_solve_xi_sim_ttdag_in_z() {
 }
 
 void test_solve_xi_eq_ttdag_in_d() {
-    for (long long int a=-1; a<10000; a++) {
-    for (unsigned short a_=0; a_<3; a_++) {
-    for (long long int b=-5; b<4; b++) {
-    for (unsigned short b_=0; b_<3; b_++) {
+    int n = 0;
+    for (long long int a=-1; a<1000; a++) {
+    for (unsigned short a_=0; a_<10; a_++) {
+    for (long long int b=-5; b<400; b++) {
+    for (unsigned short b_=0; b_<10; b_++) {
         Dsqrt2 xi(a, a_, b, b_);
-        std::cout << "Testing solve_xi_eq_ttdag_in_d() for xi = " << xi.to_string() << " ...";
+        // std::cout << "Testing solve_xi_eq_ttdag_in_d() for xi = " << xi.to_string() << " ...";
 
         if (xi == 0) {
-            std::cout << " OK!" << std::endl;
+            // std::cout << " OK!" << std::endl;
             continue;
         }
 
@@ -219,10 +220,11 @@ void test_solve_xi_eq_ttdag_in_d() {
                 );
             }
         }
-        std::cout << " OK!" << std::endl;
+        // std::cout << " OK!" << std::endl;
     }
     }
     }
+    std::cout << a << std::endl;
     }
     std::cout << std::endl;
 }
