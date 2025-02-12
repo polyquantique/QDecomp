@@ -210,6 +210,12 @@ class Zsqrt2 {
 
 
         /**
+         * @brief Reduce the number by multiplying by a unit.
+         */
+        void unit_reduce();
+
+
+        /**
          * @brief Get a string representation of the number.
          * 
          * @return std::string The string representation of the number.

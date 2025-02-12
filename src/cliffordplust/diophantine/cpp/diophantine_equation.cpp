@@ -73,7 +73,7 @@ std::vector<std::tuple<long long int, Zsqrt2, unsigned short>> xi_fact(Zsqrt2 xi
 
     long long int p = (xi * xi.sqrt2_conjugate()).p();
 
-    // If xi is a prime number, it cannot be factorized
+    // If xi is a unit, it cannot be factorized
     if (p == 1 or p == -1) {
         return std::vector<std::tuple<long long int, Zsqrt2, unsigned short>>{{p, xi, 1}};
     }
@@ -101,6 +101,7 @@ std::vector<std::tuple<long long int, Zsqrt2, unsigned short>> xi_fact(Zsqrt2 xi
             case 7:
             {
                 Zsqrt2 xi_i = pi_fact_into_xi(p_i);
+                xi_i.unit_reduce();
 
                 // Determine wether we need to add ξ_i or its conjugate to the factorization and how
                 // many times

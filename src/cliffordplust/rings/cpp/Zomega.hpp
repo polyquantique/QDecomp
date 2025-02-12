@@ -134,6 +134,13 @@ class Zomega {
          */
         bool is_int() const;
 
+        /**
+         * @brief Check if the number real.
+         * 
+         * @return true If the number is real.
+         */
+        bool is_real() const;
+
 
         /**
          * @brief Convert the number in the ring D[\u03C9].

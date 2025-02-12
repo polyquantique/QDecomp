@@ -94,6 +94,40 @@ Zsqrt2 Zsqrt2::pow(unsigned short n) const {
 }
 
 
+void Zsqrt2::unit_reduce() {
+    Zsqrt2 n1 = *this;
+    Zsqrt2 n2(0, 0);
+
+    // If the sign of p and q is different, reduce the number by multiplying by lambda = 1 + sqrt(2)
+    if (std::signbit(n1.p()) xor std::signbit(n1.q())) {
+        do {
+            n1 = n1 * Zsqrt2(1, 1);
+        } while (std::signbit(n1.p()) xor std::signbit(n1.q()));
+
+        // Recover the number with the opposite sign
+        n2 = n1 * Zsqrt2(-1, 1);
+
+    // If not, reduce the number by multiplying by lambda**-1 = -1 + sqrt(2)
+    } else {
+        do {
+            n1 = n1 * Zsqrt2(-1, 1);
+        } while (std::signbit(n1.p()) == std::signbit(n1.q()));
+        
+        // Recover the number with the opposite sign
+        n2 = n1 * Zsqrt2(1, 1);
+    }
+
+    // Return the best number, the one with the smallest coefficients p and q
+    long long int merit1 = std::llabs(n1.p()) + std::llabs(n1.q());
+    long long int merit2 = std::llabs(n2.p()) + std::llabs(n2.q());
+    if (merit1 < merit2) {
+        *this = n1;
+    } else {
+        *this = n2;
+    }
+}
+
+
 std::string Zsqrt2::to_string() const {
     return std::to_string(_p) + " + " + std::to_string(_q) + "\u221A2";
 }

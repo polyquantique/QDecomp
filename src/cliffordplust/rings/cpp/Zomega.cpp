@@ -61,6 +61,7 @@ Zomega Zomega::complex_conjugate() const {return Zomega(-_c, -_b, -_a, _d);}
 
 bool Zomega::is_Zsqrt2() const {return _b == 0 and _a == -_c;}
 bool Zomega::is_int() const {return _a == 0 and _b == 0 and _c == 0;}
+bool Zomega::is_real() const {return _b == 0 and _a == -_c;}
 
 Domega Zomega::to_Domega() const {return Domega(_a, 0, _b, 0, _c, 0, _d, 0);}
 
@@ -149,14 +150,13 @@ void Zomega::print() const {std::cout << to_string() << std::endl;}
 
 /// Functions in the Z[\u03C9] ring
 std::tuple<Zomega, Zomega> euclidean_div(const Zomega& num, const Zomega& div) {
-    Zomega div_cc = div.complex_conjugate();
-    Zomega div_div_cc = div * div_cc;
+    // Convert the denominator into an integer, and apply the same transformation to the numerator
+    Zomega coef = div.sqrt2_conjugate() * div.complex_conjugate() * div.sqrt2_conjugate().complex_conjugate();
 
-    // Convert the denominator into an integer     
-    long long int denom = (div_div_cc * div_div_cc.sqrt2_conjugate()).to_int();
-    // Apply the same multiplication to the numerator
-    Zomega numer = num * div_cc * div_div_cc.sqrt2_conjugate();
+    long long int denom = (div * mult).to_int();
+    Zomega numer = num * coef;
 
+    // Perform the division
     Zomega q = Zomega(
         static_cast<long long int>(std::round(static_cast<float>(numer.a()) / static_cast<float>(denom))),
         static_cast<long long int>(std::round(static_cast<float>(numer.b()) / static_cast<float>(denom))),
@@ -168,8 +168,8 @@ std::tuple<Zomega, Zomega> euclidean_div(const Zomega& num, const Zomega& div) {
 }
 
 Zomega gcd(const Zomega& x, const Zomega& y) {
-    Zomega a = x;
-    Zomega b = y;
+    Zomega a = y;
+    Zomega b = x;
     
     Zomega r(0, 0, 0, 0);
     do {
