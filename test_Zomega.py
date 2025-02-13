@@ -17,7 +17,7 @@ def test_Zomega():
         nbD = Domega((a, 0), (b, 0), (c, 0), (d, 0))
 
         assert nbZ == nbD
-        
+
         methodsZ = set(dir(nbZ))
         methodsD = set(dir(nbD))
 

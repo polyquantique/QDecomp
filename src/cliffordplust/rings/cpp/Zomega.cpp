@@ -20,14 +20,15 @@
 #include "Rings.hpp"
 
 
-Zomega::Zomega(int a, int b, int c, int d) : _a(a), _b(b), _c(c), _d(d) {}
+Zomega::Zomega(long long int a, long long int b, long long int c, long long int d)
+: _a(a), _b(b), _c(c), _d(d) {}
 
-int Zomega::a() const {return _a;}
-int Zomega::b() const {return _b;}
-int Zomega::c() const {return _c;}
-int Zomega::d() const {return _d;}
+long long int Zomega::a() const {return _a;}
+long long int Zomega::b() const {return _b;}
+long long int Zomega::c() const {return _c;}
+long long int Zomega::d() const {return _d;}
 
-int Zomega::operator[](int i) const {
+long long int Zomega::operator[](unsigned short i) const {
     switch (i) {
         case 0: return _a;
         case 1: return _b;
@@ -39,7 +40,7 @@ int Zomega::operator[](int i) const {
 }
 
 Zsqrt2 Zomega::real() const {
-    int sqrt2_part = _c - _a;
+    long long int sqrt2_part = _c - _a;
     if (sqrt2_part & 1) {
         throw std::runtime_error("The real part of " + to_string() + " is not in Zsqrt2.");
     }
@@ -48,7 +49,7 @@ Zsqrt2 Zomega::real() const {
 }
 
 Zsqrt2 Zomega::imag() const {
-    int sqrt2_part = _c + _a;
+    long long int sqrt2_part = _c + _a;
     if (sqrt2_part & 1) {
         throw std::runtime_error("The imaginary part of " + to_string() + " is not in Zsqrt2.");
     }
@@ -60,6 +61,7 @@ Zomega Zomega::complex_conjugate() const {return Zomega(-_c, -_b, -_a, _d);}
 
 bool Zomega::is_Zsqrt2() const {return _b == 0 and _a == -_c;}
 bool Zomega::is_int() const {return _a == 0 and _b == 0 and _c == 0;}
+bool Zomega::is_real() const {return _b == 0 and _a == -_c;}
 
 Domega Zomega::to_Domega() const {return Domega(_a, 0, _b, 0, _c, 0, _d, 0);}
 
@@ -87,7 +89,7 @@ D Zomega::to_D() const {
     return D(_d, 0);
 }
 
-int Zomega::to_int() const {
+long long int Zomega::to_int() const {
     if (! is_int()) {
         throw std::runtime_error("The number to convert is not an integer. Got " + to_string());
     }
@@ -99,38 +101,34 @@ bool Zomega::operator==(const Zomega& other) const {
     return (_a == other._a) and (_b == other._b) and (_c == other._c) and (_d == other._d);
 }
 
-bool Zomega::operator==(const int& other) const {return is_int() and (_d == other);}
+bool Zomega::operator==(const long long int& other) const {return is_int() and (_d == other);}
 bool Zomega::operator!=(const Zomega& other) const {return !(*this == other);}
-bool Zomega::operator!=(const int& other) const {return !(*this == other);}
+bool Zomega::operator!=(const long long int& other) const {return !(*this == other);}
 
 
 Zomega Zomega::operator+(const Zomega& other) const {
     return Zomega(_a + other._a, _b + other._b, _c + other._c, _d + other._d);
 }
 
-Zomega Zomega::operator+(const int& other) const {return Zomega(_a, _b, _c, _d + other);}
+Zomega Zomega::operator+(const long long int& other) const {return Zomega(_a, _b, _c, _d + other);}
 Zomega Zomega::operator-() const {return Zomega(-_a, -_b, -_c, -_d);}
 Zomega Zomega::operator-(const Zomega& other) const {return *this + (-other);}
-Zomega Zomega::operator-(const int& other) const {return *this + (-other);}
+Zomega Zomega::operator-(const long long int& other) const {return *this + (-other);}
 
 Zomega Zomega::operator*(const Zomega& other) const {
-    int a =  (_a * other._d) + (_b * other._c) + (_c * other._b) + (_d * other._a);
-    int b = -(_a * other._a) + (_b * other._d) + (_c * other._c) + (_d * other._b);
-    int c = -(_a * other._b) - (_b * other._a) + (_c * other._d) + (_d * other._c);
-    int d = -(_a * other._c) - (_b * other._b) - (_c * other._a) + (_d * other._d);
+    long long int a =  (_a * other._d) + (_b * other._c) + (_c * other._b) + (_d * other._a);
+    long long int b = -(_a * other._a) + (_b * other._d) + (_c * other._c) + (_d * other._b);
+    long long int c = -(_a * other._b) - (_b * other._a) + (_c * other._d) + (_d * other._c);
+    long long int d = -(_a * other._c) - (_b * other._b) - (_c * other._a) + (_d * other._d);
     
     return Zomega(a, b, c, d);
 }
 
-Zomega Zomega::operator*(const int& other) const {
+Zomega Zomega::operator*(const long long int& other) const {
     return Zomega(_a * other, _b * other, _c * other, _d * other);
 }
 
-Zomega Zomega::pow(int n) const {
-    if (n < 0) {
-        throw std::invalid_argument("The exponent must be positive. Got " + std::to_string(n));
-    }
-
+Zomega Zomega::pow(unsigned short n) const {
     Zomega nth_power = *this;
     Zomega result(0, 0, 0, 1);
 
@@ -152,27 +150,26 @@ void Zomega::print() const {std::cout << to_string() << std::endl;}
 
 /// Functions in the Z[\u03C9] ring
 std::tuple<Zomega, Zomega> euclidean_div(const Zomega& num, const Zomega& div) {
-    Zomega div_cc = div.complex_conjugate();
-    Zomega div_div_cc = div * div_cc;
+    // Convert the denominator into an integer, and apply the same transformation to the numerator
+    Zomega coef = div.sqrt2_conjugate() * div.complex_conjugate() * div.sqrt2_conjugate().complex_conjugate();
 
-    // Convert the denominator into an integer     
-    int denom = (div_div_cc * div_div_cc.sqrt2_conjugate()).to_int();
-    // Apply the same multiplication to the numerator
-    Zomega numer = num * div_cc * div_div_cc.sqrt2_conjugate();
+    long long int denom = (div * coef).to_int();
+    Zomega numer = num * coef;
 
+    // Perform the division
     Zomega q = Zomega(
-        std::round(static_cast<float>(numer.a()) / denom),
-        std::round(static_cast<float>(numer.b()) / denom),
-        std::round(static_cast<float>(numer.c()) / denom),
-        std::round(static_cast<float>(numer.d()) / denom)
+        static_cast<long long int>(std::round(static_cast<float>(numer.a()) / static_cast<float>(denom))),
+        static_cast<long long int>(std::round(static_cast<float>(numer.b()) / static_cast<float>(denom))),
+        static_cast<long long int>(std::round(static_cast<float>(numer.c()) / static_cast<float>(denom))),
+        static_cast<long long int>(std::round(static_cast<float>(numer.d()) / static_cast<float>(denom)))
     );
 
     return {q, num - q * div};
 }
 
 Zomega gcd(const Zomega& x, const Zomega& y) {
-    Zomega a = x;
-    Zomega b = y;
+    Zomega a = y;
+    Zomega b = x;
     
     Zomega r(0, 0, 0, 0);
     do {

@@ -20,13 +20,10 @@
 #include "Rings.hpp"
 
 
-Dsqrt2::Dsqrt2(int p, int lp, int q, int lq) : _p(p, lp), _q(q, lq) {
-    if (lp < 0 or lq < 0) {
-        throw std::invalid_argument("Denominator must be positive. Got " + 
-            std::to_string(lp) + ", " + std::to_string(lq)
-        );
-    }
-}
+Dsqrt2::Dsqrt2(
+    long long int p, unsigned short lp,
+    long long int q, unsigned short lq
+) : _p(p, lp), _q(q, lq) {}
 
 Dsqrt2::Dsqrt2(D p, D q) : _p(p), _q(q) {}
 
@@ -66,7 +63,7 @@ D Dsqrt2::to_D() const {
     return _p;
 }
 
-int Dsqrt2::to_int() const {
+long long int Dsqrt2::to_int() const {
     if (! is_int()) {
         throw std::runtime_error("The number to convert is not an integer. Got " + to_string());
     }
@@ -74,13 +71,15 @@ int Dsqrt2::to_int() const {
     return _p.num();
 }
 
-float Dsqrt2::to_float() const {return _p.to_float() + _q.to_float() * std::sqrt(2.0);}
+float Dsqrt2::to_float() const {
+    return _p.to_float() + _q.to_float() * static_cast<float>(std::sqrt(2.0));
+}
 
 
 bool Dsqrt2::operator==(const Dsqrt2& other) const {return (_p == other._p) and (_q == other._q);}
-bool Dsqrt2::operator==(const int& other) const {return (_p == other) and (_q == 0);}
+bool Dsqrt2::operator==(const long long int& other) const {return (_p == other) and (_q == 0);}
 bool Dsqrt2::operator!=(const Dsqrt2& other) const {return !(*this == other);}
-bool Dsqrt2::operator!=(const int& other) const {return !(*this == other);}
+bool Dsqrt2::operator!=(const long long int& other) const {return !(*this == other);}
 
 Dsqrt2 Dsqrt2::operator+(const Dsqrt2& other) const {return Dsqrt2(_p + other._p, _q + other._q);}
 Dsqrt2 Dsqrt2::operator-() const {return Dsqrt2(-_p, -_q);}
@@ -94,11 +93,7 @@ Dsqrt2 Dsqrt2::operator*(const Dsqrt2& other) const {
 }
 
 
-Dsqrt2 Dsqrt2::pow(int n) const {
-    if (n < 0) {
-        throw std::invalid_argument("Exponent must be positive. Got " + std::to_string(n));
-    }
-
+Dsqrt2 Dsqrt2::pow(unsigned short n) const {
     Dsqrt2 nth_power = *this;
     Dsqrt2 result(1, 0, 0, 0);
 

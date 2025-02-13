@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 import math
-from typing import Any, Iterator, Callable
+from typing import Any, Callable, Iterator
 
 import numpy as np
-
 from grid_algorithm_1D.Zsqrt2 import Zsqrt2
 
 
@@ -356,7 +355,7 @@ class Domega:
 
     def __pow__(self, power: int) -> Domega:
         """Define the power operation for the Domega class.
-        
+
         Exponent must be positive integers.
         """
         if not isinstance(power, (int, np.int32, np.int64)):
@@ -367,30 +366,36 @@ class Domega:
         for _ in range(power):
             out *= self
         return out
-    
+
     def __eq__(self, other: Any) -> bool:
         """Define the equality of the Dsqrt2 class."""
         if hasattr(other, "real"):
             if callable(other.real):
-                if not math.isclose(float(other.real()), float(self.real())): return False
-                if not math.isclose(float(other.imag()), float(self.imag())): return False
+                if not math.isclose(float(other.real()), float(self.real())):
+                    return False
+                if not math.isclose(float(other.imag()), float(self.imag())):
+                    return False
 
             else:
-                if not math.isclose(float(other.real), float(self.real())): return False
-                if not math.isclose(float(other.imag), float(self.imag())): return False
-            
+                if not math.isclose(float(other.real), float(self.real())):
+                    return False
+                if not math.isclose(float(other.imag), float(self.imag())):
+                    return False
+
             return True
 
         elif hasattr(other, "float"):
             try:
-                if not math.isclose(float(other), float(self.real())): return False
-                if float(self.imag) != 0: return False
+                if not math.isclose(float(other), float(self.real())):
+                    return False
+                if float(self.imag) != 0:
+                    return False
                 return True
-            
+
             except:
                 return TypeError("Non-comparable types")
-            
-        
+
+
 H_11 = Domega((-1, 1), (0, 0), (1, 1), (0, 0))
 T_11 = Domega((0, 0), (0, 0), (0, 0), (1, 0))
 T_12 = Domega((0, 0), (0, 0), (0, 0), (0, 0))
@@ -407,4 +412,4 @@ if __name__ == "__main__":
     print(n1)
     print((n1**0))
     print(H_11.real())
-    print(T@T@T@T)
+    print(T @ T @ T @ T)

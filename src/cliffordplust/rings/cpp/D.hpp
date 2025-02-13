@@ -30,8 +30,8 @@
  */
 class D {
     private:
-        int _num;  ///< The numerator of the fraction.
-        int _denom;  ///< The denominator's power of 2.
+        long long int _num;  ///< The numerator of the fraction.
+        unsigned short _denom;  ///< The denominator's power of 2.
 
         /**
          * @brief Reduce the fraction to its simplest form.
@@ -44,23 +44,22 @@ class D {
          * 
          * @param num The numerator of the fraction.
          * @param denom The denominator's power of 2.
-         * @throw std::invalid_argument if the denominator is negative.
          */
-        D(int num, int denom);
+        D(long long int num, unsigned short denom);
         
         /**
          * @brief Get the numerator of the fraction.
          * 
          * @return int The numerator of the fraction.
          */
-        int num() const;
+        long long int num() const;
 
         /**
          * @brief Get the denominator's power of 2.
          * 
          * @return int The denominator's power of 2.
          */
-        int denom() const;
+        unsigned short denom() const;
 
 
         /**
@@ -88,7 +87,7 @@ class D {
          * @return true If the number is equal to the integer.
          * @return false If the number is not equal to the integer.
          */
-        bool operator==(const int& other) const;
+        bool operator==(const long long int& other) const;
 
         /**
          * @brief Check if the number is not equal to another D object.
@@ -106,7 +105,7 @@ class D {
          * @return true If the number is not equal to the integer.
          * @return false If the number is equal to the integer.
          */
-        bool operator!=(const int& other) const;
+        bool operator!=(const long long int& other) const;
 
         /**
          * @brief Check if the number is less than another D object.
@@ -124,7 +123,7 @@ class D {
          * @return true If the number is less than the integer.
          * @return false If the number is not less than the integer.
          */
-        bool operator<(const int& other) const;
+        bool operator<(const long long int& other) const;
 
         /**
          * @brief Check if the number is less than or equal to another D object.
@@ -142,7 +141,7 @@ class D {
          * @return true If the number is less than or equal to the integer.
          * @return false If the number is not less than or equal to the integer.
          */
-        bool operator<=(const int& other) const;
+        bool operator<=(const long long int& other) const;
 
         /**
          * @brief Check if the number is greater than another D object.
@@ -160,7 +159,7 @@ class D {
          * @return true If the number is greater than the integer.
          * @return false If the number is not greater than the integer.
          */
-        bool operator>(const int& other) const;
+        bool operator>(const long long int& other) const;
 
         /**
          * @brief Check if the number is greater than or equal to another D object.
@@ -178,7 +177,7 @@ class D {
          * @return true If the number is greater than or equal to the integer.
          * @return false If the number is not greater than or equal to the integer.
          */
-        bool operator>=(const int& other) const;
+        bool operator>=(const long long int& other) const;
 
 
         /**
@@ -195,7 +194,7 @@ class D {
          * @param other The integer.
          * @return D The result of the addition.
          */
-        D operator+(const int& other) const;
+        D operator+(const long long int& other) const;
 
         /**
          * @brief Negate the number.
@@ -218,7 +217,7 @@ class D {
          * @param other The integer.
          * @return D The result of the subtraction.
          */
-        D operator-(const int& other) const;
+        D operator-(const long long int& other) const;
 
         /**
          * @brief Multiply the number by another D object.
@@ -234,16 +233,15 @@ class D {
          * @param other The integer.
          * @return D The result of the multiplication.
          */
-        D operator*(const int& other) const;
+        D operator*(const long long int& other) const;
 
         /**
          * @brief Raise the number to a power.
          * 
          * @param n The power.
          * @return D The result of the operation.
-         * @throw std::invalid_argument If the exponent is negative.
          */
-        D pow(int n) const;
+        D pow(unsigned short n) const;
 
 
         /**

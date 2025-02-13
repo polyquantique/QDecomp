@@ -26,10 +26,10 @@ import sys
 path_list = os.path.dirname(__file__).split(os.sep)
 sys.path.append(os.sep.join(path_list[:-3]))
 
-import platform
 import ctypes
-from Rings import *
+import platform
 
+from cliffordplust.rings import *
 
 # Import the C++ library
 platf = platform.system()
@@ -50,19 +50,19 @@ dioph_lib = ctypes.cdll.LoadLibrary(lib_file)
 class Domega_struct(ctypes.Structure):
     _fields_ = [
         ("has_solution", ctypes.c_bool),
-        ("a", ctypes.c_int),
-        ("la", ctypes.c_int),
-        ("b", ctypes.c_int),
-        ("lb", ctypes.c_int),
-        ("c", ctypes.c_int),
-        ("lc", ctypes.c_int),
-        ("d", ctypes.c_int),
-        ("ld", ctypes.c_int),
+        ("a", ctypes.c_longlong),
+        ("la", ctypes.c_ushort),
+        ("b", ctypes.c_longlong),
+        ("lb", ctypes.c_ushort),
+        ("c", ctypes.c_longlong),
+        ("lc", ctypes.c_ushort),
+        ("d", ctypes.c_longlong),
+        ("ld", ctypes.c_ushort),
     ]
 
 
 # Configure the function input and output types
-dioph_lib.solve_xi_eq_ttdag_in_d_helper.argtypes = [ctypes.c_int] * 4  # 4 integer inputs
+dioph_lib.solve_xi_eq_ttdag_in_d_helper.argtypes = [ctypes.c_longlong, ctypes.c_ushort] * 2
 dioph_lib.solve_xi_eq_ttdag_in_d_helper.restype = Domega_struct  # 1 bool and 8 integer outputs
 
 
@@ -83,12 +83,12 @@ def solve_xi_eq_ttdag_in_d_cpp(xi: Dsqrt2) -> Domega | None:
         Domega of None: A number t for which \u03BE = t * t\u2020, or None if no solution exists
     """
     # Solve the diophantine equation using the C++ library
-    res = dioph_lib.solve_xi_eq_ttdag_in_d_helper(xi.p.num, xi.p.denom, xi.q.num, xi.q.denom)
+    res = dioph_lib.solve_xi_eq_ttdag_in_d_helper(xi.a.num, xi.a.denom, xi.b.num, xi.b.denom)
 
     # If there is no solution, return None
     if not res.has_solution:
         return None
-    
+
     # Otherwise, return the solution
     return Domega(
         (res.a, res.la),
@@ -96,6 +96,3 @@ def solve_xi_eq_ttdag_in_d_cpp(xi: Dsqrt2) -> Domega | None:
         (res.c, res.lc),
         (res.d, res.ld),
     )
-
-# print(solve_xi_eq_ttdag_in_d_cpp(Dsqrt2((13, 1), (2, 1))))
-# print(solve_xi_eq_ttdag_in_d_cpp(Dsqrt2((13, 2), (2, 1))))

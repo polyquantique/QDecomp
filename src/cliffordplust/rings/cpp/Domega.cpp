@@ -20,15 +20,12 @@
 #include "Rings.hpp"
 
 
-Domega::Domega(int a, int la, int b, int lb, int c, int lc, int d, int ld)
-    : _a(a, la), _b(b, lb), _c(c, lc), _d(d, ld) {
-    if (la < 0 or lb < 0 or lc < 0 or ld < 0) {
-        throw std::invalid_argument("Denominator must be positive. Got " + 
-            std::to_string(la) + ", " + std::to_string(lb) + ", " + 
-            std::to_string(lc) + ", " + std::to_string(ld)
-        );
-    }
-}
+Domega::Domega(
+    long long int a, unsigned short la,
+    long long int b, unsigned short lb,
+    long long int c, unsigned short lc,
+    long long int d, unsigned short ld
+) : _a(a, la), _b(b, lb), _c(c, lc), _d(d, ld) {}
 
 Domega::Domega(D a, D b, D c, D d) : _a(a), _b(b), _c(c), _d(d) {}
 
@@ -38,7 +35,7 @@ const D& Domega::b() const {return _b;}
 const D& Domega::c() const {return _c;}
 const D& Domega::d() const {return _d;}
 
-const D& Domega::operator[](int i) const {
+const D& Domega::operator[](unsigned short i) const {
     switch (i) {
         case 0: return _a;
         case 1: return _b;
@@ -58,36 +55,36 @@ Domega Domega::sqrt2_conjugate() const {return Domega(-_a, _b, -_c, _d);}
 Domega Domega::complex_conjugate() const {return Domega(-_c, -_b, -_a, _d);}
 
 
-int Domega::sde() const {
-    int sde_ = 0;
-    int coeffs[4];
-    int coeffs_temp[4];
+unsigned short Domega::sde() const {
+    unsigned short sde_ = 0;
+    long long int coeffs[4];
+    long long int coeffs_temp[4];
 
     if (is_D() and _d == 0) {throw std::runtime_error("The sde of zero is undefined.");}
 
     if (! is_Zomega()) {  // At least one of the coefficients is not an integer.
-        int k_max = std::max(std::max(_a.denom(), _b.denom()), std::max(_c.denom(), _d.denom()));
-        for (int i=1; i<4; i++) {
+        unsigned short k_max = std::max(std::max(_a.denom(), _b.denom()), std::max(_c.denom(), _d.denom()));
+        for (unsigned short i=0; i<4; i++) {
             coeffs[i] = operator[](i).num() << (k_max - operator[](i).denom());
         }
         sde_ = 2 * k_max;
     } else {
-        for (int i=1; i<4; i++) {coeffs[i] = operator[](i).num();}
+        for (unsigned short i=0; i<4; i++) {coeffs[i] = operator[](i).num();}
 
         while (!(coeffs[0] & 1) or !(coeffs[1] & 1) or !(coeffs[2] & 1) or !(coeffs[3] & 1)) {
-            for (int i=0; i<4; i++) {coeffs[i] >>= 1;}
+            for (unsigned short i=0; i<4; i++) {coeffs[i] >>= 1;}
             sde_ -= 2;
         }
     }
     
     while ( ((coeffs[0]&1) == (coeffs[2]&1)) and ((coeffs[1]&1) == (coeffs[3]&1)) ) {
-        for (int i=0; i<4; i++) {
+        for (unsigned short i=0; i<4; i++) {
             coeffs_temp[0] = (coeffs[1] - coeffs[3]) >> 1;
             coeffs_temp[1] = (coeffs[2] + coeffs[0]) >> 1;
             coeffs_temp[2] = (coeffs[1] + coeffs[3]) >> 1;
             coeffs_temp[3] = (coeffs[2] - coeffs[0]) >> 1;
 
-            for (int i=0; i<4; i++) {coeffs[i] = coeffs_temp[i];}
+            for (unsigned short j=0; i<4; i++) {coeffs[j] = coeffs_temp[j];}
             sde_--;
         }
     }
@@ -97,7 +94,7 @@ int Domega::sde() const {
 
 
 bool Domega::is_Zomega() const {
-    for (int i=0; i<4; i++) {
+    for (unsigned short i=0; i<4; i++) {
         if ( !(operator[](i).is_int()) ) {return false;}
     }
     return true;
@@ -141,7 +138,7 @@ D Domega::to_D() const {
     return _d;
 }
 
-int Domega::to_int() const {
+long long int Domega::to_int() const {
     if (! is_int()) {
         throw std::runtime_error("The number to convert is not an integer. Got " + to_string());
     }
@@ -154,19 +151,19 @@ bool Domega::operator==(const Domega& other) const {
     return (_a == other._a) and (_b == other._b) and (_c == other._c) and (_d == other._d);
 }
 
-bool Domega::operator==(const int& other) const {return is_int() and (_d == other);}
+bool Domega::operator==(const long long int& other) const {return is_int() and (_d == other);}
 bool Domega::operator!=(const Domega& other) const {return !(*this == other);}
-bool Domega::operator!=(const int& other) const {return !(*this == other);}
+bool Domega::operator!=(const long long int& other) const {return !(*this == other);}
 
 
 Domega Domega::operator+(const Domega& other) const {
     return Domega(_a + other._a, _b + other._b, _c + other._c, _d + other._d);
 }
 
-Domega Domega::operator+(const int& other) const {return Domega(_a, _b, _c, _d + other);}
+Domega Domega::operator+(const long long int& other) const {return Domega(_a, _b, _c, _d + other);}
 Domega Domega::operator-() const {return Domega(-_a, -_b, -_c, -_d);}
 Domega Domega::operator-(const Domega& other) const {return *this + (-other);}
-Domega Domega::operator-(const int& other) const {return *this + (-other);}
+Domega Domega::operator-(const long long int& other) const {return *this + (-other);}
 
 Domega Domega::operator*(const Domega& other) const {
     D a =  (_a * other._d) + (_b * other._c) + (_c * other._b) + (_d * other._a);
@@ -177,13 +174,9 @@ Domega Domega::operator*(const Domega& other) const {
     return Domega(a, b, c, d);
 }
 
-Domega Domega::operator*(const int& other) const {return Domega(_a * other, _b * other, _c * other, _d * other);}
+Domega Domega::operator*(const long long int& other) const {return Domega(_a * other, _b * other, _c * other, _d * other);}
 
-Domega Domega::pow(int n) const {
-    if (n < 0) {
-        throw std::invalid_argument("The exponent must be positive. Got " + std::to_string(n));
-    }
-
+Domega Domega::pow(unsigned short n) const {
     Domega nth_power = *this;
     Domega result(0, 0, 0, 0, 0, 0, 1, 0);
 
