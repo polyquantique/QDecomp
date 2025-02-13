@@ -13,7 +13,7 @@
 #    limitations under the License.
 
 """
-This file contains the functions solve_grid_problem_1d and plot_grid_problem.
+This file contains the functions solve_grid_problem_1d and solve_grid_problem_2d.
 
 1) solve_grid_problem_1d
 Given two real closed intervals A and B, solve_grid_problem_1d finds all the solutions alpha in 
@@ -22,43 +22,43 @@ of alpha is in B. This function is a sub-algorithm to solve 2D grid problems for
 rectangles. For more information, see
 Neil J. Ross and Peter Selinger, Optimal ancilla-free Clifford+T approximation of z-rotations, https://arxiv.org/pdf/1403.2975
 
-2) plot_grid_problem
-The function plot_grid_problem plots the solutions of the grid problem for the intervals A and B and their 
-conjugate on the real axis. The plot also contains the intervals A and B.
+2) solve_grid_problem_2d
+Given two upright rectangles A and B in the complex plane, solve_grid_problem_2d finds all the solutions alpha in the ring of 
+cyclotomic integers with radicand 2 \u2124[\u03C9] such that alpha is in A and the \u221A2-conjugate of alpha is in B. 
+The solutions are used as candidates for the Clifford+T approximation of z-rotation gates.
 """
 
 from __future__ import annotations
 
 import math
-import numbers as num
-import os
 from collections.abc import Sequence
-from pathlib import Path
-from typing import Optional
 
-import matplotlib.pyplot as plt
 import numpy as np
+from cliffordplust.rings import INVERSE_LAMBDA, LAMBDA, Zomega, Zsqrt2
+from numpy.typing import NDArray
 
-from cliffordplust.rings import Zsqrt2, INVERSE_LAMBDA, LAMBDA
+SQRT2 = math.sqrt(2)
+
+__all__ = ["solve_grid_problem_1d", "solve_grid_problem_2d"]
 
 
-def solve_grid_problem_1d(A: Sequence[float | int], B: Sequence[float | int]) -> list[Zsqrt2]:
-    """Solves the 1 dimensional grid problem for two sets and returns the result.
+def solve_grid_problem_1d(
+    A: Sequence[float] | NDArray[np.floating], B: Sequence[float] | NDArray[np.floating]
+) -> list[Zsqrt2]:
+    """Solve the 1-dimensional grid problem for two intervals and return the result.
 
-    Given two real closed sets A and B, this function finds all the solutions x in the ring \u2124[\u221A2] such that
-    x is in A and the \u221A2-conjugate of x is in B.
+    Given two real closed intervals A and B, find all the solutions x in the ring \u2124[\u221A2] such that
+    x \u2208 A and \u221A2-conjugate(x) \u2208 B.
 
     Args:
-        A (Sequence[float | int]): Bounds of the first interval.
-        B (Sequence[float | int]): Bounds of the second interval.
+        A (Sequence[float, float]): (A0, A1): Bounds of the first interval.
+        B (Sequence[float, float]): (B0, B1): Bounds of the second interval.
 
     Returns:
         list[Zsqrt2]: The list of solutions to the grid problem.
 
     Raises:
-        TypeError: If A and B intervals are not sequences of length 2.
-        TypeError: If intervals limits are not real numbers.
-        ValueError: If intervals limits are not in ascending order.
+        TypeError: If intervals A and B are not real sequences of length 2.
     """
     for interval in (A, B):
         if not isinstance(interval, (Sequence, np.ndarray)):
@@ -90,8 +90,8 @@ def solve_grid_problem_1d(A: Sequence[float | int], B: Sequence[float | int]) ->
 
     # Interval in which to find b (√2 coefficient of the ring element)
     b_interval_scaled: list[float] = [
-        (A_scaled[0] - B_scaled[1]) / math.sqrt(8),
-        (A_scaled[1] - B_scaled[0]) / math.sqrt(8),
+        (A_scaled[0] - B_scaled[1]) / SQRT2**3,
+        (A_scaled[1] - B_scaled[0]) / SQRT2**3,
     ]
 
     # Integers in the interval
@@ -109,8 +109,8 @@ def solve_grid_problem_1d(A: Sequence[float | int], B: Sequence[float | int]) ->
     for bi in range(b_start, b_end + 1):
         # Interval to look for a (Integer coefficient of the ring element)
         a_interval_scaled: list[float] = [
-            A_scaled[0] - bi * math.sqrt(2),
-            A_scaled[1] - bi * math.sqrt(2),
+            A_scaled[0] - bi * SQRT2,
+            A_scaled[1] - bi * SQRT2,
         ]
         for index, bound in enumerate(a_interval_scaled):
             if math.isclose(bound, round(bound)):
@@ -139,75 +139,55 @@ def solve_grid_problem_1d(A: Sequence[float | int], B: Sequence[float | int]) ->
     return alpha
 
 
-def plot_grid_problem(
-    A: Sequence[float | int],
-    B: Sequence[float | int],
-    solutions: Sequence[Zsqrt2],
-    show: Optional[bool] = False,
-) -> None:
-    """Plot the solutions of the 1D grid problem on the real axis.
+def solve_grid_problem_2d(
+    A: Sequence[Sequence[float]] | NDArray[np.floating],
+    B: Sequence[Sequence[float]] | NDArray[np.floating],
+) -> list[Zomega]:
+    """
+    Solve the 2-dimensional grid problem for two upright rectangle and return the result.
 
-    Given the two real intervals A and B and the solution to their 1D grid problems,
-    plot the solutions and their conjugate on the real axis.
+    Given two real 2D closed sets A and B of the form [a b] x [c, d], find all the solutions x in \u2124[\u03C9] such that x \u2208 A and \u221a2-conjugate(x) \u2208 B.
 
     Args:
-        A (Sequence[float | int]): Bounds of the first interval.
-        B (Sequence[float | int]): Bounds of the second interval.
-        solutions (Sequence[Zsqrt2]): Solutions of the 1D grid problem for A and B in \u2124[\u221A2].
-        show (bool, optional): If set to True, show the plot in a window. Default = False.
+        A (Sequence[Sequence[float, float]]): ((A0, A1), (A2, A3)): Bounds of the first upright rectangle. Rows correspond to the x and y axis respectively.
+        B (Sequence[Sequence[float, float]]): ((B0, B1), (B2, B3)): Bounds of the second upright rectangle. Rows correspond to the x and y axis respectively.
+
+    Returns:
+        list[Zomega]: The list of solutions to the grid problem.
 
     Raises:
-        TypeError: If A and B intervals are not sequences of length 2.
-        TypeError: If intervals limits are not real numbers.
-        ValueError: If intervals limits are not in ascending order.
-        TypeError: If solutions are not a sequence of Zsqrt2 objects.
+        TypeError: If intervals A and B are not real 2x2 matrices.
     """
-    for interval in (A, B):
-        if not isinstance(interval, (Sequence, np.ndarray)):
-            raise TypeError(
-                f"Expected input intervals to be sequences of length 2 but got {interval}"
-            )
-        elif len(interval) != 2:
-            raise TypeError(
-                f"Expected input intervals to be sequences of length 2 but got {interval}"
-            )
-        elif not all([isinstance(bound, num.Real) for bound in interval]):
-            raise TypeError("Interval limits must be real numbers.")
-        elif interval[0] >= interval[1]:
-            raise ValueError(f"Interval bounds must be in ascending order, but got {interval}.")
-    if not isinstance(solutions, (Sequence, np.ndarray)):
-        raise TypeError(f"Expected solutions to be subscriptable, but got {solutions}.")
-    if not all([isinstance(solution, Zsqrt2) for solution in solutions]):
-        raise TypeError("Solutions must be Zsqrt2 objects.")
+    try:
+        # Define the intervals for A and B rectangles.
+        Ax: np.ndarray = np.asarray(A[0], dtype=float)
+        Ay: np.ndarray = np.asarray(A[1], dtype=float)
+        Bx: np.ndarray = np.asarray(B[0], dtype=float)
+        By: np.ndarray = np.asarray(B[1], dtype=float)
+        for interval in (Ax, Ay, Bx, By):
+            if interval.shape != (2,):
+                raise TypeError(
+                    f"Input intervals must have two bounds (lower, upper) but received {interval}."
+                )
+            interval.sort()
+    except (TypeError, ValueError) as e:
+        raise TypeError(f"Input intervals must be real 2x2 matrices.\nOrigin: {e}") from e
 
-    plt.figure(figsize=(8, 3))
-    plt.axhline(color="k", linestyle="--", linewidth=0.7)
-    plt.axvline(color="k", linestyle="--", linewidth=0.7)
-    plt.grid(axis="x", which="both")
-    plt.scatter(
-        [float(i) for i in solutions],
-        [0] * len(solutions),
-        color="blue",
-        s=25,
-        label=r"$\alpha$",
-    )
-    plt.scatter(
-        [float(i.sqrt2_conjugate()) for i in solutions],
-        [0] * len(solutions),
-        color="red",
-        s=20,
-        marker="x",
-        label=r"$\alpha^\bullet$",
-    )
-    plt.ylim((-1, 1))
-    plt.axvspan(A[0], A[1], color="blue", alpha=0.2, label="A")
-    plt.axvspan(B[0], B[1], color="red", alpha=0.2, label="B")
-    plt.title(f"Solutions for the 1 dimensional grid problem for A = {list(A)} and B = {list(B)}")
-    plt.yticks([])
-    plt.legend()
-    if show:
-        plt.show()
-    else:
-        save_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Solutions")
-        Path(save_path).mkdir(parents=True, exist_ok=True)
-        plt.savefig(os.path.join(save_path, "solutions.png"), dpi=200)
+    # List of solutions.
+    solutions: list[Zomega] = []
+
+    # Solve two 1D grid problems for solutions of the form a + bi, where a and b are in Z[√2].
+    alpha: list[Zsqrt2] = solve_grid_problem_1d(Ax, Bx)
+    beta: list[Zsqrt2] = solve_grid_problem_1d(Ay, By)
+    for a in alpha:
+        for b in beta:
+            solutions.append(Zomega(a=b.b - a.b, b=b.a, c=b.b + a.b, d=a.a))
+
+    # Solve two 1D grid problems for solutions of the form a + bi + ω, where a and b are in Z[√2] and ω = (1 + i)/√2.
+    alpha2: list[Zsqrt2] = solve_grid_problem_1d(Ax - 1 / SQRT2, Bx + 1 / SQRT2)
+    beta2: list[Zsqrt2] = solve_grid_problem_1d(Ay - 1 / SQRT2, By + 1 / SQRT2)
+    for a in alpha2:
+        for b in beta2:
+            solutions.append(Zomega(b.b - a.b, b.a, b.b + a.b + 1, a.a))
+
+    return solutions

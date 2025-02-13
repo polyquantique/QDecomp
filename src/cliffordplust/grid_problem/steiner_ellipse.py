@@ -1,4 +1,4 @@
-# Copyright 2022-2023 Olivier Romain, Francis Blais, Vincent Girouard, Marius Trudeau
+# Copyright 2024-2025 Olivier Romain, Francis Blais, Vincent Girouard, Marius Trudeau
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -13,62 +13,75 @@
 #    limitations under the License.
 
 """
-This module allow to find the smallest ellipse englobing three points using the Steiner algorithm.
-The module also contains useful functions allowing to plot an ellipse, find its bounding box (BBOX)
-and determine wether points are inside an ellipse using its matrix definition.
+This module allows to find the smallest ellipse englobing three points using the Steiner algorithm.
+The module also contains useful functions allowing find the bounding box (BBOX) of an ellipse and
+determine wether points are inside an ellipse using its matrix definition.
 
 See this page for more information:
 https://en.wikipedia.org/wiki/Steiner_ellipse
 """
 
-import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.patches import Rectangle
 
 
-def steiner_ellipse_def(p1, p2, p3):
+def assert_steiner_ellipse(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> None:
+    """
+    Check if the three given points can be used to define a Steiner ellipse. The three points must
+    be distinct and non-collinear to define a valid ellipse. If the points are not valid, a
+    ValueError is raised.
+
+    Args:
+        p1 (list[float]): First point
+        p2 (list[float]): Second point
+        p3 (list[float]): Third point
+
+    Raises:
+        ValueError: If at least two of the points are the same
+        ValueError: If the three points are collinear
+    """
+    # Ensure all three points are distinct
+    if (p1 == p2).all() or (p1 == p3).all() or (p2 == p3).all():
+        raise ValueError("The three points must be distinct.")
+
+    # Ensure the points are not collinear
+    delta1 = p2 - p1
+    delta2 = p3 - p2
+
+    if (delta1[0] != 0) and (delta2[0] != 0):
+        # Avoid division by 0 for slope calculations
+        slope1 = delta1[1] / delta1[0]
+        slope2 = delta2[1] / delta2[0]
+        if slope1 == slope2:
+            raise ValueError("The three points must not be collinear.")
+
+    else:
+        # Handle vertical lines to ensure they are not collinear
+        if (delta1[0] == 0) and (delta2[0] == 0):
+            raise ValueError("The three points must not be collinear.")
+
+
+def steiner_ellipse_def(
+    p1: list[float], p2: list[float], p3: list[float]
+) -> tuple[np.ndarray, np.ndarray]:
     """
     Calculates the smallest ellipse that passes through the three given points using the Steiner
     method. The ellipse is represented by the equation (u − p)† D (u − p) <= 1, where p is the
     center of the ellipse and D is a matrix that defines its shape and orientation. p1, p2, p3 can
     be any iterable containing real numbers.
 
-    :param p1: First point (2D coordinates)
-    :param p2: Second point (2D coordinates)
-    :param p3: Third point (2D coordinates)
-    :return: D matrix (defines the shape and orientation of the ellipse), p (center of the ellipse)
+    Args:
+        p1 (list[float]): First point
+        p2 (list[float]): Second point
+        p3 (list[float]): Third point
+
+    Returns:
+        typle[np.ndarray, np.ndarray]: D matrix (defines the shape and orientation of the ellipse), p (center of the ellipse)
     """
     # Convert the points to numpy arrays
     p1_, p2_, p3_ = np.array(p1), np.array(p2), np.array(p3)
 
     # Check that the ellipse can be defined by the three points
-    # ---------------------------------------------------------
-
-    # Ensure all three points are distinct
-    if (p1_ == p2_).all() or (p1_ == p3_).all() or (p2_ == p3_).all():
-        raise ValueError("The three points must be distinct.")
-
-    # Ensure the points are not collinear
-    delta1 = p2_ - p1_
-    delta2 = p3_ - p2_
-
-    collin_error = False  # Flag to raise an error
-    if (delta1[0] != 0) and (delta2[0] != 0):
-        # Avoid division by 0 for slope calculations
-        slope1 = delta1[1] / delta1[0]
-        slope2 = delta2[1] / delta2[0]
-        if slope1 == slope2:
-            collin_error = True
-
-    else:
-        # Handle vertical lines to ensure they are not collinear
-        if (delta1[0] == 0) and (delta2[0] == 0):
-            collin_error = True
-
-    if collin_error:
-        raise ValueError("The three points must not be collinear.")
-
-    # -------------------------------------------------------------
+    assert_steiner_ellipse(p1_, p2_, p3_)
 
     # Calculate the center of the ellipse
     p = (p1_ + p2_ + p3_) / 3  # Center of the ellipse
@@ -108,31 +121,43 @@ def steiner_ellipse_def(p1, p2, p3):
     return D, p
 
 
-def is_inside_ellipse(u, D, p):
+NestedList = list[float] | list["NestedList"]
+
+
+def is_inside_ellipse(u: NestedList, D: np.ndarray, p: np.ndarray) -> np.ndarray:
     """
     Check if a point u (or an array of points) is inside the ellipse defined by matrix D and center
     p. The function works for both single points and arrays of points, where the last dimension of u
     must be the same as the number of dimensions of the ellipse.
 
-    :param u: The point(s) to be tested, an array of shape (..., n_dim)
-    :param D: Matrix defining the ellipse's shape and orientation
-    :param p: Center of the ellipse
-    :return: A boolean array indicating if each point is inside the ellipse
+    Args:
+        u (NestedList): The point(s) to be tested, an array of shape (..., n_dim)
+        D (np.ndarray): Matrix defining the ellipse's shape and orientation
+        p (np.ndarray): Center of the ellipse
+
+    Returns:
+        np.ndarray: A boolean array indicating if each point is inside the ellipse
+
+    Raises:
+        IndexError: If the dimensions of the D and p arguments are incompatible
+        IndexError: If the last dimension of the points to test is different from the number of
+            dimensions of the ellipse
     """
     u_ = np.array(u)
 
     # Test that the dimensions of the arguments are compatible
     n_dim = len(p)
+
     if D.shape != (n_dim, n_dim):
         raise IndexError(
-            f"The matrix definition (shape {D.shape}) and center (shape {p.shape}) \
-must have compatible dimensions."
+            f"The matrix definition (shape {D.shape}) and center (shape {p.shape}) must have "
+            + "compatible dimensions."
         )
 
     if u_.shape[-1] != n_dim:
         raise IndexError(
-            f"The last dimension of the points to test (shape {u_.shape[-1]}) must be \
-the same than the number of dimensions of the ellipse (shape {len(p)})."
+            f"The last dimension of the points to test (shape {u_.shape[-1]}) must be the same "
+            + "than the number of dimensions of the ellipse (shape {len(p)})."
         )
 
     # Determine which points are inside the ellipse
@@ -142,19 +167,21 @@ the same than the number of dimensions of the ellipse (shape {len(p)})."
     return is_inside
 
 
-def ellipse_bbox(D, p):
+def ellipse_bbox(D: np.ndarray, p: np.ndarray) -> np.ndarray:
     """
     Find the axis-aligned bounding box (BBOX) of an ellipse.
 
     See this link for the algorithm (comment from Rodrigo de Azevedo on November 30th, 2020):
     https://math.stackexchange.com/questions/3926884/smallest-axis-aligned-bounding-box-of-hyper-ellipsoid
 
-    :param D: Matrix defining the ellipse's shape and orientation
-    :param p: Center of the ellipse
+    Args:
+        D (np.ndarray): Matrix defining the ellipse's shape and orientation
+        p (np.ndarray): Center of the ellipse
 
-    :return: A numpy array of shape (n_dim, 2) representing the bounding box. The first index
-    corresponds to each spatial dimension (e.g., x, y, ...), and the second index contains the
-    minimum and maximum bounds along that dimension.
+    Returns:
+        np.ndarray: A numpy array of shape (n_dim, 2) representing the bounding box. The first index
+        corresponds to each spatial dimension (e.g., x, y, ...), and the second index contains the
+        minimum and maximum bounds along that dimension.
     """
     D_inv = np.linalg.inv(D)  # Inverse of D
     diag = np.diagonal(D_inv)  # Vector with the diagonal values of D_inv
@@ -163,52 +190,3 @@ def ellipse_bbox(D, p):
     bbox = np.outer(np.sqrt(diag), np.array([-1, 1])) + np.outer(p, np.ones(n_dim))  # BBOX
 
     return bbox
-
-
-def plot_ellipse(D, p, points=None):
-    """
-    Plot the ellipse defined by matrix D and center p. The function also plots the BBOX of the
-    ellipse and its center. Moreover, the (optional) points to plot are cyan if they lie inside the
-    ellipse of magenta if they are not.
-
-    :param D: Matrix defining the ellipse's shape and orientation
-    :param p: Center of the ellipse
-    :param points: Points to plot
-    """
-    # Find the BBOX of the ellipse
-    bbox = ellipse_bbox(D, p)  # BBOX of the ellipse
-    edges = bbox[:, 1] - bbox[:, 0]  # Length of the edges of the BBOX
-
-    # Generate a grid for visualizing the ellipse's interior region
-    density = 200
-    x = np.linspace(*(bbox[0] + edges[0] * np.array([-0.2, 0.2])), density)
-    y = np.linspace(*(bbox[1] + edges[1] * np.array([-0.2, 0.2])), density)
-    x_mesh, y_mesh = np.meshgrid(x, y)
-    point_mesh = np.stack([x_mesh, y_mesh], axis=-1)
-
-    # Determine which points of the meshgrid lie inside the ellipse
-    in_ellipse = is_inside_ellipse(point_mesh, D, p)
-
-    # Plot the meshgrid
-    plt.pcolormesh(x_mesh, y_mesh, in_ellipse, cmap="Wistia")  # Ellipse region
-    plt.scatter(*p, marker="*", color="b", label="Center")  # Center of the ellipse
-
-    # Plot the points (if given)
-    if points is not None:  # Convert points into a numpy array
-        points_ = np.array(points)
-        color = np.full(points_.shape[:-1], fill_value="m")
-        color[is_inside_ellipse(points_, D, p)] = "c"
-        plt.scatter(points_[:, 0], points_[:, 1], marker="x", c=color, label="Points")
-
-    # Plot the BBOX of the ellipse
-    rect = Rectangle(
-        p - edges / 2, *edges, linewidth=1, edgecolor="g", facecolor="none", label="BBOX"
-    )
-    plt.gca().add_patch(rect)
-
-    # Appearance
-    plt.title("Plot of the ellipse")
-    plt.legend()
-    plt.axis("equal")
-    plt.show()
-

@@ -1,15 +1,27 @@
+# Copyright 2024-2025 Olivier Romain, Francis Blais, Vincent Girouard, Marius Trudeau
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
 import math
 
+import cliffordplust.rings as r
 import numpy as np
 import pytest
-
-import cliffordplust.rings as r
 from cliffordplust.rings import Domega
 
 OMEGA = (1 + 1.0j) / math.sqrt(2)
-
 SQRT2_DOMEGA = Domega.from_ring(r.Zsqrt2(0, 1))
-INV_DOMEGA = Domega((-1, 1), (0, 0), (1, 1), (0, 0))
+INV_SQRT2_DOMEGA = Domega((-1, 1), (0, 0), (1, 1), (0, 0))
 
 
 @pytest.mark.parametrize(
@@ -18,17 +30,21 @@ INV_DOMEGA = Domega((-1, 1), (0, 0), (1, 1), (0, 0))
         Domega((0, 0), (0, 0), (0, 0), (0, 0)),
         Domega((1, 1), (1, 1), (1, 1), (1, 1)),
         Domega((-1, 1), (-1, 1), (1, 1), (1, 1)),
-        Domega((1, 2), (-5, 4), (1, 2), (-27, 4)),
+        Domega((1, 2), (-5, 4), (17, 5), (-27, 4)),
         Domega((-55, 14), (77, 23), (36, 71), (-41, 94)),
         Domega((131, 211), (23, 43), (-73, 43), (41, 94)),
     ],
 )
 def test_real(n):
-    """Test the real method of Domega"""
-    real = (
-        float(n.a) * OMEGA**3 + float(n.b) * OMEGA**2 + float(n.c) * OMEGA + float(n.d)
-    ).real
+    """Test the real value of the Domegea class."""
+    real = (float(n.a) * OMEGA**3 + float(n.b) * OMEGA**2 + float(n.c) * OMEGA + float(n.d)).real
     assert np.isclose(n.real(), real)
+
+
+def test_real_small_value():
+    """Test the real value of a small Domega number."""
+    n = Domega((-3, 4), (0, 0), (3, 4), (-1, 2))
+    assert np.isclose((n**10).real(), (complex(n) ** 10).real)
 
 
 @pytest.mark.parametrize(
@@ -43,11 +59,15 @@ def test_real(n):
     ],
 )
 def test_imag(n):
-    """Test the imag method of Domega"""
-    imag = (
-        float(n.a) * OMEGA**3 + float(n.b) * OMEGA**2 + float(n.c) * OMEGA + float(n.d)
-    ).imag
+    """Test the imaginary value of the Domega class."""
+    imag = (float(n.a) * OMEGA**3 + float(n.b) * OMEGA**2 + float(n.c) * OMEGA + float(n.d)).imag
     assert np.isclose(n.imag(), imag)
+
+
+def test_imag_small_value():
+    """Test the imaginary value of a small Domega number."""
+    n = Domega((3, 4), (-1, 2), (3, 4), (0, 0))
+    assert np.isclose((n**9).imag(), (complex(n) ** 9).imag)
 
 
 @pytest.mark.parametrize(
@@ -59,13 +79,12 @@ def test_imag(n):
         Domega((1, 2), (-5, 4), (1, 2), (-27, 4)),
         Domega((-55, 14), (77, 23), (36, 71), (-41, 94)),
         Domega((131, 211), (23, 43), (-73, 43), (41, 94)),
+        Domega((-3, 4), (0, 0), (3, 4), (-1, 2)),
     ],
 )
 def test_complex(n):
-    """Test the complex method of Domega"""
-    complex_value = (
-        float(n.a) * OMEGA**3 + float(n.b) * OMEGA**2 + float(n.c) * OMEGA + float(n.d)
-    )
+    """Test the complex value of the Domega class."""
+    complex_value = float(n.a) * OMEGA**3 + float(n.b) * OMEGA**2 + float(n.c) * OMEGA + float(n.d)
     assert np.isclose(complex(n), complex_value)
 
 
@@ -189,6 +208,7 @@ def test_multiplication(n1, n2):
         Domega((1, 2), (-5, 4), (1, 2), (-27, 4)),
         Domega((-55, 14), (77, 23), (36, 71), (-41, 94)),
         Domega((131, 211), (23, 43), (-73, 43), (41, 94)),
+        Domega((-3, 4), (0, 0), (3, 4), (-1, 2)),
     ],
 )
 @pytest.mark.parametrize("exp", [0, 1, 3, 6, 10])
@@ -202,7 +222,7 @@ def test_power(base, exp):
 
 
 def test_sqrt2_conjugate():
-    """Test the sqrt2-conjugate method of the class Domega."""
+    """Test the √2-conjugate method of the class Domega."""
     n = Domega((1, 2), (3, 4), (-5, 6), (-7, 8))
     assert n.sqrt2_conjugate() == Domega((-1, 2), (3, 4), (5, 6), (-7, 8))
 
@@ -215,7 +235,7 @@ def test_complex_conjugate():
 
 
 def test_init_type_error_tuple():
-    """Test the type errors of the Domega class."""
+    """Test the raise of a TypeError when initializing Domega with a tuple that has wrong entries."""
     with pytest.raises(TypeError, match="Tuples must take two integer values"):
         Domega((1, 1), (1, 1), (1, 1), (1, 1.0))
     with pytest.raises(TypeError, match="Tuples must take two integer values"):
@@ -225,7 +245,7 @@ def test_init_type_error_tuple():
 
 
 def test_init_value_error():
-    """Test the value errors of the Domega class."""
+    """Test the raise of a ValueError when a denominator exponent is negative."""
     with pytest.raises(ValueError, match="Denominator exponent must be positive"):
         Domega((1, 1), (1, -1), (1, 1), (1, 1))
     with pytest.raises(ValueError, match="Denominator exponent must be positive"):
@@ -233,10 +253,10 @@ def test_init_value_error():
 
 
 def test_init_type_error_wrong_type():
-    """Test the type errors of the Domega class."""
-    with pytest.raises(TypeError, match="lass arguments must be of type tuple"):
+    """Test the raise of a TypeError when class arguments are not tuple or D objects."""
+    with pytest.raises(TypeError, match="Class arguments must be of type tuple"):
         Domega(1, 1, 1, 1)
-    with pytest.raises(TypeError, match="lass arguments must be of type tuple"):
+    with pytest.raises(TypeError, match="Class arguments must be of type tuple"):
         Domega([1, 1], (1, 1), (1, 1), (1, 1))
 
 
@@ -247,15 +267,15 @@ def test_init_type_error_wrong_type():
         Domega((0, 0), (0, 0), (0, 0), (0, 0)),
         Domega((-1, 1), (-1, 1), (1, 1), (1, 1)),
         Domega((1, 2), (-5, 4), (1, 2), (-27, 4)),
-        Domega((10, 11), (12, 13), (14, 15), (16, 17)),
+        Domega((13, 11), (15, 13), (17, 15), (19, 17)),
         Domega.from_ring(r.Zsqrt2(0, 2)),
         Domega.from_ring(r.Zsqrt2(2, 8)),
         Domega.from_ring(r.Zomega(4, 8, 6, 12)),
     ],
 )
 def test_sde(n):
-    """Test the sde method of Domega."""
-    factor = lambda sde: SQRT2_DOMEGA**sde if sde >= 0 else INV_DOMEGA ** (-sde)
+    """Test the computation of the smallest denominator exponent."""
+    factor = lambda sde: SQRT2_DOMEGA**sde if sde >= 0 else INV_SQRT2_DOMEGA ** (-sde)
     sde = n.sde()
     if n == 0:
         assert sde == -math.inf
@@ -275,42 +295,43 @@ def test_sde(n):
     ],
 )
 def test_repr(n):
-    """Test the repr method of Domega."""
-    assert repr(n[0]) == n[1]
+    """Test the string representation of Domega intances."""
+    assert str(n[0]) == n[1]
+
 
 
 def test_addition_type_errors():
-    """Test the type errors of the addition method of the class Domega."""
-    with pytest.raises(TypeError, match="Summation operation is not defined between Domega and"):
+    """Test the raise of a TypeError when the Domega class is summed with the wrong type."""
+    with pytest.raises(TypeError, match="Summation is not defined between Domega and"):
         Domega((1, 1), (1, 1), (1, 1), (1, 1)) + 1.0j
-    with pytest.raises(TypeError, match="Summation operation is not defined between Domega and"):
+    with pytest.raises(TypeError, match="Summation is not defined between Domega and"):
         Domega((1, 1), (1, 1), (1, 1), (1, 1)) + 1.0
 
 
 def test_subtraction_type_errors():
-    """Test the type errors of the subtraction method of the class Domega."""
-    with pytest.raises(TypeError, match="Subtraction operation is not defined between Domega and"):
+    """Test the raise of a TypeError when the Domega class is subtracted with the wrong type."""
+    with pytest.raises(TypeError, match="Subtraction is not defined between Domega and"):
         Domega((1, 1), (1, 1), (1, 1), (1, 1)) - 1.0j
-    with pytest.raises(TypeError, match="Subtraction operation is not defined between Domega and"):
+    with pytest.raises(TypeError, match="Subtraction is not defined between Domega and"):
         Domega((1, 1), (1, 1), (1, 1), (1, 1)) - 1.0
 
 
 def test_multiplication_type_errors():
-    """Test the type errors of the multiplication method of the class Domega."""
-    with pytest.raises(TypeError, match="Product operation is not defined between Domega and"):
+    """Test the raise of a TypeError when the Domega class is multiplied with the wrong type."""
+    with pytest.raises(TypeError, match="Product is not defined between Domega and"):
         Domega((1, 1), (1, 1), (1, 1), (1, 1)) * 1.0j
-    with pytest.raises(TypeError, match="Product operation is not defined between Domega and"):
+    with pytest.raises(TypeError, match="Product is not defined between Domega and"):
         Domega((1, 1), (1, 1), (1, 1), (1, 1)) * 1.0
 
 
 def test_power_type_errors():
-    """Test the type errors of the power method of the class Domega."""
+    """Test the raise of a TypeError when the exponent is not an integer."""
     with pytest.raises(TypeError, match="Exponent must be an integer, but received"):
         Domega((1, 1), (1, 1), (1, 1), (1, 1)) ** 1.0
 
 
 def test_power_value_errors():
-    """Test the value errors of the power method of the class Domega."""
+    """Test the raise of a ValueError when the exponent is negative."""
     with pytest.raises(ValueError, match="Expected exponent to be a positive integer"):
         Domega((1, 1), (1, 1), (1, 1), (1, 1)) ** -1
 
@@ -332,18 +353,18 @@ def test_from_ring(n):
     assert Domega.from_ring(n[0]) == n[1]
 
 
-def test_get_item():
-    """Test the get item method of a Domega instance."""
+def test_getitem():
+    """Test the getitem method of a Domega instance."""
     n = Domega((1, 2), (3, 4), (-5, 6), (7, 8))
     assert n[0] == r.D(1, 2) and n[1] == r.D(3, 4) and n[2] == r.D(-5, 6) and n[3] == r.D(7, 8)
 
 
 def test_from_ring_value_errors():
-    """Test the value errors of the from_ring method of the class Domega."""
+    """Test the raise of a ValueError when the from_ring method cannot perform the conversion."""
     with pytest.raises(ValueError, match="Cannot convert"):
         Domega.from_ring(1.0)
     with pytest.raises(ValueError, match="Cannot convert"):
-        Domega.from_ring(1 + 1.5 * 1.0j)
+        Domega.from_ring(1 + 1.5j)
     with pytest.raises(ValueError, match="Cannot convert"):
         Domega.from_ring("1")
 

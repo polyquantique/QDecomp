@@ -1,13 +1,26 @@
+# Copyright 2024-2025 Olivier Romain, Francis Blais, Vincent Girouard, Marius Trudeau
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+"""Test the Zsqrt2 class."""
+
 import math
 
 import pytest
-
 from cliffordplust import rings as r
 from cliffordplust.rings import Zsqrt2
 
 ZSQRT2 = math.sqrt(2)
-
-"""Test the Zsqrt2 class."""
 
 
 @pytest.mark.parametrize(
@@ -25,6 +38,12 @@ ZSQRT2 = math.sqrt(2)
 def test_float(n):
     """Test the float value of the Zsqrt2 class."""
     assert math.isclose(n.a + n.b * ZSQRT2, float(n))
+
+
+def test_float_small_numbers():
+    """Test the float value of small Zsqrt2 numbers."""
+    n = Zsqrt2(-7, 5) ** 10
+    assert math.isclose(float(Zsqrt2(-7, 5)) ** 10, float(n))
 
 
 @pytest.mark.parametrize(
@@ -138,9 +157,17 @@ def test_multiplication(n1, n2):
 
 @pytest.mark.parametrize(
     "base",
-    [Zsqrt2(1, 1), Zsqrt2(0, 0), Zsqrt2(-1, 1), Zsqrt2(1, -1), Zsqrt2(-55, 14), Zsqrt2(57, 71)],
+    [
+        Zsqrt2(1, 1),
+        Zsqrt2(0, 0),
+        Zsqrt2(-1, 1),
+        Zsqrt2(1, -1),
+        Zsqrt2(-55, 14),
+        Zsqrt2(57, 71),
+        Zsqrt2(-7, 5),
+    ],
 )
-@pytest.mark.parametrize("exponent", [0, 3, 5, 7, 10, 20])
+@pytest.mark.parametrize("exponent", [0, 3, 5, 7, 10, 15])
 def test_power(base, exponent):
     """Test the power of a Zsqrt2 number."""
     n = base
@@ -165,8 +192,16 @@ def test_equal():
     )
 
 
+def test_inequalities():
+    """Test the inequalities of two Zsqrt2 numbers."""
+    n1 = Zsqrt2(1, 1)
+    n2 = Zsqrt2(-1, 2)
+    n3 = Zsqrt2(2, 1)
+    assert n1 < n3 and n1 > n2 and n2 <= n3 and n1 >= n1 and n2 <= n2 and n1 > 1 and n2 < 1.9
+
+
 def test_init_type_error():
-    """Test the TypeError when the Zsqrt2 class is initialized with a non-integer."""
+    """Test the raise of a TypeError when the Zsqrt2 class is initialized with a non-integer."""
     with pytest.raises(TypeError, match="Expected inputs to be of type int"):
         Zsqrt2("1", 1)
     with pytest.raises(TypeError, match="Expected inputs to be of type int"):
@@ -174,16 +209,16 @@ def test_init_type_error():
 
 
 def test_sqrt2_conjugate():
-    """Test the conjugate method of the Zsqrt2 class."""
+    """Test the √2-conjugate method of the Zsqrt2 class."""
     n1 = Zsqrt2(1, -7)
     n2 = Zsqrt2(5, 3)
     assert n1.sqrt2_conjugate() == Zsqrt2(1, 7) and n2.sqrt2_conjugate() == Zsqrt2(5, -3)
 
 
 def test_get_item():
-    """Test the get item method of the Zsqrt2 class."""
-    n = Zsqrt2(1, 2)
-    assert n[0] == 1 and n[1] == 2
+    """Test the getitem method of the Zsqrt2 class."""
+    n = Zsqrt2(1, -2)
+    assert n[0] == 1 and n[1] == -2
 
 
 @pytest.mark.parametrize(
@@ -199,48 +234,48 @@ def test_get_item():
     ],
 )
 def test_repr(nb):
-    """Test the string representation of the Zsqrt2 class"""
+    """Test the string representation of the Zsqrt2 class."""
     assert str(nb[0]) == nb[1]
 
 
 def test_summation_type_error():
-    """Test the TypeError when the Zsqrt2 class is summed with the wrong type."""
+    """Test the raise of a TypeError when the Zsqrt2 class is summed with the wrong type."""
     n = Zsqrt2(1, 1)
-    with pytest.raises(TypeError, match="Summation operation is not defined with"):
+    with pytest.raises(TypeError, match="Summation is not defined between Zsqrt2 and"):
         n + "1"
-    with pytest.raises(TypeError, match="Summation operation is not defined with"):
+    with pytest.raises(TypeError, match="Summation is not defined between Zsqrt2 and"):
         n + 1.0
 
 
 def test_subtraction_type_error():
-    """Test the TypeError when the Zsqrt2 class is subtracted with the wrong type."""
+    """Test the raise of a TypeError when the Zsqrt2 class is subtracted with the wrong type."""
     n = Zsqrt2(1, 1)
-    with pytest.raises(TypeError, match="Subtraction operation is not defined with"):
+    with pytest.raises(TypeError, match="Subtraction is not defined between Zsqrt2"):
         n - "1"
-    with pytest.raises(TypeError, match="Subtraction operation is not defined with"):
+    with pytest.raises(TypeError, match="Subtraction is not defined between Zsqrt2"):
         n - 1.0
 
 
 def test_multiplication_type_error():
-    """Test the TypeError when the Zsqrt2 class is multiplied with the wrong type."""
+    """Test the raise of a TypeError when the Zsqrt2 class is multiplied with the wrong type."""
     n = Zsqrt2(1, 1)
-    with pytest.raises(TypeError, match="Multiplication operation is not defined with"):
+    with pytest.raises(TypeError, match="Multiplication is not defined between Zsqrt2"):
         n * "1"
-    with pytest.raises(TypeError, match="Multiplication operation is not defined with"):
+    with pytest.raises(TypeError, match="Multiplication is not defined between Zsqrt2"):
         n * 1.0
 
 
 def test_power_type_error():
-    """Test the TypeError when the Zsqrt2 class is powered with a non-integer."""
+    """Test the raise of a TypeError when the Zsqrt2 class is powered with a non-integer."""
     n = Zsqrt2(1, 1)
-    with pytest.raises(TypeError, match="Expected power to be of type int"):
+    with pytest.raises(TypeError, match="Expected power to be an integer"):
         n ** "1"
-    with pytest.raises(TypeError, match="Expected power to be of type int"):
+    with pytest.raises(TypeError, match="Expected power to be an integer"):
         n**1.0
 
 
 def test_power_value_error():
-    """Test the ValueError when the Zsqrt2 class is powered with a negative integer."""
+    """Test the raise of a ValueError when the Zsqrt2 class is powered with a negative integer."""
     n = Zsqrt2(1, 1)
     with pytest.raises(ValueError, match="Expected power to be a positive integer"):
         n**-1
@@ -260,9 +295,7 @@ def test_from_ring():
 
 
 def test_from_ring_value_error():
-    """Test the ValueError when the from_ring method cannot perform the conversion."""
-    from cliffordplust import rings as r
-
+    """Test the raise of a ValueError when the from_ring method cannot perform the conversion."""
     with pytest.raises(ValueError, match="Cannot convert"):
         Zsqrt2.from_ring(1.0)
     with pytest.raises(ValueError, match="Cannot convert"):

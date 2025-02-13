@@ -1,13 +1,26 @@
+# Copyright 2024-2025 Olivier Romain, Francis Blais, Vincent Girouard, Marius Trudeau
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+"""Test the Dsqrt2 class."""
+
 import math
 
-import pytest
-
 import cliffordplust.rings as r
+import pytest
 from cliffordplust.rings import D, Dsqrt2
 
 SQRT2 = math.sqrt(2)
-
-"""Test the Dsqrt2 class."""
 
 
 @pytest.mark.parametrize(
@@ -24,7 +37,13 @@ SQRT2 = math.sqrt(2)
 )
 def test_float(n):
     """Test the float value of the Dsqrt2 class."""
-    assert math.isclose(n, float(n.a) + float(n.b) * SQRT2)
+    assert math.isclose(float(n), float(n.a) + float(n.b) * SQRT2)
+
+
+def test_float_small_number():
+    """Test the float value of the Dsqrt2 class with small numbers."""
+    n = Dsqrt2((-1, 2), (3, 4)) ** 15
+    assert math.isclose(float(n), float(Dsqrt2((-1, 2), (3, 4))) ** 15)
 
 
 @pytest.mark.parametrize(
@@ -154,6 +173,8 @@ def test_multiplication(n1, n2):
         Dsqrt2((-55, 14), (29, 15)),
         Dsqrt2((36, 71), (41, 1)),
         Dsqrt2((302, 85), (711, 66)),
+        Dsqrt2((-57, 3), (39, 3)),
+        Dsqrt2((-1, 2), (3, 4)),
     ],
 )
 @pytest.mark.parametrize("exp", [0, 1, 3, 6, 10])
@@ -172,20 +193,28 @@ def test_equality():
     assert Dsqrt2((1, 1), (1, 1)) != Dsqrt2((1, 1), (1, 2))
     assert Dsqrt2((1, 1), (0, 0)) == D(1, 1)
     assert Dsqrt2((1, 1), (0, 0)) != D(1, 2)
-    assert Dsqrt2((0, 0), (0, 0)) == 0
+    assert Dsqrt2((0, 0), (5, 2)) != D(5, 2)
     assert Dsqrt2((10, 0), (0, 0)) == 10
-    assert Dsqrt2((0, 0), (10, 0)) == 10 * SQRT2
-    assert Dsqrt2((0, 0), (0, 0)) != [0]
+    assert Dsqrt2((0, 0), (11, 1)) == 11 / 2 * SQRT2
+    assert Dsqrt2((0, 0), (0, 0)) != (0,)
+
+
+def test_inequalities():
+    """Test the inequalities of two Dsqrt2 instances."""
+    n1 = Dsqrt2((-1, 2), (3, 4))
+    n2 = Dsqrt2((3, 2), (1, 1))
+    assert n2 > n1 and n1 < n2 and n1 >= n1 and n2 <= n2 and n1 > 0 and n2 < 1.5
+
 
 
 def test_sqrt2_conjugate():
-    """Test the conjugate of a Dsqrt2 instance."""
+    """Test the √2-conjugate of a Dsqrt2 instance."""
     assert Dsqrt2((1, 1), (1, 1)).sqrt2_conjugate() == Dsqrt2((1, 1), (-1, 1))
     assert Dsqrt2((1, 1), (-1, 1)).sqrt2_conjugate() == Dsqrt2((1, 1), (1, 1))
 
 
 def test_init_type_error_tuple():
-    """Test the TypeError of the Dsqrt2 class when the arguments are tuples."""
+    """Test the raise of a TypeError when initializing a Dsqrt2 instance with a tuple that has wrong entries."""
     with pytest.raises(TypeError, match="Tuples must take two integer values"):
         Dsqrt2((1, 1, 1), (1, 1))
     with pytest.raises(TypeError, match="Tuples must take two integer values"):
@@ -197,7 +226,7 @@ def test_init_type_error_tuple():
 
 
 def test_init_type_error_wrong_type():
-    """Test the TypeError of the Dsqrt2 class when the arguments are not tuple or D objects."""
+    """Test the raise of a TypeError when the arguments are not tuple or D objects."""
     with pytest.raises(TypeError, match="Class arguments must be of type tuple"):
         Dsqrt2(1, 1)
     with pytest.raises(TypeError, match="Class arguments must be of type tuple"):
@@ -207,10 +236,10 @@ def test_init_type_error_wrong_type():
 
 
 def test_init_value_error():
-    """Test the ValueError of the Dsqrt2 class when the denominator exponents are not positive."""
-    with pytest.raises(ValueError, match="Denominator value must be positive but"):
+    """Test the raise of a ValueError when initializing a Dsqrt2 instance with negative denominator exponent."""
+    with pytest.raises(ValueError, match="Denominator exponent must be positive, but"):
         Dsqrt2((1, -1), (1, 1))
-    with pytest.raises(ValueError, match="Denominator value must be positive but"):
+    with pytest.raises(ValueError, match="Denominator exponent must be positive, but"):
         Dsqrt2((1, 1), (1, -1))
 
 
@@ -230,52 +259,48 @@ def test_get_item():
     ],
 )
 def test_repr(nb):
-    """Test the __repr__ method of the Dsqrt2 class."""
+    """Test the string representation of the Dsqrt2 class."""
     assert str(nb[0]) == nb[1]
 
 
 def test_summation_type_error():
-    """Test the TypeError of the Dsqrt2 class when summed with the wrong type."""
+    """Test the raise of a TypeError when the Dsqrt2 class is summed with the wrong type."""
     n = Dsqrt2((1, 1), (1, 1))
-    with pytest.raises(TypeError, match="Summation operation is not defined between Dsqrt2 and"):
+    with pytest.raises(TypeError, match="Summation is not defined between Dsqrt2 and"):
         n + "1"
-    with pytest.raises(TypeError, match="Summation operation is not defined between Dsqrt2 and"):
+    with pytest.raises(TypeError, match="Summation is not defined between Dsqrt2 and"):
         n + 1.0
 
 
 def test_subtraction_type_error():
-    """Test the TypeError of the Dsqrt2 class when subtracted with the wrong type."""
+    """Test the raise of a TypeError when the Dsqrt2 class is subtracted with the wrong type."""
     n = Dsqrt2((1, 1), (1, 1))
-    with pytest.raises(TypeError, match="Subtraction operation is not defined between Dsqrt2 and"):
+    with pytest.raises(TypeError, match="Subtraction is not defined between Dsqrt2 and"):
         n - "1"
-    with pytest.raises(TypeError, match="Subtraction operation is not defined between Dsqrt2 and"):
+    with pytest.raises(TypeError, match="Subtraction is not defined between Dsqrt2 and"):
         n - 1.0
 
 
 def test_multiplication_type_error():
-    """Test the TypeError of the Dsqrt2 class when multiplied with the wrong type."""
+    """Test the raise of a TypeError when the Dsqrt2 class is multiplied with the wrong type."""
     n = Dsqrt2((1, 1), (1, 1))
-    with pytest.raises(
-        TypeError, match="Multiplication operation is not defined between Dsqrt2 and"
-    ):
+    with pytest.raises(TypeError, match="Multiplication is not defined between Dsqrt2 and"):
         n * "1"
-    with pytest.raises(
-        TypeError, match="Multiplication operation is not defined between Dsqrt2 and"
-    ):
+    with pytest.raises(TypeError, match="Multiplication is not defined between Dsqrt2 and"):
         n * 1.0
 
 
 def test_power_type_error():
-    """Test the TypeError of the Dsqrt2 class when powered with a non-integer."""
+    """Test the raise of a TypeError when the Dsqrt2 class is powered with a non-integer."""
     n = Dsqrt2((1, 1), (1, 1))
-    with pytest.raises(TypeError, match="Expected power to be of type int"):
+    with pytest.raises(TypeError, match="Expected power to be an integer"):
         n ** "1"
-    with pytest.raises(TypeError, match="Expected power to be of type int"):
+    with pytest.raises(TypeError, match="Expected power to be an integer"):
         n**1.0
 
 
 def test_power_value_error():
-    """Test the ValueError of the Dsqrt2 class when powered with a negative integer."""
+    """Test the raise of a ValueError when the Dsqrt2 class is powered with a negative integer."""
     n = Dsqrt2((1, 1), (1, 1))
     with pytest.raises(ValueError, match="Expected power to be a positive integer"):
         n**-1
@@ -301,7 +326,7 @@ def test_from_ring(n):
     "n", [1.0, 1.0j, "1", [2], r.Zomega(1, 0, 1, 0), r.Domega((1, 1), (1, 1), (1, 1), (1, 1))]
 )
 def test_from_ring_value_error(n):
-    """Test the ValueError of the Dsqrt2 class when the ring value is not a Dsqrt2 instance."""
+    """Test the raise of a ValueError in the from_ring method when the ring value is not a Dsqrt2 instance."""
     with pytest.raises(ValueError, match="Cannot convert"):
         Dsqrt2.from_ring(n)
 
