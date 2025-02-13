@@ -39,7 +39,7 @@ from typing import Optional
 import matplotlib.pyplot as plt
 import numpy as np
 
-from Rings import Zsqrt2, inv_lamb, lamb
+from cliffordplust.rings import Zsqrt2, INVERSE_LAMBDA, LAMBDA
 
 
 def solve_grid_problem_1d(A: Sequence[float | int], B: Sequence[float | int]) -> list[Zsqrt2]:
@@ -79,10 +79,10 @@ def solve_grid_problem_1d(A: Sequence[float | int], B: Sequence[float | int]) ->
     B_interval = np.array(B)
     deltaA: float = A_interval[1] - A_interval[0]
 
-    # Scaling of the intervals to have lamb^-1 <= deltaA < 1
-    n_scaling = math.floor(math.log(float(lamb) * deltaA) / math.log(float(lamb)))
-    A_scaled = A_interval * float(lamb) ** -n_scaling
-    B_scaled = B_interval * float(-lamb) ** n_scaling
+    # Scaling of the intervals to have LAMBDA^-1 <= deltaA < 1
+    n_scaling = math.floor(math.log(float(LAMBDA) * deltaA) / math.log(float(LAMBDA)))
+    A_scaled = A_interval * float(LAMBDA) ** -n_scaling
+    B_scaled = B_interval * float(-LAMBDA) ** n_scaling
 
     # Flip the interval if multiplied by a negative number
     if n_scaling % 2 == 1:
@@ -123,7 +123,7 @@ def solve_grid_problem_1d(A: Sequence[float | int], B: Sequence[float | int]) ->
 
             # Compute the unscaled solution
             alpha_i: Zsqrt2 = alpha_i_scaled * (
-                lambda n_scaling: lamb if n_scaling >= 0 else inv_lamb
+                lambda n_scaling: LAMBDA if n_scaling >= 0 else INVERSE_LAMBDA
             )(n_scaling) ** abs(n_scaling)
             fl_alpha_i = float(alpha_i)
             fl_alpha_i_conjugate = float(alpha_i.sqrt2_conjugate())

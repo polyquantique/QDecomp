@@ -9,8 +9,8 @@ from typing import Sequence
 import matplotlib.pyplot as plt
 import numpy as np
 
-from grid_algorithm_1D import solve_grid_problem_1d
-from Rings import Zomega, Zsqrt2
+from cliffordplust.grid_problem.grid_algorithm_1D import solve_grid_problem_1d
+from cliffordplust.rings import Zomega, Zsqrt2
 
 
 def solve_grid_problem_2D(

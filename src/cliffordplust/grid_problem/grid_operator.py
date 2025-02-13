@@ -17,7 +17,7 @@ from __future__ import annotations
 from typing import Union
 
 import numpy as np
-from Rings import *
+from cliffordplust.rings import *
 
 """
 This file defines the `Grid_Operator` class. Grid operators are defined in section 5.3 of 
@@ -42,7 +42,7 @@ class Grid_Operator:
 
         Args:
             G (list, np.ndarray): A 4-element flat list, a 2x2 nested list, or a 2x2 numpy.ndarray
-            containing elements of type int, D, Zsqrt2, or Dsqrt2.
+            containing elements of type Dsqrt2.
 
         Raises:
             ValueError: If G is not a 4-element flat list, a 2x2 nested list, or a 2x2 array.
@@ -51,7 +51,7 @@ class Grid_Operator:
         """
         # Automatically convert input to np.ndarray if necessary
         if isinstance(G, list):
-            if len(G) == 4 and all(isinstance(e, (int, D, Zsqrt2, Dsqrt2)) for e in G):
+            if len(G) == 4:
                 # Convert flat 4-element list to 2x2 ndarray
                 G = np.array(G, dtype=object).reshape((2, 2))
             elif (
@@ -77,6 +77,9 @@ class Grid_Operator:
         for element in G.flatten():  
             if not isinstance(element, (int, D, Zsqrt2, Dsqrt2)):  
                 raise TypeError(f"Element {element} must be an int, D, Zsqrt2, or Dsqrt2. Got type {type(element)}.")
+        
+        # Convert to Dsqrt2
+        G = np.vectorize(Dsqrt2.from_ring)(G)
             
         self.G = G
         self.a = G[0, 0]

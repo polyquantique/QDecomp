@@ -1,13 +1,12 @@
 import numpy as np
 import math
 
-from grid_problem import find_points, find_grid_operator
-from grid_operator import Grid_Operator
-from grid_algorithm_2D import solve_grid_problem_2D
-from Rings import *
-# import cliffordplust.diophantine.diophantine_equation_cpp as diop
-from diophantine_equation import solve_xi_eq_ttdag_in_d
-from steiner_ellipse import steiner_ellipse_def, ellipse_bbox, is_inside_ellipse, plot_ellipse
+from cliffordplust.grid_problem.grid_problem import find_points, find_grid_operator
+from cliffordplust.grid_problem.grid_algorithm_2D import solve_grid_problem_2D
+from cliffordplust.rings import *
+import cliffordplust.diophantine.diophantine_equation_cpp as diop
+# from diophantine_equation import solve_xi_eq_ttdag_in_d
+from cliffordplust.grid_problem.steiner_ellipse import steiner_ellipse_def, ellipse_bbox, is_inside_ellipse, plot_ellipse
 
 def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
     p1, p2, p3 = find_points(epsilon, theta)
@@ -49,8 +48,8 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
                 print("Found candidate")
                 # print(u)
                 xi = 1 - u.complex_conjugate() * u
-                # t = diop.solve_xi_eq_ttdag_in_d_cpp(xi.convert(Dsqrt2))
-                t = solve_xi_eq_ttdag_in_d(xi.convert(Dsqrt2))
+                t = diop.solve_xi_eq_ttdag_in_d_cpp(xi.convert(Dsqrt2))
+                # t = solve_xi_eq_ttdag_in_d(xi.convert(Dsqrt2))
                 if t is None:
                     print("Failed")
                 else:

@@ -27,8 +27,8 @@ from __future__ import annotations
 import math
 
 import numpy as np
-from grid_operator import Grid_Operator
-from Rings import Zsqrt2, inv_lamb, lamb
+from cliffordplust.grid_problem.grid_operator import Grid_Operator
+from cliffordplust.rings import *
 
 
 class State:
@@ -176,13 +176,13 @@ class State:
             raise ValueError("k must be an integer")
         if k >= 0:
             # kth power of sigma
-            sigma_k = (special_sigma**k).as_float() * math.sqrt(float(inv_lamb**k))
+            sigma_k = (special_sigma**k).as_float() * math.sqrt(float(INVERSE_LAMBDA**k))
             # kth power of tau
-            tau_k = (special_tau**k).as_float() * math.sqrt(float(inv_lamb**k))
+            tau_k = (special_tau**k).as_float() * math.sqrt(float(INVERSE_LAMBDA**k))
         else:
             # Since k is negative, we have to take the inverse
-            sigma_k = (inv_special_sigma**-k).as_float() * (math.sqrt(float(lamb)) ** -k)
-            tau_k = (inv_special_tau**-k).as_float() * (math.sqrt(float(lamb)) ** -k)
+            sigma_k = (inv_special_sigma**-k).as_float() * (math.sqrt(float(LAMBDA)) ** -k)
+            tau_k = (inv_special_tau**-k).as_float() * (math.sqrt(float(LAMBDA)) ** -k)
         shift_A = sigma_k @ A @ sigma_k
         shift_B = tau_k @ B @ tau_k
         return State(shift_A, shift_B)
@@ -198,7 +198,7 @@ After computing the exponentiation, the result is multiplied by the square root 
 raised to the corresponding integer power. 
 """
 
-special_sigma: Grid_Operator = Grid_Operator([lamb, 0, 0, 1])
-inv_special_sigma: Grid_Operator = Grid_Operator([inv_lamb, 0, 0, 1])
-special_tau: Grid_Operator = Grid_Operator([1, 0, 0, -lamb])
-inv_special_tau: Grid_Operator = Grid_Operator([1, 0, 0, -inv_lamb])
+special_sigma: Grid_Operator = Grid_Operator([LAMBDA, 0, 0, 1])
+inv_special_sigma: Grid_Operator = Grid_Operator([INVERSE_LAMBDA, 0, 0, 1])
+special_tau: Grid_Operator = Grid_Operator([1, 0, 0, -LAMBDA])
+inv_special_tau: Grid_Operator = Grid_Operator([1, 0, 0, -INVERSE_LAMBDA])

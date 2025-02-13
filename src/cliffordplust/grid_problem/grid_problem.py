@@ -2,9 +2,9 @@ import math
 
 import numpy as np
 
-from grid_operator import A, B, I, K, R, X, Z, Grid_Operator
-from Rings import D, Domega, Dsqrt2, inv_lamb, lamb
-from state import inv_special_sigma, special_sigma, State
+from cliffordplust.grid_problem.grid_operator import A, B, I, K, R, X, Z, Grid_Operator
+from cliffordplust.rings import *
+from cliffordplust.grid_problem.state import inv_special_sigma, special_sigma, State
 
 
 def find_points(epsilon: float, theta: float) -> np.ndarray:
@@ -150,7 +150,7 @@ def find_special_grid_operator(state: State) -> Grid_Operator:
             special_grid_operator = special_grid_operator * K
         elif state.z >= 0.3 and state.zeta >= 0.3:
             c = min(state.z, state.zeta)
-            n = max(1, math.floor(float(lamb) ** c / 2))
+            n = max(1, math.floor(float(LAMBDA) ** c / 2))
             special_grid_operator = special_grid_operator * A**n
         elif state.z >= 0.8 and state.zeta <= 0.3:
             special_grid_operator = special_grid_operator * K.conjugate()
@@ -160,7 +160,7 @@ def find_special_grid_operator(state: State) -> Grid_Operator:
     else:
         if state.z >= -0.2 and state.zeta >= -0.2:
             c = min(state.z, state.zeta)
-            n = max(1, math.floor(float(lamb) ** c / math.sqrt(2)))
+            n = max(1, math.floor(float(LAMBDA) ** c / math.sqrt(2)))
             special_grid_operator = special_grid_operator * B**n
         else:
             # The algorithm should never reach this line

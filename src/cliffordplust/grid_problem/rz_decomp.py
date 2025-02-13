@@ -2,12 +2,12 @@ import numpy as np
 import math
 import time
 
-from rz_approx import z_rotational_approximation
-from exact_synthesis import exact_synthesis_alg
+from cliffordplust.grid_problem.rz_approx import z_rotational_approximation
+from cliffordplust.exact_synthesis.exact_synthesis import exact_synthesis_alg
 
 t1 = time.time()
-epsilon = 1e-6
-theta = 2 * math.pi / 3
+epsilon = 1e-3
+theta = 5 * math.pi / 3
 U = z_rotational_approximation(epsilon, theta)
 print(U)
 U_complex = np.array(U, dtype=complex)
