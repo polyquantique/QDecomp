@@ -1,4 +1,4 @@
-# Copyright 2022-2023 Olivier Romain, Francis Blais, Vincent Girouard, Marius Trudeau
+# Copyright 2024-2025 Olivier Romain, Francis Blais, Vincent Girouard, Marius Trudeau
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -17,8 +17,14 @@ from __future__ import annotations
 from typing import Union
 
 import numpy as np
-from Rings import D, Domega, Dsqrt2, Zsqrt2, inv_lamb, lamb
+from Rings import *
 
+"""
+This file defines the `Grid_Operator` class. Grid operators are defined in section 5.3 of 
+https://arxiv.org/pdf/1403.2975, but this class applies to any matrix with elements inside 
+the ring D[\u221a2]. Grid operators are a key component to solving the grid problem, as they 
+are needed to bring the uprightness of the ellipses pair (represented by a state) to at least 1/6. 
+"""
 
 class Grid_Operator:
     """Class to initialize a grid operator.
@@ -35,7 +41,7 @@ class Grid_Operator:
         """Initialize the object with a 2x2 numpy array.
 
         Args:
-            G: A 4-element flat list, a 2x2 nested list, or a 2x2 numpy.ndarray
+            G (list, np.ndarray): A 4-element flat list, a 2x2 nested list, or a 2x2 numpy.ndarray
             containing elements of type int, D, Zsqrt2, or Dsqrt2.
 
         Raises:
@@ -47,11 +53,10 @@ class Grid_Operator:
         if isinstance(G, list):
             if len(G) == 4 and all(isinstance(e, (int, D, Zsqrt2, Dsqrt2)) for e in G):
                 # Convert flat 4-element list to 2x2 ndarray
-                G = np.array([[G[0], G[1]], [G[2], G[3]]], dtype=object)
+                G = np.array(G, dtype=object).reshape((2, 2))
             elif (
                 len(G) == 2
                 and all(len(row) == 2 for row in G)
-                and all(isinstance(e, (int, D, Zsqrt2, Dsqrt2)) for row in G for e in row)
             ):
                 # Convert 2x2 nested list to ndarray
                 G = np.array(G, dtype=object)
@@ -66,33 +71,30 @@ class Grid_Operator:
 
         # Validate shape
         if G.shape != (2, 2):
-            raise ValueError("G must be 2x2 in size.")
+            raise ValueError(f"G must be of shape (2, 2). Got shape {G.shape}.")
 
-        # Validate each element
-        for element in G.flatten():
-            if not isinstance(element, (int, D, Zsqrt2, Dsqrt2)):
-                raise TypeError(f"Element {element} must be an int, D, Zsqrt2, or Dsqrt2.")
-
+        # Validate each element  
+        for element in G.flatten():  
+            if not isinstance(element, (int, D, Zsqrt2, Dsqrt2)):  
+                raise TypeError(f"Element {element} must be an int, D, Zsqrt2, or Dsqrt2. Got type {type(element)}.")
+            
         self.G = G
         self.a = G[0, 0]
         self.b = G[0, 1]
         self.c = G[1, 0]
         self.d = G[1, 1]
 
-    def __repr__(self) -> str:
-        """Define the string representation of the grid operator"""
-        G = self.G
-        return f"{G}"
+    def __repr__(self) -> str:  
+        """Define the string representation of the grid operator"""  
+        return str(self.G)
 
     def __neg__(self) -> Grid_Operator:
         """Define the negation of the grid operator"""
-        G = self.G
-        return Grid_Operator(-G)
+        return Grid_Operator(-self.G)
 
     def det(self) -> Union[int, D, Zsqrt2, Dsqrt2]:
         """Computes the determinant of the grid operator"""
-        G = self.G
-        return G[0, 0] * G[1, 1] - G[0, 1] * G[1, 0]
+        return self.a * self.d - self.b * self.c
 
     def dag(self) -> Grid_Operator:
         """Define the dag operation of the grid operator"""
@@ -104,8 +106,8 @@ class Grid_Operator:
         G = self.G
         G_conj = np.zeros_like(G, dtype=object)
 
-        for i in range(G.shape[0]):  # Iterate over rows
-            for j in range(G.shape[1]):  # Iterate over columns
+        for i in range(2):  # Iterate over rows
+            for j in range(2):  # Iterate over columns
                 element = G[i, j]
                 if isinstance(element, (Zsqrt2, Dsqrt2)):
                     G_conj[i, j] = element.sqrt2_conjugate()  # Apply conjugation
@@ -141,8 +143,8 @@ class Grid_Operator:
         return Grid_Operator(self.G + other.G)
 
     def __sub__(self, other: Grid_Operator) -> Grid_Operator:
-        """Define the substraction operation of the grid operator"""
-        return self.__add__(-other)
+        """Define the subtraction operation of the grid operator"""
+        return self + (-other)
 
     def __mul__(self, other: int | D | Zsqrt2 | Dsqrt2 | Grid_Operator) -> Grid_Operator:
         """Define the multiplication operation of the grid operator"""

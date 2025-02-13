@@ -101,11 +101,9 @@ def find_grid_operator(A: np.ndarray, B: np.ndarray) -> Grid_Operator:
         else:
             temp_state = state
             k = 0
-        print(temp_state.bias)
 
         # Finds G_i such that the skew is reduced by at least 10%
         G_i = find_special_grid_operator(temp_state)
-        print(G_i)
         if k < 0:
             G_i = (inv_special_sigma**-k) * G_i * (special_sigma**-k)
         else:

@@ -94,7 +94,7 @@ def lookup_sequence(U):
         U_t = np.multiply(omega**i, U)
         for key, value in s3_dict.items():
             if convert_to_tuple(U_t) == value:
-                print(f"Sequence : {key}")
+                # print(f"Sequence : {key}")
                 U_w = apply_sequence(key + "W" * (8 - i))
                 k = evaluate_omega_exponent(U[1, 1], U[0, 0].complex_conjugate())
                 k_pp = evaluate_omega_exponent(U_w[1, 1], U_w[0, 0].complex_conjugate())
@@ -206,7 +206,7 @@ def lookup_sequence(U):
         U_t = np.multiply(omega**i, U)
         for key, value in s3_dict.items():
             if convert_to_tuple(U_t) == value:
-                print(f"Sequence : {key}")
+                # print(f"Sequence : {key}")
                 U_w = apply_sequence(key + "W" * (8 - i))
                 k = evaluate_omega_exponent(U[1, 1], U[0, 0].complex_conjugate())
                 k_pp = evaluate_omega_exponent(U_w[1, 1], U_w[0, 0].complex_conjugate())

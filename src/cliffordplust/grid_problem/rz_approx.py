@@ -47,7 +47,7 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
             u_conj_float = np.array([u_conj.real(), u_conj.imag()])
             if is_inside_ellipse(u_float, mod_E, p_p) and is_inside_ellipse(u_conj_float, mod_D, np.zeros(2)):
                 print("Found candidate")
-                print(u)
+                # print(u)
                 xi = 1 - u.complex_conjugate() * u
                 # t = diop.solve_xi_eq_ttdag_in_d_cpp(xi.convert(Dsqrt2))
                 t = solve_xi_eq_ttdag_in_d(xi.convert(Dsqrt2))
@@ -56,20 +56,6 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
                 else:
                     solution = True
                     M = np.array([[u, -t.complex_conjugate()], [t, u.complex_conjugate()]])
-                    print(M)
-                    print(np.array(M, dtype=complex))
                     return M
         print(n)
         n += 1
-
-epsilon = 1e-6
-theta = 13 * math.pi / 8
-U = z_rotational_approximation(epsilon, theta)
-print(U)
-U_complex = np.array(U, dtype=complex)
-rz = np.array([
-    [np.exp(-theta / 2 * 1j), 0], 
-    [0, np.exp(theta / 2 * 1j)]
-])
-E = np.linalg.norm(rz - U_complex, 2)
-print(E/epsilon)
