@@ -1,6 +1,6 @@
 import numpy as np
 
-from cliffordplust.Rings import Domega
+from cliffordplust.rings import Domega
 from cliffordplust.exact_synthesis import (
     exact_synthesis_alg,
     apply_sequence,

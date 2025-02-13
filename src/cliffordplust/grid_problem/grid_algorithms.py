@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Sequence
+import numbers as num
 
 import numpy as np
 from cliffordplust.rings import INVERSE_LAMBDA, LAMBDA, Zomega, Zsqrt2
@@ -119,7 +120,7 @@ def solve_grid_problem_1d(
         # If there is an integer if this interval
         if math.ceil(a_interval_scaled[0]) == math.floor(a_interval_scaled[1]):
             ai = math.ceil(a_interval_scaled[0])
-            alpha_i_scaled = Zsqrt2(p=ai, q=bi)
+            alpha_i_scaled = Zsqrt2(a=ai, b=bi)
 
             # Compute the unscaled solution
             alpha_i: Zsqrt2 = alpha_i_scaled * (

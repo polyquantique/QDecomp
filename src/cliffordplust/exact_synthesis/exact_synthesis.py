@@ -3,7 +3,7 @@ import numpy as np
 import os
 import json
 
-from cliffordplust.Rings import Domega
+from cliffordplust.rings import Domega
 
 H_11 = Domega((-1, 1), (0, 0), (1, 1), (0, 0))
 T_11 = Domega((0, 0), (0, 0), (0, 0), (1, 0))

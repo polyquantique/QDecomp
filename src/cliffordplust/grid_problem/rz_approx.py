@@ -2,11 +2,11 @@ import numpy as np
 import math
 
 from cliffordplust.grid_problem.grid_problem import find_points, find_grid_operator
-from cliffordplust.grid_problem.grid_algorithm_2D import solve_grid_problem_2D
+from cliffordplust.grid_problem.grid_algorithms import solve_grid_problem_2d
 from cliffordplust.rings import *
-import cliffordplust.diophantine.diophantine_equation_cpp as diop
-# from diophantine_equation import solve_xi_eq_ttdag_in_d
-from cliffordplust.grid_problem.steiner_ellipse import steiner_ellipse_def, ellipse_bbox, is_inside_ellipse, plot_ellipse
+# import cliffordplust.diophantine.diophantine_equation_cpp as diop
+from cliffordplust.diophantine.diophantine_equation import solve_xi_eq_ttdag_in_d
+from cliffordplust.grid_problem.steiner_ellipse import steiner_ellipse_def, ellipse_bbox, is_inside_ellipse
 
 def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
     p1, p2, p3 = find_points(epsilon, theta)
@@ -22,9 +22,6 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
     mod_D = inv_gop_conj.dag().as_float() @ inv_gop_conj.as_float()
     bbox_1 = ellipse_bbox(mod_E, p_p)
     bbox_2 = ellipse_bbox(mod_D, np.zeros(2))
-    plot_ellipse(E, p_p)
-    plot_ellipse(mod_E, p_p)
-    plot_ellipse(mod_D, np.zeros(2))
     while solution == False:
         odd = n % 2
         if odd:
@@ -38,9 +35,9 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
             B = -math.sqrt(2 ** n) * bbox_2_flip
         else: 
             B = math.sqrt(2 ** n) * bbox_2
-        U = solve_grid_problem_2D(A.tolist(), B.tolist())
+        U = solve_grid_problem_2d(A.tolist(), B.tolist())
         for candidate in U:
-            u = candidate * const
+            u = Domega.from_ring(candidate) * Domega.from_ring(const)
             u_conj = u.sqrt2_conjugate()
             u_float = np.array([u.real(), u.imag()])
             u_conj_float = np.array([u_conj.real(), u_conj.imag()])
@@ -48,8 +45,8 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
                 print("Found candidate")
                 # print(u)
                 xi = 1 - u.complex_conjugate() * u
-                t = diop.solve_xi_eq_ttdag_in_d_cpp(xi.convert(Dsqrt2))
-                # t = solve_xi_eq_ttdag_in_d(xi.convert(Dsqrt2))
+                # t = diop.solve_xi_eq_ttdag_in_d_cpp(Dsqrt2.from_ring(xi))
+                t = solve_xi_eq_ttdag_in_d(Dsqrt2.from_ring(xi))
                 if t is None:
                     print("Failed")
                 else:

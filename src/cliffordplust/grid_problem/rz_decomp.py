@@ -15,7 +15,7 @@ rz = np.array([
     [np.exp(-theta / 2 * 1j), 0], 
     [0, np.exp(theta / 2 * 1j)]
 ])
-E = np.linalg.norm(rz - U_complex, 2)
+E = op_norm = max(np.linalg.svd(U_complex - rz, compute_uv=False))
 print("Error: ", E)
 Sequence = exact_synthesis_alg(U)
 print("Sequence: ", Sequence)
