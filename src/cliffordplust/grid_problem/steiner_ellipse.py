@@ -22,6 +22,7 @@ https://en.wikipedia.org/wiki/Steiner_ellipse
 """
 
 import numpy as np
+import mpmath as mp
 
 
 def assert_steiner_ellipse(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> None:
@@ -77,6 +78,9 @@ def steiner_ellipse_def(
     Returns:
         typle[np.ndarray, np.ndarray]: D matrix (defines the shape and orientation of the ellipse), p (center of the ellipse)
     """
+    # Determine wether to use high precision or not
+    high_precision = isinstance(p1[0], mp.mpf)
+
     # Convert the points to numpy arrays
     p1_, p2_, p3_ = np.array(p1), np.array(p2), np.array(p3)
 
@@ -91,10 +95,16 @@ def steiner_ellipse_def(
     f2 = (p3_ - p2_) / np.sqrt(3)
 
     # Define a parametric function for tracing the contour of the ellipse
-    contour = lambda t: p + f1 * np.cos(t) + f2 * np.sin(t)
+    if high_precision:
+        contour = lambda t: p + f1 * mp.cos(t) + f2 * mp.sin(t)
+    else:
+        contour = lambda t: p + f1 * np.cos(t) + f2 * np.sin(t)
 
     # Calculate t0 according to the Steiner method
-    t0 = np.arctan(2 * f1 @ f2 / (f1 @ f1 - f2 @ f2)) / 2
+    if high_precision:
+        t0 = mp.atan(2 * f1 @ f2 / (f1 @ f1 - f2 @ f2)) / 2
+    else:
+        t0 = np.arctan(2 * f1 @ f2 / (f1 @ f1 - f2 @ f2)) / 2
 
     # Compute the two main axes of the ellipse
     axis1 = contour(t0) - contour(t0 + np.pi)
@@ -106,13 +116,22 @@ def steiner_ellipse_def(
     D_ = np.diag([(2 / np.linalg.norm(axis1)) ** 2, (2 / np.linalg.norm(axis2)) ** 2])
 
     # Calculate the rotation matrix based on the orientation of the ellipse
-    theta = np.arctan2(*axis2)
-    rotation_matrix = np.array(
-        [
-            [np.cos(theta), -np.sin(theta)],
-            [np.sin(theta), np.cos(theta)],
-        ]
-    )
+    if high_precision:
+        theta = mp.atan2(*axis2)
+        rotation_matrix = np.array(
+            [
+                [mp.cos(theta), -mp.sin(theta)],
+                [mp.sin(theta), mp.cos(theta)],
+            ]
+        )
+    else:
+        theta = np.arctan2(*axis2)
+        rotation_matrix = np.array(
+            [
+                [np.cos(theta), -np.sin(theta)],
+                [np.sin(theta), np.cos(theta)],
+            ]
+        )
 
     # Calculate the final D matrix that defines the oriented ellipse
     D = rotation_matrix.T @ D_ @ rotation_matrix
@@ -183,7 +202,15 @@ def ellipse_bbox(D: np.ndarray, p: np.ndarray) -> np.ndarray:
         corresponds to each spatial dimension (e.g., x, y, ...), and the second index contains the
         minimum and maximum bounds along that dimension.
     """
-    D_inv = np.linalg.inv(D)  # Inverse of D
+    # Determine wether to use high precision or not
+    high_precision = isinstance(p[0], mp.mpf)
+
+    if high_precision:
+        D_inv = mp.matrix(D) ** -1
+        D_inv = np.array(D_inv.tolist())
+    else:
+        D_inv = np.linalg.inv(D)
+    
     diag = np.diagonal(D_inv)  # Vector with the diagonal values of D_inv
 
     n_dim = len(p)  # Number of dimensions
