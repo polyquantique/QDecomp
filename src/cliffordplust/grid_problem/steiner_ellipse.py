@@ -21,8 +21,8 @@ See this page for more information:
 https://en.wikipedia.org/wiki/Steiner_ellipse
 """
 
-import numpy as np
 import mpmath as mp
+import numpy as np
 
 
 def assert_steiner_ellipse(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> None:
@@ -210,7 +210,7 @@ def ellipse_bbox(D: np.ndarray, p: np.ndarray) -> np.ndarray:
         D_inv = np.array(D_inv.tolist())
     else:
         D_inv = np.linalg.inv(D)
-    
+
     diag = np.diagonal(D_inv)  # Vector with the diagonal values of D_inv
 
     n_dim = len(p)  # Number of dimensions

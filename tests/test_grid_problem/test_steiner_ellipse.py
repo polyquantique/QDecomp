@@ -13,8 +13,8 @@
 #    limitations under the License.
 
 import matplotlib.pyplot as plt
-import numpy as np
 import mpmath as mp
+import numpy as np
 import pytest
 
 from cliffordplust.grid_problem import steiner_ellipse as se
@@ -103,9 +103,6 @@ def test_is_inside_ellipse(dim):
     res_fun = se.is_inside_ellipse(points, D, p)
     res_calculated = np.sum(points**2, axis=-1) <= 1
 
-    print(points)
-    print(res_calculated)
-
     assert np.allclose(res_fun, res_calculated)
     assert res_calculated.shape == tuple(dim)
 
@@ -118,6 +115,7 @@ def test_is_inside_ellipse(dim):
 
     assert np.allclose(res_fun, res_calculated)
     assert res_calculated.shape == tuple(dim)
+
 
 def test_inside_ellipse_D_shape_error():
     """
@@ -187,7 +185,7 @@ def test_plot_ellipse():
     D, p = se.steiner_ellipse_def(p1, p2, p3)
 
     _, ax = plt.subplots()
-    pse.plot_ellipse(ax, D, p, points_to_plot)    
+    pse.plot_ellipse(ax, D, p, points_to_plot)
 
     assert True  # The code has run so far
 
