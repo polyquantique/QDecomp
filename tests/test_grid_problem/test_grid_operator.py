@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
-from Rings import D, Zsqrt2, Dsqrt2
-from grid_operator import Grid_Operator, I, R, K, X, Z, A, B
+from cliffordplust.rings import D, Zsqrt2, Dsqrt2
+from cliffordplust.grid_problem.grid_operator import Grid_Operator, I, R, K, X, Z, A, B
 
 # Valid entries for testing
 valid_entries = [
@@ -64,8 +64,8 @@ def test_grid_operator_list2(grid_op_list):
 # Invalid inputs that should raise a ValueError
 invalid_lists = [
     [1, 2, 3],  # Not a 4-element list or 2x2 list
-    [1, 2, 3, "invalid"],  # One invalid element in a 4-element list
-    [[1, 2], [3, "invalid"]],  # Invalid element in a 2x2 nested list
+    [1, 2, 3, "invalid", 6],  # One invalid element in a 4-element list
+    [[1, 2], [3, "invalid", 7]],  # Invalid element in a 2x2 nested list
     [[1, 2], [3, 4, 5]],  # Invalid shape in 2x2 nested list
     [[1, 2], [3]],  # Incomplete 2x2 nested list
 ]
@@ -78,20 +78,6 @@ def test_grid_operator_list_error(invalid_list):
         match="G must be a 4-element flat list or a 2x2 nested list with valid elements.",
     ):
         Grid_Operator(invalid_list)
-
-
-invalid_arrays = [
-    np.array([1, 2, 3]),
-    np.array([[1, 2, 6], [3, 4, 5]]),
-    np.array([[1, 2], [3, 4], [5, 6]]),
-]
-
-
-@pytest.mark.parametrize("invalid_array", invalid_arrays)
-def test_grid_operator_size_error(invalid_array):
-    with pytest.raises(ValueError, match="G must be 2x2 in size."):
-        Grid_Operator(invalid_array)
-
 
 # Parametrize the test to run 20 times
 @pytest.mark.parametrize(

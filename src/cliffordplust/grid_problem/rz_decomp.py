@@ -6,8 +6,8 @@ from cliffordplust.grid_problem.rz_approx import z_rotational_approximation
 from cliffordplust.exact_synthesis.exact_synthesis import exact_synthesis_alg
 
 t1 = time.time()
-epsilon = 1e-7
-theta = 5 * math.pi / 3
+epsilon = 1e-2
+theta = 3 * math.pi / 5
 U = z_rotational_approximation(epsilon, theta)
 print(U)
 U_complex = np.array(U, dtype=complex)

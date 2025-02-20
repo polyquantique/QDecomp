@@ -68,7 +68,9 @@ def find_points(epsilon: float, theta: float) -> np.ndarray:
         p2 = [x2, cosine * x2 / sine + (epsilon**2 / 2) / sine]
         p3 = [x3, cosine * x3 / sine + (epsilon**2 / 2) / sine]
 
-    return np.array(p1), np.array(p2), np.array(p3)
+    r = np.array([cosine, -sine])
+
+    return np.array(p1) + r, np.array(p2) + r, np.array(p3) + r
 
 
 def find_grid_operator(A: np.ndarray, B: np.ndarray) -> Grid_Operator:

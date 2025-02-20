@@ -134,10 +134,7 @@ class Grid_Operator:
             )
 
     def as_float(self) -> np.ndarray:
-        return np.array(
-            [[self.a, self.b], [self.c, self.d]],
-            dtype=float,
-        )
+        return np.array(self.G, dtype=float)
 
     def __add__(self, other: Grid_Operator) -> Grid_Operator:
         """Define the summation operation of the grid operator"""
