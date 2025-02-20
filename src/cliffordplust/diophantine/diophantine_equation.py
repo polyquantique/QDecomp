@@ -1,4 +1,4 @@
-# Copyright 2022-2023 Olivier Romain, Francis Blais, Vincent Girouard, Marius Trudeau
+# Copyright 2024-2025 Olivier Romain, Francis Blais, Vincent Girouard, Marius Trudeau
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -16,7 +16,8 @@
 This module solves the Diophantine equation \u03BE = t\u2020 t for t \u2208 D[\u03C9] where \u03BE
 \u2208 D[\u221A2] is given. The solution t is returned if it exists, or `None` otherwise. This
 module is an implementation of the algorithm presented in Section 6 and Appendix C of
-[Optimal ancilla-free Clifford+T approximation of z-rotations](https://arxiv.org/abs/1403.2975) by Ross and Selinger.
+[Optimal ancilla-free Clifford+T approximation of z-rotations](https://arxiv.org/abs/1403.2975) by
+Ross and Selinger.
 
 **Input:** \u03BE \u2208 D[\u221A2] \\
 **Output:** t \u2208 D[\u03C9], the solution to the equation \u03BE = t\u2020 t, or `None` if no
