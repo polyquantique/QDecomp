@@ -395,7 +395,7 @@ def test_o4_det_minus1_decomposition_errors():
 def test_u4_decomposition():
     """Test the U(4) decomposition."""
     for i in range(10):
-        i = 0
+        i = 7
         # Use a predefined or randomly generated 4x4 matrix
         print()
         print(i)
@@ -492,7 +492,7 @@ def test_u4_decomposition():
         # Assert the reconstructed matrix is equal to the original matrix
         assert np.allclose(reconstructed, U, rtol=1e-8)
 
-# np.set_printoptions(precision=3, suppress=True)
-# U = np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 1, 0, 0], [0, 0, -1, 0]])
+np.set_printoptions(precision=3, suppress=True)
+U = np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 1, 0, 0], [0, 0, -1, 0]])
 # test_canonical_decomposition(U)
-# test_u4_decomposition()
+test_u4_decomposition()

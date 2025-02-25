@@ -467,25 +467,25 @@ def u4_decomposition(
         ("S", (q1, )),
         ("CNOT", (q1, q0)),
         
-        # (power_pauli_z(tz-0.5), (q0, )),
-        # (power_pauli_y(tx-0.5), (q1, )),
+        (power_pauli_z(tz-0.5), (q0, )),
+        (power_pauli_y(tx-0.5), (q1, )),
 
         # (power_pauli_z(tz-0.5), (q0, )),
         # (power_pauli_y(tx-0.5), (q1, )),
         # (power_pauli_y(0.5-tx), (q1, )),
         # (power_pauli_y(0.5-ty), (q1, )),
-        (rotation_z(t1), (q0, )),
-        (rotation_y(t2), (q1, )),
+        # (rotation_z(t1), (q0, )),
+        # (rotation_y(t2), (q1, )),
         # (rotation_y(np.pi * tx - np.pi/2), (q1, )),
 
         ("CNOT", (q0, q1)),
         
-        # (power_pauli_y(0.5-ty), (q1, )),
+        (power_pauli_y(0.5-ty), (q1, )),
 
         # (power_pauli_y(0.5-ty), (q1, )),
         # (power_pauli_y(ty-0.5), (q1, )),
         # (power_pauli_y(tx-0.5), (q1, )),
-        (rotation_y(t3), (q1, )),
+        # (rotation_y(t3), (q1, )),
         # (rotation_y(-np.pi * ty + np.pi/2), (q1, )),
 
         ("CNOT", (q1, q0)),
