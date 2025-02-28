@@ -21,6 +21,68 @@ from scipy.stats import ortho_group, special_ortho_group, unitary_group
 from cliffordplust.decompositions import *
 
 
+def multiply_circuit(circuit):
+    """
+    Takes a list of tuples containing gates and the qubits they act on and returns the matrix
+    representation of the circuit.
+
+    Args:
+        circuit (list): A list of tuples containing gates and the qubits they act on.
+
+    Returns:
+        np.ndarray: The matrix representation of the circuit.
+    """
+    # Matrix representation of the circuit
+    matrix = np.eye(4)
+
+    # Split the gates into elementary gates
+    splitted_decomp = list()
+    for gate, target in circuit:
+        if type(gate) is not str:
+            splitted_decomp.append((gate, target))
+        elif " " not in gate:
+            splitted_decomp.append((gate, target))
+        else:
+            for g in gate.split(" "):
+                splitted_decomp.append((g, target))
+
+    # Reconstruct the matrix
+    for gate, target in splitted_decomp:
+        # Transform a string gate into a np.array gate
+        match gate:
+            case np.ndarray():
+                pass
+
+            case "CNOT":
+                if target == (0, 1):
+                    gate = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
+                else:
+                    gate = np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0], [0, 1, 0, 0]])
+
+            case "H":
+                gate = np.array([[1, 1], [1, -1]]) / np.sqrt(2)
+
+            case "S":
+                gate = np.array([[1, 0], [0, 1.0j]])
+
+            case "SDAG":
+                gate = np.array([[1, 0], [0, -1.0j]])
+
+        # Transform any 2x2 matrix into a 4x4 matrix
+        if gate.shape == (2, 2):
+            if target == (0,):
+                transformed_gate = np.kron(gate, np.eye(2))
+            elif target == (1,):
+                transformed_gate = np.kron(np.eye(2), gate)
+
+        else:
+            transformed_gate = gate
+
+        matrix = transformed_gate @ matrix
+    
+    return matrix
+
+
 def test_power_pauli_y():
     """Test the power of Pauli-Y matrix."""
     # Trivial cases
@@ -234,50 +296,7 @@ def test_so4_decomposition():
 
         # Test the decomposition
         decomp = so4_decomposition(U)
-        reconstructed = np.eye(4)
-
-        splitted_decomp = list()
-        for gate, target in decomp:
-            # Split the gate into elementary gates
-            if type(gate) is not str:
-                splitted_decomp.append((gate, target))
-            elif " " not in gate:
-                splitted_decomp.append((gate, target))
-            else:
-                for g in gate.split(" "):
-                    splitted_decomp.append((g, target))
-
-        # Reconstruct the matrix
-        for gate, target in splitted_decomp:
-            # Transform a string gate into a np.array gate
-            match gate:
-                case np.ndarray():
-                    pass
-
-                case "CNOT":
-                    if target == (1, 0):
-                        gate = np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0], [0, 1, 0, 0]])
-
-                case "H":
-                    gate = np.array([[1, 1], [1, -1]]) / np.sqrt(2)
-
-                case "S":
-                    gate = np.array([[1, 0], [0, 1.0j]])
-
-                case "SDAG":
-                    gate = np.array([[1, 0], [0, -1.0j]])
-
-            # Transform any 2x2 matrix into a 4x4 matrix
-            if gate.shape == (2, 2):
-                if target == (0,):
-                    transformed_gate = np.kron(gate, np.eye(2))
-                elif target == (1,):
-                    transformed_gate = np.kron(np.eye(2), gate)
-
-            else:
-                transformed_gate = gate
-
-            reconstructed = transformed_gate @ reconstructed
+        reconstructed = multiply_circuit(decomp)
 
         # Assert the reconstructed matrix is equal to the original matrix
         assert np.allclose(reconstructed, U, rtol=1e-8)
@@ -321,52 +340,7 @@ def test_o4_det_minus1_decomposition():
 
         # Test the decomposition
         decomp = o4_det_minus1_decomposition(U)
-        reconstructed = np.eye(4)
-
-        splitted_decomp = list()
-        for gate, target in decomp:
-            # Split the gate into elementary gates
-            if type(gate) is not str:
-                splitted_decomp.append((gate, target))
-            elif " " not in gate:
-                splitted_decomp.append((gate, target))
-            else:
-                for g in gate.split(" "):
-                    splitted_decomp.append((g, target))
-
-        # Reconstruct the matrix
-        for gate, target in splitted_decomp:
-            # Transform a string gate into a np.array gate
-            match gate:
-                case np.ndarray():
-                    pass
-
-                case "CNOT":
-                    if target == (0, 1):
-                        gate = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
-                    elif target == (1, 0):
-                        gate = np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0], [0, 1, 0, 0]])
-
-                case "H":
-                    gate = np.array([[1, 1], [1, -1]]) / np.sqrt(2)
-
-                case "S":
-                    gate = np.array([[1, 0], [0, 1.0j]])
-
-                case "SDAG":
-                    gate = np.array([[1, 0], [0, -1.0j]])
-
-            # Transform any 2x2 matrix into a 4x4 matrix
-            if gate.shape == (2, 2):
-                if target == (0,):
-                    transformed_gate = np.kron(gate, np.eye(2))
-                elif target == (1,):
-                    transformed_gate = np.kron(np.eye(2), gate)
-
-            else:
-                transformed_gate = gate
-
-            reconstructed = transformed_gate @ reconstructed
+        reconstructed = multiply_circuit(decomp)
 
         # Assert the reconstructed matrix is equal to the original matrix
         assert np.allclose(reconstructed, U, rtol=1e-8)
@@ -414,46 +388,7 @@ def test_u4_decomposition():
 
         # Test the decomposition
         decomp = u4_decomposition(U)
-        reconstructed = np.eye(4)
-
-        splitted_decomp = list()
-        for gate, target in decomp:
-            # Split the gate into elementary gates
-            if type(gate) is not str:
-                splitted_decomp.append((gate, target))
-            elif " " not in gate:
-                splitted_decomp.append((gate, target))
-
-        # Reconstruct the matrix
-        for gate, target in splitted_decomp:
-            # Transform a string gate into a np.array gate
-            match gate:
-                case np.ndarray():
-                    pass
-
-                case "CNOT":
-                    if target == (0, 1):
-                        gate = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
-                    elif target == (1, 0):
-                        gate = np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0], [0, 1, 0, 0]])
-
-                case "S":
-                    gate = np.array([[1, 0], [0, 1.0j]])
-
-                case "SDAG":
-                    gate = np.array([[1, 0], [0, -1.0j]])
-
-            # Transform any 2x2 matrix into a 4x4 matrix
-            if gate.shape == (2, 2):
-                if target == (0,):
-                    transformed_gate = np.kron(gate, np.eye(2))
-                elif target == (1,):
-                    transformed_gate = np.kron(np.eye(2), gate)
-
-            else:
-                transformed_gate = gate
-
-            reconstructed = transformed_gate @ reconstructed
+        reconstructed = multiply_circuit(decomp)
 
         # Assert the reconstructed matrix is equal to the original matrix
         phase = reconstructed[0, 0] / U[0, 0]
@@ -555,47 +490,21 @@ def test_tqg_decomposition():
 
         # Test the decomposition
         decomp = tqg_decomposition(U)
-        reconstructed = np.eye(4)
-
-        splitted_decomp = list()
-        for gate, target in decomp:
-            # Split the gate into elementary gates
-            if type(gate) is not str:
-                splitted_decomp.append((gate, target))
-            elif " " not in gate:
-                splitted_decomp.append((gate, target))
-
-        # Reconstruct the matrix
-        for gate, target in splitted_decomp:
-            # Transform a string gate into a np.array gate
-            match gate:
-                case np.ndarray():
-                    pass
-
-                case "CNOT":
-                    if target == (0, 1):
-                        gate = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
-                    elif target == (1, 0):
-                        gate = np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0], [0, 1, 0, 0]])
-
-                case "S":
-                    gate = np.array([[1, 0], [0, 1.0j]])
-
-                case "SDAG":
-                    gate = np.array([[1, 0], [0, -1.0j]])
-
-            # Transform any 2x2 matrix into a 4x4 matrix
-            if gate.shape == (2, 2):
-                if target == (0,):
-                    transformed_gate = np.kron(gate, np.eye(2))
-                elif target == (1,):
-                    transformed_gate = np.kron(np.eye(2), gate)
-
-            else:
-                transformed_gate = gate
-
-            reconstructed = transformed_gate @ reconstructed
+        reconstructed = multiply_circuit(decomp)
 
         # Assert the reconstructed matrix is equal to the original matrix
         phase = reconstructed[0, 0] / U[0, 0]
         assert np.allclose(reconstructed / phase, U, rtol=1e-8)
+
+
+def test_tqg_decomposition_errors():
+    """Test the raise of errors when calling two-qubits gate decomposition with wrong arguments."""
+    # Shape error
+    U = np.eye(3)
+    with pytest.raises(ValueError, match="The input matrix must be 4x4. Got "):
+        tqg_decomposition(U)
+
+    # Unitary error
+    U = np.eye(4) * 1.1
+    with pytest.raises(ValueError, match="The input matrix must be unitary."):
+        tqg_decomposition(U)
