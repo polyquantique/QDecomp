@@ -62,7 +62,7 @@ from cliffordplust.rings import *
 # ----------------------------- #
 # Functions for Rings algebra   #
 # ----------------------------- #
-def gcd_Zomega(x, y):
+def gcd_Zomega(x: Zomega, y: Zomega) -> Zomega:
     """
     Find the greatest common divider (gcd) of x and y in the ring :math:`\mathbb{Z}[\omega]`. x and y are elements of
     the ring :math:`\mathbb{Z}[\omega]`. The algorithm implemented is the Euler method extended to the ring
@@ -83,7 +83,7 @@ def gcd_Zomega(x, y):
     return a
 
 
-def euclidean_div_Zomega(num, div):
+def euclidean_div_Zomega(num: Zomega, div: Zomega) -> tuple[Zomega, Zomega]:
     """
     Compute the euclidean division of num by div where num and div are elements of :math:`\mathbb{Z}[\omega]`. This
     function return q and r such that :math:`num = q * div + r`.
@@ -120,7 +120,7 @@ def euclidean_div_Zomega(num, div):
     return q, r
 
 
-def euclidean_div_Zsqrt2(num, div):
+def euclidean_div_Zsqrt2(num: Zsqrt2, div: Zsqrt2) -> tuple[Zsqrt2, Zsqrt2]:
     """
     Perform the euclidean division of num in :math:`\mathbb{Z}[\sqrt{2}]`. This function returns q and r such that
     :math:`num = q * div + r`.
@@ -144,7 +144,7 @@ def euclidean_div_Zsqrt2(num, div):
     return q, r
 
 
-def are_sim_Zsqrt2(x, y):
+def are_sim_Zsqrt2(x: Zsqrt2, y: Zsqrt2) -> bool:
     """
     Determine if :math:`x \sim y`. Equivalently, :math:`x \sim y` if there exists a unit u such that :math:`x = u * y`.
     x, y and u are elements of :math:`\mathbb{Z}[\sqrt{2}]`.
@@ -162,7 +162,7 @@ def are_sim_Zsqrt2(x, y):
     return (r1 == 0) and (r2 == 0)
 
 
-def is_unit_Zsqrt2(x):
+def is_unit_Zsqrt2(x: Zsqrt2) -> bool:
     """
     Determine if x is a unit in the ring :math:`\mathbb{Z}[\sqrt{2}]`.
 
@@ -179,7 +179,7 @@ def is_unit_Zsqrt2(x):
 # ----------------------------- #
 # Functions to solve the Diophantine equation
 # ----------------------------- #
-def solve_usquare_eq_a_mod_p(a, p):
+def solve_usquare_eq_a_mod_p(a: int, p: int) -> int:
     """
     Solve the diophantine equation :math:`u^2 = -a (mod p)` where a, p and u are integers. This function
     returns the first integer solution of the equation. p is a prime.
@@ -202,7 +202,7 @@ def solve_usquare_eq_a_mod_p(a, p):
     return sol
 
 
-def integer_fact(p):
+def integer_fact(p: int) -> list[tuple[int, int]]:
     """
     Find the factorization of an integer p. This function returns a list of tuples (p_i, m_i) where
     p_i is a prime factor of p and m_i is its power.
@@ -257,7 +257,7 @@ def integer_fact(p):
     return factors
 
 
-def xi_fact(xi):
+def xi_fact(xi: Zsqrt2) -> list[tuple[Zsqrt2, int]]:
     """
     Finds the factorization of :math:`\xi` (up to a prime) in the ring :math:`\mathbb{Z}[\sqrt{2}]` where :math:`\xi` is an
     element of :math:`\mathbb{Z}[\sqrt{2}]`. This function returns a list of tuples (:math:`\xi_i`, :math:`m_i`), where :math:`\xi_i` is
@@ -320,7 +320,7 @@ def xi_fact(xi):
     return xi_fact_list
 
 
-def pi_fact_into_xi(pi):
+def pi_fact_into_xi(pi: int) -> Zsqrt2 | None:
     """
     Solve the equation :math:`pi = \xi_i * \xi_i^{\bullet} = a^2 - 2 * b^2` where :math:`^{\bullet}` denotes
     the :math:`\sqrt{2}` conjugate. pi is a prime integer and :math:`\xi _i = a + b \sqrt{2}` is an element of
@@ -352,7 +352,7 @@ def pi_fact_into_xi(pi):
     return xi
 
 
-def xi_i_fact_into_ti(xi_i, check_prime=False):
+def xi_i_fact_into_ti(xi_i: Zsqrt2, check_prime: bool = False) -> Zomega | None:
     """
     Solve the equation :math:`\xi_i = t_i * t_i^\dagger` where :math:`^\dagger` denotes the complex conjugate.
     :math:`\xi_i` is a prime element in :math:`\mathbb{Z}[\sqrt{2}]` and :math:`t_i` is an element of :math:`\mathbb{Z}[\omega]`. :math:`\xi_i` has a
@@ -423,7 +423,7 @@ def xi_i_fact_into_ti(xi_i, check_prime=False):
         return None
 
 
-def solve_xi_sim_ttdag_in_z(xi):
+def solve_xi_sim_ttdag_in_z(xi: Zsqrt2) -> Zomega | None:
     """
     Solve the equation :math:`\xi \sim t * t^\dagger` for t where :math:`^\dagger` denotes the complex conjugate.
     :math:`\xi` is an element of :math:`\mathbb{Z}[\sqrt{2}]` and t is an element of :math:`\mathbb{Z}[\omega]`. This function returns the
@@ -456,7 +456,7 @@ def solve_xi_sim_ttdag_in_z(xi):
     return t
 
 
-def solve_xi_eq_ttdag_in_d(xi):
+def solve_xi_eq_ttdag_in_d(xi: Dsqrt2) -> Domega | None:
     """
     Solve the equation :math:`\xi = t * t^\dagger` for t where :math:`^\dagger` denotes the complex conjugate. :math:`\xi`
     is an element of :math:`\mathbb{D}[\sqrt{2}]` and t is an element of :math:`\mathbb{D}[\omega]`. This function returns the first
