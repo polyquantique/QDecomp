@@ -28,7 +28,7 @@
  * @param n The number to check.
  * @return true if n is a square, false otherwise.
  */
-bool is_square(int n);
+bool is_square(long long int n);
 
 /**
  * @brief Solve the Diophantine equation u^2 = -a (mod p).
@@ -40,7 +40,7 @@ bool is_square(int n);
  * @param p The value of p.
  * @return The solution u.
  */
-int solve_usquare_eq_a_mod_p(int a, int p);
+long long int solve_usquare_eq_a_mod_p(long long int a, long long int p);
 
 
 /**
@@ -50,17 +50,17 @@ int solve_usquare_eq_a_mod_p(int a, int p);
  * @return The factorization of n as a vector of tuples (p, m) where p is a prime number and m is
  *  the exponent of p in the factorization of n.
  */
-std::vector<std::tuple<int, int>> int_fact(int n);
+std::vector<std::tuple<long long int, unsigned short>> int_fact(long long int n);
 
 /**
- * @brief Find the factorization of a number in Z[\u221A2].
+ * @brief Find the factorization, up to a prime, of a number in Z[\u221A2].
  * 
  * @param xi The number to factorize in Z[\u221A2].
  * @return The factorization of xi as a vector of tuples (p, xi_i, m) where p is an integer prime
- *  number assotiated to xi_i, xi_i is a prime of xi in Z[\u221A2], and m is the exponent of xi_i in
+ *  number associated to xi_i, xi_i is a prime of xi in Z[\u221A2], and m is the exponent of xi_i in
  *  the factorization of n.
  */
-std::vector<std::tuple<int, Zsqrt2, int>> xi_fact(Zsqrt2 xi);
+std::vector<std::tuple<long long int, Zsqrt2, unsigned short>> xi_fact(Zsqrt2 xi);
 
 /**
  * @brief Find the factorization of a prime integer in Z[\u221A2].
@@ -68,7 +68,7 @@ std::vector<std::tuple<int, Zsqrt2, int>> xi_fact(Zsqrt2 xi);
  * @param pi The prime number to factorize in Z[\u221A2].
  * @return A prime factor of pi in Z[\u221A2]. The \u221A2 conjugate is also a prime factor of pi.
  */
-Zsqrt2 pi_fact_into_xi(int pi);
+Zsqrt2 pi_fact_into_xi(long long int pi);
 
 /**
  * @brief Find the factorization of a prime element of Z[\u221A2] in Z[\u03C9].
@@ -78,7 +78,7 @@ Zsqrt2 pi_fact_into_xi(int pi);
  * @param xi_i A prime number in Z[\u221A2] to factorize.
  * @return A prime factor of xi_i in Z[\u03C9]. The complex conjugate is also a prime factor of xi_i.
  */
-Zomega xi_i_fact_into_ti(int pi, Zsqrt2 xi_i);
+Zomega xi_i_fact_into_ti(long long int pi, Zsqrt2 xi_i);
 
 
 /**

@@ -21,10 +21,10 @@
 #include "Rings.hpp"
 
 
-Zsqrt2::Zsqrt2(int p, int q) : _p(p), _q(q) {}
+Zsqrt2::Zsqrt2(long long int p, long long int q) : _p(p), _q(q) {}
 
-int Zsqrt2::p() const {return _p;}
-int Zsqrt2::q() const {return _q;}
+long long int Zsqrt2::p() const {return _p;}
+long long int Zsqrt2::q() const {return _q;}
 
 Zsqrt2 Zsqrt2::sqrt2_conjugate() const {return Zsqrt2(_p, -_q);}
 
@@ -42,7 +42,7 @@ D Zsqrt2::to_D() const {
     return D(_p, 0);
 }
 
-int Zsqrt2::to_int() const {
+long long int Zsqrt2::to_int() const {
     if (! is_int()) {
         throw std::runtime_error("The number to convert is not an integer. Got " + to_string());
     }
@@ -50,13 +50,15 @@ int Zsqrt2::to_int() const {
     return _p;
 }
 
-float Zsqrt2::to_float() const {return _p + _q * std::sqrt(2.0);}
+float Zsqrt2::to_float() const {
+    return static_cast<float>(_p) + static_cast<float>(_q) * static_cast<float>(std::sqrt(2.0));
+}
 
 
 bool Zsqrt2::operator==(const Zsqrt2& other) const {return (_p == other._p) and (_q == other._q);}
-bool Zsqrt2::operator==(const int& other) const {return (_p == other) and (_q == 0);}
+bool Zsqrt2::operator==(const long long int& other) const {return (_p == other) and (_q == 0);}
 bool Zsqrt2::operator!=(const Zsqrt2& other) const {return !(*this == other);}
-bool Zsqrt2::operator!=(const int& other) const {return !(*this == other);}
+bool Zsqrt2::operator!=(const long long int& other) const {return !(*this == other);}
 
 bool Zsqrt2::operator||(const Zsqrt2& other) const {
     Zsqrt2 r1(0, 0);
@@ -78,11 +80,7 @@ Zsqrt2 Zsqrt2::operator*(const Zsqrt2& other) const {
 }
 
 
-Zsqrt2 Zsqrt2::pow(int n) const {
-    if (n < 0) {
-        throw std::invalid_argument("The exponent must be positive. Got " + std::to_string(n));
-    }
-
+Zsqrt2 Zsqrt2::pow(unsigned short n) const {
     Zsqrt2 nth_power = *this;
     Zsqrt2 result(1, 0);
 
@@ -96,6 +94,40 @@ Zsqrt2 Zsqrt2::pow(int n) const {
 }
 
 
+void Zsqrt2::unit_reduce() {
+    Zsqrt2 n1 = *this;
+    Zsqrt2 n2(0, 0);
+
+    // If the sign of p and q is different, reduce the number by multiplying by lambda = 1 + sqrt(2)
+    if (std::signbit(n1.p()) xor std::signbit(n1.q())) {
+        do {
+            n1 = n1 * Zsqrt2(1, 1);
+        } while (std::signbit(n1.p()) xor std::signbit(n1.q()));
+
+        // Recover the number with the opposite sign
+        n2 = n1 * Zsqrt2(-1, 1);
+
+    // If not, reduce the number by multiplying by lambda**-1 = -1 + sqrt(2)
+    } else {
+        do {
+            n1 = n1 * Zsqrt2(-1, 1);
+        } while (std::signbit(n1.p()) == std::signbit(n1.q()));
+        
+        // Recover the number with the opposite sign
+        n2 = n1 * Zsqrt2(1, 1);
+    }
+
+    // Return the best number, the one with the smallest coefficients p and q
+    long long int merit1 = std::llabs(n1.p()) + std::llabs(n1.q());
+    long long int merit2 = std::llabs(n2.p()) + std::llabs(n2.q());
+    if (merit1 < merit2) {
+        *this = n1;
+    } else {
+        *this = n2;
+    }
+}
+
+
 std::string Zsqrt2::to_string() const {
     return std::to_string(_p) + " + " + std::to_string(_q) + "\u221A2";
 }
@@ -106,10 +138,10 @@ void Zsqrt2::print() const {std::cout << to_string() << std::endl;}
 /// Functions in the Z[\u221A2] ring
 std::tuple<Zsqrt2, Zsqrt2> euclidean_div(const Zsqrt2& num, const Zsqrt2& div) {
     Zsqrt2 num_ = num * div.sqrt2_conjugate();
-    int den_ = (div * div.sqrt2_conjugate()).p();
+    long long int den_ = (div * div.sqrt2_conjugate()).p();
 
-    int a = std::round(static_cast<float>(num_.p()) / den_);
-    int b = std::round(static_cast<float>(num_.q()) / den_);
+    long long int a = static_cast<long long int>(std::round(static_cast<float>(num_.p()) / static_cast<float>(den_)));
+    long long int b = static_cast<long long int>(std::round(static_cast<float>(num_.q()) / static_cast<float>(den_)));
 
     Zsqrt2 q(a, b);
     Zsqrt2 r = num - q * div;

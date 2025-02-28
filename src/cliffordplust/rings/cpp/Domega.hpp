@@ -48,9 +48,13 @@ class Domega {
          * @param lc The denominator's power of 2 of the \u03C9^1 coefficient.
          * @param d The numerator of the \u03C9^0 coefficient.
          * @param ld The denominator's power of 2 of the \u03C9^0 coefficient.
-         * @throw std::invalid_argument if any denominator power is negative.
          */
-        Domega(int a, int la, int b, int lb, int c, int lc, int d, int ld);
+        Domega(
+            long long int a, unsigned short la,
+            long long int b, unsigned short lb,
+            long long int c, unsigned short lc,
+            long long int d, unsigned short ld
+        );
 
         /**
          * @brief Construct a new D[\u03C9] object.
@@ -101,7 +105,7 @@ class Domega {
          * @return const D& The coefficient.
          * @throw std::invalid_argument if the index is not between 0 and 3.
          */
-        const D& operator[](int i) const;
+        const D& operator[](unsigned short i) const;
 
 
         /**
@@ -141,7 +145,7 @@ class Domega {
          * 
          * @return int The smallest denominator exponent.
          */
-        int sde() const;
+        unsigned short sde() const;
 
 
         /**
@@ -218,7 +222,7 @@ class Domega {
          * @return int The integer.
          * @throw std::runtime_error if the number is not an integer.
          */
-        int to_int() const;
+        long long int to_int() const;
 
 
         /**
@@ -237,7 +241,7 @@ class Domega {
          * @return true If the numbers are equal.
          * @return false If the numbers are not equal.
          */
-        bool operator==(const int& other) const;
+        bool operator==(const long long int& other) const;
 
         /**
          * @brief Check if the number is not equal to another D[\u03C9] object.
@@ -255,7 +259,7 @@ class Domega {
          * @return true If the numbers are not equal.
          * @return false If the numbers are equal.
          */
-        bool operator!=(const int& other) const;
+        bool operator!=(const long long int& other) const;
 
 
         /**
@@ -272,7 +276,7 @@ class Domega {
          * @param other The integer.
          * @return Domega The result of the addition.
          */
-        Domega operator+(const int& other) const;
+        Domega operator+(const long long int& other) const;
 
         /**
          * @brief Negate the number.
@@ -295,7 +299,7 @@ class Domega {
          * @param other The integer.
          * @return Domega The result of the subtraction.
          */
-        Domega operator-(const int& other) const;
+        Domega operator-(const long long int& other) const;
 
         /**
          * @brief Multiply the number by another D[\u03C9] object.
@@ -311,7 +315,7 @@ class Domega {
          * @param other The integer.
          * @return Domega The result of the multiplication.
          */
-        Domega operator*(const int& other) const;
+        Domega operator*(const long long int& other) const;
 
 
         /**
@@ -319,9 +323,8 @@ class Domega {
          * 
          * @param n The power.
          * @return Domega The result of the power.
-         * @throw std::invalid_argument if the exponent is negative.
          */
-        Domega pow(int n) const;
+        Domega pow(unsigned short n) const;
 
 
         /**

@@ -31,8 +31,8 @@
  */
 class Zsqrt2 {
     private:
-        int _p;  ///< The integer coefficient of the ring element
-        int _q;  ///< The \u221A2 coefficient of the ring element
+        long long int _p;  ///< The integer coefficient of the ring element
+        long long int _q;  ///< The \u221A2 coefficient of the ring element
 
     public:
         /**
@@ -41,7 +41,7 @@ class Zsqrt2 {
          * @param p The numerator of the integer coefficient.
          * @param q The numerator of the \u221A2 coefficient.
          */
-        Zsqrt2(int p, int q);
+        Zsqrt2(long long int p, long long int q);
 
 
         /**
@@ -49,14 +49,14 @@ class Zsqrt2 {
          * 
          * @return int The integer coefficient.
          */
-        int p() const;
+        long long int p() const;
 
         /**
          * @brief Get the \u221A2 coefficient of the ring element.
          * 
          * @return int The \u221A2 coefficient.
          */
-        int q() const;
+        long long int q() const;
 
 
         /**
@@ -110,7 +110,7 @@ class Zsqrt2 {
          * @return int The integer.
          * @throw std::runtime_error if the number is not an integer.
          */
-        int to_int() const;
+        long long int to_int() const;
 
         /**
          * @brief Convert the number to a float.
@@ -136,7 +136,7 @@ class Zsqrt2 {
          * @return true If the numbers are equal.
          * @return false If the numbers are not equal.
          */
-        bool operator==(const int& other) const;
+        bool operator==(const long long int& other) const;
 
         /**
          * @brief Check if the number is not equal to another Z[\u221A2] object.
@@ -154,7 +154,7 @@ class Zsqrt2 {
          * @return true If the numbers are not equal.
          * @return false If the numbers are equal.
          */
-        bool operator!=(const int& other) const;
+        bool operator!=(const long long int& other) const;
 
         /**
          * @brief Check if the number is similar to another Z[\u221A2] object.
@@ -205,9 +205,14 @@ class Zsqrt2 {
          * 
          * @param n The exponent.
          * @return Zsqrt2 The result of the exponentiation.
-         * @throw std::invalid_argument if the exponent is negative.
          */
-        Zsqrt2 pow(int n) const;
+        Zsqrt2 pow(unsigned short n) const;
+
+
+        /**
+         * @brief Reduce the number by multiplying by a unit.
+         */
+        void unit_reduce();
 
 
         /**
