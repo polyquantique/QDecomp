@@ -262,7 +262,7 @@ def canonical_gate(tx: float, ty: float, tz: float) -> np.ndarray:
 
 def so4_decomposition(
     matrix: np.ndarray, qubit_no: tuple[int, int] = (0, 1)
-) -> tuple[np.ndarray, np.ndarray]:
+) -> list[tuple]:
     """
     Decompose a 4x4 matrix in SO(4) (special orthogonal group) into a series of 4 S gates, 2 H
     gates, 2 CNOT gates and 2 one-qubit unitary gates. The output is a list of tuples containing
@@ -270,7 +270,7 @@ def so4_decomposition(
 
     Args:
         matrix (np.ndarray): 4x4 matrix.
-        qubit_no (tuple[int, int]): Tuple containing the qubit numbers on which the decomposition
+        qubit_no (tuple[int, int]): Tuple containing the qubit numbers on which the gate acts.
 
     Returns:
         list[tuple]: List of tuples containing the gates of the decomposition and the qubit on which
@@ -313,7 +313,7 @@ def so4_decomposition(
 
 def o4_det_minus1_decomposition(
     matrix: np.ndarray, qubit_no: tuple[int, int] = (0, 1)
-) -> tuple[np.ndarray, np.ndarray]:
+) -> list[tuple]:
     """
     Decompose a 4x4 matrix in O(4) (orthogonal group) with a determinant of -1 into a series of 4 S
     gates, 2 H gates, 3 CNOT gates and 2 one-qubit unitary gates. The output is a list of tuples
@@ -321,7 +321,7 @@ def o4_det_minus1_decomposition(
 
     Args:
         matrix (np.ndarray): 4x4 matrix.
-        qubit_no (tuple[int, int]): Tuple containing the qubit numbers on which the decomposition
+        qubit_no (tuple[int, int]): Tuple containing the qubit numbers on which the gate acts.
 
     Returns:
         list[tuple]: List of tuples containing the gates of the decomposition and the qubit on which
@@ -372,7 +372,7 @@ def o4_det_minus1_decomposition(
 
 def u4_decomposition(
     matrix: np.ndarray, qubit_no: tuple[int, int] = (0, 1)
-) -> tuple[np.ndarray, np.ndarray]:
+) -> list[tuple]:
     """
     Decompose a 4x4 matrix in U(4) (unitary group) into a series of 2 S gates, 3 CNOT gates, 7
     one-qubit unitary gates. The output is a list of tuples containing the gates of the
@@ -380,7 +380,7 @@ def u4_decomposition(
 
     Args:
         matrix (np.ndarray): 4x4 matrix.
-        qubit_no (tuple[int, int]): Tuple containing the qubit numbers on which the decomposition
+        qubit_no (tuple[int, int]): Tuple containing the qubit numbers on which the gate acts.
 
     Returns:
         list[tuple]: List of tuples containing the gates of the decomposition and the qubit on which
@@ -428,3 +428,90 @@ def u4_decomposition(
     ]
 
     return gates
+
+
+def known_decomposition(matrix: np.ndarray, qubit_no: tuple[int, int] = (0, 1)) -> list[tuple] | None:
+    """
+    Decompose a 4x4 matrix into a series of CNOT and single-qubit gates using predefined
+    decompositions for common gates (SWAP, identity, CNOT).
+
+    Args:
+        matrix (np.ndarray): 4x4 matrix.
+        qubit_no (tuple[int, int]): Tuple containing the qubit numbers on which the gate acts.
+
+    Returns:
+        list[tuple]: List of tuples containing the gates of the decomposition and the qubit on which
+        they act, or None if the input matrix is not a known gate.
+    
+    Raises:
+        ValueError: If the input matrix is not 4x4.
+        ValueError: If the qubit number is not a tuple of two integers.
+    """
+    # Check the input matrix
+    if matrix.shape != (4, 4):
+        raise ValueError(f"The input matrix must be 4x4. Got {matrix.shape}.")
+    if not isinstance(qubit_no, tuple) or len(qubit_no) != 2:
+        raise ValueError(f"The qubit number must be a tuple of two integers. Got {qubit_no}.")
+    
+    # Check if the matrix is a known gate
+    if (matrix == np.eye(4)).all():  # Identity
+        return []
+        
+    if (matrix == np.eye(4)[[0, 2, 1, 3]]).all():  # SWAP
+        return [("CNOT", qubit_no), ("CNOT", qubit_no[::-1]), ("CNOT", qubit_no)]
+        
+    if (matrix == np.eye(4)[[0, 1, 3, 2]]).all():  # CNOT
+        return [("CNOT", qubit_no)]
+        
+    if (matrix == np.eye(4)[[0, 3, 2, 1]]).all():  # CNOT (flipped)
+        return [("CNOT", qubit_no[::-1])]
+
+    if (matrix == np.eye(4)[[0, 2, 3, 1]]).all():  # CNOT, then CNOT_flipped
+        return [("CNOT", qubit_no), ("CNOT", qubit_no[::-1])]
+
+    if (matrix == np.eye(4)[[0, 3, 1, 2]]).all():  # CNOT_flipped, then CNOT
+        return [("CNOT", qubit_no[::-1]), ("CNOT", qubit_no)]
+        
+    return None
+
+
+def tqg_decomposition(
+    matrix: np.ndarray, qubit_no: tuple[int, int] = (0, 1)
+) -> list[tuple[np.ndarray, tuple[int]]]:
+    """
+    Decompose any two-qubits gate into a series of CNOT and single-qubit gates. This function
+    determines which decomposition to use based on the Lie group of the input matrix (SO(4), O(4),
+    U(4)) or uses a predefined decomposition if the gate is a common one (SWAP, identity, CNOT).
+
+    Args:
+        matrix (np.ndarray): 4x4 matrix.
+        qubit_no (tuple[int, int]): Tuple containing the qubit numbers on which the gate acts.
+    
+    Returns:
+        list[tuple]: List of tuples containing the gates of the decomposition and the qubit on which
+        they act.
+    
+    Raises:
+        ValueError: If the input matrix is not 4x4.
+        ValueError: If the input matrix is not unitary.
+    """
+    # Check the input matrix
+    if matrix.shape != (4, 4):
+        raise ValueError(f"The input matrix must be 4x4. Got {matrix.shape}.")
+    if not is_unitary(matrix):
+        raise ValueError("The input matrix must be unitary.")
+
+    # Check if the matrix is a known gate
+    known_decomp = known_decomposition(matrix, qubit_no)
+    if known_decomp is not None:
+        return known_decomp
+
+    # Check the Lie group of the matrix
+    if is_orthogonal(matrix):
+        if is_special(matrix):  # Special orthogonal group SO(4)
+            return so4_decomposition(matrix, qubit_no)
+        else:  # Orthogonal group O(4) with det = -1
+            return o4_det_minus1_decomposition(matrix, qubit_no)
+
+    else:  # Unitary group U(4)
+        return u4_decomposition(matrix, qubit_no)

@@ -412,8 +412,6 @@ def test_u4_decomposition():
             case _:
                 U = unitary_group(dim=4, seed=42).rvs()
 
-        print(np.linalg.det(U))
-
         # Test the decomposition
         decomp = u4_decomposition(U)
         reconstructed = np.eye(4)
@@ -473,3 +471,131 @@ def test_u4_decomposition_errors():
     U = np.eye(4) * 1.1
     with pytest.raises(ValueError, match="The input matrix must be unitary."):
         u4_decomposition(U)
+
+
+@pytest.mark.parametrize("matrix, expected", [
+    (np.eye(4), []),
+    (np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]]), [("CNOT", (0, 1))]),
+    (np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0], [0, 1, 0, 0]]), [("CNOT", (1, 0))]),
+    (np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 0, 0, 1]]), [
+        ("CNOT", (0, 1)), ("CNOT", (1, 0)), ("CNOT", (0, 1))
+    ]),
+    (np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1], [0, 1, 0, 0]]), [
+        ("CNOT", (0, 1)), ("CNOT", (1, 0))
+    ]),
+    (np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 1, 0, 0], [0, 0, 1, 0]]), [
+        ("CNOT", (1, 0)), ("CNOT", (0, 1))
+    ]),
+    (np.arange(16).reshape((4, 4)), None),
+])
+def test_known_decomposition(matrix, expected):
+    """Test the known_decomposition function."""
+    assert known_decomposition(matrix) == expected
+
+    # Reconstruct the matrix from the output list
+    if expected is None:
+        pass
+
+    else:
+        reconstructed = np.eye(4)
+        for _, (q0, _) in expected:
+            if q0 == 0:
+                reconstructed = np.eye(4)[[0, 1, 3, 2]] @ reconstructed
+            else:
+                reconstructed = np.eye(4)[[0, 3, 2, 1]] @ reconstructed
+    
+        assert (reconstructed == matrix).all()
+
+
+@pytest.mark.parametrize("matrix, qubit_no, error", [
+    (np.eye(3), (0, 1), "The input matrix must be 4x4. Got "),                   
+    (np.arange(1, 10).reshape(3, 3), (0, 1), "The input matrix must be 4x4. Got "),
+    (np.arange(1, 13).reshape(3, 4), (0, 1), "The input matrix must be 4x4. Got "),
+    (np.arange(1, 13).reshape(4, 3), (0, 1), "The input matrix must be 4x4. Got "),
+    (np.arange(1, 26).reshape(5, 5), (0, 1), "The input matrix must be 4x4. Got "),
+    (np.eye(4), (0, 1, 2), "The qubit number must be a tuple of two integers. Got "),
+    (np.eye(4), (0, ), "The qubit number must be a tuple of two integers. Got "),
+    (np.eye(4), 0, "The qubit number must be a tuple of two integers. Got "),
+])
+def test_known_decomposition_errors(matrix, qubit_no, error):
+    """Test the raise of errors when calling known_decomposition with wrong arguments."""
+    with pytest.raises(ValueError, match=error):
+        known_decomposition(matrix, qubit_no)
+
+
+def test_tqg_decomposition():
+    """Test the two-qubits gate decomposition."""
+    for i in range(25):
+        # Use a predefined or randomly generated 4x4 matrix
+        match i:
+            case 0:
+                U = np.diag([1, 1, 1, -1])
+            case 1:
+                U = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
+            case 2:
+                U = np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 1, 0, 0], [0, 0, -1, 0]])
+            case 3:
+                U = np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0], [0, 1, 0, 0]])
+            case 5:
+                U = np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0], [0, -1, 0, 0]])
+            case 6:
+                U = np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 1, 0, 0], [0, 0, -1, 0]])
+            case 7:
+                U = np.eye(4)
+            case 8:
+                U = np.array([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
+            case 9:
+                U = np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 1, 0, 0], [0, 0, 1, 0]])
+            case j if 10 <= j < 15:
+                U = unitary_group(dim=4, seed=42).rvs()
+            case j if 15 <= j < 20:
+                U = ortho_group(dim=4, seed=42).rvs()
+            case _:
+                U = special_ortho_group(dim=4, seed=42).rvs()
+
+        # Test the decomposition
+        decomp = tqg_decomposition(U)
+        reconstructed = np.eye(4)
+
+        splitted_decomp = list()
+        for gate, target in decomp:
+            # Split the gate into elementary gates
+            if type(gate) is not str:
+                splitted_decomp.append((gate, target))
+            elif " " not in gate:
+                splitted_decomp.append((gate, target))
+
+        # Reconstruct the matrix
+        for gate, target in splitted_decomp:
+            # Transform a string gate into a np.array gate
+            match gate:
+                case np.ndarray():
+                    pass
+
+                case "CNOT":
+                    if target == (0, 1):
+                        gate = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
+                    elif target == (1, 0):
+                        gate = np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0], [0, 1, 0, 0]])
+
+                case "S":
+                    gate = np.array([[1, 0], [0, 1.0j]])
+
+                case "SDAG":
+                    gate = np.array([[1, 0], [0, -1.0j]])
+
+            # Transform any 2x2 matrix into a 4x4 matrix
+            if gate.shape == (2, 2):
+                if target == (0,):
+                    transformed_gate = np.kron(gate, np.eye(2))
+                elif target == (1,):
+                    transformed_gate = np.kron(np.eye(2), gate)
+
+            else:
+                transformed_gate = gate
+
+            reconstructed = transformed_gate @ reconstructed
+
+        # Assert the reconstructed matrix is equal to the original matrix
+        phase = reconstructed[0, 0] / U[0, 0]
+        assert np.allclose(reconstructed / phase, U, rtol=1e-8)
