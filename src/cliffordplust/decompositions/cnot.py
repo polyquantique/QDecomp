@@ -38,12 +38,9 @@ import numpy as np
 from scipy.linalg import expm
 
 SQRT_2 = np.sqrt(2)
-MAGIC = (1 / SQRT_2 * np.array([
-    [1, 1.0j, 0, 0],
-    [0, 0, 1.0j, 1],
-    [0, 0, 1.0j, -1],
-    [1, -1.0j, 0, 0]
-]))
+MAGIC = (
+    1 / SQRT_2 * np.array([[1, 1.0j, 0, 0], [0, 0, 1.0j, 1], [0, 0, 1.0j, -1], [1, -1.0j, 0, 0]])
+)
 MAGIC_DAG = MAGIC.T.conj()
 
 
@@ -53,17 +50,14 @@ def power_pauli_y(p: float) -> np.ndarray:
 
     Args:
         p (float): Power of the Pauli Y matrix.
-    
+
     Returns:
         np.ndarray: Power of the Pauli Y matrix.
     """
     p_ = np.pi / 2 * p
-    phase = np.exp(1.j * p_)
+    phase = np.exp(1.0j * p_)
 
-    matrix = np.array([
-        [np.cos(p_), -np.sin(p_)],
-        [np.sin(p_), np.cos(p_)]
-    ])
+    matrix = np.array([[np.cos(p_), -np.sin(p_)], [np.sin(p_), np.cos(p_)]])
 
     return phase * matrix
 
@@ -74,43 +68,11 @@ def power_pauli_z(p: float) -> np.ndarray:
 
     Args:
         p (float): Power of the Pauli Z matrix.
-    
+
     Returns:
         np.ndarray: Power of the Pauli Z matrix.
     """
-    return np.diag([1, np.exp(1.j * np.pi * p)])
-
-
-def rotation_y(theta: float) -> np.ndarray:
-    """
-    Return the matrix form of the Y rotation gate.
-    
-    Args:
-        theta (float): Rotation angle.
-        
-    Returns:
-        np.ndarray: Matrix form of the Y rotation gate.    
-    """
-    return np.array([
-        [np.cos(theta / 2), -np.sin(theta / 2)],
-        [np.sin(theta / 2), np.cos(theta / 2)]
-    ])
-
-
-def rotation_z(theta: float) -> np.ndarray:
-    """
-    Return the matrix form of the Z rotation gate.
-    
-    Args:
-        theta (float): Rotation angle.
-        
-    Returns:
-        np.ndarray: Matrix form of the Z rotation gate.    
-    """
-    return np.array([
-        [np.exp(-1.j * theta / 2), 0],
-        [0, np.exp(1.j * theta / 2)]
-    ])
+    return np.diag([1, np.exp(1.0j * np.pi * p)])
 
 
 def is_special(matrix: np.ndarray) -> bool:
@@ -223,8 +185,11 @@ def canonical_decomposition(
     # The magic basis has those interesting properties:
     # - The tensor product of two single-qubit gates is a special orthogonal matrix Q in the magic basis;
     # - The canonical gate is a diagonal matrix D in the magic basis.
-    magic = (1 / SQRT_2
-        * np.array([[1, 1.0j, 0, 0], [0, 0, 1.0j, 1], [0, 0, 1.0j, -1], [1, -1.0j, 0, 0]]))
+    magic = (
+        1
+        / SQRT_2
+        * np.array([[1, 1.0j, 0, 0], [0, 0, 1.0j, 1], [0, 0, 1.0j, -1], [1, -1.0j, 0, 0]])
+    )
     det_U = np.complex128(np.linalg.det(U))
     phase = np.angle(det_U) / 4
     U = U * det_U ** (-1 / 4)
@@ -299,7 +264,7 @@ def so4_decomposition(
     matrix: np.ndarray, qubit_no: tuple[int, int] = (0, 1)
 ) -> tuple[np.ndarray, np.ndarray]:
     """
-    Decompose a 4x4 matrix in SO(4) (special orthogonal group) into a series of 4 S gates, 2 H 
+    Decompose a 4x4 matrix in SO(4) (special orthogonal group) into a series of 4 S gates, 2 H
     gates, 2 CNOT gates and 2 one-qubit unitary gates. The output is a list of tuples containing
     the gates of the decomposition and the qubit on which they act.
 
@@ -310,7 +275,7 @@ def so4_decomposition(
     Returns:
         list[tuple]: List of tuples containing the gates of the decomposition and the qubit on which
         they act.
-    
+
     Raises:
         ValueError: If the input matrix is not 4x4.
         ValueError: If the input matrix is not orthogonal.
@@ -333,14 +298,14 @@ def so4_decomposition(
     # List of gates to return
     q0, q1 = qubit_no  # Qubits on which the decomposition acts
     gates = [
-        ("S", (q0, )),
-        ("S H", (q1, )),
+        ("S", (q0,)),
+        ("S H", (q1,)),
         ("CNOT", (q1, q0)),
-        (a, (q0, )),
-        (b, (q1, )),
+        (a, (q0,)),
+        (b, (q1,)),
         ("CNOT", (q1, q0)),
-        ("SDAG", (q0, )),
-        ("H SDAG", (q1, )),
+        ("SDAG", (q0,)),
+        ("H SDAG", (q1,)),
     ]
 
     return gates
@@ -361,7 +326,7 @@ def o4_det_minus1_decomposition(
     Returns:
         list[tuple]: List of tuples containing the gates of the decomposition and the qubit on which
         they act.
-    
+
     Raises:
         ValueError: If the input matrix is not 4x4.
         ValueError: If the input matrix is not orthogonal.
@@ -372,13 +337,18 @@ def o4_det_minus1_decomposition(
         raise ValueError(f"The input matrix must be 4x4. Got {matrix.shape}.")
     if not is_orthogonal(matrix):
         raise ValueError("The input matrix must be orthogonal.")
-    if not (np.linalg.det(matrix) == -1):
+    if not np.isclose(np.linalg.det(matrix), -1):
         raise ValueError(
             f"The input matrix must have a determinant of -1. Got det = {np.linalg.det(matrix)}."
         )
-    
+
     # Decompose the matrix
-    a_tensor_b = MAGIC @ matrix @ MAGIC_DAG @ np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 0, 0, 1]])
+    a_tensor_b = (
+        MAGIC
+        @ matrix
+        @ MAGIC_DAG
+        @ np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 0, 0, 1]])
+    )
 
     # Extract A and B
     a, b = kronecker_decomposition(a_tensor_b)
@@ -386,15 +356,15 @@ def o4_det_minus1_decomposition(
     # List of gates to return
     q0, q1 = qubit_no  # Qubits on which the decomposition acts
     gates = [
-        ("S", (q0, )),
-        ("S H", (q1, )),
+        ("S", (q0,)),
+        ("S H", (q1,)),
         ("CNOT", (q0, q1)),
         ("CNOT", (q1, q0)),
-        (a, (q0, )),
-        (b, (q1, )),
+        (a, (q0,)),
+        (b, (q1,)),
         ("CNOT", (q1, q0)),
-        ("SDAG", (q0, )),
-        ("H SDAG", (q1, )),
+        ("SDAG", (q0,)),
+        ("H SDAG", (q1,)),
     ]
 
     return gates
@@ -415,7 +385,7 @@ def u4_decomposition(
     Returns:
         list[tuple]: List of tuples containing the gates of the decomposition and the qubit on which
         they act.
-    
+
     Raises:
         ValueError: If the input matrix is not 4x4.
         ValueError: If the input matrix is not unitary.
@@ -425,7 +395,7 @@ def u4_decomposition(
         raise ValueError(f"The input matrix must be 4x4. Got {matrix.shape}.")
     if not is_unitary(matrix):
         raise ValueError("The input matrix must be unitary.")
-    
+
     # Decompose the matrix
     can_decomp = canonical_decomposition(matrix)
     a_tensor = can_decomp.A
@@ -439,61 +409,22 @@ def u4_decomposition(
 
     # List of gates to return
     q0, q1 = qubit_no  # Qubits on which the decomposition acts
-    print("alpha initial:", alpha)
-    print("Phase en multiple de pi: ", alpha / np.pi)
-    print("alpha utilisé:", alpha)
-    print("tx, ty, tz:", tx, ty, tz)
-
-    reconstruct = b_tensor @ canonical_gate(tx, ty, tz) @ a_tensor * np.exp(1.j * alpha)
-    assert np.allclose(reconstruct, matrix)
-    print("Passed reconstruction from cannonical decomposition")
-
-    alpha += np.pi / 4
-    # alpha = 0
-
-    t1 = -1.j * np.pi/2 * tx
-    t2 = -1.j * np.pi/2 * ty
-    t3 = -1.j * np.pi/2 * tz
-
     gates = [
-        # Global phase
-        (np.exp(1.j * alpha) * np.eye(4), (q0, q1)),
-
         # A matrix
-        (a1, (q0, )),
-        (a2, (q1, )),
-
+        (a1, (q0,)),
+        (a2, (q1,)),
         # Canonical gate
-        ("S", (q1, )),
+        ("S", (q1,)),
         ("CNOT", (q1, q0)),
-        
-        (power_pauli_z(tz-0.5), (q0, )),
-        (power_pauli_y(tx-0.5), (q1, )),
-
-        # (power_pauli_z(tz-0.5), (q0, )),
-        # (power_pauli_y(tx-0.5), (q1, )),
-        # (power_pauli_y(0.5-tx), (q1, )),
-        # (power_pauli_y(0.5-ty), (q1, )),
-        # (rotation_z(t1), (q0, )),
-        # (rotation_y(t2), (q1, )),
-        # (rotation_y(np.pi * tx - np.pi/2), (q1, )),
-
+        (power_pauli_z(tz - 0.5), (q0,)),
+        (power_pauli_y(tx - 0.5), (q1,)),
         ("CNOT", (q0, q1)),
-        
-        (power_pauli_y(0.5-ty), (q1, )),
-
-        # (power_pauli_y(0.5-ty), (q1, )),
-        # (power_pauli_y(ty-0.5), (q1, )),
-        # (power_pauli_y(tx-0.5), (q1, )),
-        # (rotation_y(t3), (q1, )),
-        # (rotation_y(-np.pi * ty + np.pi/2), (q1, )),
-
+        (power_pauli_y(0.5 - ty), (q1,)),
         ("CNOT", (q1, q0)),
-        ("SDAG", (q0, )),
-
+        ("SDAG", (q0,)),
         # B matrix
-        (b1, (q0, )),
-        (b2, (q1, )),
+        (b1, (q0,)),
+        (b2, (q1,)),
     ]
 
     return gates
