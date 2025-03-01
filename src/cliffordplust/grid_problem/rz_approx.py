@@ -4,8 +4,8 @@ import math
 from cliffordplust.grid_problem.grid_problem import find_points, find_grid_operator
 from cliffordplust.grid_problem.grid_algorithms import solve_grid_problem_2d
 from cliffordplust.rings import *
-# import cliffordplust.diophantine.diophantine_equation_cpp as diop
-from cliffordplust.diophantine.diophantine_equation import solve_xi_eq_ttdag_in_d
+import cliffordplust.diophantine.diophantine_equation_cpp as diop
+# from cliffordplust.diophantine.diophantine_equation import solve_xi_eq_ttdag_in_d
 from cliffordplust.grid_problem.steiner_ellipse import steiner_ellipse_def, ellipse_bbox, is_inside_ellipse
 
 def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
@@ -50,9 +50,10 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
                     print("Found candidate")
                     print(u)
                     print(u_float)
+                    print(np.dot(u_float, z))
                     xi = 1 - u.complex_conjugate() * u
-                    # t = diop.solve_xi_eq_ttdag_in_d_cpp(Dsqrt2.from_ring(xi))
-                    t = solve_xi_eq_ttdag_in_d(Dsqrt2.from_ring(xi))
+                    t = diop.solve_xi_eq_ttdag_in_d_cpp(Dsqrt2.from_ring(xi))
+                    # t = solve_xi_eq_ttdag_in_d(Dsqrt2.from_ring(xi))
                     if t is None:
                         print("Failed")
                     else:
