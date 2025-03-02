@@ -126,7 +126,6 @@ def find_grid_operator(A: np.ndarray, B: np.ndarray) -> Grid_Operator:
             G_i = (special_sigma**k) * G_i * (inv_special_sigma**k)
         inv_grid_op = inv_grid_op * G_i
         state = state.transform(G_i)
-        print(state.skew)
         
     grid_op = inv_grid_op.inv()
     return inv_grid_op, grid_op
