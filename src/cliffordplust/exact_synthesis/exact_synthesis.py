@@ -58,7 +58,9 @@ def exact_synthesis_alg(U: np.array) -> str:
         ValueError: If the matrix is not unitary
     """
     if not np.all([isinstance(element, Domega) for element in U.flatten()]):
-        raise TypeError(f"Matrix elements must be of class Domega. Got {type(U[0][0])}.")
+        raise TypeError(
+            f"Matrix elements must be of class Domega. Got {type(U[0][0])}."
+        )
 
     elif U.shape != (2, 2):
         raise TypeError(f"Matrix must be of size 2x2. Got shape {U.shape}.")
@@ -67,7 +69,7 @@ def exact_synthesis_alg(U: np.array) -> str:
         raise ValueError("Matrix must be unitary. Got U=\n", U)
 
     u3_sequence, u3 = exact_synthesis_reduc(U)
-    s3_sequence = lookup_sequence(u3)
+    s3_sequence = s3_decomposition(u3)
     final_sequence = u3_sequence + s3_sequence
     return final_sequence
 
@@ -94,7 +96,9 @@ def exact_synthesis_reduc(U: np.array) -> tuple[str, np.array]:
     """
 
     if not np.all([isinstance(element, Domega) for element in U.flatten()]):
-        raise TypeError(f"Matrix elements must be of class Domega. Got {type(U[0][0])}.")
+        raise TypeError(
+            f"Matrix elements must be of class Domega. Got {type(U[0][0])}."
+        )
 
     elif U.shape != (2, 2):
         raise TypeError(f"Matrix must be of size 2x2. Got shape {U.shape}.")
@@ -123,7 +127,7 @@ def exact_synthesis_reduc(U: np.array) -> tuple[str, np.array]:
     return sequence, U
 
 
-def lookup_sequence(U: np.array) -> str:
+def s3_decomposition(U: np.array) -> str:
     """Find the sequence of W, H and T gates to synthesize a matrix with elements in \u2145[\u03C9] by
     looking in the S3 table.
 
@@ -160,8 +164,8 @@ def lookup_sequence(U: np.array) -> str:
             if convert_to_tuple(U_t) == value:
                 # Compute phase differences to find k'
                 U_w = apply_sequence(key + "W" * (8 - i))
-                k = evaluate_omega_exponent(U[1, 1], U[0, 0].complex_conjugate())
-                k_pp = evaluate_omega_exponent(U_w[1, 1], U_w[0, 0].complex_conjugate())
+                k = get_omega_exponent(U[1, 1], U[0, 0].complex_conjugate())
+                k_pp = get_omega_exponent(U_w[1, 1], U_w[0, 0].complex_conjugate())
                 k_prime = (k - k_pp) % 8
                 key += "T" * k_prime
                 key += "W" * ((8 - i) % 8)
@@ -181,7 +185,7 @@ def is_unitary(matrix: np.array) -> bool:
         [[element.complex_conjugate() for element in row] for row in matrix.T]
     )
     product = np.dot(matrix, conj_transpose)
-    return product.all() == I.all()
+    return (product == I).all()
 
 
 def apply_sequence(sequence: str, U: np.array = I) -> np.array:
@@ -205,28 +209,13 @@ def apply_sequence(sequence: str, U: np.array = I) -> np.array:
             U = T @ U
         elif char == "W":
             U = np.multiply(OMEGA, U)
-        elif char == "":
-            continue
         else:
             raise ValueError("Invalid character in sequence")
     return U
 
 
-def random_sequence(n: int) -> str:
-    """Generate a random sequence of H and T gates of length n
-    Args:
-        n (int): number of H gates in the sequence
-    Returns:
-        str: Random sequence of H and T gates
-    """
-    sequence = ""
-    for _ in range(n):
-        sequence += np.random.choice(["H", "HT", "HTT", "HTTT"])
-    return sequence
-
-
 def convert_to_tuple(array: np.array) -> tuple:
-    """Convert a 2x2 array of \u2145[\u03C9] elements to a tuple of tuples of (num, denom)
+    """Convert the first column of a 2x2 array of \u2145[\u03C9] elements to a tuple of tuples of (num, denom)
 
     Args:
         array (np.array): 2x2 array of \u2145[\u03C9] elements
@@ -242,11 +231,12 @@ def convert_to_tuple(array: np.array) -> tuple:
     elif array.shape != (2, 2):
         raise TypeError("Matrix must be of size 2x2")
     return tuple(
-        tuple((Domega[i].num, Domega[i].denom) for i in range(4)) for Domega in array[:, 0]
+        tuple((Domega[i].num, Domega[i].denom) for i in range(4))
+        for Domega in array[:, 0]
     )
 
 
-def evaluate_omega_exponent(z_1: Domega, z_2: Domega) -> int:
+def get_omega_exponent(z_1: Domega, z_2: Domega) -> int:
     """Evaluate how many powers of \u03C9 are needed to transform z_2 into z_1
     Args:
         z_1 (Domega): First \u2145[\u03C9] element
