@@ -22,6 +22,19 @@ import pytest
 from cliffordplust.exact_synthesis import *
 
 
+def random_sequence(n: int) -> str:
+    """Generate a random sequence of H and T gates of length n
+    Args:
+        n (int): number of H gates in the sequence
+    Returns:
+        str: Random sequence of H and T gates
+    """
+    sequence = ""
+    for _ in range(n):
+        sequence += np.random.choice(["H", "HT", "HTT", "HTTT"])
+    return sequence
+
+
 def test_random_sequence_length():
     """Test if the random sequence has the correct number of 'H' gates."""
     length = 10
@@ -111,7 +124,7 @@ def test_lookup_sequence_invalid_elements():
     """Test if lookup_sequence raises TypeError for invalid matrix elements."""
     matrix = np.array([[1, 0], [0, 1]])  # Not Domega elements
     with pytest.raises(TypeError, match="Matrix elements must be of class"):
-        lookup_sequence(matrix)
+        s3_decomposition(matrix)
 
 
 def test_lookup_sequence_non_2x2():
@@ -119,14 +132,14 @@ def test_lookup_sequence_non_2x2():
     D = Domega((1, 0), (0, 1), (0, 0), (0, 0))
     matrix = np.array([[D, D, D], [D, D, D], [D, D, D]])  # 3x3 matrix
     with pytest.raises(TypeError, match="Matrix must be of size 2x2"):
-        lookup_sequence(matrix)
+        s3_decomposition(matrix)
 
 
 def test_lookup_sequence_non_unitary():
     """Test if lookup_sequence raises ValueError for non-unitary matrices."""
     matrix = 2 * H  # Non-unitary matrix
     with pytest.raises(ValueError, match="Matrix must be unitary"):
-        lookup_sequence(matrix)
+        s3_decomposition(matrix)
 
 
 def test_exact_synthesis_invalid_elements():
@@ -156,7 +169,7 @@ def test_evaluate_omega_exponent():
     omega = Domega((0, 0), (0, 0), (1, 0), (0, 0))
     z_1 = Domega((1, 0), (0, 0), (0, 0), (0, 0))
     z_2 = Domega((0, 0), (0, 0), (1, 0), (0, 0))
-    result = evaluate_omega_exponent(z_1, z_2)
+    result = get_omega_exponent(z_1, z_2)
     assert result == 2
     assert omega**2 * z_2 == z_1
 
@@ -200,7 +213,7 @@ def test_lookup_table_find_entries(initial_sequence):
     """Test if the lookup table is generated correctly."""
     U_3 = apply_sequence(initial_sequence)
     U_3_first_column = convert_to_tuple(U_3)
-    found_sequence = lookup_sequence(U_3)
+    found_sequence = s3_decomposition(U_3)
     found_U3 = apply_sequence(found_sequence)
     found_U3_first_column = convert_to_tuple(found_U3)
     assert found_sequence != None
