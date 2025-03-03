@@ -54,23 +54,24 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
             B = math.sqrt(2 ** n) * bbox_2
         U = solve_grid_problem_2d(A.tolist(), B.tolist())
         for candidate in U:
-            u = Domega.from_ring(candidate) * Domega.from_ring(const)
-            u_vec = np.array([Dsqrt2(u.d, D(1, 1) * (u.c - u.a)), Dsqrt2(u.b, D(1, 1) * (u.c + u.a))])
-            u_conj = u.sqrt2_conjugate()
-            u_conj_vec = np.array([Dsqrt2(u_conj.d, D(1, 1) * (u_conj.c - u_conj.a)), Dsqrt2(u_conj.b, D(1, 1) * (u_conj.c + u_conj.a))])
-            u_float = np.array(u_vec, dtype=float)
-            u_conj_float = np.array(u_conj_vec, dtype=float)
-            if is_inside_ellipse(u_float, E, p_p) and is_inside_ellipse(u_conj_float, I, np.zeros(2)):
-                if np.dot(u_float, z) < 1 and np.dot(u_float, z) > 1 - 0.5 * epsilon**2:
-                    print("Found candidate")
-                    xi = 1 - u.complex_conjugate() * u
-                    # t = diop.solve_xi_eq_ttdag_in_d_cpp(Dsqrt2.from_ring(xi))
-                    t = solve_xi_eq_ttdag_in_d(Dsqrt2.from_ring(xi))
-                    if t is None:
-                        print("Failed")
-                    else:
-                        solution = True
-                        M = np.array([[u, -t.complex_conjugate()], [t, u.complex_conjugate()]])
-                        return M
+            if n > 0 and (abs(candidate.a - candidate.c) % 2 == 1 or abs(candidate.b - candidate.d) % 2 ==1):
+                u = Domega.from_ring(candidate) * Domega.from_ring(const)
+                u_vec = np.array([Dsqrt2(u.d, D(1, 1) * (u.c - u.a)), Dsqrt2(u.b, D(1, 1) * (u.c + u.a))])
+                u_conj = u.sqrt2_conjugate()
+                u_conj_vec = np.array([Dsqrt2(u_conj.d, D(1, 1) * (u_conj.c - u_conj.a)), Dsqrt2(u_conj.b, D(1, 1) * (u_conj.c + u_conj.a))])
+                u_float = np.array(u_vec, dtype=float)
+                u_conj_float = np.array(u_conj_vec, dtype=float)
+                if is_inside_ellipse(u_float, E, p_p) and is_inside_ellipse(u_conj_float, I, np.zeros(2)):
+                    if np.dot(u_float, z) < 1 and np.dot(u_float, z) > 1 - 0.5 * epsilon**2:
+                        print("Found candidate")
+                        xi = 1 - u.complex_conjugate() * u
+                        # t = diop.solve_xi_eq_ttdag_in_d_cpp(Dsqrt2.from_ring(xi))
+                        t = solve_xi_eq_ttdag_in_d(Dsqrt2.from_ring(xi))
+                        if t is None:
+                            print("Failed")
+                        else:
+                            solution = True
+                            M = np.array([[u, -t.complex_conjugate()], [t, u.complex_conjugate()]])
+                            return M
         print(n)
         n += 1

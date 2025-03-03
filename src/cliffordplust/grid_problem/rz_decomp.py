@@ -21,7 +21,7 @@ from cliffordplust.exact_synthesis.exact_synthesis import exact_synthesis_alg
 
 t1 = time.time()
 epsilon = 1e-4
-theta = 2 * math.pi / 3
+theta = 4 * math.pi / 3
 U = z_rotational_approximation(epsilon, theta)
 print(U)
 U_complex = np.array(U, dtype=complex)

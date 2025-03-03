@@ -31,7 +31,7 @@ def find_points(epsilon: float, theta: float) -> np.ndarray:
 
     Returns:
         tuple: A tuple containing three points (p1, p2, p3), where:
-            - p1 (array[float]): The origin point [0, 0].
+            - p1 (array[float]): The origin point [cos(\u03B8 / 2), sin(\u03B8 / 2)].
             - p2 (array[float]): The first computed point on the slice.
             - p3 (array[float]): The second computed point on the slice.
 
