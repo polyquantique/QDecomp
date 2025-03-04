@@ -35,6 +35,7 @@ import math
 from decimal import Decimal, getcontext
 from typing import Any, Callable, Iterator, Union
 
+import mpmath as mp
 import numpy as np
 
 __all__ = ["D", "Zsqrt2", "Dsqrt2", "Zomega", "Domega", "INVERSE_LAMBDA", "LAMBDA"]
@@ -121,6 +122,10 @@ class D:
     def __float__(self) -> float:
         """Define the float value of the D class."""
         return self.num / 2**self.denom
+
+    def mpfloat(self) -> float:
+        """Define the mpfloat value of the D class."""
+        return self.num / 2 ** mp.mpf(self.denom)
 
     def __eq__(self, nb: Any) -> bool:
         """Define the equality of the D class."""
@@ -296,6 +301,10 @@ class Zsqrt2:
             getcontext().prec = 50
             return float(self.a + self.b * Decimal(2).sqrt())
         return self.a + bsqrt
+
+    def mpfloat(self) -> float:
+        """Define the mpfloat value of the Zsqrt2 class."""
+        return self.a + self.b * mp.sqrt(2)
 
     def __getitem__(self, i: int) -> int:
         """Access the values of a and b from their index."""
@@ -530,6 +539,10 @@ class Dsqrt2:
             )
         return a + bsqrt
 
+    def mpfloat(self) -> float:
+        """Define the mpfloat value of the Dsqrt2 class."""
+        return self.a.mpfloat() + self.b.mpfloat() * mp.sqrt(2)
+
     def __getitem__(self, i: int) -> D:
         """Access the values of a and b from their index."""
         return (self.a, self.b)[i]
@@ -758,6 +771,10 @@ class Zomega:
             return float(self.d + (self.c - self.a) / Decimal(2).sqrt())
         return self.d + sqrt_value
 
+    def mp_real(self) -> float:
+        """Return the real part of the ring element in mpfloat representation."""
+        return self.d + (self.c - self.a) / mp.sqrt(2)
+
     def imag(self) -> float:
         """Return the imaginary part of the ring element.
 
@@ -771,9 +788,17 @@ class Zomega:
             return float(self.b + (self.c + self.a) / Decimal(2).sqrt())
         return self.b + sqrt_value
 
+    def mp_imag(self) -> float:
+        """Return the imaginary part of the ring element in mpfloat representation."""
+        return self.b + (self.c + self.a) / mp.sqrt(2)
+
     def __complex__(self) -> complex:
         """Define the complex value of the ring element."""
         return self.real() + 1j * self.imag()
+
+    def mpcomplex(self) -> complex:
+        """Define the mpcomplex value of the Zomega class."""
+        return mp.mpc(self.mp_real(), self.mp_imag())
 
     def complex_conjugate(self) -> Zomega:
         """Compute the complex conjugate of the ring element.
@@ -1059,6 +1084,10 @@ class Domega:
             )
         return d + sqrt_value
 
+    def mp_real(self) -> float:
+        """Return the real part of the ring element in mpfloat representation."""
+        return self.d.mpfloat() + (self.c - self.a).mpfloat() / mp.sqrt(2)
+
     def imag(self) -> float:
         """Return the imaginary part of the ring element.
 
@@ -1078,9 +1107,17 @@ class Domega:
             )
         return b + sqrt_value
 
+    def mp_imag(self) -> float:
+        """Return the imaginary part of the ring element in mpfloat representation."""
+        return self.b.mpfloat() + (self.c + self.a).mpfloat() / mp.sqrt(2)
+
     def __complex__(self) -> complex:
         """Define the complex value of the class."""
         return self.real() + 1j * self.imag()
+
+    def mpcomplex(self) -> complex:
+        """Define the mpcomplex value of the Domega class."""
+        return mp.mpc(self.mp_real(), self.mp_imag())
 
     def sde(self) -> int | float:
         """Return the smallest denominator exponent (sde) of base \u221a2 of the ring element.
