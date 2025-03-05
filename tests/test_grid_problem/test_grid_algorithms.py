@@ -18,6 +18,8 @@ import pytest
 from itertools import combinations_with_replacement
 
 from cliffordplust.grid_problem import solve_grid_problem_1d, solve_grid_problem_2d
+from cliffordplust.plot import plot_grid_problem_1d, plot_grid_problem_2d
+from cliffordplust.rings import Zomega, Zsqrt2
 
 
 @pytest.mark.parametrize("A", [(1, 2, 3), "1, 2", (1.0j, 2), "12", 1])
@@ -112,4 +114,44 @@ def test_grid_algorithm_2d_solutions(A, B):
             and solution.sqrt2_conjugate().imag() <= B[1][1]
         )
 
+def test_plot_solutions_1d_type_errors_intervals():
+    """Test the raise of a TypeError when plotting the solutions of the 1D grid problem if the input intervals are not of the correct form."""
+    fig, ax = plt.subplots()
+    with pytest.raises(TypeError, match="Input intervals must be real sequences of length 2"):
+        plot_grid_problem_1d(ax, (1, 2, 3), (-1, 1), [])
+    with pytest.raises(TypeError, match="Input intervals must be real sequences of length 2"):
+        plot_grid_problem_1d(ax, (1, 2), (1.j, 0), [])
+    with pytest.raises(TypeError, match="Input intervals must be real sequences of length 2"):
+        plot_grid_problem_1d(ax, (1, 2), {1, 2}, [])
 
+def test_plot_solutions_1d_type_errors_solutions():
+    """Test the raise of a TypeError when plotting the solutions of the 1D grid problem if the solutions are not of the correct form."""    
+    fig, ax = plt.subplots()
+    with pytest.raises(TypeError, match="Solutions must be Zsqrt2 objects."):
+        plot_grid_problem_1d(ax, (1, 2), (-1, 1), [1, 2, 3])
+
+def test_plot_solutions_2d_type_errors_intervals():
+    """Test the raise of a TypeError when plotting the solutions of the 2D grid problem if the input intervals are not of the correct form."""
+    fig, ax = plt.subplots()
+    with pytest.raises(TypeError, match="Input intervals must be real 2x2 matrices"):
+        plot_grid_problem_2d(ax, ((1, 2, 3), (1, 2)), ((-1, 1), (-1, 1)), [])
+    with pytest.raises(TypeError, match="Input intervals must be real 2x2 matrices"):
+        plot_grid_problem_2d(ax, ((1, 2), (1, 2)), ((1.j, 0), (1, 2)), [])
+
+def test_plot_solutions_2d_type_errors_solutions():
+    """Test the raise of a TypeError when plotting the solutions of the 2D grid problem if the solutions are not of the correct form."""
+    fig, ax = plt.subplots()
+    with pytest.raises(TypeError, match="Solutions must be Zomega objects."):
+        plot_grid_problem_2d(ax, ((1, 2), (1, 2)), ((-1, 1), (-1, 1)), [1, 2, 3])
+
+def test_plot_solutions_1d():
+    """Test the plotting of the solutions of the 1D grid problem."""
+    fig, ax = plt.subplots()
+    plot_grid_problem_1d(ax, (-1, 1), (-1, 1), [Zsqrt2(0, 0), Zsqrt2(-4, 5), Zsqrt2(2, -1)])
+    assert True
+
+def test_plot_solutions_2d():
+    """Test the plotting of the solutions of the 2D grid problem."""
+    fig, ax = plt.subplots()
+    plot_grid_problem_2d(ax, ((-1, 1), (-1, 1)), ((-1, 1), (-1, 1)), [Zomega(0, 0, 0, 0), Zomega(-4, 5, 0, 1), Zomega(2, -1, 1, 0)])
+    assert True

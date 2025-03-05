@@ -13,3 +13,4 @@
 #    limitations under the License.
 
 from cliffordplust.plot.plot_steiner_ellipse import *
+from cliffordplust.plot.plot_grid_problem import *
