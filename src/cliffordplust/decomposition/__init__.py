@@ -12,4 +12,4 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-from cliffordplust.plot.plot_steiner_ellipse import *
+from cliffordplust.decomposition.zyz_decomposition import *
