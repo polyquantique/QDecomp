@@ -214,8 +214,7 @@ def canonical_decomposition(
 
     # For numerical precision purpose, we use the eigh function when dealing with hermitian or symmetric matrices.
     if is_hermitian(v_vt_matrix):
-        #eigenval, eigenvec = np.linalg.eigh((v_vt_matrix + v_vt_matrix.T.conj()) / 2)
-        eigenval, eigenvec = np.linalg.eigh(v_vt_matrix)
+        eigenval, eigenvec = np.linalg.eigh((v_vt_matrix + v_vt_matrix.T.conj()) / 2)
     elif is_hermitian(1.0j * v_vt_matrix):
         v_vt_matrix = 1.0j * v_vt_matrix
         eigenval, eigenvec = np.linalg.eigh((v_vt_matrix + v_vt_matrix.T.conj()) / 2)
@@ -276,7 +275,7 @@ def canonical_gate(tx: float, ty: float, tz: float) -> np.ndarray:
 
 
 def so4_decomposition(
-    matrix: np.ndarray, qubit_no: tuple[int, int] = (0, 1)
+    U: np.ndarray, qubit_no: tuple[int, int] = (0, 1)
 ) -> list[tuple]:
     """
     Decompose a 4x4 matrix in SO(4) (special orthogonal group) into a series of 4 S gates, 2 H
@@ -284,7 +283,7 @@ def so4_decomposition(
     the gates of the decomposition and the qubit on which they act.
 
     Args:
-        matrix (np.ndarray): 4x4 matrix.
+        U (np.ndarray): 4x4 matrix in SO(4).
         qubit_no (tuple[int, int]): Tuple containing the qubit numbers on which the gate acts.
 
     Returns:
@@ -292,20 +291,17 @@ def so4_decomposition(
         they act.
 
     Raises:
-        ValueError: If the input matrix is not 4x4.
-        ValueError: If the input matrix is not orthogonal.
-        ValueError: If the input matrix is not special (det = 1).
+        TypeError: If the input matrix is not a numpy object.
+        ValueError: If the input matrix is not in SO(4).
     """
     # Check the input matrix
-    if matrix.shape != (4, 4):
-        raise ValueError(f"The input matrix must be 4x4. Got {matrix.shape}.")
-    if not is_orthogonal(matrix):
-        raise ValueError("The input matrix must be orthogonal.")
-    if not is_special(matrix):
-        raise ValueError(f"The input matrix must be special. Got det = {np.linalg.det(matrix)}.")
-
+    if not isinstance(U, np.ndarray):
+        raise TypeError(f"The input matrix must be a numpy object, but received {type(U).__name__}.")
+    if U.shape != (4, 4) or not is_orthogonal(U) or not is_special(U):
+        raise ValueError("The input matrix must be a 4x4 special orthogonal matrix.")
+    
     # Decompose the matrix
-    a_tensor_b = MAGIC @ matrix @ MAGIC_DAG
+    a_tensor_b = MAGIC @ U @ MAGIC_DAG
 
     # Extract A and B
     a, b = kronecker_decomposition(a_tensor_b)
@@ -327,7 +323,7 @@ def so4_decomposition(
 
 
 def o4_det_minus1_decomposition(
-    matrix: np.ndarray, qubit_no: tuple[int, int] = (0, 1)
+    U: np.ndarray, qubit_no: tuple[int, int] = (0, 1)
 ) -> list[tuple]:
     """
     Decompose a 4x4 matrix in O(4) (orthogonal group) with a determinant of -1 into a series of 4 S
@@ -335,7 +331,7 @@ def o4_det_minus1_decomposition(
     containing the gates of the decomposition and the qubit on which they act.
 
     Args:
-        matrix (np.ndarray): 4x4 matrix.
+        U (np.ndarray): 4x4 matrix in O(4) with a determinant of -1.
         qubit_no (tuple[int, int]): Tuple containing the qubit numbers on which the gate acts.
 
     Returns:
@@ -343,24 +339,19 @@ def o4_det_minus1_decomposition(
         they act.
 
     Raises:
-        ValueError: If the input matrix is not 4x4.
-        ValueError: If the input matrix is not orthogonal.
-        ValueError: If the determinant of the input matrix is not -1.
+        TypeError: If the input matrix is not a numpy object.
+        ValueError: If the input matrix is not in O(4) with a determinant of -1.
     """
     # Check the input matrix
-    if matrix.shape != (4, 4):
-        raise ValueError(f"The input matrix must be 4x4. Got {matrix.shape}.")
-    if not is_orthogonal(matrix):
-        raise ValueError("The input matrix must be orthogonal.")
-    if not np.isclose(np.linalg.det(matrix), -1):
-        raise ValueError(
-            f"The input matrix must have a determinant of -1. Got det = {np.linalg.det(matrix)}."
-        )
-
+    if not isinstance(U, np.ndarray):
+        raise TypeError(f"The input matrix must be a numpy object, but received {type(U).__name__}.")
+    if U.shape != (4, 4) or not is_orthogonal(U) or not np.isclose(np.linalg.det(U), -1):
+        raise ValueError("The input matrix must be a 4x4 orthogonal matrix with a determinant of -1.")
+    
     # Decompose the matrix
     a_tensor_b = (
         MAGIC
-        @ matrix
+        @ U
         @ MAGIC_DAG
         @ np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 0, 0, 1]])
     )

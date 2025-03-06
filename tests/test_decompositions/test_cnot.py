@@ -18,7 +18,7 @@ import numpy as np
 import pytest
 from scipy.stats import ortho_group, special_ortho_group, unitary_group
 
-from cliffordplust.decompositions import *
+from cliffordplust.decompositions.cnot import canonical_decomposition, power_pauli_y, power_pauli_z, is_unitary, is_special, is_orthogonal, kronecker_decomposition, so4_decomposition, u4_decomposition, o4_det_minus1_decomposition, known_decomposition, tqg_decomposition, canonical_gate
 
 
 def multiply_circuit(circuit):
