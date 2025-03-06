@@ -16,7 +16,7 @@
 This module contains functions to decompose general 2-qubits quantum gates into single-qubit and
 canonical gates.
 
-The canonical gate is a 3 parameter gate that can be decomposed into CNOT gates and single-qubit
+The canonical gate is a 3 parameters gate that can be decomposed into CNOT gates and single-qubit
 gates. It is defined as Can(tx, ty, tz) = exp(-i*pi/2 * (tx * XX + ty * YY + tz * ZZ)), where XX,
 YY, and ZZ are Kronecker products of the Pauli matrices.
 
@@ -46,38 +46,38 @@ MAGIC_DAG = MAGIC.T.conj()
 
 def power_pauli_y(p: float) -> np.ndarray:
     """
-    Return the power of the Pauli Y matrix.
+    Return the Pauli Y power gate.
 
     Args:
-        p (float): Power of the Pauli Y matrix.
+        p (float): Power of the Pauli Y gate.
 
     Returns:
-        np.ndarray: Power of the Pauli Y matrix.
+        np.ndarray: Pauli Y power gate.
     """
-    p_ = np.pi / 2 * p
-    phase = np.exp(1.0j * p_)
+    angle = np.pi / 2 * p
+    phase = np.exp(1.0j * angle)
 
-    matrix = np.array([[np.cos(p_), -np.sin(p_)], [np.sin(p_), np.cos(p_)]])
+    matrix = np.array([[np.cos(angle), -np.sin(angle)], [np.sin(angle), np.cos(angle)]])
 
     return phase * matrix
 
 
 def power_pauli_z(p: float) -> np.ndarray:
     """
-    Return the power of the Pauli Z matrix.
+    Return the Pauli Z power gate.
 
     Args:
         p (float): Power of the Pauli Z matrix.
 
     Returns:
-        np.ndarray: Power of the Pauli Z matrix.
+        np.ndarray: Pauli Z power gate.
     """
     return np.diag([1, np.exp(1.0j * np.pi * p)])
 
 
 def is_special(matrix: np.ndarray) -> bool:
     """
-    Check if a matrix is special, i.e. its determinant is 1.
+    Check if a matrix is special, i.e. if its determinant is 1.
 
     Args:
         matrix (np.ndarray): Matrix to check.
@@ -90,7 +90,7 @@ def is_special(matrix: np.ndarray) -> bool:
 
 def is_orthogonal(matrix: np.ndarray) -> bool:
     """
-    Check if a matrix is orthogonal, i.e. its inverse is equal to its transpose.
+    Check if a matrix is orthogonal, i.e. if its inverse is equal to its transpose.
 
     Args:
         matrix (np.ndarray): Matrix to check.
@@ -103,9 +103,27 @@ def is_orthogonal(matrix: np.ndarray) -> bool:
 
 def is_unitary(matrix: np.ndarray) -> bool:
     """
-    Check if a matrix is unitary, i.e. its inverse is equal to its conjugate transpose.
+    Check if a matrix is unitary, i.e. if its inverse is equal to its conjugate transpose.
+
+    Args:
+        matric (np.ndarray): Matrix to check.
+
+    Returns:
+        bool: True if the matrix is unitary, False otherwise.
     """
     return np.allclose(matrix @ matrix.T.conj(), np.identity(matrix.shape[0]))
+
+def is_hermitian(matrix: np.ndarray) -> bool:
+    """
+    Check if a matrix is Hermitian, i.e. if it is equal to its conjugate transpose.
+
+    Args:
+        matrix (np.ndarray): Matrix to check.
+
+    Returns:
+        bool: True if the matrix is Hermitian, False otherwise.
+    """
+    return np.allclose(matrix, matrix.T.conj())
 
 
 def kronecker_decomposition(M: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -159,7 +177,7 @@ def canonical_decomposition(
         U (np.ndarray): 4x4 unitary matrix.
 
     Returns:
-        namedtuple: CanonicalDecomposition namedtuple with the following fields:
+        CanonicalDecomposition: A namedtuple with the following attributes:
             - A (np.ndarray): 4x4 matrix A of the decomposition. A is the Kronecker product of two 2x2 matrices.
             - B (np.ndarray): 4x4 matrix B of the decomposition. B is the Kronecker product of two 2x2 matrices.
             - t (tuple[float, float, float]): Sequence of the three canonical parameters (tx, ty, tz).
@@ -178,30 +196,27 @@ def canonical_decomposition(
         raise TypeError(f"Matrix U must be a numpy object, but received {type(U).__name__}.")
     elif U.shape != (4, 4):
         raise ValueError("U must be 4x4.")
-    elif not np.allclose(U @ U.T.conj(), np.identity(4)):
+    elif not is_unitary(U):
         raise ValueError("U must be unitary.")
 
     # Magic gate M is used to transform U into the magic basis to get V and diagonalize V.T@V.
     # The magic basis has those interesting properties:
-    # - The tensor product of two single-qubit gates is a special orthogonal matrix Q in the magic basis;
+    # - The Kronecker product of two single-qubit gates is a special orthogonal matrix Q in the magic basis;
     # - The canonical gate is a diagonal matrix D in the magic basis.
-    magic = (
-        1
-        / SQRT_2
-        * np.array([[1, 1.0j, 0, 0], [0, 0, 1.0j, 1], [0, 0, 1.0j, -1], [1, -1.0j, 0, 0]])
-    )
+
     det_U = np.complex128(np.linalg.det(U))
     phase = np.angle(det_U) / 4
     U = U * det_U ** (-1 / 4)
 
     # Transform U into the magic basis to get V and diagonalize V.T@V.
-    v_matrix = magic.T.conj() @ U @ magic
+    v_matrix = MAGIC_DAG @ U @ MAGIC
     v_vt_matrix = v_matrix.T @ v_matrix
 
     # For numerical precision purpose, we use the eigh function when dealing with hermitian or symmetric matrices.
-    if np.allclose(v_vt_matrix.T.conj(), v_vt_matrix):
-        eigenval, eigenvec = np.linalg.eigh((v_vt_matrix + v_vt_matrix.T.conj()) / 2)
-    elif np.allclose(1.0j * v_vt_matrix, -1.0j * v_vt_matrix.T.conj()):
+    if is_hermitian(v_vt_matrix):
+        #eigenval, eigenvec = np.linalg.eigh((v_vt_matrix + v_vt_matrix.T.conj()) / 2)
+        eigenval, eigenvec = np.linalg.eigh(v_vt_matrix)
+    elif is_hermitian(1.0j * v_vt_matrix):
         v_vt_matrix = 1.0j * v_vt_matrix
         eigenval, eigenvec = np.linalg.eigh((v_vt_matrix + v_vt_matrix.T.conj()) / 2)
         eigenval = -1.0j * eigenval
@@ -209,7 +224,7 @@ def canonical_decomposition(
         eigenval, eigenvec = np.linalg.eig(v_vt_matrix)
 
     # Q1 must be a special unitary matrix. If its determinant is -1, swap two eigenvalues
-    # and the two associated eigenvectors to get invert the sign of the determinant.
+    # and the two associated eigenvectors to invert the sign of the determinant.
     if np.linalg.det(eigenvec) < 0:
         eigenvec[:, [0, 1]] = eigenvec[:, [1, 0]]
         eigenval[[0, 1]] = eigenval[[1, 0]]
@@ -234,8 +249,8 @@ def canonical_decomposition(
     # Construct the namedtuple to return the canonical decomposition
     CanonicalDecomposition = namedtuple("CanonicalDecomposition", ["A", "B", "t", "alpha"])
     return_tuple = CanonicalDecomposition(
-        A=magic @ q1 @ magic.T.conj(),
-        B=magic @ q2 @ magic.T.conj(),
+        A=MAGIC @ q1 @ MAGIC_DAG,
+        B=MAGIC @ q2 @ MAGIC_DAG,
         t=(tx, ty, tz),
         alpha=phase,
     )
