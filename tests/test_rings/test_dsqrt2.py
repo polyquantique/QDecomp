@@ -206,6 +206,7 @@ def test_inequalities():
     assert n2 > n1 and n1 < n2 and n1 >= n1 and n2 <= n2 and n1 > 0 and n2 < 1.5
 
 
+
 def test_sqrt2_conjugate():
     """Test the √2-conjugate of a Dsqrt2 instance."""
     assert Dsqrt2((1, 1), (1, 1)).sqrt2_conjugate() == Dsqrt2((1, 1), (-1, 1))

@@ -299,6 +299,7 @@ def test_repr(n):
     assert str(n[0]) == n[1]
 
 
+
 def test_addition_type_errors():
     """Test the raise of a TypeError when the Domega class is summed with the wrong type."""
     with pytest.raises(TypeError, match="Summation is not defined between Domega and"):

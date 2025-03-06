@@ -12,5 +12,8 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-from cliffordplust.grid_problem.grid_algorithms import *
-from cliffordplust.grid_problem.steiner_ellipse import *
+import pytest
+import numpy as np
+import math
+
+from cliffordplust.grid_problem.rz_approx import *
