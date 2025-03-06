@@ -13,3 +13,4 @@
 #    limitations under the License.
 
 from cliffordplust.decompositions.cnot import *
+from cliffordplust.decompositions.zyz import *

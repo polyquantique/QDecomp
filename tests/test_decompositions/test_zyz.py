@@ -13,8 +13,9 @@
 #    limitations under the License.
 
 import pytest
+import numpy as np
 
-from cliffordplust.decomposition.zyz_decomposition import *
+from cliffordplust.decompositions.zyz import *
 
 
 # Rotation and phase matrices
