@@ -13,6 +13,7 @@
 #    limitations under the License.
 
 import matplotlib.pyplot as plt
+import mpmath as mp
 import numpy as np
 import pytest
 
@@ -23,6 +24,9 @@ test_points_collin = [
     [(0, 1), (0, 2), (0, -5)],
     [(1, 0), (2, 0), (-5, 0)],
     [(2, 1), (3, 2), (-5, -6)],
+    [(mp.mpf(0), (1)), (mp.mpf(0), mp.mpf(2)), (mp.mpf(0), mp.mpf(-5))],
+    [(mp.mpf(1), (0)), (mp.mpf(2), mp.mpf(0)), (mp.mpf(-5), mp.mpf(0))],
+    [(mp.mpf(2), (1)), (mp.mpf(3), mp.mpf(2)), (mp.mpf(-5), mp.mpf(-6))],
 ]
 
 
@@ -40,6 +44,10 @@ test_points_same_pts = [
     [(2, 3), (1, 1), (2, 3)],
     [(-1, 6), (-1, 6), (2, 3)],
     [(2, 4), (2, 4), (2, 4)],
+    [(mp.mpf(0), mp.mpf(0)), (mp.mpf(2), mp.mpf(3)), (mp.mpf(2), mp.mpf(3))],
+    [(mp.mpf(2), mp.mpf(3)), (mp.mpf(1), mp.mpf(1)), (mp.mpf(2), mp.mpf(3))],
+    [(mp.mpf(-1), mp.mpf(6)), (mp.mpf(-1), mp.mpf(6)), (mp.mpf(2), mp.mpf(3))],
+    [(mp.mpf(2), mp.mpf(4)), (mp.mpf(2), mp.mpf(4)), (mp.mpf(2), mp.mpf(4))],
 ]
 
 
@@ -56,6 +64,9 @@ test_points_def = [
     [(0, 0), (0, 1), (0.5, 1 / np.sqrt(2))],
     [(0, 0), (1, 2), (3, 4)],
     [(0, -1), (3, 3), (-1, -3)],
+    [(mp.mpf(0), mp.mpf(0)), (mp.mpf(0), mp.mpf(1)), (mp.mpf(0.5), mp.mpf(1) / mp.sqrt(2))],
+    [(mp.mpf(0), mp.mpf(0)), (mp.mpf(1), mp.mpf(2)), (mp.mpf(3), mp.mpf(4))],
+    [(mp.mpf(0), mp.mpf(-1)), (mp.mpf(3), mp.mpf(3)), (mp.mpf(-1), mp.mpf(-3))],
 ]
 
 
@@ -68,6 +79,11 @@ def test_ellipse_def(p1, p2, p3):
     for p_i in (p1, p2, p3):
         vec = p_i - p
         assert (vec @ D @ vec) == pytest.approx(1)
+
+    p = np.asarray(p, dtype=float)
+    p1 = np.asarray(p1, dtype=float)
+    p2 = np.asarray(p2, dtype=float)
+    p3 = np.asarray(p3, dtype=float)
 
     assert np.allclose(p, np.mean((p1, p2, p3), axis=0))
 
@@ -90,6 +106,16 @@ def test_is_inside_ellipse(dim):
     assert np.allclose(res_fun, res_calculated)
     assert res_calculated.shape == tuple(dim)
 
+    # Test with mpmath
+    points = np.vectorize(mp.mpf)(points)
+    D = np.vectorize(mp.mpf)(D.astype(float))
+    p = np.vectorize(mp.mpf)(p.astype(float))
+
+    res_fun = se.is_inside_ellipse(points, D, p)
+
+    assert np.allclose(res_fun, res_calculated)
+    assert res_calculated.shape == tuple(dim)
+
 
 def test_inside_ellipse_D_shape_error():
     """
@@ -103,6 +129,14 @@ def test_inside_ellipse_D_shape_error():
         r"The matrix definition \(shape .*\) and center \(shape .*\) must have compatible "
         + r"dimensions."
     )
+
+    with pytest.raises(IndexError, match=match_msg):
+        se.is_inside_ellipse(points, D, p)
+
+    # Test with mpmath
+    points = np.vectorize(mp.mpf)(points)
+    D = np.vectorize(mp.mpf)(D)
+    p = np.vectorize(mp.mpf)(p)
 
     with pytest.raises(IndexError, match=match_msg):
         se.is_inside_ellipse(points, D, p)
@@ -123,6 +157,14 @@ def test_inside_ellipse_points_shape_error():
     with pytest.raises(IndexError, match=match_msg):
         se.is_inside_ellipse(points, D, p)
 
+    # Test with mpmath
+    points = np.vectorize(mp.mpf)(points)
+    D = np.vectorize(mp.mpf)(D)
+    p = np.vectorize(mp.mpf)(p)
+
+    with pytest.raises(IndexError, match=match_msg):
+        se.is_inside_ellipse(points, D, p)
+
 
 def test_plot_ellipse():
     """
@@ -134,6 +176,17 @@ def test_plot_ellipse():
 
     _, ax = plt.subplots()
     pse.plot_ellipse(ax, D, p, points_to_plot)
+
+    # Test with mpmath
+    p1 = (mp.mpf(0), mp.mpf(0))
+    p2 = (mp.mpf(1), mp.mpf(0))
+    p3 = (mp.mpf(0), mp.mpf(1))
+    points_to_plot = np.vectorize(mp.mpf)(points_to_plot)
+    D, p = se.steiner_ellipse_def(p1, p2, p3)
+
+    _, ax = plt.subplots()
+    pse.plot_ellipse(ax, D, p, points_to_plot)
+
     assert True  # The code has run so far
 
 
@@ -156,4 +209,12 @@ def test_ellipse_bbox(center):
 
     bbox_expected = np.array([[-2, 2], [-1, 1]]) + p.reshape(-1, 1)
 
+    assert np.allclose(bbox, bbox_expected)
+
+    # Test with mpmath
+    p = np.vectorize(mp.mpf)(p.astype(float))
+    D = np.vectorize(mp.mpf)(D)
+    bbox = se.ellipse_bbox(D, p)
+
+    assert np.allclose(bbox, bbox_expected)
     assert np.allclose(bbox, bbox_expected)

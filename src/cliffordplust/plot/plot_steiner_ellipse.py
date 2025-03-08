@@ -38,6 +38,11 @@ def plot_ellipse(
         p (np.ndarray): Center of the ellipse
         points (np.ndarray): Points to plot
     """
+    # Ensure the points are in the correct format
+    D = np.asarray(D, dtype=float)
+    p = np.asarray(p, dtype=float)
+    points = np.asarray(points, dtype=float) if points is not None else None
+
     # Find the BBOX of the ellipse
     bbox = se.ellipse_bbox(D, p)  # BBOX of the ellipse
     edges = bbox[:, 1] - bbox[:, 0]  # Length of the edges of the BBOX
