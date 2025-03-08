@@ -147,7 +147,6 @@ def is_inside_ellipse(u: NestedList, D: np.ndarray, p: np.ndarray) -> np.ndarray
 
     # Test that the dimensions of the arguments are compatible
     n_dim = len(p)
-
     if D.shape != (n_dim, n_dim):
         raise IndexError(
             f"The matrix definition (shape {D.shape}) and center (shape {p.shape}) must have "
@@ -188,5 +187,3 @@ def ellipse_bbox(D: np.ndarray, p: np.ndarray) -> np.ndarray:
 
     n_dim = len(p)  # Number of dimensions
     bbox = np.outer(np.sqrt(diag), np.array([-1, 1])) + np.outer(p, np.ones(n_dim))  # BBOX
-
-    return bbox
