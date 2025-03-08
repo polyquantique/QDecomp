@@ -35,7 +35,7 @@ from collections.abc import Sequence
 import numbers as num
 
 import numpy as np
-from cliffordplust.rings import INVERSE_LAMBDA, LAMBDA, Zomega, Zsqrt2
+from cliffordplust.rings.rings import INVERSE_LAMBDA, LAMBDA, Zomega, Zsqrt2
 from numpy.typing import NDArray
 
 SQRT2 = math.sqrt(2)

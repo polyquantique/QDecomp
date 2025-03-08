@@ -29,7 +29,7 @@ sys.path.append(os.sep.join(path_list[:-3]))
 import ctypes
 import platform
 
-from cliffordplust.rings import *
+from cliffordplust.rings.rings import *
 
 # Import the C++ library
 platf = platform.system()

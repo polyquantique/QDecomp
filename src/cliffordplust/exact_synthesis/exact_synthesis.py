@@ -27,7 +27,7 @@ import json
 
 import numpy as np
 
-from cliffordplust.rings import Domega
+from cliffordplust.rings.rings import Domega
 
 H_11 = Domega((-1, 1), (0, 0), (1, 1), (0, 0))  # 1st element of H gate (1/sqrt(2))
 T_11 = Domega((0, 0), (0, 0), (0, 0), (1, 0))  # 1st element of T gate (1)

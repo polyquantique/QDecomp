@@ -55,7 +55,7 @@ solution exists for the specified :math:`\xi`
 
 import numpy as np
 
-from cliffordplust.rings import *
+from cliffordplust.rings.rings import *
 
 # ----------------------------- #
 # Functions for Rings algebra   #
