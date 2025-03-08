@@ -82,7 +82,7 @@ def steiner_ellipse_def(
     high_precision = isinstance(p1[0], mp.mpf)
 
     # Convert the points to numpy arrays
-    p1_, p2_, p3_ = np.array(p1), np.array(p2), np.array(p3)
+    p1_, p2_, p3_ = np.array(p1, dtype=object), np.array(p2, dtype=object), np.array(p3, dtype=object)
 
     # Check that the ellipse can be defined by the three points
     assert_steiner_ellipse(p1_, p2_, p3_)
@@ -143,14 +143,14 @@ def steiner_ellipse_def(
 NestedList = list[float] | list["NestedList"]
 
 
-def is_inside_ellipse(u: NestedList, D: np.ndarray, p: np.ndarray) -> np.ndarray:
+def is_inside_ellipse(u: np.ndarray, D: np.ndarray, p: np.ndarray) -> np.ndarray:
     """
     Check if a point u (or an array of points) is inside the ellipse defined by matrix D and center
     p. The function works for both single points and arrays of points, where the last dimension of u
     must be the same as the number of dimensions of the ellipse.
 
     Args:
-        u (NestedList): The point(s) to be tested, an array of shape (..., n_dim)
+        u (np.ndarray): The point(s) to be tested, an array of shape (..., n_dim)
         D (np.ndarray): Matrix defining the ellipse's shape and orientation
         p (np.ndarray): Center of the ellipse
 
@@ -162,7 +162,8 @@ def is_inside_ellipse(u: NestedList, D: np.ndarray, p: np.ndarray) -> np.ndarray
         IndexError: If the last dimension of the points to test is different from the number of
             dimensions of the ellipse
     """
-    u_ = np.array(u)
+    # Ensure u is a numpy array
+    u_ = np.array(u, dtype=object)  # Use dtype=object to handle mixed types (mp.mpf, float, etc.)
 
     # Test that the dimensions of the arguments are compatible
     n_dim = len(p)
@@ -175,15 +176,37 @@ def is_inside_ellipse(u: NestedList, D: np.ndarray, p: np.ndarray) -> np.ndarray
     if u_.shape[-1] != n_dim:
         raise IndexError(
             f"The last dimension of the points to test (shape {u_.shape[-1]}) must be the same "
-            + "than the number of dimensions of the ellipse (shape {len(p)})."
+            + f"as the number of dimensions of the ellipse (shape {n_dim})."
         )
 
-    # Determine which points are inside the ellipse
-    vector = u_ - p
-    is_inside = np.einsum("...i,ij,...j->...", vector, D, vector) <= 1
+    # Convert D and p to mp.mpf if necessary (if any elements are mp.mpf)
+    if isinstance(D[0, 0], mp.mpf) or isinstance(p[0], mp.mpf):
+        D = np.array([[mp.mpf(x) for x in row] for row in D])
+        p = np.array([mp.mpf(x) for x in p])
+
+    # If u is a single vector (1D array), convert it to a 2D array (1 row)
+    if u_.ndim == 1:
+        u_ = np.expand_dims(u_, axis=0)
+
+    # Now process the points and check if they are inside the ellipse
+    is_inside = np.zeros(u_.shape[0], dtype=bool)
+
+    for i, vec in enumerate(u_):
+        vector = vec - p  # Subtract the center from each point
+
+        # Check if u_ is using high precision
+        if isinstance(vec[0], mp.mpf):
+            # Perform matrix-vector multiplication using mp.mpf for high precision
+            result = mp.mpf(0)
+            for j in range(n_dim):
+                for k in range(n_dim):
+                    result += vector[j] * D[j, k] * vector[k]
+            is_inside[i] = result <= 1
+        else:
+            # Use standard numpy dot product for normal float arrays
+            is_inside[i] = np.dot(vector, np.dot(D, vector)) <= 1
 
     return is_inside
-
 
 def ellipse_bbox(D: np.ndarray, p: np.ndarray) -> np.ndarray:
     """
@@ -214,3 +237,4 @@ def ellipse_bbox(D: np.ndarray, p: np.ndarray) -> np.ndarray:
 
     n_dim = len(p)  # Number of dimensions
     bbox = np.outer(np.sqrt(diag), np.array([-1, 1])) + np.outer(p, np.ones(n_dim))  # BBOX
+    return bbox

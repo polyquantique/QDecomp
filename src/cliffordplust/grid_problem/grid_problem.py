@@ -57,14 +57,14 @@ def find_points(epsilon: float, theta: float) -> np.ndarray:
     # Verify the value of epsilon
     if epsilon >= 0.5:
         raise ValueError("The maximal allowebale error is 0.5.")
-
+    
     theta = mp.mpf(theta)
     epsilon = mp.mpf(epsilon)
 
     # Compute important values only once
     sine = mp.sin(theta / 2)
     cosine = mp.cos(theta / 2)
-    p1 = [0, 0]
+    p1 = [mp.mpf(0), mp.mpf(0)]
 
     """
     The calculations needed to find the points are the solving of a trivial quadratic equation which is not 
@@ -74,8 +74,8 @@ def find_points(epsilon: float, theta: float) -> np.ndarray:
     """
     # Handle the special case where the sine is 0
     if sine == 0:
-        p2 = [-(cosine * epsilon**2) / 2, mp.sqrt(epsilon**2 - epsilon**4 / 4)]
-        p3 = [-(cosine * epsilon**2) / 2, -mp.sqrt(epsilon**2 - epsilon**4 / 4)]
+        p2 = [-(cosine * epsilon**2) / 2, epsilon * mp.sqrt(1 - epsilon**2 / 4)]
+        p3 = [-(cosine * epsilon**2) / 2, -epsilon * mp.sqrt(1 - epsilon**2 / 4)]
     else:
         # Set the proper values for x2 and x3 in order to find the points p2 and p3
         delta = epsilon * mp.sqrt(4 / (sine**2) - epsilon**2 / (sine**2))

@@ -14,14 +14,16 @@
 
 import numpy as np
 import math
+import mpmath as mp
 import time
 
 from cliffordplust.grid_problem.rz_approx import z_rotational_approximation
 from cliffordplust.exact_synthesis.exact_synthesis import exact_synthesis_alg
 
 t1 = time.time()
-epsilon = 1e-6
-theta = 10 * math.pi / 7
+epsilon = 1e-5
+theta = 1 * math.pi / 128
+mp.dps = int(-math.log10(epsilon**2)) + 8
 U = z_rotational_approximation(epsilon, theta)
 U_complex = np.array(U, dtype=complex)
 rz = np.array([

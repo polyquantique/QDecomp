@@ -138,7 +138,7 @@ class Grid_Operator:
         return np.array(self.G, dtype=float)
     
     def as_mpmath(self) -> np.ndarray:
-        return np.vectorize(lambda x: mp.mpf(x))(self.G)
+        return np.vectorize(lambda x: x.mpfloat())(self.G)
 
     def __add__(self, other: Grid_Operator) -> Grid_Operator:
         """Define the summation operation of the grid operator"""

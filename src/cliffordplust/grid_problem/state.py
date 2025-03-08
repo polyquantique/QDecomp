@@ -83,9 +83,9 @@ class State:
             raise TypeError("The elements of B must be mp.mpf")
 
         # Check if A and B are symmetric
-        if A[0, 1] != A[1, 0]:
+        if not np.isclose(float(A[0, 1]), float(A[1, 0])):
             raise ValueError("Matrix A must be symmetric.")
-        if B[0, 1] != B[1, 0]:
+        if not np.isclose(float(B[0, 1]), float(B[1, 0])):
             raise ValueError("Matrix B must be symmetric.")
 
         # Assign the matrices to attributes
@@ -103,11 +103,11 @@ class State:
         detB = B[0, 0] * B[1, 1] - B[0, 1] * B[1, 0]
         if detA <= 0 or detB <= 0:
             raise ValueError("The determinant of A and B must be positive and non-zero")
-        if detA == 1:
+        if mp.almosteq(1, detA):
             pass
         else:
             self.A = (1 / mp.sqrt(detA)) * A
-        if detB == 1:
+        if mp.almosteq(1, detB):
             pass
         else:
             self.B = (1 / mp.sqrt(detB)) * B
