@@ -13,11 +13,12 @@
 #    limitations under the License.
 
 import math
+import mpmath as mp
 
 import numpy as np
 
 from cliffordplust.grid_problem.grid_operator import A, B, I, K, R, X, Z, Grid_Operator
-from cliffordplust.rings import *
+from cliffordplust.rings.rings import *
 from cliffordplust.grid_problem.state import inv_special_sigma, special_sigma, State
 
 
@@ -57,9 +58,12 @@ def find_points(epsilon: float, theta: float) -> np.ndarray:
     if epsilon >= 0.5:
         raise ValueError("The maximal allowebale error is 0.5.")
 
+    theta = mp.mpf(theta)
+    epsilon = mp.mpf(epsilon)
+
     # Compute important values only once
-    sine = math.sin(theta / 2)
-    cosine = math.cos(theta / 2)
+    sine = mp.sin(theta / 2)
+    cosine = mp.cos(theta / 2)
     p1 = [0, 0]
 
     """
@@ -69,12 +73,12 @@ def find_points(epsilon: float, theta: float) -> np.ndarray:
     between the unit disk and the vector z is set to be the origin. 
     """
     # Handle the special case where the sine is 0
-    if np.isclose(sine, 0):
-        p2 = [-(cosine * epsilon**2) / 2, math.sqrt(epsilon**2 - epsilon**4 / 4)]
-        p3 = [-(cosine * epsilon**2) / 2, -math.sqrt(epsilon**2 - epsilon**4 / 4)]
+    if sine == 0:
+        p2 = [-(cosine * epsilon**2) / 2, mp.sqrt(epsilon**2 - epsilon**4 / 4)]
+        p3 = [-(cosine * epsilon**2) / 2, -mp.sqrt(epsilon**2 - epsilon**4 / 4)]
     else:
         # Set the proper values for x2 and x3 in order to find the points p2 and p3
-        delta = epsilon * math.sqrt(4 / (sine**2) - epsilon**2 / (sine**2))
+        delta = epsilon * mp.sqrt(4 / (sine**2) - epsilon**2 / (sine**2))
         b = (epsilon**2 * cosine) / (sine**2)
         denom = 2 * cosine**2 / sine**2 + 2
         x2 = (-b + delta) / denom
@@ -111,7 +115,7 @@ def find_grid_operator(A: np.ndarray, B: np.ndarray) -> Grid_Operator:
         # Adjust the bias
         if abs(state.bias) > 1:
             # Find the value of k and apply the shift
-            k_upper = (1 - state.bias) / 2
+            k_upper = (1 - float(state.bias)) / 2
             k = math.floor(k_upper)
             temp_state = state.shift(k)
         else:

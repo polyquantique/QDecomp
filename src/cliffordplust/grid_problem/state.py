@@ -24,11 +24,11 @@ usage of a state, are explained in Appendix A of the paper: https://arxiv.org/pd
 
 from __future__ import annotations
 
-import math
+import mpmath as mp
 
 import numpy as np
 from cliffordplust.grid_problem.grid_operator import Grid_Operator
-from cliffordplust.rings import *
+from cliffordplust.rings.rings import *
 
 
 class State:
@@ -60,25 +60,32 @@ class State:
 
         Raises:
             TypeError: If A or B cannot be converted to a numpy array.
-            TypeError: If the elements of A or B cannot be converted to floats.
+            TypeError: If the elements of A or B are not mp.mpf.
             ValueError: If A or B are not 2x2 matrices.
             ValueError: If A or B are not symmetric matrices.
         """
         # Ensure A and B are numpy arrays
         try:
-            A = np.array(A, dtype=float)
-            B = np.array(B, dtype=float)
+            A = np.array(A, dtype=object)
+            B = np.array(B, dtype=object)
         except Exception:
-            raise TypeError("A and B must be convertible to numpy arrays of floats.")
+            raise TypeError("A and B must be convertible to numpy arrays.")
 
         # Check that both matrices are 2x2
         if A.shape != (2, 2) or B.shape != (2, 2):
             raise ValueError("Both A and B must be 2x2 matrices.")
+        
+        # Ensure that A and B contain mp.mpf
+        if not np.all(np.vectorize(lambda x: isinstance(x, mp.mpf))(A)):
+            raise TypeError("The elements of A must be mp.mpf")
+        
+        if not np.all(np.vectorize(lambda x: isinstance(x, mp.mpf))(B)):
+            raise TypeError("The elements of B must be mp.mpf")
 
         # Check if A and B are symmetric
-        if not np.isclose(A[0, 1], A[1, 0]):
+        if A[0, 1] != A[1, 0]:
             raise ValueError("Matrix A must be symmetric.")
-        if not np.isclose(B[0, 1], B[1, 0]):
+        if B[0, 1] != B[1, 0]:
             raise ValueError("Matrix B must be symmetric.")
 
         # Assign the matrices to attributes
@@ -91,69 +98,69 @@ class State:
     def __reduce(self) -> None:
         """Reduce both determinants to 1"""
         A = self.A
-        detA = np.linalg.det(A)
+        detA = A[0, 0] * A[1, 1] - A[0, 1] * A[1, 0]
         B = self.B
-        detB = np.linalg.det(B)
-        if np.isclose(detA, 0) or np.isclose(detB, 0) or detA < 0 or detB < 0:
+        detB = B[0, 0] * B[1, 1] - B[0, 1] * B[1, 0]
+        if detA <= 0 or detB <= 0:
             raise ValueError("The determinant of A and B must be positive and non-zero")
-        if np.isclose(detA, 1):
+        if detA == 1:
             pass
         else:
-            self.A = (1 / math.sqrt(detA)) * A
-        if np.isclose(detB, 1):
+            self.A = (1 / mp.sqrt(detA)) * A
+        if detB == 1:
             pass
         else:
-            self.B = (1 / math.sqrt(detB)) * B
+            self.B = (1 / mp.sqrt(detB)) * B
 
     def __repr__(self) -> str:
         """Returns a string representation of the object"""
         return f"({self.A}, {self.B})"
 
     @property
-    def z(self) -> float:
+    def z(self):
         """Refer to (34) in https://arxiv.org/pdf/1403.2975"""
         A = self.A
-        return -0.5 * math.log(A[0, 0] / A[1, 1]) / math.log(1 + math.sqrt(2))
+        return -0.5 * mp.log(A[0, 0] / A[1, 1]) / mp.log(1 + mp.sqrt(2))
 
     @property
-    def zeta(self) -> float:
+    def zeta(self):
         """Refer to (34) in https://arxiv.org/pdf/1403.2975"""
         B = self.B
-        return -0.5 * math.log(B[0, 0] / B[1, 1]) / math.log(1 + math.sqrt(2))
+        return -0.5 * mp.log(B[0, 0] / B[1, 1]) / mp.log(1 + mp.sqrt(2))
 
     @property
-    def e(self) -> float:
+    def e(self):
         """Refer to (34) in https://arxiv.org/pdf/1403.2975"""
         z = self.z
         A = self.A
-        return A[0, 0] * (1 + math.sqrt(2)) ** z
+        return A[0, 0] * (1 + mp.sqrt(2)) ** z
 
     @property
-    def epsilon(self) -> float:
+    def epsilon(self):
         """Refer to (34) in https://arxiv.org/pdf/1403.2975"""
         zeta = self.zeta
         B = self.B
-        return B[0, 0] * (1 + math.sqrt(2)) ** zeta
+        return B[0, 0] * (1 + mp.sqrt(2)) ** zeta
 
     @property
-    def b(self) -> float:
+    def b(self):
         """Refer to (34) in https://arxiv.org/pdf/1403.2975"""
         A = self.A
-        return float(A[0, 1])
+        return mp.mpf(A[0, 1])
 
     @property
-    def beta(self) -> float:
+    def beta(self):
         """Refer to (34) in https://arxiv.org/pdf/1403.2975"""
         B = self.B
-        return float(B[0, 1])
+        return mp.mpf(B[0, 1])
 
     @property
-    def skew(self) -> float:
+    def skew(self):
         """Refer to (34) in https://arxiv.org/pdf/1403.2975"""
         return self.b**2 + self.beta**2
 
     @property
-    def bias(self) -> float:
+    def bias(self):
         """Refer to (34) in https://arxiv.org/pdf/1403.2975"""
         return self.zeta - self.z
 
@@ -164,8 +171,8 @@ class State:
         if not isinstance(G, Grid_Operator):
             raise TypeError("G must be a grid operator")
         G_conj = G.conjugate()
-        new_A = G.dag().as_float() @ A @ G.as_float()
-        new_B = G_conj.dag().as_float() @ B @ G_conj.as_float()
+        new_A = G.dag().as_mpmath() @ A @ G.as_mpmath()
+        new_B = G_conj.dag().as_mpmath() @ B @ G_conj.as_mpmath()
         return State(new_A, new_B)
 
     def shift(self, k: int) -> State:
@@ -176,13 +183,13 @@ class State:
             raise ValueError("k must be an integer")
         if k >= 0:
             # kth power of sigma
-            sigma_k = (special_sigma**k).as_float() * math.sqrt(float(INVERSE_LAMBDA**k))
+            sigma_k = (special_sigma**k).as_mpmath() * mp.sqrt((INVERSE_LAMBDA**k).mpfloat())
             # kth power of tau
-            tau_k = (special_tau**k).as_float() * math.sqrt(float(INVERSE_LAMBDA**k))
+            tau_k = (special_tau**k).as_mpmath() * mp.sqrt((INVERSE_LAMBDA**k).mpfloat())
         else:
             # Since k is negative, we have to take the inverse
-            sigma_k = (inv_special_sigma**-k).as_float() * (math.sqrt(float(LAMBDA)) ** -k)
-            tau_k = (inv_special_tau**-k).as_float() * (math.sqrt(float(LAMBDA)) ** -k)
+            sigma_k = (inv_special_sigma**-k).as_mpmath() * mp.sqrt((LAMBDA ** -k).mpfloat())
+            tau_k = (inv_special_tau**-k).as_mpmath() * mp.sqrt((LAMBDA ** -k).mpfloat())
         shift_A = sigma_k @ A @ sigma_k
         shift_B = tau_k @ B @ tau_k
         return State(shift_A, shift_B)

@@ -17,7 +17,8 @@ from __future__ import annotations
 from typing import Union
 
 import numpy as np
-from cliffordplust.rings import *
+import mpmath as mp
+from cliffordplust.rings.rings import *
 
 """
 This file defines the `Grid_Operator` class. Grid operators are defined in section 5.3 of 
@@ -135,6 +136,9 @@ class Grid_Operator:
 
     def as_float(self) -> np.ndarray:
         return np.array(self.G, dtype=float)
+    
+    def as_mpmath(self) -> np.ndarray:
+        return np.vectorize(lambda x: mp.mpf(x))(self.G)
 
     def __add__(self, other: Grid_Operator) -> Grid_Operator:
         """Define the summation operation of the grid operator"""

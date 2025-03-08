@@ -14,10 +14,11 @@
 
 import numpy as np
 import math
+import mpmath as mp
 
 from cliffordplust.grid_problem.grid_problem import find_points, find_grid_operator
 from cliffordplust.grid_problem.grid_algorithms import solve_grid_problem_2d
-from cliffordplust.rings import *
+from cliffordplust.rings.rings import *
 # import cliffordplust.diophantine.diophantine_equation_cpp as diop
 from cliffordplust.diophantine.diophantine_equation import *
 from cliffordplust.grid_problem.steiner_ellipse import *
@@ -25,19 +26,21 @@ from cliffordplust.grid_problem.steiner_ellipse import *
 def initialization(epsilon: float, theta: float):
     p1, p2, p3 = find_points(epsilon, theta)
     E, p_p = steiner_ellipse_def(p1, p2, p3)
-    I = np.array([[1, 0], [0, 1]], dtype=float)
+    I = np.array([[mp.mpf(1), mp.mpf(0)], 
+              [mp.mpf(0), mp.mpf(1)]], dtype=object)
     inv_gop, gop = find_grid_operator(E, I)
     inv_gop_conj = inv_gop.conjugate()
-    mod_E = (inv_gop.dag()).as_float() @ E @ inv_gop.as_float()
-    mod_D = (inv_gop_conj.dag()).as_float() @ I @ inv_gop_conj.as_float()
+    mod_E = (inv_gop.dag()).as_mpmath() @ E @ inv_gop.as_mpmath()
+    mod_D = (inv_gop_conj.dag()).as_mpmath() @ I @ inv_gop_conj.as_mpmath()
     bbox_1 = ellipse_bbox(mod_E, p_p)
     bbox_2 = ellipse_bbox(mod_D, np.zeros(2))
     return E, p_p, bbox_1, bbox_2
 
 def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
     E, p_p, bbox_1, bbox_2 = initialization(epsilon, theta)
-    I = np.array([[1, 0], [0, 1]], dtype=float)
-    z = np.array([math.cos(theta / 2), -math.sin(theta / 2)])
+    I = np.array([[mp.mpf(1), mp.mpf(0)], 
+              [mp.mpf(0), mp.mpf(1)]], dtype=object)
+    z = np.array([mp.cos(theta / 2), -mp.sin(theta / 2)])
     n = 0
     solution = False
     while solution == False:

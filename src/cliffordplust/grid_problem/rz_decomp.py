@@ -20,17 +20,14 @@ from cliffordplust.grid_problem.rz_approx import z_rotational_approximation
 from cliffordplust.exact_synthesis.exact_synthesis import exact_synthesis_alg
 
 t1 = time.time()
-epsilon = 1e-4
-theta = 4 * math.pi / 3
+epsilon = 1e-6
+theta = 10 * math.pi / 7
 U = z_rotational_approximation(epsilon, theta)
-print(U)
 U_complex = np.array(U, dtype=complex)
-print(U_complex)
 rz = np.array([
     [math.cos(theta / 2) - 1.j * math.sin(theta / 2), 0], 
     [0, math.cos(theta / 2) + 1.j * math.sin(theta / 2)]
 ])
-print(rz)
 E = op_norm = max(np.linalg.svd(U_complex - rz, compute_uv=False))
 print("Error: ", E)
 Sequence = exact_synthesis_alg(U)
