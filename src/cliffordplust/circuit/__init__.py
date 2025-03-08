@@ -12,4 +12,5 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-from cliffordplust.circuit.gate import Gate
+from cliffordplust.circuit.qgate import QGate
+from cliffordplust.circuit.qcircuit import QCircuit

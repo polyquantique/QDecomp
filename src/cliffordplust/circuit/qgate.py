@@ -19,7 +19,7 @@
 import numpy as np
 
 
-class Gate:
+class QGate:
     """
     Class representing a quantum gate. The gate can be defined either by its matrix or its name,
     but not both. The Gate object contains the information about the qubit on which it acts and its
@@ -39,6 +39,7 @@ class Gate:
         target: int | tuple[int] | None = None,
         control: int | None = None,
         epsilon: float = 0,
+        sequence: str | None = None,
     ) -> None:
         """
 
@@ -48,13 +49,14 @@ class Gate:
             target (int or typle[int] or None): Number of the target qubit.
             control (int or None): Number of the control qubit.
             epsilon (float): Tolerance for the gate.
+            sequence (str or None): Clifford+T sequence associated with the gate decomposition.
 
         Raises:
             ValueError: If the matrix is not a square matrix.
             ValueError: If the matrix is not unitary.
             ValueError: If the number of rows of the matrix is not 2^(number of targets + number of control).
             ValueError: If the target qubit is equal to the control qubit.
-            ValueError: When both the name and the matrix are specified or unspecified.
+            ValueError: When both the sequence and the matrix are specified or unspecified.
             TypeError: If the target qubit is not specified (None).
             ValueError: If the tolerance is negative.
         """
@@ -89,9 +91,9 @@ class Gate:
             if control in target:
                 raise ValueError("The control qubit must be different from the target qubit.")
         
-        # Either the name or the matrix is specified
-        if (name is not None) == (matrix is not None):
-            raise ValueError("Either the name or the matrix must be specified, and not both.")
+        # Either the sequence or the matrix is specified
+        if (sequence is not None) == (matrix is not None):
+            raise ValueError("Either the sequence or the matrix must be specified, and not both.")
         
         # The target qubit is specified
         if target is None:
@@ -107,6 +109,7 @@ class Gate:
         self.target = target
         self.control = control
         self.epsilon = epsilon
+        self.sequence = sequence
 
     def __str__(self) -> str:
         """
@@ -124,17 +127,17 @@ class Gate:
         Returns:
             tuple: The tuple representation of the gate.
         """
-        if self.name is not None:
-            name = self.name
+        if self.sequence is not None:
+            sequence = self.sequence
         else:
-            name = self.matrix
+            sequence = self.matrix
 
         if self.control is not None:
             target = (self.control, self.target)
         else:
             target = (self.target,)
 
-        return (name, target, self.epsilon)
+        return (sequence, target, self.epsilon)
 
     def convert(self, fun: callable[["Gate"], any]) -> any:
         """
@@ -153,12 +156,12 @@ class Gate:
         Calculate the matrix representation of the gate.
 
         Raises:
-            ValueError: If the name of the gate is not recognized.
+            ValueError: If the sequence of the gate is not recognized.
         """
         if self.matrix is not None:
             return
 
-        match self.name:
+        match self.sequence:
             case "I":
                 self.matrix = np.eye(2)
 
@@ -192,4 +195,4 @@ class Gate:
                 self.matrix = np.eye(4)[[0, 2, 1, 3]]
 
             case _:
-                raise ValueError(f"Unknown gate {self.name}.")
+                raise ValueError(f"Unknown gate {self.sequence}.")

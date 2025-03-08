@@ -12,7 +12,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-from cliffordplust.circuit.gate import Gate
+from cliffordplust.circuit.qgate import Gate
 import numpy as np
 
 
