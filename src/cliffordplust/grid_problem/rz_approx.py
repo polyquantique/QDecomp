@@ -24,6 +24,7 @@ from cliffordplust.diophantine.diophantine_equation import *
 from cliffordplust.grid_problem.steiner_ellipse import *
 
 def initialization(epsilon: float, theta: float):
+    mp.dps = int(-math.log10(epsilon)) + 8
     p1, p2, p3 = find_points(epsilon, theta)
     E, p_p = steiner_ellipse_def(p1, p2, p3)
     I = np.array([[mp.mpf(1), mp.mpf(0)], 
@@ -62,10 +63,10 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
                 u_vec = np.array([Dsqrt2(u.d, D(1, 1) * (u.c - u.a)), Dsqrt2(u.b, D(1, 1) * (u.c + u.a))])
                 u_conj = u.sqrt2_conjugate()
                 u_conj_vec = np.array([Dsqrt2(u_conj.d, D(1, 1) * (u_conj.c - u_conj.a)), Dsqrt2(u_conj.b, D(1, 1) * (u_conj.c + u_conj.a))])
-                u_float = np.array(u_vec, dtype=float)
-                u_conj_float = np.array(u_conj_vec, dtype=float)
+                u_float = np.vectorize(mp.mpf)(u_vec)
+                u_conj_float = np.vectorize(mp.mpf)(u_conj_vec)
                 if is_inside_ellipse(u_float, E, p_p) and is_inside_ellipse(u_conj_float, I, np.zeros(2)):
-                    if np.dot(u_float, z) < 1 and np.dot(u_float, z) > 1 - 0.5 * epsilon**2:
+                    if np.dot(u_float, z) < 1 and np.dot(u_float, z) > mp.mpf(1) - mp.mpf(0.5 * epsilon**2):
                         print("Found candidate")
                         xi = 1 - u.complex_conjugate() * u
                         # t = diop.solve_xi_eq_ttdag_in_d_cpp(Dsqrt2.from_ring(xi))
