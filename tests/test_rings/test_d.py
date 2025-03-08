@@ -17,6 +17,8 @@ from cliffordplust.rings import D
 """Test the D class."""
 
 import math
+import mpmath as mp
+mp.mp.dps = 75
 
 import pytest
 from cliffordplust.rings import D
@@ -27,6 +29,13 @@ from cliffordplust.rings import D
 def test_float(num: int, denom: int) -> None:
     """Test the float value of the D class."""
     assert math.isclose(num / 2**denom, float(D(num, denom)))
+
+@pytest.mark.parametrize("num", [0, 1, 5, 100, 73, -5, -1])
+@pytest.mark.parametrize("denom", [0, 1, 5, 10, 19, 50])
+def test_mpfloat(num: int, denom: int) -> None:
+    """Test the mpfloat value of the D class."""
+    assert math.isclose(mp.mpf(num) / 2**mp.mpf(denom), D(num, denom).mpfloat())
+    assert math.isclose(num / 2**denom, D(num, denom).mpfloat())
 
 
 @pytest.mark.parametrize(

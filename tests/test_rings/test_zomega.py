@@ -13,6 +13,8 @@
 #    limitations under the License.
 
 import math
+import mpmath as mp
+mp.mp.dps = 75
 
 import cliffordplust.rings as r
 import numpy as np
@@ -38,6 +40,24 @@ def test_real(n):
     real = (n.a * OMEGA**3 + n.b * OMEGA**2 + n.c * OMEGA + n.d).real
     assert math.isclose(n.real(), real)
 
+@pytest.mark.parametrize(
+    "n",
+    [
+        Zomega(1, 1, 1, 1),
+        Zomega(0, 0, 0, 0),
+        Zomega(-1, 1, 1, -1),
+        Zomega(1, 2, -5, 4),
+        Zomega(-55, 14, 77, 23),
+        Zomega(36, 71, 41, -94),
+    ],
+)
+def test_mp_real(n):
+    """Test the mp_real value of the Zomega class."""
+    omega_mp = mp.mpc(1/mp.sqrt(2), 1/mp.sqrt(2))
+    real = (n.a * omega_mp**3 + n.b * omega_mp**2 + n.c * omega_mp + n.d).real
+    assert math.isclose(n.mp_real(), real)
+    assert math.isclose(n.real(), n.mp_real())
+
 
 def test_real_small_numbers():
     """Test the real value of small Zomega numbers."""
@@ -61,6 +81,24 @@ def test_imag(n):
     imag = (n.a * OMEGA**3 + n.b * OMEGA**2 + n.c * OMEGA + n.d).imag
     assert math.isclose(n.imag(), imag)
 
+@pytest.mark.parametrize(
+    "n",
+    [
+        Zomega(1, 1, 1, 1),
+        Zomega(0, 0, 0, 0),
+        Zomega(-1, 1, 1, -1),
+        Zomega(1, 2, -5, 4),
+        Zomega(-55, 14, 77, 23),
+        Zomega(36, 71, 41, -94),
+    ],
+)
+def test_mp_imag(n):
+    """Test the mp_imag value of the Zomega class."""
+    omega_mp = mp.mpc(1/mp.sqrt(2), 1/mp.sqrt(2))
+    imag = (n.a * omega_mp**3 + n.b * omega_mp**2 + n.c * omega_mp + n.d).imag
+    assert math.isclose(n.mp_imag(), imag)
+    assert math.isclose(n.imag(), n.mp_imag())
+
 
 def test_imag_small_numbers():
     """Test the imaginary value of small Zomega numbers."""
@@ -83,6 +121,21 @@ def test_complex(n):
     """Test the complex value of the Zomega class."""
     complex_value = n.a * OMEGA**3 + n.b * OMEGA**2 + n.c * OMEGA + n.d
     assert np.isclose(complex(n), complex_value)
+
+@pytest.mark.parametrize(
+    "n",
+    [
+        Zomega(1, 1, 1, 1),
+        Zomega(0, 0, 0, 0),
+        Zomega(-1, 1, 1, -1),
+        Zomega(1, 2, -5, 4),
+        Zomega(-55, 14, 77, 23),
+        Zomega(36, 71, 41, -94),
+    ],
+)
+def test_mpcomplex(n):
+    """Test the mp_complex value of the Zomega class."""
+    assert np.isclose(n.mpcomplex(), complex(n))
 
 
 @pytest.mark.parametrize(
