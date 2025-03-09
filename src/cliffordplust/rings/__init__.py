@@ -12,4 +12,4 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-from .rings import *
+from cliffordplust.rings.z_sqrt2 import *
