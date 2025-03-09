@@ -12,4 +12,10 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-from cliffordplust.rings.rings import *
+from cliffordplust.circuit.qgate import Gate
+import numpy as np
+
+
+def test_init_errors():
+    """Test the Gate class constructor with errors."""
+    pass
