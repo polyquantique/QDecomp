@@ -65,7 +65,7 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
                 u_conj_vec = np.array([Dsqrt2(u_conj.d, D(1, 1) * (u_conj.c - u_conj.a)), Dsqrt2(u_conj.b, D(1, 1) * (u_conj.c + u_conj.a))])
                 u_float = np.array([u_vec[0].mpfloat(), u_vec[1].mpfloat()])
                 u_conj_float = np.array([u_conj_vec[0].mpfloat(), u_conj_vec[1].mpfloat()])
-                if is_inside_ellipse(u_float, E, p_p) and is_inside_ellipse(u_conj_float, I, np.zeros(2)):
+                if True or is_inside_ellipse(u_float, E, p_p) and is_inside_ellipse(u_conj_float, I, np.zeros(2)):
                     if np.dot(u_float, z) < 1 and np.dot(u_float, z) > mp.mpf(1) - mp.mpf(0.5 * epsilon**2):
                         print("Found candidate")
                         xi = 1 - u.complex_conjugate() * u
