@@ -13,5 +13,3 @@
 #    limitations under the License.
 
 from .rings import *
-
-from cliffordplust.rings.rings import *
