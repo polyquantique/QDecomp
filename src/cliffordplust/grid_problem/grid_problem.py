@@ -56,7 +56,7 @@ def find_points(epsilon: float, theta: float) -> np.ndarray:
 
     # Verify the value of epsilon
     if epsilon >= 0.5:
-        raise ValueError("The maximal allowebale error is 0.5.")
+        raise ValueError("The maximal allowable error is 0.5.")
     
     theta = mp.mpf(theta)
     epsilon = mp.mpf(epsilon)
