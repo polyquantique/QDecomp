@@ -18,98 +18,51 @@ import numpy as np
 import pytest
 from scipy.stats import ortho_group, special_ortho_group, unitary_group
 
-from cliffordplust.decompositions.cnot import canonical_decomposition, power_pauli_y, power_pauli_z, is_unitary, is_special, is_orthogonal, kronecker_decomposition, so4_decomposition, u4_decomposition, o4_det_minus1_decomposition, known_decomposition, tqg_decomposition, canonical_gate
+from cliffordplust.decompositions import canonical_decomposition, is_unitary, is_special, is_orthogonal, kronecker_decomposition, so4_decomposition, u4_decomposition, o4_det_minus1_decomposition, known_decomposition, tqg_decomposition
+from cliffordplust.decompositions import gates, parametric_gates
+from cliffordplust.circuit import QCircuit, QGate
 
 
-def multiply_circuit(circuit):
-    """
-    Takes a list of tuples containing gates and the qubits they act on and returns the matrix
-    representation of the circuit.
-
-    Args:
-        circuit (list): A list of tuples containing gates and the qubits they act on.
-
-    Returns:
-        np.ndarray: The matrix representation of the circuit.
-    """
-    # Matrix representation of the circuit
-    matrix = np.eye(4)
-
-    # Split the gates into elementary gates
-    splitted_decomp = list()
-    for gate, target in circuit:
-        if type(gate) is not str:
-            splitted_decomp.append((gate, target))
-        elif " " not in gate:
-            splitted_decomp.append((gate, target))
+def multiply_circuit(circuit: QCircuit) -> np.ndarray:
+    M = np.eye(4)
+    for gate in circuit:
+        if gate.matrix.shape == (2, 2):
+            if gate.target == 0:
+                M = np.kron(gate.matrix, np.eye(2)) @ M
+            else:
+                M = np.kron(np.eye(2), gate.matrix) @ M
         else:
-            for g in gate.split(" "):
-                splitted_decomp.append((g, target))
-
-    # Reconstruct the matrix
-    for gate, target in splitted_decomp:
-        # Transform a string gate into a np.array gate
-        match gate:
-            case np.ndarray():
-                pass
-
-            case "CNOT":
-                if target == (0, 1):
-                    gate = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
-                else:
-                    gate = np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0], [0, 1, 0, 0]])
-
-            case "H":
-                gate = np.array([[1, 1], [1, -1]]) / np.sqrt(2)
-
-            case "S":
-                gate = np.array([[1, 0], [0, 1.0j]])
-
-            case "SDAG":
-                gate = np.array([[1, 0], [0, -1.0j]])
-
-        # Transform any 2x2 matrix into a 4x4 matrix
-        if gate.shape == (2, 2):
-            if target == (0,):
-                transformed_gate = np.kron(gate, np.eye(2))
-            elif target == (1,):
-                transformed_gate = np.kron(np.eye(2), gate)
-
-        else:
-            transformed_gate = gate
-
-        matrix = transformed_gate @ matrix
-    
-    return matrix
+            M = gate.matrix @ M
+    return M
 
 
 def test_power_pauli_y():
     """Test the power of Pauli-Y matrix."""
     # Trivial cases
-    assert np.allclose(power_pauli_y(0), np.eye(2))
+    assert np.allclose(parametric_gates['PY'](0), np.eye(2))
     assert np.allclose(
-        power_pauli_y(0.5),
+        parametric_gates['PY'](0.5),
         np.array([[complex(1, 1), complex(-1, -1)], [complex(1, 1), complex(1, 1)]]) / 2,
     )
-    assert np.allclose(power_pauli_y(1), np.array([[0, -1.0j], [1.0j, 0]]))
-    assert np.allclose(power_pauli_y(2), np.eye(2))
+    assert np.allclose(parametric_gates['PY'](1), np.array([[0, -1.0j], [1.0j, 0]]))
+    assert np.allclose(parametric_gates['PY'](2), np.eye(2))
 
     for t in [0, np.pi / 2, -2, 10]:
-        assert np.allclose(power_pauli_y(t) @ power_pauli_y(-t), np.eye(2))  # Check inverse
-        assert np.allclose(power_pauli_y(t), power_pauli_y(t % 2))  # Check periodicity
+        assert np.allclose(parametric_gates['PY'](t) @ parametric_gates['PY'](-t), np.eye(2))  # Check inverse
+        assert np.allclose(parametric_gates['PY'](t), parametric_gates['PY'](t % 2))  # Check periodicity
 
 
 def test_power_pauli_z():
     """Test the power of Pauli-Z matrix."""
     # Trivial cases
-    assert np.allclose(power_pauli_z(0), np.eye(2))
-    assert np.allclose(power_pauli_z(0.5), np.diag([1, 1.0j]))
-    assert np.allclose(power_pauli_z(1), np.array([[1, 0], [0, -1]]))
-    assert np.allclose(power_pauli_z(2), np.eye(2))
+    assert np.allclose(parametric_gates['PZ'](0), np.eye(2))
+    assert np.allclose(parametric_gates['PZ'](0.5), np.diag([1, 1.0j]))
+    assert np.allclose(parametric_gates['PZ'](1), np.array([[1, 0], [0, -1]]))
+    assert np.allclose(parametric_gates['PZ'](2), np.eye(2))
 
     for t in [0, np.pi / 2, -2, 10]:
-        assert np.allclose(power_pauli_z(t) @ power_pauli_z(-t), np.eye(2))  # Check inverse
-        assert np.allclose(power_pauli_z(t), power_pauli_z(t % 2))  # Check periodicity
+        assert np.allclose(parametric_gates['PZ'](t) @ parametric_gates['PZ'](-t), np.eye(2))  # Check inverse
+        assert np.allclose(parametric_gates['PZ'](t), parametric_gates['PZ'](t % 2))  # Check periodicity
 
 
 @pytest.mark.parametrize(
@@ -235,7 +188,7 @@ def test_canonical_decomposition(U):
     """Test the canonical decomposition of 4x4 unitary matrix."""
     A, B, t, alpha = canonical_decomposition(U)
     assert np.allclose(
-        U, B @ canonical_gate(t[0], t[1], t[2]) @ A * np.exp(1.0j * alpha), rtol=1e-8
+        U, B @ parametric_gates['canonical'](t[0], t[1], t[2]) @ A * np.exp(1.0j * alpha), rtol=1e-8
     )
     a, b = kronecker_decomposition(A)
     alpha, beta = kronecker_decomposition(B)
