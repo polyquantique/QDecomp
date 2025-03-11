@@ -14,3 +14,4 @@
 
 from cliffordplust.decompositions.cnot import *
 from cliffordplust.decompositions.zyz import *
+from cliffordplust.decompositions.quantum_gates import gates, parametric_gates
