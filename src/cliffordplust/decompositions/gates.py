@@ -1,42 +1,49 @@
 import numpy as np
+from numpy.typing import NDArray
 from scipy.linalg import expm
+from typing import Callable, Any
 
 SQRT2 = np.sqrt(2)
 
-H = 1 / SQRT2 * np.array([[1, 1], [1, -1]])
+# Single qubit gates
 
-X = np.array([[0, 1], [1, 0]])
+X = np.array([[0, 1], [1, 0]]) # Pauli X gate
 
-Y = np.array([[0, -1j], [1j, 0]])
+Y = np.array([[0, -1j], [1j, 0]]) # Pauli Y gate
 
-Z = np.array([[1, 0], [0, -1]])
+Z = np.array([[1, 0], [0, -1]]) # Pauli Z gate
 
-V = 1 / 2 * np.array([[1 + 1j, 1 - 1j], [1 - 1j, 1 + 1j]])
+H = 1 / SQRT2 * np.array([[1, 1], [1, -1]]) # Hadamard gate
 
-S = np.array([[1, 0], [0, 1.0j]])
+S = np.array([[1, 0], [0, 1.0j]]) # Phase gate
 
-T = np.array([[1, 0], [0, np.exp(1.0j * np.pi / 4)]])
+V = 1 / 2 * np.array([[1 + 1j, 1 - 1j], [1 - 1j, 1 + 1j]]) # Square root of X gate
 
-SWAP = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 0, 0, 1]])
+T = np.array([[1, 0], [0, np.exp(1.0j * np.pi / 4)]]) # T gate
 
-CNOT = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
 
-CNOT1 = np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0], [0, 1, 0, 0]])
+# Two qubit gates
 
-DCNOT = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1], [0, 1, 0, 0]])
+SWAP = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 0, 0, 1]]) # SWAP gate
 
-INV_DCNOT = np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 1, 0, 0], [0, 0, 1, 0]])
+CNOT = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]]) # CNOT gate
 
-CY = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, -1j], [0, 0, 1j, 0]])
+CNOT1 = np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0], [0, 1, 0, 0]]) # Inverted CNOT gate
 
-CZ = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, -1]])
+DCNOT = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1], [0, 1, 0, 0]]) # CNOT, then inverted CNOT
+
+INV_DCNOT = np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 1, 0, 0], [0, 0, 1, 0]]) # Inverted CNOT, then CNOT
+
+CY = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, -1j], [0, 0, 1j, 0]]) # Controlled Y gate
+
+CZ = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, -1]]) # Controlled Z gate
 
 CH = np.array(
-    [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1 / SQRT2, 1 / SQRT2], [0, 0, 1 / SQRT2, -1 / SQRT2]]
+    [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1 / SQRT2, 1 / SQRT2], [0, 0, 1 / SQRT2, -1 / SQRT2]] # Controlled Hadamard gate
 )
 
 
-def power_pauli_y(p: float) -> np.ndarray:
+def power_pauli_y(p: float) -> NDArray[np.floating]:
     """
     Return the Pauli Y power gate.
 
@@ -54,7 +61,7 @@ def power_pauli_y(p: float) -> np.ndarray:
     return phase * matrix
 
 
-def power_pauli_z(p: float) -> np.ndarray:
+def power_pauli_z(p: float) -> NDArray[np.floating]:
     """
     Return the Pauli Z power gate.
 
@@ -67,7 +74,7 @@ def power_pauli_z(p: float) -> np.ndarray:
     return np.diag([1, np.exp(1.0j * np.pi * p)])
 
 
-def canonical_gate(tx: float, ty: float, tz: float) -> np.ndarray:
+def canonical_gate(tx: float, ty: float, tz: float) -> NDArray[np.floating]:
     """
     Return the matrix form of the canonical gate for the given parameters.
 
@@ -84,7 +91,7 @@ def canonical_gate(tx: float, ty: float, tz: float) -> np.ndarray:
     return expm(exponent)
 
 
-gates = {
+gates: dict[str, NDArray[np.floating]] = {
     "H": H,
     "X": X,
     "Y": Y,
@@ -100,7 +107,11 @@ gates = {
     "CH": CH,
     "CZ": CZ,
     "CY": CY,
+}
+
+parametric_gates: dict[str, Callable[[float], NDArray[np.floating]] | Callable[[float, float, float], NDArray[np.floating]]] = {
     "PY": power_pauli_y,
     "PZ": power_pauli_z,
     "canonical": canonical_gate,
 }
+
