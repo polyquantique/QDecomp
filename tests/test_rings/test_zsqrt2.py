@@ -15,6 +15,8 @@
 """Test the Zsqrt2 class."""
 
 import math
+import mpmath as mp
+mp.mp.dps = 75
 
 import pytest
 from cliffordplust import rings as r
@@ -38,6 +40,23 @@ ZSQRT2 = math.sqrt(2)
 def test_float(n):
     """Test the float value of the Zsqrt2 class."""
     assert math.isclose(n.a + n.b * ZSQRT2, float(n))
+
+@pytest.mark.parametrize(
+    "n",
+    [
+        Zsqrt2(1, 1),
+        Zsqrt2(0, 0),
+        Zsqrt2(-1, 1),
+        Zsqrt2(1, -1),
+        Zsqrt2(-55, 14),
+        Zsqrt2(36, 71),
+        Zsqrt2(302, -675),
+    ],
+)
+def test_mpfloat(n):
+    """Test the mpfloat value of the Zsqrt2 class."""
+    assert math.isclose(mp.mpf(n.a) + mp.mpf(n.b) * mp.sqrt(2), n.mpfloat())
+    assert math.isclose(float(n), n.mpfloat())
 
 
 def test_float_small_numbers():

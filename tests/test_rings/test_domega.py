@@ -13,6 +13,8 @@
 #    limitations under the License.
 
 import math
+import mpmath as mp
+mp.mp.dps = 75
 
 import cliffordplust.rings as r
 import numpy as np
@@ -40,6 +42,21 @@ def test_real(n):
     real = (float(n.a) * OMEGA**3 + float(n.b) * OMEGA**2 + float(n.c) * OMEGA + float(n.d)).real
     assert np.isclose(n.real(), real)
 
+@pytest.mark.parametrize(
+    "n",
+    [
+        Domega((0, 0), (0, 0), (0, 0), (0, 0)),
+        Domega((1, 1), (1, 1), (1, 1), (1, 1)),
+        Domega((-1, 1), (-1, 1), (1, 1), (1, 1)),
+        Domega((1, 2), (-5, 4), (17, 5), (-27, 4)),
+        Domega((-55, 14), (77, 23), (36, 71), (-41, 94)),
+        Domega((131, 211), (23, 43), (-73, 43), (41, 94)),
+    ],
+)
+def test_mp_real(n):
+    """Test the mp_real value of the Domegea class."""
+    assert np.isclose(n.mp_real(), n.real())
+
 
 def test_real_small_value():
     """Test the real value of a small Domega number."""
@@ -62,6 +79,21 @@ def test_imag(n):
     """Test the imaginary value of the Domega class."""
     imag = (float(n.a) * OMEGA**3 + float(n.b) * OMEGA**2 + float(n.c) * OMEGA + float(n.d)).imag
     assert np.isclose(n.imag(), imag)
+
+@pytest.mark.parametrize(
+    "n",
+    [
+        Domega((0, 0), (0, 0), (0, 0), (0, 0)),
+        Domega((1, 1), (1, 1), (1, 1), (1, 1)),
+        Domega((-1, 1), (-1, 1), (1, 1), (1, 1)),
+        Domega((1, 2), (-5, 4), (17, 5), (-27, 4)),
+        Domega((-55, 14), (77, 23), (36, 71), (-41, 94)),
+        Domega((131, 211), (23, 43), (-73, 43), (41, 94)),
+    ],
+)
+def test_mp_imag(n):
+    """Test the mp_imag value of the Domegea class."""
+    assert np.isclose(n.mp_imag(), n.imag())
 
 
 def test_imag_small_value():
@@ -86,6 +118,22 @@ def test_complex(n):
     """Test the complex value of the Domega class."""
     complex_value = float(n.a) * OMEGA**3 + float(n.b) * OMEGA**2 + float(n.c) * OMEGA + float(n.d)
     assert np.isclose(complex(n), complex_value)
+
+@pytest.mark.parametrize(
+    "n",
+    [
+        Domega((0, 0), (0, 0), (0, 0), (0, 0)),
+        Domega((1, 1), (1, 1), (1, 1), (1, 1)),
+        Domega((-1, 1), (-1, 1), (1, 1), (1, 1)),
+        Domega((1, 2), (-5, 4), (1, 2), (-27, 4)),
+        Domega((-55, 14), (77, 23), (36, 71), (-41, 94)),
+        Domega((131, 211), (23, 43), (-73, 43), (41, 94)),
+        Domega((-3, 4), (0, 0), (3, 4), (-1, 2)),
+    ],
+)
+def test_mpcomplex(n):
+    """Test the mp_complex value of the Domega class."""
+    assert np.isclose(n.mpcomplex(), complex(n))
 
 
 @pytest.mark.parametrize(
