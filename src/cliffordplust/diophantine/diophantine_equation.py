@@ -54,6 +54,7 @@ solution exists for the specified :math:`\xi`
 """
 
 import numpy as np
+from math import sqrt
 
 from cliffordplust.rings import *
 
@@ -253,7 +254,7 @@ def integer_fact(p: int) -> list[tuple[int, int]]:
         factors.append((2, counter))
 
     # n must be odd at this point, so a skip of 2 (i = i + 2) can be used
-    for i in range(3, int(np.sqrt(n)) + 1, 2):
+    for i in range(3, int(sqrt(n)) + 1, 2):
         counter = 0
 
         # while i divides n, append i and divide n
@@ -264,7 +265,7 @@ def integer_fact(p: int) -> list[tuple[int, int]]:
         if counter > 0:
             factors.append((i, counter))
 
-        if i > np.sqrt(n):
+        if i > sqrt(n):
             break
 
     # If n != 1 at this point, n is a prime
