@@ -26,90 +26,180 @@ class QGate:
     control bit, if any. The gate tolerance is also stored if it needs to be approximated.
     
     Attributes:
+        sequence (str or None): Sequence associated with the gate decomposition.
         matrix (np.ndarray or None): Matrix representation of the gate.
         name (str or None): Name of the gate.
         target (int or tuple[int] or None): Number of the target qubit.
         control (int or None): Number of the control qubit.
+        approx_matrix (np.ndarray or None): Approximated matrix representation of the gate.
         epsilon (float): Tolerance for the gate.
     """
     def __init__(
         self,
-        matrix: np.ndarray | None = None,
         name: str | None = None,
         target: int | tuple[int] | None = None,
         control: int | None = None,
-        epsilon: float = 0,
-        sequence: str | None = None,
     ) -> None:
         """
+        Initialize the QGate object.
 
         Args:
-            matrix (np.ndarray or None): Matrix representation of the gate.
             name (str or None): Name of the gate
             target (int or typle[int] or None): Number of the target qubit.
             control (int or None): Number of the control qubit.
-            epsilon (float): Tolerance for the gate.
-            sequence (str or None): Clifford+T sequence associated with the gate decomposition.
 
         Raises:
-            ValueError: If the matrix is not a square matrix.
-            ValueError: If the matrix is not unitary.
-            ValueError: If the number of rows of the matrix is not 2^(number of targets + number of control).
-            ValueError: If the target qubit is equal to the control qubit.
-            ValueError: When both the sequence and the matrix are specified or unspecified.
-            TypeError: If the target qubit is not specified (None).
-            ValueError: If the tolerance is negative.
+            ValueError: If a target qubit is the same as the control qubit.
         """
         # Check the input arguments
-        # Square matrix
-        if matrix is not None and matrix.shape[0] != matrix.shape[1]:
-            raise ValueError(f"The matrix must be a square matrix. Got shape {matrix.shape}.")
-
-        # Unitary matrix
-        if matrix is not None and not np.allclose(
-            np.eye(matrix.shape[0]), matrix @ matrix.conj().T
-        ):
-            raise ValueError("The matrix must be unitary.")
-
-        # Size of the matrix compared to the number of targets and control
-        nb_tgt_ctrl = 0
-        if isinstance(target, int):
-            nb_tgt_ctrl += 1
-        elif isinstance(target, tuple):
-            nb_tgt_ctrl += len(target)
-        if control is not None:
-            nb_tgt_ctrl += 1
-        if matrix.shape[0] != 2**nb_tgt_ctrl:
+        # Control qubit different from target qubit
+        if control in target:
             raise ValueError(
-                f"The matrix must have a size of 2^(number of targets + number of control). Got shape {matrix.shape}."
+                f"The control qubit ({control}) must be different from the target qubits {target}."
             )
 
-        # Control qubit different from target qubit
-        if isinstance(target, int) and control == control:
-            raise ValueError("The target qubit must be different from the control qubit.")
-        else:
-            if control in target:
-                raise ValueError("The control qubit must be different from the target qubit.")
-        
-        # Either the sequence or the matrix is specified
-        if (sequence is not None) == (matrix is not None):
-            raise ValueError("Either the sequence or the matrix must be specified, and not both.")
-        
-        # The target qubit is specified
-        if target is None:
-            raise TypeError("The target qubit must be specified.")
-
-        # The tolerance is positive
-        if epsilon < 0:
-            raise ValueError("The tolerance must be positive.")
-
         # Populate the attributes
-        self.matrix = matrix
-        self.name = name
-        self.target = target
-        self.control = control
-        self.epsilon = epsilon
-        self.sequence = sequence
+        self._name = name
+
+        self._matrix = None
+        self._qubit_no = target if control is None else (control, ) + target
+        self._sequence = None
+        
+        self._approx_matrix = None
+        self._epsilon = None
+
+    @classmethod
+    def from_matrix(
+        cls, 
+        matrix: np.ndarray,
+        name: str | None = None,
+        qubit_no: tuple[int] = (0, ),
+    ) -> "QGate":
+        """
+        Create a QGate object from a matrix.
+
+        Args:
+            matrix (np.ndarray): Matrix representation of the gate.
+            name (str or None): Name of the gate.
+            qubit_no (tuple[int]): Qubits on which the gate applies.
+
+        Returns:
+            QGate: The QGate object.
+
+        Raises:
+            ValueError: If the matrix doesn't have 2 dimensions.
+            ValueError: If the matrix is not a square matrix.
+            ValueError: If the matrix is not unitary.
+            ValueError: If the number of rows of the matrix is not 2^nb_of_qubits.
+        """
+        # Convert the matrix to a numpy array
+        matrix = np.asarray(matrix)
+
+        # 2D matrix
+        if matrix.ndim != 2:
+            raise ValueError(f"The input matrix must be a 2D matrix. Got {matrix.ndim} dimensions.")
+        
+        # Square matrix
+        if matrix.shape[0] != matrix.shape[1]:
+            raise ValueError(f"The input matrix must be a square matrix. Got shape {matrix.shape}.")
+
+        # Unitary matrix
+        if not np.allclose(np.eye(matrix.shape[0]), matrix @ matrix.conj().T):
+            raise ValueError("The input matrix must be unitary.")
+
+        # Size of the matrix compared to the number of targets and control
+        if matrix.shape[0] != 2**len(qubit_no):
+            raise ValueError("The input matrix must have a size of 2^nb_of_qubit. Got shape " +
+                             f"{matrix.shape} and {len(qubit_no)} qubit(s).")
+
+        # Create the gate
+        gate = cls(name=name, target=qubit_no[1:], control=qubit_no[0])
+        gate._matrix = matrix
+        gate._qubit_no = qubit_no
+
+        return gate
+
+    @classmethod
+    def from_sequence(
+        cls, 
+        sequence: str,
+        name: str | None = None,
+        target: tuple[int] = (0, ),
+        control: int | None = None,
+    ) -> "QGate":
+        """
+        Create a QGate object from a sequence.
+
+        Args:
+            sequence (str): Sequence associated with the gate decomposition.
+            target (tuple[int]): Qubits on which the gate applies.
+            control (int or None): Control qubit.
+
+        Returns:
+            QGate: The QGate object.
+        """
+        # Create the gate
+        gate = cls(name=name, target=target, control=control)
+        gate._sequence = sequence
+        gate._qubit_no = target if control is None else (control, ) + target
+
+        return gate
+
+    @property
+    def name(self) -> str | None:
+        """
+        Get the name of the gate.
+
+        Returns:
+            str or None: The name of the gate.
+        """
+        return self._name
+    
+    @property
+    def sequence(self) -> str | None:
+        """
+        Get the sequence associated with the gate decomposition.
+
+        Returns:
+            str or None: The sequence associated with the gate decomposition.
+        """
+        return self._sequence
+    
+    @property
+    def control(self) -> int | None:
+        """
+        Get the control qubit.
+
+        Returns:
+            int or None: The control qubit.
+        """
+        if self.sequence is not None and self.sequence.startswith("C"):
+            return self.qubit_no[0]
+        else:
+            return None
+    
+    @property
+    def target(self) -> tuple[int]:
+        """
+        Get the target qubit.
+
+        Returns:
+            tuple[int]: The target qubit.
+        """
+        if self.control is None:
+            return self.qubit_no
+        else:
+            return self.qubit_no[1:]
+    
+    @property
+    def qubit_no(self) -> tuple[int]:
+        """
+        Get the qubits on which the gate applies.
+
+        Returns:
+            tuple[int]: The qubits on which the gate applies.
+        """
+        return self._qubit_no
 
     def __str__(self) -> str:
         """
@@ -154,16 +244,45 @@ class QGate:
     def _calculate_matrix(self) -> None:
         """
         Calculate the matrix representation of the gate.
+        """
+        if self._matrix is not None:
+            return
+        
+        # Calculate the matrix
+        matrix = np.eye(2**self.n_qubits)
+        for name in self.sequence.split(" "):
+            simple_matrix = self.get_simple_matrix(name, self.control, self.target)
+            matrix = simple_matrix @ matrix
+        
+        # Store the matrix and the qubits on which the gate applies
+        self._matrix = matrix
+        if self.control is not None:
+            self._qubit_no = (self.control, ) + self.target
+        else:
+            self._qubit_no = self.target
+
+    @staticmethod
+    def get_simple_matrix(
+        name: str,
+        control: int | None = None,
+        target: tuple[int] | None = None) -> np.ndarray:
+        """
+        Get the matrix representation of a simple gate, i.e. not a sequence of gates.
+
+        Args:
+            name (str): The name of the gate.
+            control (int or None): The control qubit.
+            target (tuple[int] or None): The target qubit.
+        
+        Returns:
+            np.ndarray: The matrix representation of the gate.
 
         Raises:
             ValueError: If the sequence of the gate is not recognized.
         """
-        if self.matrix is not None:
-            return
-
-        match self.sequence:
-            case "I":
-                self.matrix = np.eye(2)
+        match name:
+            case "I" | "":
+                return np.eye(2)
 
             case "X":
                 self.matrix = np.array([[0, 1], [1, 0]])
