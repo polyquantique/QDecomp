@@ -51,8 +51,8 @@ def find_points(epsilon: float, theta: float) -> np.ndarray:
         raise TypeError("Both theta and epsilon must be convertible to floats.")
 
     # Verify the value of theta
-    if theta > 4 * math.pi or theta < 0:
-        raise ValueError("The value of theta must be between 0 and 4\u03C0.")
+    if theta > 2 * math.pi or theta < 0:
+        raise ValueError("The value of theta must be between 0 and 2\u03C0.")
 
     # Verify the value of epsilon
     if epsilon >= 0.5:
