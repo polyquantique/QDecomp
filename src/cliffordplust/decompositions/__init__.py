@@ -12,6 +12,6 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+from cliffordplust.decompositions.quantum_gates import gates, parametric_gates
 from cliffordplust.decompositions.cnot import *
 from cliffordplust.decompositions.zyz import *
-from cliffordplust.decompositions.quantum_gates import gates, parametric_gates
