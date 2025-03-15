@@ -20,14 +20,23 @@ from scipy.stats import ortho_group, special_ortho_group, unitary_group
 
 from cliffordplust.decompositions import canonical_decomposition, is_unitary, is_special, is_orthogonal, kronecker_decomposition, so4_decomposition, u4_decomposition, o4_det_minus1_decomposition, known_decomposition, tqg_decomposition
 from cliffordplust.decompositions import gates, parametric_gates
-from cliffordplust.circuit import QCircuit, QGate
+from cliffordplust.circuit import QGate
 
 
-def multiply_circuit(circuit: QCircuit) -> np.ndarray:
+def multiply_circuit(circuit: list[QGate]) -> np.ndarray:
+    """
+    Multiply a list of gates to get the matrix representation of the circuit.
+    
+    Args:
+        circuit (list[QGate]): The list of gates in the circuit.
+
+    Returns:
+        np.ndarray: The matrix representation of the circuit.
+    """
     M = np.eye(4)
     for gate in circuit:
         if gate.matrix.shape == (2, 2):
-            if gate.target == 0:
+            if gate.matrix_target == (0,):
                 M = np.kron(gate.matrix, np.eye(2)) @ M
             else:
                 M = np.kron(np.eye(2), gate.matrix) @ M
