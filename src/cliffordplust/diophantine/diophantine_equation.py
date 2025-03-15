@@ -53,8 +53,7 @@ solution exists for the specified :math:`\xi`
     print(f"{t = }")   # t = None
 """
 
-import numpy as np
-from math import sqrt
+from math import log, sqrt
 
 from cliffordplust.rings import *
 
@@ -198,7 +197,7 @@ def is_square(n: int) -> bool:
         return False
 
     # Check if n is a square
-    return np.sqrt(n).is_integer()
+    return round(sqrt(n))**2 == n
 
 
 def solve_usquare_eq_a_mod_p(a: int, p: int) -> int:
@@ -217,7 +216,7 @@ def solve_usquare_eq_a_mod_p(a: int, p: int) -> int:
     while not is_square(x):
         x += p
     
-    return int(np.sqrt(x))
+    return int(sqrt(x))
 
 
 def integer_fact(p: int) -> list[tuple[int, int]]:
@@ -362,7 +361,7 @@ def pi_fact_into_xi(pi: int) -> Zsqrt2 | None:
     while not is_square(pi + 2 * b ** 2):
         b += 1
 
-    return Zsqrt2(int(np.sqrt(pi + 2 * b ** 2)), b)
+    return Zsqrt2(int(sqrt(pi + 2 * b ** 2)), b)
 
 
 def xi_i_fact_into_ti(xi_i: Zsqrt2, check_prime: bool = False) -> Zomega | None:
@@ -515,7 +514,7 @@ def solve_xi_eq_ttdag_in_d(xi: Dsqrt2) -> Domega | None:
     u = Zsqrt2(u_temp.a.num // denom.num, u_temp.b.num // denom.num)
 
     # u is of the form u = λ**2n => n = ln(u) / 2 ln(λ)
-    n = round(np.log(float(u)) / (2 * np.log(float(Zsqrt2(1, 1)))))
+    n = round(log(float(u)) / (2 * log(float(Zsqrt2(1, 1)))))
 
     # v**2 = u => v = λ**n
     if n > 0:
