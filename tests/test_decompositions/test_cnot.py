@@ -18,8 +18,8 @@ import numpy as np
 import pytest
 from scipy.stats import ortho_group, special_ortho_group, unitary_group
 
-from cliffordplust.decompositions import canonical_decomposition, is_unitary, is_special, is_orthogonal, kronecker_decomposition, so4_decomposition, u4_decomposition, o4_det_minus1_decomposition, known_decomposition, tqg_decomposition
-from cliffordplust.decompositions import gates, parametric_gates
+from cliffordplust.decompositions import canonical_decomposition, is_unitary, is_special, is_orthogonal, kronecker_decomposition, so4_decomposition, u4_decomposition, o4_det_minus1_decomposition, known_decomposition, cnot_decomposition
+from cliffordplust.decompositions import Gates
 from cliffordplust.circuit import QGate
 
 
@@ -43,35 +43,6 @@ def multiply_circuit(circuit: list[QGate]) -> np.ndarray:
         else:
             M = gate.matrix @ M
     return M
-
-
-def test_power_pauli_y():
-    """Test the power of Pauli-Y matrix."""
-    # Trivial cases
-    assert np.allclose(parametric_gates['PY'](0), np.eye(2))
-    assert np.allclose(
-        parametric_gates['PY'](0.5),
-        np.array([[complex(1, 1), complex(-1, -1)], [complex(1, 1), complex(1, 1)]]) / 2,
-    )
-    assert np.allclose(parametric_gates['PY'](1), np.array([[0, -1.0j], [1.0j, 0]]))
-    assert np.allclose(parametric_gates['PY'](2), np.eye(2))
-
-    for t in [0, np.pi / 2, -2, 10]:
-        assert np.allclose(parametric_gates['PY'](t) @ parametric_gates['PY'](-t), np.eye(2))  # Check inverse
-        assert np.allclose(parametric_gates['PY'](t), parametric_gates['PY'](t % 2))  # Check periodicity
-
-
-def test_power_pauli_z():
-    """Test the power of Pauli-Z matrix."""
-    # Trivial cases
-    assert np.allclose(parametric_gates['PZ'](0), np.eye(2))
-    assert np.allclose(parametric_gates['PZ'](0.5), np.diag([1, 1.0j]))
-    assert np.allclose(parametric_gates['PZ'](1), np.array([[1, 0], [0, -1]]))
-    assert np.allclose(parametric_gates['PZ'](2), np.eye(2))
-
-    for t in [0, np.pi / 2, -2, 10]:
-        assert np.allclose(parametric_gates['PZ'](t) @ parametric_gates['PZ'](-t), np.eye(2))  # Check inverse
-        assert np.allclose(parametric_gates['PZ'](t), parametric_gates['PZ'](t % 2))  # Check periodicity
 
 
 @pytest.mark.parametrize(
@@ -197,7 +168,7 @@ def test_canonical_decomposition(U):
     """Test the canonical decomposition of 4x4 unitary matrix."""
     A, B, t, alpha = canonical_decomposition(U)
     assert np.allclose(
-        U, B @ parametric_gates['canonical'](t[0], t[1], t[2]) @ A * np.exp(1.0j * alpha), rtol=1e-8
+        U, B @ Gates.canonical_gate(t[0], t[1], t[2]) @ A * np.exp(1.0j * alpha), rtol=1e-8
     )
     a, b = kronecker_decomposition(A)
     alpha, beta = kronecker_decomposition(B)
@@ -230,13 +201,13 @@ def test_canonical_decomposition_errors():
         np.arange(1, 13).reshape(4, 3),
         np.arange(1, 26).reshape(5, 5),
     ]:
-        with pytest.raises(ValueError, match="U must be 4x4"):
+        with pytest.raises(ValueError, match="U must be a 4x4 matrix but has shape"):
             canonical_decomposition(U)
     for U in [
         np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 2]]),  # Not unitary
         np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]) * 1.1,  # Not unitary
     ]:
-        with pytest.raises(ValueError, match="U must be unitary"):
+        with pytest.raises(ValueError, match="U must be a unitary matrix."):
             canonical_decomposition(U)
 
 
@@ -268,17 +239,17 @@ def test_so4_decomposition_errors():
     """Test the raise of errors when calling SO(4) decomposition with wrong arguments."""
     # Shape error
     U = np.eye(3)
-    with pytest.raises(ValueError, match="The input matrix must be 4x4. Got "):
+    with pytest.raises(ValueError, match="The input matrix must be a 4x4 special orthogonal matrix."):
         so4_decomposition(U)
 
     # Orthogonal error
     U = np.eye(4) * 1.1
-    with pytest.raises(ValueError, match="The input matrix must be orthogonal."):
+    with pytest.raises(ValueError, match="The input matrix must be a 4x4 special orthogonal matrix."):
         so4_decomposition(U)
 
     # Special error
     U = np.diag([1, 1, 1, -1])
-    with pytest.raises(ValueError, match="The input matrix must be special. Got det = "):
+    with pytest.raises(ValueError, match="The input matrix must be a 4x4 special orthogonal matrix."):
         so4_decomposition(U)
 
 
@@ -312,17 +283,17 @@ def test_o4_det_minus1_decomposition_errors():
     """Test the raise of errors when calling O(4) decomposition with wrong arguments."""
     # Shape error
     U = np.eye(3)
-    with pytest.raises(ValueError, match="The input matrix must be 4x4. Got "):
+    with pytest.raises(ValueError, match="The input matrix must be a 4x4 orthogonal matrix with a determinant of -1."):
         o4_det_minus1_decomposition(U)
 
     # Orthogonal error
     U = np.eye(4) * 1.1
-    with pytest.raises(ValueError, match="The input matrix must be orthogonal."):
+    with pytest.raises(ValueError, match="The input matrix must be a 4x4 orthogonal matrix with a determinant of -1."):
         o4_det_minus1_decomposition(U)
 
     # det != -1 error
     U = np.diag([1, 1, 1, 1])
-    with pytest.raises(ValueError, match="The input matrix must have a determinant of -1. Got det"):
+    with pytest.raises(ValueError, match="The input matrix must be a 4x4 orthogonal matrix with a determinant of -1."):
         o4_det_minus1_decomposition(U)
 
 
@@ -361,12 +332,12 @@ def test_u4_decomposition_errors():
     """Test the raise of errors when calling U(4) decomposition with wrong arguments."""
     # Shape error
     U = np.eye(3)
-    with pytest.raises(ValueError, match="The input matrix must be 4x4. Got "):
+    with pytest.raises(ValueError, match="The input matrix must be a 4x4 unitary matrix."):
         u4_decomposition(U)
 
     # Unitary error
     U = np.eye(4) * 1.1
-    with pytest.raises(ValueError, match="The input matrix must be unitary."):
+    with pytest.raises(ValueError, match="The input matrix must be a 4x4 unitary matrix."):
         u4_decomposition(U)
 
 
@@ -420,7 +391,7 @@ def test_known_decomposition_errors(matrix, qubit_no, error):
         known_decomposition(matrix, qubit_no)
 
 
-def test_tqg_decomposition():
+def test_cnot_decomposition():
     """Test the two-qubits gate decomposition."""
     for i in range(25):
         # Use a predefined or randomly generated 4x4 matrix
@@ -451,7 +422,7 @@ def test_tqg_decomposition():
                 U = special_ortho_group(dim=4, seed=42).rvs()
 
         # Test the decomposition
-        decomp = tqg_decomposition(U)
+        decomp = cnot_decomposition(U)
         reconstructed = multiply_circuit(decomp)
 
         # Assert the reconstructed matrix is equal to the original matrix
@@ -459,14 +430,14 @@ def test_tqg_decomposition():
         assert np.allclose(reconstructed / phase, U, rtol=1e-8)
 
 
-def test_tqg_decomposition_errors():
+def test_cnot_decomposition_errors():
     """Test the raise of errors when calling two-qubits gate decomposition with wrong arguments."""
     # Shape error
     U = np.eye(3)
-    with pytest.raises(ValueError, match="The input matrix must be 4x4. Got "):
-        tqg_decomposition(U)
+    with pytest.raises(ValueError, match="The input matrix must be a 4x4 unitary matrix."):
+        cnot_decomposition(U)
 
     # Unitary error
     U = np.eye(4) * 1.1
-    with pytest.raises(ValueError, match="The input matrix must be unitary."):
-        tqg_decomposition(U)
+    with pytest.raises(ValueError, match="The input matrix must be a 4x4 unitary matrix."):
+        cnot_decomposition(U)

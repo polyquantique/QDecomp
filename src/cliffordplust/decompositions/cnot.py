@@ -21,76 +21,29 @@ gates. It is defined as Can(tx, ty, tz) = exp(-i*pi/2 * (tx * XX + ty * YY + tz 
 YY, and ZZ are Kronecker products of the Pauli matrices.
 
 The module contains the following functions:
-- kronecker_decomposition: Decompose a 4x4 matrix into two 2x2 matrices such that their Kronecker product is the closest to the original matrix.
-- canonical_decomposition: Decompose a 4x4 unitary matrix into a global phase, two local 4x4 matrices, and the three parameters of the canonical gate.
+- kronecker_decomposition: Decompose a 4 x 4 matrix into two 2x2 matrices such that their Kronecker product is the closest to the original matrix.
+- canonical_decomposition: Decompose a 4 x 4 unitary matrix into a global phase, two local 4 x 4 matrices, and the three parameters of the canonical gate.
 - can: Return the matrix form of the canonical gate for the given parameters.
 
 For more details on the theory, see 
 G. E. Crooks, “Quantum gates,” March 2024, version 0.11.0, https://threeplusone.com/pubs/on_gates.pdf,
-C. F. Van Loan, “The ubiquitous Kronecker product”, J. Comput. Appl. Math., vol. 123, no. 1–2, pp. 85–100, Nov. 2000, https://doi.org/10.1016/S0377-0427(00)00393-9,
+C. F. Van Loan, “The ubiquitous Kronecker product”, J. Comput. Appl. Math., vol. 123, no. 1-2, pp. 85-100, Nov. 2000, https://doi.org/10.1016/S0377-0427(00)00393-9,
 and
 Jun Zhang, Jiri Vala, Shankar Sastry, and K. Birgitta Whaley. Geometric theory of nonlocal two-qubit operations. Phys. Rev. A, 67:042313 (2003), https://arxiv.org/pdf/quant-ph/0209120.
 """
 
-from collections import namedtuple
 from typing import NamedTuple
 
 import numpy as np
 from numpy.typing import NDArray
 
 from cliffordplust.circuit import QGate
-from cliffordplust.decompositions import gates, parametric_gates
+from cliffordplust.decompositions import Gates, Circuit
 
-SQRT_2 = np.sqrt(2)
+SQRT2 = np.sqrt(2)
 
-# Definition of the magic gate used in many decompositions
-MAGIC = (
-    1 / SQRT_2 * np.array([[1, 1.0j, 0, 0], [0, 0, 1.0j, 1], [0, 0, 1.0j, -1], [1, -1.0j, 0, 0]])
-)
+MAGIC = Gates.MAGIC
 MAGIC_DAG = MAGIC.T.conj()
-
-
-def magic_decomp(q0: int, q1: int) -> list[QGate]:
-    """
-    Circuit implementation of the magic gate.
-
-    Decompose the magic gate into a circuit of S, H, and CNOT gates.
-
-    Args:
-        q0 (int): First target qubit of the gate.
-        q1 (int): Second target qubit of the gate.
-
-    Returns:
-        list[QGate]: List of QGate objects representing the decomposition of the magic gate.
-    """
-    magic_circuit = [
-        QGate.from_sequence('S', target=(q0,)),
-        QGate.from_sequence('S', target=(q1,)),
-        QGate.from_sequence('H', target=(q1,)),
-        QGate.from_sequence('CNOT', target=(q0,), control=q1),
-    ]
-    return magic_circuit
-
-def magic_dag_decomp(q0: int, q1: int) -> list[QGate]:
-    """
-    Circuit implementation of the hermitian conjugate of the magic gate.
-
-    Decompose the hermitian conjugate of the magic gate into a circuit of SDAG, H, and CNOT gates.
-
-    Args:
-        q0 (int): First target qubit of the gate.
-        q1 (int): Second target qubit of the gate.
-
-    Returns:
-        list[QGate]: List of QGate objects representing the decomposition of the gate.
-    """
-    magic_dag_circuit = [
-        QGate.from_sequence('CNOT', target=(q0,), control=q1),
-        QGate.from_sequence('H', target=(q1,)),
-        QGate.from_sequence('SDAG', target=(q1,)),
-        QGate.from_sequence('SDAG', target=(q0,)),
-    ]
-    return magic_dag_circuit
 
 
 def is_special(matrix: NDArray[np.floating]) -> bool:
@@ -213,7 +166,7 @@ def so4_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
         matrix = U.matrix
         if matrix.shape != (4, 4) or not is_orthogonal(matrix) or not is_special(matrix):
             raise ValueError("The input matrix must be a 4x4 special orthogonal matrix.")
-        q0, q1 = U.target
+        q0, q1 = U.matrix_target
         
     elif isinstance(U, np.ndarray):
         if U.shape != (4, 4) or not is_orthogonal(U) or not is_special(U):
@@ -231,10 +184,10 @@ def so4_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
     a, b = kronecker_decomposition(a_tensor_b)
 
     # List of gates to return
-    decomposition_circuit = magic_decomp(q0, q1) + [
+    decomposition_circuit = Circuit.decomposition('MAGIC', q0, q1) + [
         QGate.from_matrix(a, name='A', matrix_target=(q0,)), 
         QGate.from_matrix(b, name='B', matrix_target=(q1,)),
-    ] + magic_dag_decomp(q0, q1)
+    ] + Circuit.decomposition('MAGIC_DAG', q0, q1)
 
     return decomposition_circuit
 
@@ -261,7 +214,7 @@ def o4_det_minus1_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
         matrix = U.matrix
         if matrix.shape != (4, 4) or not is_orthogonal(matrix) or not np.isclose(np.linalg.det(matrix), -1):
             raise ValueError("The input matrix must be a 4x4 orthogonal matrix with a determinant of -1.")
-        q0, q1 = U.target
+        q0, q1 = U.matrix_target
         
     elif isinstance(U, np.ndarray):
         if U.shape != (4, 4) or not is_orthogonal(U) or not np.isclose(np.linalg.det(U), -1):
@@ -273,28 +226,35 @@ def o4_det_minus1_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
         raise TypeError(f"The input matrix must be a numpy object or a QGate object, but received {type(U).__name__}.")
     
     # Decompose the matrix
-    a_tensor_b = MAGIC @ U @ MAGIC_DAG @ gates["SWAP"]
+    a_tensor_b = MAGIC @ U @ MAGIC_DAG @ Gates.SWAP
 
     # Extract A and B
     a, b = kronecker_decomposition(a_tensor_b)
 
     # List of gates to return
-    decomposition_circuit = magic_decomp(q0, q1)[:-1] + [
-        QGate.from_sequence("CNOT", target=(q1,), control=q0),
-        QGate.from_sequence("CNOT", target=(q0,), control=q1),
+    decomposition_circuit = Circuit.decomposition('MAGIC', q0, q1)[:-1] + [
+        QGate.from_tuple(("CNOT", (q0, q1), 0)),
+        QGate.from_tuple(("CNOT", (q1, q0), 0)),
         QGate.from_matrix(a, name='A', matrix_target=(q0,)), 
         QGate.from_matrix(b, name='B', matrix_target=(q1,)),
-    ] + magic_dag_decomp(q0, q1)
+    ] + Circuit.decomposition('MAGIC_DAG', q0, q1)
 
     return decomposition_circuit
 
 
 class CanonicalDecomposition(NamedTuple):
     """Output of the `canonical_decomposition` function."""
-    A: NDArray[np.floating] # 4 x 4 matrix A of the decomposition.
-    B: NDArray[np.floating] # 4 x 4 matrix B of the decomposition.
-    t: tuple[float, float, float] # Coordinates (tx, ty, tz) of the canonical gate.
-    phase: float | np.floating # Phase of the unitary matrix.
+    A: NDArray[np.floating]
+    """4 x 4 matrix A of the decomposition."""
+
+    B: NDArray[np.floating]
+    """4 x 4 matrix B of the decomposition."""
+
+    t: tuple[float, float, float]
+    """Coordinates (tx, ty, tz) of the canonical gate."""
+
+    phase: float | np.floating
+    """Phase of the unitary matrix."""
 
     
 def canonical_decomposition(U: NDArray[np.floating]) -> CanonicalDecomposition:
@@ -419,7 +379,7 @@ def u4_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
         matrix = U.matrix
         if matrix.shape != (4, 4) or not is_unitary(matrix):
             raise ValueError("The input matrix must be a 4x4 unitary matrix.")
-        q0, q1 = U.target
+        q0, q1 = U.matrix_target
         
     elif isinstance(U, np.ndarray):
         if U.shape != (4, 4) or not is_unitary(U):
@@ -439,19 +399,19 @@ def u4_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
     # Extract A1, A2, B1 and B2
     a1, a2 = kronecker_decomposition(a_matrix)
     b1, b2 = kronecker_decomposition(b_matrix)
-    a2 = gates['S']@a2
-    b1 = b1@gates['S'].conj()
+    a2 = Gates.S@a2
+    b1 = b1@Gates.S.conj()
 
     # List of gates to return
     decomposition_circuit = [
         QGate.from_matrix(a1, name='A1', matrix_target=(q0,)),
         QGate.from_matrix(a2, name='A2', matrix_target=(q1,)),
-        QGate.from_sequence('CNOT', target=(q0,), control=q1),
-        QGate.from_matrix(parametric_gates['PZ'](tz - 0.5), name='PZ', matrix_target=(q0,)),
-        QGate.from_matrix(parametric_gates['PY'](tx - 0.5), name='PY', matrix_target=(q1,)),
-        QGate.from_sequence('CNOT', target=(q1,), control=q0),
-        QGate.from_matrix(parametric_gates['PY'](0.5 - ty), name='PY', matrix_target=(q1,)),
-        QGate.from_sequence('CNOT', target=(q0,), control=q1),
+        QGate.from_tuple(('CNOT', (q1, q0), 0)),
+        QGate.from_matrix(Gates.power_pauli_z(tz - 0.5), name='PZ', matrix_target=(q0,)),
+        QGate.from_matrix(Gates.power_pauli_y(tx - 0.5), name='PY', matrix_target=(q1,)),
+        QGate.from_tuple(('CNOT', (q0, q1), 0)),
+        QGate.from_matrix(Gates.power_pauli_y(0.5 - ty), name='PY', matrix_target=(q1,)),
+        QGate.from_tuple(('CNOT', (q1, q0), 0)),
         QGate.from_matrix(b1, name='B1', matrix_target=(q0,)),
         QGate.from_matrix(b2, name='B2', matrix_target=(q1,)),
     ]
@@ -461,7 +421,7 @@ def u4_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
 
 def known_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate] | None:
     """
-    Decompositions of common 4 x 4 matrices.
+    Circuit decompositions of common 4 x 4 matrices.
 
     Decompose a 4 x 4 matrix into a circuit of CNOT and single-qubit gates using predefined
     decompositions for common gates (SWAP, identity, CNOT). The output is a list of QGate objects
@@ -483,7 +443,7 @@ def known_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate] | None:
         matrix = U.matrix
         if matrix.shape != (4, 4) or not is_unitary(matrix):
             raise ValueError("The input matrix must be a 4x4 unitary matrix.")
-        q0, q1 = U.target
+        q0, q1 = U.matrix_target
         
     elif isinstance(U, np.ndarray):
         if U.shape != (4, 4) or not is_unitary(U):
@@ -498,87 +458,83 @@ def known_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate] | None:
     # Check if the matrix is a known gate
     if (matrix == np.eye(4)).all():  # Identity
         return []
-        
-    if (matrix == gates['SWAP']).all():  # SWAP
-        return [QGate.from_tuple(('CNOT', (q0, q1), 0)), 
-                QGate.from_tuple(('CNOT', (q1, q0), 0)), 
-                QGate.from_tuple(('CNOT', (q0, q1), 0))]
-        
-    if (matrix == gates['CNOT']).all():  # CNOT
+    
+    if (matrix == Gates.CNOT).all():  # CNOT
         return [QGate.from_tuple(('CNOT', (q0, q1), 0))]
-        
-    if (matrix == gates['CNOT1']).all():  # CNOT (flipped)
+    
+    if (matrix == Gates.CNOT1).all():  # CNOT (flipped)
         return [QGate.from_tuple(('CNOT', (q1, q0), 0))]
-
-    if (matrix == gates['DCNOT']).all():  # DCNOT (CNOT, then CNOT flipped)
+    
+    if (matrix == Gates.DCNOT).all():  # DCNOT (CNOT, then CNOT flipped)
         return [QGate.from_tuple(('CNOT', (q0, q1), 0)),
                 QGate.from_tuple(('CNOT', (q1, q0), 0))]
 
-    if (matrix == gates['InvDCNOT']).all():  # INV_DCNOT (CNOT flipped, then CNOT)
+    if (matrix == Gates.INV_DCNOT).all():  # INV_DCNOT (CNOT flipped, then CNOT)
         return [QGate.from_tuple(('CNOT', (q1, q0), 0)),
                 QGate.from_tuple(('CNOT', (q0, q1), 0))]
-    
-    if (matrix == gates['CY']).all():  # Controlled Y
-        return [QGate.from_tuple(('SDAG', (q1,), 0)),
-                QGate.from_tuple(('CNOT', (q0, q1), 0)),
-                QGate.from_tuple(('S', (q1,), 0))]
 
-    if (matrix == gates['CZ']).all():  # Controlled Z
-        return [QGate.from_tuple(('H', (q1,), 0)),
-                QGate.from_tuple(('CNOT', (q0, q1), 0)),
-                QGate.from_tuple(('H', (q1,), 0))]
+    if (matrix == Gates.SWAP).all():  # SWAP
+        return Circuit.decomposition('SWAP', q0, q1)
     
-    if (matrix == gates['CH']).all():  # Controlled Hadamard
-        return [QGate.from_tuple(('S', (q1,), 0)),
-                QGate.from_tuple(('H', (q1,), 0)),
-                QGate.from_tuple(('T', (q1,), 0)),
-                QGate.from_tuple(('CNOT', (q0, q1), 0)),
-                QGate.from_tuple(('TDAG', (q1,), 0)),
-                QGate.from_tuple(('H', (q1,), 0)),
-                QGate.from_tuple(('SDAG', (q1,), 0))]
-    if (matrix == MAGIC).all():
-        return magic_decomp(q0, q1)
+    if (matrix == Gates.CY).all():  # Controlled Y
+        return Circuit.decomposition('CY', q0, q1)
     
+    if (matrix == Gates.CZ).all():  # Controlled Z
+        return Circuit.decomposition('CZ', q0, q1)
+    
+    if (matrix == Gates.CH).all():  # Controlled Hadamard
+        return Circuit.decomposition('CH', q0, q1)
+    
+    if (matrix == Gates.MAGIC).all():
+        return Circuit.decomposition('MAGIC', q0, q1)
+    
+    if (matrix == Gates.MAGIC.conj().T).all():
+        return Circuit.decomposition('MAGIC_DAG', q0, q1)
+
     return None
 
 
-def tqg_decomposition(
-    matrix: np.ndarray, qubit_no: tuple[int, int] = (0, 1)
-) -> list[tuple[np.ndarray, tuple[int]]]:
+def cnot_decomposition(U: NDArray[np.floating]) -> list[QGate]:
     """
-    Decompose any two-qubits gate into a series of CNOT and single-qubit gates. This function
+    Circuit decomposition of 4 x 4 quantum gates.
+
+    Decompose any two-qubits gate into a circuit of CNOT and single-qubit gates. The function
     determines which decomposition to use based on the Lie group of the input matrix (SO(4), O(4),
-    U(4)) or uses a predefined decomposition if the gate is a common one (SWAP, identity, CNOT).
+    U(4)) or uses a predefined decomposition if the gate is common (SWAP, identity, CNOT).
 
     Args:
-        matrix (np.ndarray): 4x4 matrix.
-        qubit_no (tuple[int, int]): Tuple containing the qubit numbers on which the gate acts.
+        U (NDArray[float]): 4 x 4 unitary matrix.
     
     Returns:
-        list[tuple]: List of tuples containing the gates of the decomposition and the qubit on which
-        they act.
+        list[QGate]: Circuit decomposition of the input matrix. The output is a list of QGate objects.
     
     Raises:
-        ValueError: If the input matrix is not 4x4.
-        ValueError: If the input matrix is not unitary.
+        TypeError: If the input matrix is not a numpy matrix or a QGate object.
+        ValueError: If the input matrix is not a 4 x 4 unitary matrix.
     """
     # Check the input matrix
-    if matrix.shape != (4, 4):
-        raise ValueError(f"The input matrix must be 4x4. Got {matrix.shape}.")
-    if not is_unitary(matrix):
-        raise ValueError("The input matrix must be unitary.")
+    if isinstance(U, QGate):
+        matrix = U.matrix
+        if matrix.shape != (4, 4) or not is_unitary(matrix):
+            raise ValueError("The input matrix must be a 4x4 unitary matrix.")
+        
+    elif isinstance(U, np.ndarray):
+        if U.shape != (4, 4) or not is_unitary(U):
+            raise ValueError("The input matrix must be a 4x4 unitary matrix.")
+        matrix = U
+    
+    else:
+        raise TypeError(f"The input matrix must be a numpy object or a QGate object, but received {type(U).__name__}.")
 
-    # Check if the matrix is a known gate
-    known_decomp = known_decomposition(matrix, qubit_no)
+    # Check if the decomposition is known
+    known_decomp = known_decomposition(U)
     if known_decomp is not None:
         return known_decomp
 
-    # Check the Lie group of the matrix
+    # Check the Lie group of the matrix and return the corresponding decomposition
     if is_orthogonal(matrix):
-        if is_special(matrix):  # Special orthogonal group SO(4)
-            return so4_decomposition(matrix, qubit_no)
-        else:  # Orthogonal group O(4) with det = -1
-            return o4_det_minus1_decomposition(matrix, qubit_no)
+        if is_special(matrix):
+            return so4_decomposition(U)
+        return o4_det_minus1_decomposition(U)
+    return u4_decomposition(U)
 
-    else:  # Unitary group U(4)
-        return u4_decomposition(matrix, qubit_no)
