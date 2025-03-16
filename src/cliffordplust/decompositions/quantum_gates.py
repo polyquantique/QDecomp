@@ -1,59 +1,102 @@
+# Copyright 2024-2025 Olivier Romain, Francis Blais, Vincent Girouard, Marius Trudeau
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
 import numpy as np
+from cliffordplust.circuit import QGate
 from numpy.typing import NDArray
 from scipy.linalg import expm
-from typing import Callable, Any
-from cliffordplust.circuit import QGate
 
 SQRT2 = np.sqrt(2)
 
 
 class Gates:
+    """
+    This class contains the matrix representations of the quantum gates used in the decompositions algorithms.
+    """
+
+    # Single qubit gates
+    X = np.array([[0, 1], [1, 0]])
+    """NDArray[float]: Pauli X gate."""
+
+    Y = np.array([[0, -1j], [1j, 0]])
+    """NDArray[float]: Pauli Y gate."""
+
+    Z = np.array([[1, 0], [0, -1]])
+    """NDArray[float]: Pauli Z gate."""
+
+    H = 1 / SQRT2 * np.array([[1, 1], [1, -1]])
+    """NDArray[float]: Hadamard gate."""
+
+    S = np.array([[1, 0], [0, 1.0j]])
+    """NDArray[float]: Phase gate."""
+
+    V = 1 / 2 * np.array([[1 + 1j, 1 - 1j], [1 - 1j, 1 + 1j]])
+    """NDArray[float]: V gate. V is the square root of the Pauli X gate."""
+
+    T = np.array([[1, 0], [0, np.exp(1.0j * np.pi / 4)]]) 
+    """NDArray[float]: T gate. T is the square root of the S gate and the fourth root of the Pauli Z gate."""
+
+    # Two qubit gates
+    CNOT = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
+    """NDArray[float]: CNOT gate. Controlled NOT gate, also called CX."""
+
+    CNOT1 = np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0], [0, 1, 0, 0]])
+    """NDArray[float]: CNOT gate where the control and target qubit are inverted."""
+
+    DCNOT = np.array(
+        [[1, 0, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1], [0, 1, 0, 0]]
+    )
+    """NDArray[float]: DCNOT (Double CNOT) gate. CNOT gate followed by an inverted CNOT gate."""
+
+    INV_DCNOT = np.array(
+        [[1, 0, 0, 0], [0, 0, 0, 1], [0, 1, 0, 0], [0, 0, 1, 0]]
+    )
+    """NDArray[float]: Inverted DCNOT gate. Inverted CNOT gate followed by a CNOT gate."""
+
+    SWAP = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 0, 0, 1]])
+    """NDArray[float]: SWAP gate."""
+
+    ISWAP = np.array([[1, 0, 0, 0], [0, 0, 1j, 0], [0, 1j, 0, 0], [0, 0, 0, 1]])
+    """NDArray[float]: iSWAP gate."""
+
     
-    """Single qubit gates."""
 
-    X = np.array([[0, 1], [1, 0]]) # Pauli X gate
+    
 
-    Y = np.array([[0, -1j], [1j, 0]]) # Pauli Y gate
+    CY = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, -1j], [0, 0, 1j, 0]])  # Controlled Y gate
 
-    Z = np.array([[1, 0], [0, -1]]) # Pauli Z gate
-
-    H = 1 / SQRT2 * np.array([[1, 1], [1, -1]]) # Hadamard gate
-
-    S = np.array([[1, 0], [0, 1.0j]]) # Phase gate
-
-    V = 1 / 2 * np.array([[1 + 1j, 1 - 1j], [1 - 1j, 1 + 1j]]) # Square root of X gate
-
-    T = np.array([[1, 0], [0, np.exp(1.0j * np.pi / 4)]]) # T gate
-
-
-    """Two qubit gates."""
-
-    SWAP = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 0, 0, 1]]) # SWAP gate
-
-    ISWAP = np.array([[1, 0, 0, 0], [0, 0, 1j, 0], [0, 1j, 0, 0], [0, 0, 0, 1]]) # iSWAP gate
-
-    CNOT = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]]) # CNOT gate
-
-    CNOT1 = np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0], [0, 1, 0, 0]]) # Inverted CNOT gate
-
-    DCNOT = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1], [0, 1, 0, 0]]) # CNOT, then inverted CNOT
-
-    INV_DCNOT = np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 1, 0, 0], [0, 0, 1, 0]]) # Inverted CNOT, then CNOT
-
-    CY = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, -1j], [0, 0, 1j, 0]]) # Controlled Y gate
-
-    CZ = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, -1]]) # Controlled Z gate
+    CZ = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, -1]])  # Controlled Z gate
 
     CH = np.array(
-        [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1 / SQRT2, 1 / SQRT2], [0, 0, 1 / SQRT2, -1 / SQRT2]] # Controlled Hadamard gate
+        [
+            [1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, 0, 1 / SQRT2, 1 / SQRT2],
+            [0, 0, 1 / SQRT2, -1 / SQRT2],
+        ]  # Controlled Hadamard gate
     )
 
     MAGIC = (
-        1 / SQRT2 * np.array([[1, 1.0j, 0, 0], [0, 0, 1.0j, 1], [0, 0, 1.0j, -1], [1, -1.0j, 0, 0]]) # Magic gate
+        1
+        / SQRT2
+        * np.array(
+            [[1, 1.0j, 0, 0], [0, 0, 1.0j, 1], [0, 0, 1.0j, -1], [1, -1.0j, 0, 0]]
+        )  # Magic gate
     )
 
-    
     """Parametric gates."""
+
     @staticmethod
     def power_pauli_y(p: float) -> NDArray[np.floating]:
         """
@@ -72,7 +115,6 @@ class Gates:
 
         return phase * matrix
 
-
     @staticmethod
     def power_pauli_z(p: float) -> NDArray[np.floating]:
         """
@@ -85,7 +127,6 @@ class Gates:
             np.ndarray: Pauli Z power gate.
         """
         return np.diag([1, np.exp(1.0j * np.pi * p)])
-    
 
     @staticmethod
     def canonical_gate(tx: float, ty: float, tz: float) -> NDArray[np.floating]:
@@ -105,11 +146,51 @@ class Gates:
         return expm(exponent)
 
 
-
 class Circuit:
 
     @staticmethod
-    def magic_decomp(q0: int, q1: int) -> list[QGate]:
+    def dcnot_decomposition(q0: int, q1: int) -> list[QGate]:
+        """
+        Circuit implementation of the DCNOT gate (CNOT, then CNOT inverted).
+
+        Decompose the DCNOT gate into a circuit of CNOT and inverted CNOT gates.
+
+        Args:
+            q0 (int): First target qubit of the gate.
+            q1 (int): Second target qubit of the gate.
+
+        Returns:
+            list[QGate]: List of QGate objects representing the decomposition of the DCNOT gate.
+        """
+        dcnot_circuit = [
+            QGate.from_tuple(("CNOT", (q0, q1), 0)),
+            QGate.from_tuple(("CNOT", (q1, q0), 0)),
+        ]
+        return dcnot_circuit
+
+    @staticmethod
+    def inv_dcnot_decomposition(q0: int, q1: int) -> list[QGate]:
+        """
+        Circuit implementation of the inverted DCNOT gate (CNOT inverted, then CNOT).
+
+        Decompose the inverted DCNOT gate into a circuit of inverted CNOT and CNOT gates.
+
+        Args:
+            q0 (int): First target qubit of the gate.
+            q1 (int): Second target qubit of the gate.
+
+        Returns:
+            list[QGate]: List of QGate objects representing the decomposition of the inverted DCNOT gate.
+        """
+        inv_dcnot_circuit = [
+            QGate.from_tuple(("CNOT", (q1, q0), 0)),
+            QGate.from_tuple(("CNOT", (q0, q1), 0)),
+        ]
+
+        return inv_dcnot_circuit
+
+    @staticmethod
+    def magic_decomposition(q0: int, q1: int) -> list[QGate]:
         """
         Circuit implementation of the magic gate.
 
@@ -123,15 +204,15 @@ class Circuit:
             list[QGate]: List of QGate objects representing the decomposition of the magic gate.
         """
         magic_circuit = [
-            QGate.from_tuple(('S', (q0,), 0)),
-            QGate.from_tuple(('S', (q1,), 0)),
-            QGate.from_tuple(('H', (q1,), 0)),
-            QGate.from_tuple(('CNOT', (q1, q0), 0)),
+            QGate.from_tuple(("S", (q0,), 0)),
+            QGate.from_tuple(("S", (q1,), 0)),
+            QGate.from_tuple(("H", (q1,), 0)),
+            QGate.from_tuple(("CNOT", (q1, q0), 0)),
         ]
         return magic_circuit
-    
+
     @staticmethod
-    def magic_dag_decomp(q0: int, q1: int) -> list[QGate]:
+    def magic_dag_decomposition(q0: int, q1: int) -> list[QGate]:
         """
         Circuit implementation of the hermitian conjugate of the magic gate.
 
@@ -145,15 +226,15 @@ class Circuit:
             list[QGate]: List of QGate objects representing the decomposition of the gate.
         """
         magic_dag_circuit = [
-            QGate.from_tuple(('CNOT', (q1, q0), 0)),
-            QGate.from_tuple(('H', (q1,), 0)),
-            QGate.from_tuple(('SDAG', (q1,), 0)),
-            QGate.from_tuple(('SDAG', (q0,), 0)),
+            QGate.from_tuple(("CNOT", (q1, q0), 0)),
+            QGate.from_tuple(("H", (q1,), 0)),
+            QGate.from_tuple(("SDAG", (q1,), 0)),
+            QGate.from_tuple(("SDAG", (q0,), 0)),
         ]
         return magic_dag_circuit
-    
+
     @staticmethod
-    def swap_decomp(q0: int, q1: int) -> list[QGate]:
+    def swap_decomposition(q0: int, q1: int) -> list[QGate]:
         """
         Circuit implementation of the SWAP gate.
 
@@ -166,13 +247,15 @@ class Circuit:
         Returns:
             list[QGate]: List of QGate objects representing the decomposition of the SWAP gate.
         """
-        swap_circuit = [QGate.from_tuple(('CNOT', (q0, q1), 0)), 
-                        QGate.from_tuple(('CNOT', (q1, q0), 0)), 
-                        QGate.from_tuple(('CNOT', (q0, q1), 0))]
+        swap_circuit = [
+            QGate.from_tuple(("CNOT", (q0, q1), 0)),
+            QGate.from_tuple(("CNOT", (q1, q0), 0)),
+            QGate.from_tuple(("CNOT", (q0, q1), 0)),
+        ]
         return swap_circuit
-    
+
     @staticmethod
-    def cy_decomp(q0: int, q1: int) -> list[QGate]:
+    def cy_decomposition(q0: int, q1: int) -> list[QGate]:
         """
         Circuit implementation of the controlled Y gate.
 
@@ -185,13 +268,15 @@ class Circuit:
         Returns:
             list[QGate]: List of QGate objects representing the decomposition of the controlled Y gate.
         """
-        cy_circuit = [QGate.from_tuple(('SDAG', (q1,), 0)),
-                        QGate.from_tuple(('CNOT', (q0, q1), 0)),
-                        QGate.from_tuple(('S', (q1,), 0))]
+        cy_circuit = [
+            QGate.from_tuple(("SDAG", (q1,), 0)),
+            QGate.from_tuple(("CNOT", (q0, q1), 0)),
+            QGate.from_tuple(("S", (q1,), 0)),
+        ]
         return cy_circuit
-    
+
     @staticmethod
-    def cz_decomp(q0: int, q1: int) -> list[QGate]:
+    def cz_decomposition(q0: int, q1: int) -> list[QGate]:
         """
         Circuit implementation of the controlled Z gate.
 
@@ -204,13 +289,15 @@ class Circuit:
         Returns:
             list[QGate]: List of QGate objects representing the decomposition of the controlled Z gate.
         """
-        cz_circuit = [QGate.from_tuple(('H', (q1,), 0)),
-                        QGate.from_tuple(('CNOT', (q0, q1), 0)),
-                        QGate.from_tuple(('H', (q1,), 0))]
+        cz_circuit = [
+            QGate.from_tuple(("H", (q1,), 0)),
+            QGate.from_tuple(("CNOT", (q0, q1), 0)),
+            QGate.from_tuple(("H", (q1,), 0)),
+        ]
         return cz_circuit
-    
+
     @staticmethod
-    def ch_decomp(q0: int, q1: int):
+    def ch_decomposition(q0: int, q1: int):
         """
         Circuit implementation of the controlled Hadamard gate.
 
@@ -223,17 +310,19 @@ class Circuit:
         Returns:
             list[QGate]: List of QGate objects representing the decomposition of the controlled Hadamard gate.
         """
-        ch_circuit = [QGate.from_tuple(('S', (q1,), 0)),
-                QGate.from_tuple(('H', (q1,), 0)),
-                QGate.from_tuple(('T', (q1,), 0)),
-                QGate.from_tuple(('CNOT', (q0, q1), 0)),
-                QGate.from_tuple(('TDAG', (q1,), 0)),
-                QGate.from_tuple(('H', (q1,), 0)),
-                QGate.from_tuple(('SDAG', (q1,), 0))]
+        ch_circuit = [
+            QGate.from_tuple(("S", (q1,), 0)),
+            QGate.from_tuple(("H", (q1,), 0)),
+            QGate.from_tuple(("T", (q1,), 0)),
+            QGate.from_tuple(("CNOT", (q0, q1), 0)),
+            QGate.from_tuple(("TDAG", (q1,), 0)),
+            QGate.from_tuple(("H", (q1,), 0)),
+            QGate.from_tuple(("SDAG", (q1,), 0)),
+        ]
         return ch_circuit
-    
+
     @staticmethod
-    def iswap_decomp(q0: int, q1: int) -> list[QGate]:
+    def iswap_decomposition(q0: int, q1: int) -> list[QGate]:
         """
         Circuit implementation of the iSWAP gate.
 
@@ -246,30 +335,36 @@ class Circuit:
         Returns:
             list[QGate]: List of QGate objects representing the decomposition of the iSWAP gate.
         """
-        iswap_circuit = Circuit.swap_decomp(q0, q1) + Circuit.cz_decomp(q0, q1) + [
-            QGate.from_tuple(('S', (q0,), 0)),
-            QGate.from_tuple(('S', (q1,), 0)),
-        ]
+        iswap_circuit = (
+            Circuit.swap_decomposition(q0, q1)
+            + Circuit.cz_decomposition(q0, q1)
+            + [
+                QGate.from_tuple(("S", (q0,), 0)),
+                QGate.from_tuple(("S", (q1,), 0)),
+            ]
+        )
         return iswap_circuit
 
-    
     @staticmethod
-    def decomposition(name: str, q0, q1) -> list[QGate]:
+    def decompositions(name: str, q0: int, q1: int) -> list[QGate]:
         match name:
-            case 'MAGIC':
-                return Circuit.magic_decomp(q0, q1)
-            case 'MAGIC_DAG':
-                return Circuit.magic_dag_decomp(q0, q1)
-            case 'SWAP':
-                return Circuit.swap_decomp(q0, q1)
-            case 'CY':
-                return Circuit.cy_decomp(q0, q1)
-            case 'CZ':
-                return Circuit.cz_decomp(q0, q1)
-            case 'CH':
-                return Circuit.ch_decomp(q0, q1)
-            case 'ISWAP':
-                return Circuit.iswap_decomp(q0, q1)
+            case "DCNOT":
+                return Circuit.dcnot_decomposition(q0, q1)
+            case "INV_DCNOT":
+                return Circuit.inv_dcnot_decomposition(q0, q1)
+            case "MAGIC":
+                return Circuit.magic_decomposition(q0, q1)
+            case "MAGIC_DAG":
+                return Circuit.magic_dag_decomposition(q0, q1)
+            case "SWAP":
+                return Circuit.swap_decomposition(q0, q1)
+            case "CY":
+                return Circuit.cy_decomposition(q0, q1)
+            case "CZ":
+                return Circuit.cz_decomposition(q0, q1)
+            case "CH":
+                return Circuit.ch_decomposition(q0, q1)
+            case "ISWAP":
+                return Circuit.iswap_decomposition(q0, q1)
             case _:
                 raise ValueError(f"Decomposition of gate {name} not implemented.")
-
