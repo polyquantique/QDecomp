@@ -12,6 +12,15 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+"""
+This module contains the following classes:
+
+- Gates: Contains the matrix representations of the quantum gates used in the decompositions algorithms.
+- Circuit: Contains the circuit decomposition of many common quantum gates.
+
+These classes are used to perform the decomposition of 2-qubits quantum gates into CNOT and single-qubit gates.
+"""
+
 import numpy as np
 from cliffordplust.circuit import QGate
 from numpy.typing import NDArray
@@ -23,6 +32,7 @@ SQRT2 = np.sqrt(2)
 class Gates:
     """
     This class contains the matrix representations of the quantum gates used in the decompositions algorithms.
+    The class contains single qubit gates, two qubit gates, and parametric gates.
     """
 
     # Single qubit gates
@@ -39,20 +49,21 @@ class Gates:
     """NDArray[float]: Hadamard gate."""
 
     S = np.array([[1, 0], [0, 1.0j]])
-    """NDArray[float]: Phase gate."""
+    """NDArray[float]: Phase gate. S is the square root of the Pauli Z gate."""
 
     V = 1 / 2 * np.array([[1 + 1j, 1 - 1j], [1 - 1j, 1 + 1j]])
     """NDArray[float]: V gate. V is the square root of the Pauli X gate."""
 
     T = np.array([[1, 0], [0, np.exp(1.0j * np.pi / 4)]]) 
-    """NDArray[float]: T gate. T is the square root of the S gate and the fourth root of the Pauli Z gate."""
+    """NDArray[float]: T gate. T is the fourth root of the Pauli Z gate."""
+
 
     # Two qubit gates
     CNOT = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
-    """NDArray[float]: CNOT gate. Controlled NOT gate, also called CX."""
+    """NDArray[float]: CNOT | CX gate. Controlled-Not with the control on the first qubit."""
 
     CNOT1 = np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0], [0, 1, 0, 0]])
-    """NDArray[float]: CNOT gate where the control and target qubit are inverted."""
+    """NDArray[float]: CNOT gate with the control on the second qubit."""
 
     DCNOT = np.array(
         [[1, 0, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1], [0, 1, 0, 0]]
@@ -70,13 +81,17 @@ class Gates:
     ISWAP = np.array([[1, 0, 0, 0], [0, 0, 1j, 0], [0, 1j, 0, 0], [0, 0, 0, 1]])
     """NDArray[float]: iSWAP gate."""
 
-    
+    CY = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, -1j], [0, 0, 1j, 0]])
+    """NDArray[float]: Controlled Y gate with the control on the first qubit."""
 
-    
+    CY1 = SWAP @ CY @ SWAP
+    """NDArray[float]: Controlled Y gate with the control on the second qubit."""
 
-    CY = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, -1j], [0, 0, 1j, 0]])  # Controlled Y gate
+    CZ = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, -1]])
+    """NDArray[float]: Controlled Z gate with the control on the first qubit."""
 
-    CZ = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, -1]])  # Controlled Z gate
+    CZ1 = SWAP @ CZ @ SWAP
+    """NDArray[float]: Controlled Z gate with the control on the second qubit."""
 
     CH = np.array(
         [
@@ -84,19 +99,24 @@ class Gates:
             [0, 1, 0, 0],
             [0, 0, 1 / SQRT2, 1 / SQRT2],
             [0, 0, 1 / SQRT2, -1 / SQRT2],
-        ]  # Controlled Hadamard gate
+        ]
     )
+    """NDArray[float]: Controlled Hadamard gate with the control on the first qubit."""
+
+    CH1 = SWAP @ CH @ SWAP
+    """NDArray[float]: Controlled Hadamard gate with the control on the second qubit."""
 
     MAGIC = (
         1
         / SQRT2
         * np.array(
             [[1, 1.0j, 0, 0], [0, 0, 1.0j, 1], [0, 0, 1.0j, -1], [1, -1.0j, 0, 0]]
-        )  # Magic gate
+        )
     )
+    """NDArray[float]: Magic gate. The magic gate is used in various decompositions algorithms."""
 
-    """Parametric gates."""
-
+  
+    # Parametric gates
     @staticmethod
     def power_pauli_y(p: float) -> NDArray[np.floating]:
         """
@@ -106,7 +126,7 @@ class Gates:
             p (float): Power of the Pauli Y gate.
 
         Returns:
-            np.ndarray: Pauli Y power gate.
+            NDArray[float]: Pauli Y power gate.
         """
         angle = np.pi / 2 * p
         phase = np.exp(1.0j * angle)
@@ -124,7 +144,7 @@ class Gates:
             p (float): Power of the Pauli Z matrix.
 
         Returns:
-            np.ndarray: Pauli Z power gate.
+            NDArray[float]: Pauli Z power gate.
         """
         return np.diag([1, np.exp(1.0j * np.pi * p)])
 
@@ -137,7 +157,7 @@ class Gates:
             tx, ty, tz (floats): Parameters of the canonical gates
 
         Returns:
-            np.ndarray: Matrix form of the canonical gate.
+            NDArray[float]: Matrix form of the canonical gate.
         """
         XX = np.array([[0, 0, 0, 1], [0, 0, 1, 0], [0, 1, 0, 0], [1, 0, 0, 0]])
         YY = np.array([[0, 0, 0, -1], [0, 0, 1, 0], [0, 1, 0, 0], [-1, 0, 0, 0]])
@@ -147,6 +167,9 @@ class Gates:
 
 
 class Circuit:
+    """
+    This class contains the circuit decomposition of many common quantum gates. 
+    """
 
     @staticmethod
     def dcnot_decomposition(q0: int, q1: int) -> list[QGate]:
@@ -347,6 +370,24 @@ class Circuit:
 
     @staticmethod
     def decompositions(name: str, q0: int, q1: int) -> list[QGate]:
+        """
+        Return the Clifford+T decomposition of a 4 x 4 quantum gate.
+
+        Given the name of a 2 qubit quantum gate, return the Clifford+T decomposition of the gate.
+        The decomposition is returned as a list of QGate objects.
+        If the decomposition of the gate is not implemented, an error is raised.
+        
+        Args:
+            name (str): Name of the quantum gate.
+            q0 (int): First target qubit of the gate.
+            q1 (int): Second target qubit of the gate.
+
+        Returns:
+            list[QGate]: List of QGate objects representing the decomposition of the gate.
+
+        Raises:
+            ValueError: If the decomposition of the gate is not implemented
+        """
         match name:
             case "DCNOT":
                 return Circuit.dcnot_decomposition(q0, q1)
@@ -368,3 +409,4 @@ class Circuit:
                 return Circuit.iswap_decomposition(q0, q1)
             case _:
                 raise ValueError(f"Decomposition of gate {name} not implemented.")
+

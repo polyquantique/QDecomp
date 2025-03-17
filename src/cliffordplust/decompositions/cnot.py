@@ -13,23 +13,34 @@
 #    limitations under the License.
 
 """
-This module contains functions to decompose general 2-qubits quantum gates into single-qubit and canonical gates.
-
-The canonical gate is a 3 parameters gate that can be decomposed into CNOT gates and single-qubit
-gates. It is defined as Can(tx, ty, tz) = exp(-i*pi/2 * (tx * XX + ty * YY + tz * ZZ)), where XX,
-YY, and ZZ are Kronecker products of the Pauli matrices.
+This module contains functions to decompose general 2-qubits quantum gates into single-qubit CNOT gates.
 
 The module contains the following functions:
-- kronecker_decomposition: Decompose a 4 x 4 matrix into two 2x2 matrices such that their Kronecker product is the closest to the original matrix.
-- canonical_decomposition: Decompose a 4 x 4 unitary matrix into a global phase, two local 4 x 4 matrices, and the three parameters of the canonical gate.
-- can: Return the matrix form of the canonical gate for the given parameters.
+
+- `is_special`: Check if a matrix is special (determinant equal to 1).
+- `is_orthogonal`: Check if a matrix is orthogonal (inverse equal to its transpose).
+- `is_unitary`: Check if a matrix is unitary (inverse equal to its conjugate transpose).
+- `is_hermitian`: Check if a matrix is Hermitian (equal to its conjugate transpose).
+- `kronecker_decomposition`: Decompose a 4 x 4 matrix into two 2 x 2 matrices such that their Kronecker product is the closest to the original matrix.
+- `so4_decomposition`: Decompose a 4 x 4 matrix in SO(4) into a circuit of 2 CNOT gates and 8 single-qubit gates.
+- `o4_det_minus1_decomposition`: Decompose a 4 x 4 matrix in O(4) with a determinant of -1 into a circuit of 3 CNOT gates and 8 single-qubit gates.
+- `canonical_decomposition`: Decompose a 4 x 4 unitary matrix into a global phase, two local 4 x 4 matrices, and the three parameters of the canonical gate.
+- `u4_decomposition`: Decompose a 4 x 4 matrix in U(4) into a circuit of 3 CNOT and 7 single-qubit gates.
+- `known_decomposition`: Decompose a 4 x 4 matrix into a circuit of CNOT and single-qubit gates using predefined decompositions for common gates.
+- `cnot_decomposition`: Decompose any two-qubits gate into a circuit of CNOT and single-qubit gates.
+
+The function `cnot_decomposition` is the main function of the module. It decomposes any 4 x 4 unitary matrix into a 
+circuit of CNOT and single-qubit gates. The function determines which decomposition to use based on the Lie group of 
+the input matrix (SO(4), O(4), U(4)) or uses a predefined decomposition if the gate is common (SWAP, identity, CNOT).
+The function returns a list of QGate objects representing the circuit decomposition.
 
 For more details on the theory, see 
-G. E. Crooks, “Quantum gates,” March 2024, version 0.11.0, https://threeplusone.com/pubs/on_gates.pdf,
-C. F. Van Loan, “The ubiquitous Kronecker product”, J. Comput. Appl. Math., vol. 123, no. 1-2, pp. 85-100, Nov. 2000, https://doi.org/10.1016/S0377-0427(00)00393-9,
-and
-Jun Zhang, Jiri Vala, Shankar Sastry, and K. Birgitta Whaley. Geometric theory of nonlocal two-qubit operations. Phys. Rev. A, 67:042313 (2003), https://arxiv.org/pdf/quant-ph/0209120.
+- G. E. Crooks, “Quantum gates,” March 2024, version 0.11.0, https://threeplusone.com/pubs/on_gates.pdf,
+- C. F. Van Loan, “The ubiquitous Kronecker product”, J. Comput. Appl. Math., vol. 123, no. 1-2, pp. 85-100, Nov. 2000, https://doi.org/10.1016/S0377-0427(00)00393-9,
+- Jun Zhang, Jiri Vala, Shankar Sastry, and K. Birgitta Whaley. Geometric theory of nonlocal two-qubit operations. Phys. Rev. A, 67:042313 (2003), https://arxiv.org/pdf/quant-ph/0209120.
+- - F. Vatan and C. Williams, ‘Optimal quantum circuits for general two-qubit gates’, arXiv [quant-ph], 2003, https://arxiv.org/abs/quant-ph/0308006
 """
+
 from __future__ import annotations
 
 from typing import NamedTuple
