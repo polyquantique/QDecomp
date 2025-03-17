@@ -38,7 +38,7 @@ For more details on the theory, see
 - G. E. Crooks, “Quantum gates,” March 2024, version 0.11.0, https://threeplusone.com/pubs/on_gates.pdf,
 - C. F. Van Loan, “The ubiquitous Kronecker product”, J. Comput. Appl. Math., vol. 123, no. 1-2, pp. 85-100, Nov. 2000, https://doi.org/10.1016/S0377-0427(00)00393-9,
 - Jun Zhang, Jiri Vala, Shankar Sastry, and K. Birgitta Whaley. Geometric theory of nonlocal two-qubit operations. Phys. Rev. A, 67:042313 (2003), https://arxiv.org/pdf/quant-ph/0209120.
-- - F. Vatan and C. Williams, ‘Optimal quantum circuits for general two-qubit gates’, arXiv [quant-ph], 2003, https://arxiv.org/abs/quant-ph/0308006
+- F. Vatan and C. Williams, ‘Optimal quantum circuits for general two-qubit gates’, arXiv [quant-ph], 2003, https://arxiv.org/abs/quant-ph/0308006
 """
 
 from __future__ import annotations
