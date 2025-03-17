@@ -26,9 +26,9 @@ from cliffordplust.rings import Zomega, Zsqrt2
 def test_1d_grid_algorithm_type_error(A):
     """Test the raise of a TypeError when solving the 1D grid problem if the input intervals are not of the correct form."""
     with pytest.raises(TypeError, match="Input intervals must be real sequences of length 2"):
-        solve_grid_problem_1d(A, (-1, 1))
+        list(solve_grid_problem_1d(A, (-1, 1)))
     with pytest.raises(TypeError, match="Input intervals must be real sequences of length 2"):
-        solve_grid_problem_1d((-1, 1), A)
+        list(solve_grid_problem_1d((-1, 1), A))
 
 
 @pytest.mark.parametrize(
@@ -62,17 +62,12 @@ def test_1d_grid_algorithm_type_error(A):
 def test_grid_algorithm_1D_solutions(A, B):
     """Test the validity of the solutions found for the 1D grid problem for A and B."""
     solutions = solve_grid_problem_1d(A, B)
-    if len(solutions) > 0:
-        assert all(
-            [
-                (
-                    float(solution) <= A[1]
-                    and float(solution) >= A[0]
-                    and float(solution.sqrt2_conjugate()) <= B[1]
-                    and float(solution.sqrt2_conjugate()) >= B[0]
-                )
-                for solution in solutions
-            ]
+    for solution in solutions:
+        assert (
+            float(solution) >= A[0]
+            and float(solution) <= A[1]
+            and float(solution.sqrt2_conjugate()) >= B[0]
+            and float(solution.sqrt2_conjugate()) <= B[1]
         )
 
 
@@ -82,10 +77,10 @@ def test_grid_algorithm_1D_solutions(A, B):
                                 ((1, 2), ([1], 2))])
 def test_2d_grid_algorithm_type_error(A):
     """Test the raise of a TypeError when solving the 2D grid problem if the input intervals are not of the correct form."""
-    with pytest.raises(TypeError, match="Input intervals must be real 2x2 matrices"):
-        solve_grid_problem_2d(A, ((-1, 1), (-1, 1)))
-    with pytest.raises(TypeError, match="Input intervals must be real 2x2 matrices"):
-        solve_grid_problem_2d(((-1, 1), (-1, 1)), A)
+    with pytest.raises(TypeError, match="Input intervals must be real 2 x 2 matrices"):
+        list(solve_grid_problem_2d(A, ((-1, 1), (-1, 1))))
+    with pytest.raises(TypeError, match="Input intervals must be real 2 x 2 matrices"):
+        list(solve_grid_problem_2d(((-1, 1), (-1, 1)), A))
 
 
 @pytest.mark.parametrize("A", list(combinations_with_replacement([

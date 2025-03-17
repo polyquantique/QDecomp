@@ -31,7 +31,7 @@ The solutions are used as candidates for the Clifford+T approximation of z-rotat
 from __future__ import annotations
 
 import math
-from collections.abc import Sequence
+from collections.abc import Sequence, Generator
 
 import numpy as np
 from cliffordplust.rings import INVERSE_LAMBDA, LAMBDA, Zomega, Zsqrt2
@@ -44,7 +44,7 @@ __all__ = ["solve_grid_problem_1d", "solve_grid_problem_2d"]
 
 def solve_grid_problem_1d(
     A: Sequence[float] | NDArray[np.floating], B: Sequence[float] | NDArray[np.floating]
-) -> list[Zsqrt2]:
+) -> Generator[Zsqrt2]:
     """Solve the 1-dimensional grid problem for two intervals and return the result.
 
     Given two real closed intervals A and B, find all the solutions x in the ring \u2124[\u221A2] such that
@@ -55,7 +55,7 @@ def solve_grid_problem_1d(
         B (Sequence[float, float]): (B0, B1): Bounds of the second interval.
 
     Returns:
-        list[Zsqrt2]: The list of solutions to the grid problem.
+        Generator[Zsqrt2]: A generator of all solutions to the grid problem. The solutions are given as Zsqrt2 objects.
 
     Raises:
         TypeError: If intervals A and B are not real sequences of length 2.
@@ -100,8 +100,7 @@ def solve_grid_problem_1d(
     else:
         b_end = math.floor(b_interval_scaled[-1])
 
-    # List of solutions
-    alpha: list[Zsqrt2] = []
+    # Enumerate all solutions
     for bi in range(b_start, b_end + 1):
         # Interval to look for a (Integer coefficient of the ring element)
         a_interval_scaled: list[float] = [
@@ -131,14 +130,14 @@ def solve_grid_problem_1d(
                 and fl_alpha_i_conjugate >= B_interval[0]
                 and fl_alpha_i_conjugate <= B_interval[1]
             ):
-                alpha.append(alpha_i)
-    return alpha
+                # Yield the solution
+                yield alpha_i
 
 
 def solve_grid_problem_2d(
     A: Sequence[Sequence[float]] | NDArray[np.floating],
     B: Sequence[Sequence[float]] | NDArray[np.floating],
-) -> list[Zomega]:
+) -> Generator[Zomega]:
     """
     Solve the 2-dimensional grid problem for two upright rectangle and return the result.
 
@@ -149,10 +148,10 @@ def solve_grid_problem_2d(
         B (Sequence[Sequence[float, float]]): ((B0, B1), (B2, B3)): Bounds of the second upright rectangle. Rows correspond to the x and y axis respectively.
 
     Returns:
-        list[Zomega]: The list of solutions to the grid problem.
+        Generator[Zomega]: A generator of all solutions to the grid problem. The solutions are given as Zomega objects.
 
     Raises:
-        TypeError: If intervals A and B are not real 2x2 matrices.
+        TypeError: If intervals A and B are not real 2 x 2 matrices.
     """
     try:
         # Define the intervals for A and B rectangles.
@@ -167,23 +166,19 @@ def solve_grid_problem_2d(
                 )
             interval.sort()
     except (TypeError, ValueError) as e:
-        raise TypeError(f"Input intervals must be real 2x2 matrices.\nOrigin: {e}") from e
-
-    # List of solutions.
-    solutions: list[Zomega] = []
+        raise TypeError(f"Input intervals must be real 2 x 2 matrices.\nOrigin: {e}") from e
 
     # Solve two 1D grid problems for solutions of the form a + bi, where a and b are in Z[√2].
-    alpha: list[Zsqrt2] = solve_grid_problem_1d(Ax, Bx)
-    beta: list[Zsqrt2] = solve_grid_problem_1d(Ay, By)
+    alpha: Generator[Zsqrt2] = solve_grid_problem_1d(Ax, Bx)
+    beta: Generator[Zsqrt2] = solve_grid_problem_1d(Ay, By)
     for a in alpha:
         for b in beta:
-            solutions.append(Zomega(a=b.b - a.b, b=b.a, c=b.b + a.b, d=a.a))
+            yield Zomega(a=b.b - a.b, b=b.a, c=b.b + a.b, d=a.a)
 
     # Solve two 1D grid problems for solutions of the form a + bi + ω, where a and b are in Z[√2] and ω = (1 + i)/√2.
-    alpha2: list[Zsqrt2] = solve_grid_problem_1d(Ax - 1 / SQRT2, Bx + 1 / SQRT2)
-    beta2: list[Zsqrt2] = solve_grid_problem_1d(Ay - 1 / SQRT2, By + 1 / SQRT2)
+    alpha2: Generator[Zsqrt2] = solve_grid_problem_1d(Ax - 1 / SQRT2, Bx + 1 / SQRT2)
+    beta2: Generator[Zsqrt2] = solve_grid_problem_1d(Ay - 1 / SQRT2, By + 1 / SQRT2)
     for a in alpha2:
         for b in beta2:
-            solutions.append(Zomega(b.b - a.b, b.a, b.b + a.b + 1, a.a))
+            yield Zomega(b.b - a.b, b.a, b.b + a.b + 1, a.a)
 
-    return solutions
