@@ -35,6 +35,7 @@ import math
 from decimal import Decimal, getcontext
 from typing import Any, Callable, Iterator, Union
 
+import mpmath as mp
 import numpy as np
 
 __all__ = ["D", "Zsqrt2", "Dsqrt2", "Zomega", "Domega", "INVERSE_LAMBDA", "LAMBDA"]
@@ -121,6 +122,10 @@ class D:
     def __float__(self) -> float:
         """Define the float value of the D class."""
         return self.num / 2**self.denom
+
+    def mpfloat(self) -> float:
+        """Define the mpfloat value of the D class."""
+        return self.num / 2 ** mp.mpf(self.denom)
 
     def __eq__(self, nb: Any) -> bool:
         """Define the equality of the D class."""
@@ -297,6 +302,10 @@ class Zsqrt2:
             return float(self.a + self.b * Decimal(2).sqrt())
         return self.a + bsqrt
 
+    def mpfloat(self) -> float:
+        """Define the mpfloat value of the Zsqrt2 class."""
+        return self.a + self.b * mp.sqrt(2)
+
     def __getitem__(self, i: int) -> int:
         """Access the values of a and b from their index."""
         return (self.a, self.b)[i]
@@ -394,26 +403,26 @@ class Zsqrt2:
     def __imul__(self, nb: int | Zsqrt2) -> Zsqrt2:
         """Define in-place multiplication for the Zsqrt2 class."""
         return self.__mul__(nb)
-
-    def __pow__(self, n: int) -> Zsqrt2:
-        """Define the power operation for the Zsqrt2 class.
-
-        Computed using the binomial theorem.
-        Exponent must be a positive integer.
-        """
+    
+    def __pow__(self, n: int) -> Domega:
+        """Define the power operation for the Zsqrt2 class. Exponent must be a positive integer."""
+        # Check the input
         if not isinstance(n, (int, np.integer)):
             raise TypeError(f"Expected power to be an integer, but got {type(n).__name__}.")
         elif n < 0:
             raise ValueError(f"Expected power to be a positive integer, but got {n}.")
+        
+        # Compute the power
+        nth_power = self
+        result = Zsqrt2(1, 0)
+        
+        while n:
+            if (n & 1):
+                result *= nth_power
+            nth_power *= nth_power
+            n >>= 1
 
-        a: int = 0
-        b: int = 0
-        for k in range(n + 1):
-            if k % 2 == 0:
-                a += math.comb(n, k) * self.a ** (n - k) * self.b**k * 2 ** (k // 2)
-            else:
-                b += math.comb(n, k) * self.a ** (n - k) * self.b**k * 2 ** (k // 2)
-        return Zsqrt2(a, b)
+        return result
 
     def __ipow__(self, nb: int) -> Zsqrt2:
         """Define in-place power for the Zsqrt2 class."""
@@ -530,6 +539,10 @@ class Dsqrt2:
             )
         return a + bsqrt
 
+    def mpfloat(self) -> float:
+        """Define the mpfloat value of the Dsqrt2 class."""
+        return self.a.mpfloat() + self.b.mpfloat() * mp.sqrt(2)
+
     def __getitem__(self, i: int) -> D:
         """Access the values of a and b from their index."""
         return (self.a, self.b)[i]
@@ -618,26 +631,26 @@ class Dsqrt2:
     def __imul__(self, nb: Dsqrt2 | D | int) -> Dsqrt2:
         """Define in-place multiplication operation for the Dsqrt2 class."""
         return self.__mul__(nb)
-
-    def __pow__(self, n: int) -> Dsqrt2:
-        """Define the power operation for the Dsqrt2 class.
-
-        Computed using the binomial theorem.
-        Exponent must be a positive integer.
-        """
+    
+    def __pow__(self, n: int) -> Domega:
+        """Define the power operation for the Zsqrt2 class. Exponent must be a positive integer."""
+        # Check the input
         if not isinstance(n, (int, np.integer)):
             raise TypeError(f"Expected power to be an integer, but got {type(n).__name__}.")
         elif n < 0:
             raise ValueError(f"Expected power to be a positive integer, but got {n}.")
+        
+        # Compute the power
+        nth_power = self
+        result = Dsqrt2((1, 0), (0, 0))
+        
+        while n:
+            if (n & 1):
+                result *= nth_power
+            nth_power *= nth_power
+            n >>= 1
 
-        a: D = D(0, 0)
-        b: D = D(0, 0)
-        for k in range(n + 1):
-            if k % 2 == 0:
-                a += math.comb(n, k) * self.a ** (n - k) * self.b**k * 2 ** (k // 2)
-            else:
-                b += math.comb(n, k) * self.a ** (n - k) * self.b**k * 2 ** (k // 2)
-        return Dsqrt2(a, b)
+        return result
 
     def __ipow__(self, nb: int) -> Dsqrt2:
         """Define in-place power operation for the Dsqrt2 class."""
@@ -758,6 +771,10 @@ class Zomega:
             return float(self.d + (self.c - self.a) / Decimal(2).sqrt())
         return self.d + sqrt_value
 
+    def mp_real(self) -> float:
+        """Return the real part of the ring element in mpfloat representation."""
+        return self.d + (self.c - self.a) / mp.sqrt(2)
+
     def imag(self) -> float:
         """Return the imaginary part of the ring element.
 
@@ -771,9 +788,17 @@ class Zomega:
             return float(self.b + (self.c + self.a) / Decimal(2).sqrt())
         return self.b + sqrt_value
 
+    def mp_imag(self) -> float:
+        """Return the imaginary part of the ring element in mpfloat representation."""
+        return self.b + (self.c + self.a) / mp.sqrt(2)
+
     def __complex__(self) -> complex:
         """Define the complex value of the ring element."""
         return self.real() + 1j * self.imag()
+
+    def mpcomplex(self) -> complex:
+        """Define the mpcomplex value of the Zomega class."""
+        return mp.mpc(self.mp_real(), self.mp_imag())
 
     def complex_conjugate(self) -> Zomega:
         """Compute the complex conjugate of the ring element.
@@ -884,34 +909,25 @@ class Zomega:
         """Define the in-place multiplication for the Zomega class."""
         return self.__mul__(nb)
 
-    def __pow__(self, power: int) -> Zomega:
-        """Define the power operation for the Zomega class.
-
-        Exponent must be a positive integer. Uses the multinomial theorem.
-        """
+    def __pow__(self, power: int) -> Domega:
+        """Define the power operation for the Zomega class. Exponent must be a positive integer."""
+        # Check the input
         if not isinstance(power, (int, np.integer)):
             raise TypeError(f"Exponent must be an integer, but received {type(power).__name__}.")
         elif power < 0:
             raise ValueError(f"Exponent must be a positive integer, but got {power}.")
+        
+        # Compute the power
+        nth_power = self
+        result = Zomega(0, 0, 0, 1)
+        
+        while power:
+            if (power & 1):
+                result *= nth_power
+            nth_power *= nth_power
+            power >>= 1
 
-        coeff: list[int] = [0, 0, 0, 0]
-        for k1 in range(power + 1):
-            for k2 in range(power + 1 - k1):
-                for k3 in range(power + 1 - k1 - k2):
-                    k4: int = power - (k1 + k2 + k3)
-                    exponent: int = 3 * k1 + 2 * k2 + k3
-                    multinomial_coefficient: int = math.factorial(power) // math.prod(
-                        map(math.factorial, (k1, k2, k3, k4))
-                    )
-                    coeff[3 - exponent % 4] += (
-                        (-1) ** (exponent // 4)
-                        * self.a**k1
-                        * self.b**k2
-                        * self.c**k3
-                        * self.d**k4
-                        * multinomial_coefficient
-                    )
-        return Zomega(coeff[0], coeff[1], coeff[2], coeff[3])
+        return result
 
     def __ipow__(self, nb: int) -> Zomega:
         """Define the in-place power operation of the Zomega class."""
@@ -1059,6 +1075,10 @@ class Domega:
             )
         return d + sqrt_value
 
+    def mp_real(self) -> float:
+        """Return the real part of the ring element in mpfloat representation."""
+        return self.d.mpfloat() + (self.c - self.a).mpfloat() / mp.sqrt(2)
+
     def imag(self) -> float:
         """Return the imaginary part of the ring element.
 
@@ -1078,9 +1098,17 @@ class Domega:
             )
         return b + sqrt_value
 
+    def mp_imag(self) -> float:
+        """Return the imaginary part of the ring element in mpfloat representation."""
+        return self.b.mpfloat() + (self.c + self.a).mpfloat() / mp.sqrt(2)
+
     def __complex__(self) -> complex:
         """Define the complex value of the class."""
         return self.real() + 1j * self.imag()
+
+    def mpcomplex(self) -> complex:
+        """Define the mpcomplex value of the Domega class."""
+        return mp.mpc(self.mp_real(), self.mp_imag())
 
     def sde(self) -> int | float:
         """Return the smallest denominator exponent (sde) of base \u221a2 of the ring element.
@@ -1227,33 +1255,24 @@ class Domega:
         return self.__mul__(nb)
 
     def __pow__(self, power: int) -> Domega:
-        """Define the power operation for the Domega class.
-
-        Exponent must be a positive integers. Uses the multinomial theorem.
-        """
+        """Define the power operation for the Domega class. Exponent must be a positive integer."""
+        # Check the input
         if not isinstance(power, (int, np.integer)):
             raise TypeError(f"Exponent must be an integer, but received {type(power).__name__}.")
         if power < 0:
             raise ValueError(f"Expected exponent to be a positive integer, but got {power}.")
+        
+        # Compute the power
+        nth_power = self
+        result = Domega((0, 0), (0, 0), (0, 0), (1, 0))
+        
+        while power:
+            if (power & 1):
+                result *= nth_power
+            nth_power *= nth_power
+            power >>= 1
 
-        coeff: list[D] = [D(0, 0), D(0, 0), D(0, 0), D(0, 0)]
-        for k1 in range(power + 1):
-            for k2 in range(power + 1 - k1):
-                for k3 in range(power + 1 - k1 - k2):
-                    k4: int = power - (k1 + k2 + k3)
-                    exponent: int = 3 * k1 + 2 * k2 + k3
-                    multinomial_coefficient: int = math.factorial(power) // math.prod(
-                        map(math.factorial, (k1, k2, k3, k4))
-                    )
-                    coeff[3 - exponent % 4] += (
-                        (-1) ** (exponent // 4)
-                        * self.a**k1
-                        * self.b**k2
-                        * self.c**k3
-                        * self.d**k4
-                        * multinomial_coefficient
-                    )
-        return Domega(coeff[0], coeff[1], coeff[2], coeff[3])
+        return result
 
     def __ipow__(self, nb: int) -> Domega:
         """Define the in-place power operation of the Domega class."""
