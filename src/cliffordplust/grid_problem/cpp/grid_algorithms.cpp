@@ -17,11 +17,13 @@
 #define GRID_ALGORITHMS_HPP
 
 #include <cmath>
-#include <vector>
+#include <tuple>
 
 #include "..\..\rings\cpp\Rings.hpp"
 
 
+const double SQRT2 = std::sqrt(2);
+const double SQRT2_INV = 1.0 / SQRT2;
 inline const Zsqrt2 LAMBDA(1, 1);
 inline const Zsqrt2 LAMBDA_INV(-1, 1);
 
@@ -46,7 +48,7 @@ class GridProblem1D {
 
     public:
         /**
-         * @brief Construct a new Grid Problem 1D object
+         * @brief Construct a new GridProblem1D object
          * 
          * @param amin The minimum bound of the first interval
          * @param amax The maximum bound of the first interval
@@ -216,7 +218,182 @@ class GridProblem1D {
         }
 };
 
+/**
+ * @class GridProblem2D
+ * @brief A class to solve a 2D grid problem
+ * 
+ * This class solves a 2D grid problem. It returns an iterator that generates all the solutions
+ * of the problem. Solving this problem is equivalent to solve two times two 1D grid problems and
+ * returning the Cartesian product of the solutions (4 grid problems are solved in total).
+ */
+class GridProblem2D{
+    private:
+        GridProblem1D _gp_x1;  ///< First grid problem for the first coordinate
+        GridProblem1D _gp_y1;  ///< First grid problem for the second coordinate
+        GridProblem1D _gp_x2;  ///< Second grid problem for the first coordinate
+        GridProblem1D _gp_y2;  ///< Second grid problem for the second coordinate
 
+    public:
+        /**
+         * @brief Construct a new GridProblem2D object
+         * 
+         * @param axmin The minimum bound of the first interval for the first coordinate
+         * @param axmax The maximum bound of the first interval for the first coordinate
+         * @param bxmin The minimum bound of the second interval for the first coordinate
+         * @param bxmax The maximum bound of the second interval for the first coordinate
+         * @param aymin The minimum bound of the first interval for the second coordinate
+         * @param aymax The maximum bound of the first interval for the second coordinate
+         * @param bymin The minimum bound of the second interval for the second coordinate
+         * @param bymax The maximum bound of the second interval for the second coordinate
+         * @throw std::invalid_argument if axmin > axmax, bxmin > bxmax, aymin > aymax or bymin > bymax
+         */
+        GridProblem2D(
+            double axmin, double axmax, double bxmin, double bxmax,
+            double aymin, double aymax, double bymin, double bymax
+        ) : _gp_x1(axmin, axmax, bxmin, bxmax), _gp_y1(aymin, aymax, bymin, bymax),
+            _gp_x2(axmin - SQRT2_INV, axmax - SQRT2_INV, bxmin + SQRT2_INV, bxmax + SQRT2_INV),
+            _gp_y2(aymin - SQRT2_INV, aymax - SQRT2_INV, bymin + SQRT2_INV, bymax + SQRT2_INV)
+        {
+            // Check if the bounds are in increasing order
+            if ((axmin > axmax) or (aymin > aymax) or (bxmin > bxmax) or (bymin > bymax)) {
+                throw std::invalid_argument("The interval bounds must be in increasing order. Got ["
+                    + std::to_string(axmin) + ", " + std::to_string(axmax) + "], ["
+                    + std::to_string(aymin) + ", " + std::to_string(aymax) + "], ["
+                    + std::to_string(bxmin) + ", " + std::to_string(bxmax) + "] and ["
+                    + std::to_string(bymin) + ", " + std::to_string(bymax) + "].");
+            }
+        }
+        
+        /**
+         * @class Iterator
+         * @brief An iterator to generate the solutions of the grid problem
+         */
+        class Iterator {
+            private:
+                bool _first_completed = false;   ///< Flag to indicate if the first problem is completed
+                bool _second_completed = false;  ///< Flag to indicate if the second problem is completed
 
+                GridProblem1D::Iterator _x_it1;  ///< Iterator for the first coordinate for the first problem
+                GridProblem1D::Iterator _y_it1;  ///< Iterator for the second coordinate for the first problem
+                GridProblem1D::Iterator _x_it2;  ///< Iterator for the first coordinate for the second problem
+                GridProblem1D::Iterator _y_it2;  ///< Iterator for the second coordinate for the second problem
+
+                const GridProblem1D::Iterator _y_it1_begin;  ///< Beginning of the y iterator for the first problem
+                const GridProblem1D::Iterator _y_it2_begin;  ///< Beginning of the y iterator for the second problem
+            
+                const GridProblem1D::Iterator _x_it1_end;  ///< End of the x iterator for the first problem
+                const GridProblem1D::Iterator _y_it1_end;  ///< End of the y iterator for the first problem
+                const GridProblem1D::Iterator _x_it2_end;  ///< End of the x iterator for the second problem
+                const GridProblem1D::Iterator _y_it2_end;  ///< End of the y iterator for the second problem
+
+            public:
+                /**
+                 * @brief Construct a new Iterator object
+                 * 
+                 * @param x_it1_begin Beginning of the x iterator for the first problem
+                 * @param y_it1_begin Beginning of the y iterator for the first problem
+                 * @param x_it2_begin Beginning of the x iterator for the second problem
+                 * @param y_it2_begin Beginning of the y iterator for the second problem
+                 * @param x_it1_end End of the x iterator for the first problem
+                 * @param y_it1_end End of the y iterator for the first problem
+                 * @param x_it2_end End of the x iterator for the second problem
+                 * @param y_it2_end End of the y iterator for the second problem
+                 */
+                Iterator (
+                    GridProblem1D::Iterator x_it1_begin, GridProblem1D::Iterator y_it1_begin,
+                    GridProblem1D::Iterator x_it2_begin, GridProblem1D::Iterator y_it2_begin,
+                    GridProblem1D::Iterator x_it1_end, GridProblem1D::Iterator y_it1_end,
+                    GridProblem1D::Iterator x_it2_end, GridProblem1D::Iterator y_it2_end
+                ) : _x_it1(x_it1_begin), _y_it1(y_it1_begin),
+                    _x_it2(x_it2_begin), _y_it2(y_it2_begin),
+                    _y_it1_begin(y_it1_begin), _y_it2_begin(y_it2_begin),
+                    _x_it1_end(x_it1_end), _y_it1_end(y_it1_end),
+                    _x_it2_end(x_it2_end), _y_it2_end(y_it2_end)
+                {}
+
+                /**
+                 * @brief Get the current solution
+                */
+                std::pair<Zsqrt2, Zsqrt2> operator*() const {
+                    if (_first_completed) {  // Solving the second problem
+                        return std::make_pair(*_x_it2, *_y_it2);
+                    } else {  // Solving the first problem
+                        return std::make_pair(*_x_it1, *_y_it1);
+                    }
+                }
+
+                /**
+                 * @brief Increment the iterator
+                 */
+                void operator++() {
+                    if (_first_completed) {  // Solving the second problem
+                        ++_y_it2;
+                        if (_y_it2 != _y_it2_end) {
+                            return;
+                        } else {
+                            ++_x_it2;
+                            _y_it2 = _y_it2_begin;
+                            if (_x_it2 != _x_it2_end) {
+                                return;
+                            } else {
+                                _second_completed = true;
+                                return;
+                            }
+                        }
+                    } else {  // Solving the first problem
+                        ++_y_it1;
+                        if (_y_it1 != _y_it1_end) {
+                            return;
+                        } else {
+                            ++_x_it1;
+                            _y_it1 = _y_it1_begin;
+                            if (_x_it1 != _x_it1_end) {
+                                return;
+                            } else {
+                                _first_completed = true;
+                                
+                                // Might be true if the second problem has no solution
+                                _second_completed = !(_x_it2 != _x_it2_end & _y_it2 != _y_it2_end);  
+                                
+                                return;
+                            }
+                        }
+                    }
+                }
+
+                /**
+                 * @brief Used to determine wether the iterator is at the end
+                 * 
+                 * @param _ The other iterator (unused)
+                 * @return true If this iterator is at the end
+                 * @return false If this iterators are not at the end
+                 */
+                bool operator!=(const Iterator& _) const { return !_second_completed; }
+        };
+
+        /**
+         * @brief Get the beginning of the iterator
+         * 
+         * @return Iterator The beginning of the iterator
+         */
+        Iterator begin() {
+            return Iterator(
+                _gp_x1.begin(), _gp_y1.begin(), _gp_x2.begin(), _gp_y2.begin(),
+                _gp_x2.end(), _gp_y1.end(), _gp_x2.end(), _gp_y2.end()
+            );
+        }
+
+        /**
+         * @brief Get the end of the iterator
+         * 
+         * This function is called when initializing the iterator in a for loop. It is however never
+         * properly used since the for loop only uses it with the != operator which discards its
+         * argument. Since the result of this method is useless, it returns the same iterator as the
+         * one returned by the begin() method.
+         * 
+         * @return Iterator The end of the iterator
+         */
+        Iterator end() { return begin(); }
+};
 
 #endif // GRID_ALGORITHMS_HPP
