@@ -27,6 +27,8 @@ Output: Angles of the decomposition (t0, t1, t2, alpha) [rad] such that
 
 import numpy as np
 
+__all__ = ["zyz_decomposition"]
+
 
 def zyz_decomposition(U: np.ndarray | list[list[float]]) -> tuple[float, ...]:
     """
