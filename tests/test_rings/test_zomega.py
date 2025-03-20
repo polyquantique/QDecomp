@@ -13,11 +13,12 @@
 #    limitations under the License.
 
 import math
-import mpmath as mp
 
-import cliffordplust.rings as r
+import mpmath as mp
 import numpy as np
 import pytest
+
+import cliffordplust.rings as r
 from cliffordplust.rings import Zomega
 
 # Set the precision of mpmath to 75 decimal places
@@ -42,6 +43,7 @@ def test_real(n):
     real = (n.a * OMEGA**3 + n.b * OMEGA**2 + n.c * OMEGA + n.d).real
     assert math.isclose(n.real(), real)
 
+
 @pytest.mark.parametrize(
     "n",
     [
@@ -55,7 +57,7 @@ def test_real(n):
 )
 def test_mp_real(n):
     """Test the mp_real value of the Zomega class."""
-    omega_mp = mp.mpc(1/mp.sqrt(2), 1/mp.sqrt(2))
+    omega_mp = mp.mpc(1 / mp.sqrt(2), 1 / mp.sqrt(2))
     real = (n.a * omega_mp**3 + n.b * omega_mp**2 + n.c * omega_mp + n.d).real
     assert math.isclose(n.mp_real(), real)
     assert math.isclose(n.real(), n.mp_real())
@@ -83,6 +85,7 @@ def test_imag(n):
     imag = (n.a * OMEGA**3 + n.b * OMEGA**2 + n.c * OMEGA + n.d).imag
     assert math.isclose(n.imag(), imag)
 
+
 @pytest.mark.parametrize(
     "n",
     [
@@ -96,7 +99,7 @@ def test_imag(n):
 )
 def test_mp_imag(n):
     """Test the mp_imag value of the Zomega class."""
-    omega_mp = mp.mpc(1/mp.sqrt(2), 1/mp.sqrt(2))
+    omega_mp = mp.mpc(1 / mp.sqrt(2), 1 / mp.sqrt(2))
     imag = (n.a * omega_mp**3 + n.b * omega_mp**2 + n.c * omega_mp + n.d).imag
     assert math.isclose(n.mp_imag(), imag)
     assert math.isclose(n.imag(), n.mp_imag())
@@ -123,6 +126,7 @@ def test_complex(n):
     """Test the complex value of the Zomega class."""
     complex_value = n.a * OMEGA**3 + n.b * OMEGA**2 + n.c * OMEGA + n.d
     assert np.isclose(complex(n), complex_value)
+
 
 @pytest.mark.parametrize(
     "n",

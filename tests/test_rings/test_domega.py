@@ -13,11 +13,12 @@
 #    limitations under the License.
 
 import math
-import mpmath as mp
 
-import cliffordplust.rings as r
+import mpmath as mp
 import numpy as np
 import pytest
+
+import cliffordplust.rings as r
 from cliffordplust.rings import Domega
 
 # Set a high precision for mpmath
@@ -43,6 +44,7 @@ def test_real(n):
     """Test the real value of the Domegea class."""
     real = (float(n.a) * OMEGA**3 + float(n.b) * OMEGA**2 + float(n.c) * OMEGA + float(n.d)).real
     assert np.isclose(n.real(), real)
+
 
 @pytest.mark.parametrize(
     "n",
@@ -82,6 +84,7 @@ def test_imag(n):
     imag = (float(n.a) * OMEGA**3 + float(n.b) * OMEGA**2 + float(n.c) * OMEGA + float(n.d)).imag
     assert np.isclose(n.imag(), imag)
 
+
 @pytest.mark.parametrize(
     "n",
     [
@@ -120,6 +123,7 @@ def test_complex(n):
     """Test the complex value of the Domega class."""
     complex_value = float(n.a) * OMEGA**3 + float(n.b) * OMEGA**2 + float(n.c) * OMEGA + float(n.d)
     assert np.isclose(complex(n), complex_value)
+
 
 @pytest.mark.parametrize(
     "n",

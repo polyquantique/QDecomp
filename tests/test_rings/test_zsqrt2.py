@@ -15,9 +15,10 @@
 """Test the Zsqrt2 class."""
 
 import math
-import mpmath as mp
 
+import mpmath as mp
 import pytest
+
 from cliffordplust import rings as r
 from cliffordplust.rings import Zsqrt2
 
@@ -42,6 +43,7 @@ ZSQRT2 = math.sqrt(2)
 def test_float(n):
     """Test the float value of the Zsqrt2 class."""
     assert math.isclose(n.a + n.b * ZSQRT2, float(n))
+
 
 @pytest.mark.parametrize(
     "n",
@@ -203,13 +205,7 @@ def test_equal():
     n1 = Zsqrt2(1, 1)
     n2 = Zsqrt2(-1, 2)
     n3 = Zsqrt2(-2, 0)
-    assert (
-        n1 == Zsqrt2(1, 1)
-        and n2 == Zsqrt2(-1, 2)
-        and n1 != n2
-        and n3 == -2
-        and n1 != [1]
-    )
+    assert n1 == Zsqrt2(1, 1) and n2 == Zsqrt2(-1, 2) and n1 != n2 and n3 == -2 and n1 != [1]
 
 
 def test_inequalities():

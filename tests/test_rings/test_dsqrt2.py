@@ -15,10 +15,11 @@
 """Test the Dsqrt2 class."""
 
 import math
+
 import mpmath as mp
+import pytest
 
 import cliffordplust.rings as r
-import pytest
 from cliffordplust.rings import D, Dsqrt2
 
 # Set the precision of mpmath to 75 decimal places
@@ -42,6 +43,7 @@ SQRT2 = math.sqrt(2)
 def test_float(n):
     """Test the float value of the Dsqrt2 class."""
     assert math.isclose(float(n), float(n.a) + float(n.b) * SQRT2)
+
 
 @pytest.mark.parametrize(
     "n",
