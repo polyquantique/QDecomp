@@ -14,12 +14,14 @@
 
 import math
 import mpmath as mp
-mp.mp.dps = 75
 
 import cliffordplust.rings as r
 import numpy as np
 import pytest
 from cliffordplust.rings import Zomega
+
+# Set the precision of mpmath to 75 decimal places
+mp.mp.dps = 75
 
 OMEGA = (1 + 1.0j) / math.sqrt(2)
 
@@ -294,8 +296,6 @@ def test_equality():
     assert Zomega(1, 2, 3, 4) == Zomega(1, 2, 3, 4)
     assert Zomega(1, 1, 1, 1) != Zomega(1, 1, 1, 2)
     assert Zomega(0, 0, 0, -1) == -1
-    assert Zomega(0, -1, 0, 1) == 1 - 1.0j
-    assert Zomega(-2, 0, 2, 5) == 5 + 2 * math.sqrt(2)
     assert Zomega(1, 1, 1, 1) != [1]
 
 

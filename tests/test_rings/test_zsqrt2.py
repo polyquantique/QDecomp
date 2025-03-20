@@ -16,11 +16,13 @@
 
 import math
 import mpmath as mp
-mp.mp.dps = 75
 
 import pytest
 from cliffordplust import rings as r
 from cliffordplust.rings import Zsqrt2
+
+# Set the precision of mpmath to 75 decimal places
+mp.mp.dps = 75
 
 ZSQRT2 = math.sqrt(2)
 
@@ -206,7 +208,6 @@ def test_equal():
         and n2 == Zsqrt2(-1, 2)
         and n1 != n2
         and n3 == -2
-        and n1 == 1 + ZSQRT2
         and n1 != [1]
     )
 

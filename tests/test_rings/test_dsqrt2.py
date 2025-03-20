@@ -16,11 +16,13 @@
 
 import math
 import mpmath as mp
-mp.mp.dps = 75
 
 import cliffordplust.rings as r
 import pytest
 from cliffordplust.rings import D, Dsqrt2
+
+# Set the precision of mpmath to 75 decimal places
+mp.mp.dps = 75
 
 SQRT2 = math.sqrt(2)
 
@@ -214,7 +216,6 @@ def test_equality():
     assert Dsqrt2((1, 1), (0, 0)) != D(1, 2)
     assert Dsqrt2((0, 0), (5, 2)) != D(5, 2)
     assert Dsqrt2((10, 0), (0, 0)) == 10
-    assert Dsqrt2((0, 0), (11, 1)) == 11 / 2 * SQRT2
     assert Dsqrt2((0, 0), (0, 0)) != (0,)
 
 

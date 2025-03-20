@@ -70,8 +70,10 @@ class D:
                 raise TypeError(
                     f"Class arguments must be of type int, but received {type(arg).__name__}."
                 )
+            
         if denom < 0:
             raise ValueError(f"Denominator exponent must be positive, but got {denom}.")
+        
         self._num: int = num
         self._denom: int = denom
 
@@ -131,13 +133,11 @@ class D:
         """Define the equality of the D class."""
         if isinstance(nb, D):
             return self.num == nb.num and self.denom == nb.denom
+        
         elif isinstance(nb, (int, np.integer)):
             return self.denom == 0 and self.num == nb
-        else:
-            try:
-                return float(nb) == float(self)
-            except Exception:
-                return False
+        
+        return False
 
     def __lt__(self, nb: Any) -> bool:
         """Define the < operation of the D class."""
@@ -163,8 +163,10 @@ class D:
                 return D(num, self.denom)
             num = nb.num + self.num * 2 ** (nb.denom - self.denom)
             return D(num, nb.denom)
+        
         elif isinstance(nb, (int, np.integer)):
             return D(self.num + nb * 2**self.denom, self.denom)
+        
         raise TypeError(f"Summation is not defined between D and {type(nb).__name__}.")
 
     def __radd__(self, nb: int | D) -> D:
@@ -179,6 +181,7 @@ class D:
         """Define the subtraction operation for the D class."""
         if isinstance(nb, (D, int, np.integer)):
             return self.__add__(-nb)
+        
         raise TypeError(f"Subtraction is not defined between D and {type(nb).__name__}.")
 
     def __rsub__(self, nb: int | D) -> D:
@@ -193,8 +196,10 @@ class D:
         """Define the product operation for the D class."""
         if isinstance(nb, D):
             return D(self.num * nb.num, self.denom + nb.denom)
+        
         elif isinstance(nb, (int, np.integer)):
             return D(self.num * nb, self.denom)
+        
         raise TypeError(f"Product is not defined between D and {type(nb).__name__}.")
 
     def __rmul__(self, nb: int | D) -> D:
@@ -212,8 +217,10 @@ class D:
         """
         if not isinstance(n, (int, np.integer)):
             raise TypeError(f"Expected power to be an integer, but got {type(n).__name__}.")
+        
         elif n < 0:
             raise ValueError(f"Expected power to be a positive integer, but got {n}.")
+        
         return D(self.num**n, n * self.denom)
 
     def __ipow__(self, n: int) -> D:
@@ -246,6 +253,7 @@ class Zsqrt2:
                 raise TypeError(
                     f"Expected inputs to be of type int, but got {type(input).__name__}."
                 )
+            
         self._a: int = a
         self._b: int = b
 
@@ -266,23 +274,40 @@ class Zsqrt2:
 
     @classmethod
     def from_ring(cls, nb: int | Ring) -> Zsqrt2:
-        """Convert a ring element to a Zsqrt2 object."""
+        """
+        Convert a ring element to a Zsqrt2 object. The conversion must be possible.
+        
+        Args:
+            nb (int | Ring): Ring element or integer to convert to Zsqrt2.
+
+        Returns:
+            Zsqrt2: Zsqrt2 object converted from the ring element.
+
+        Raises:
+            ValueError: If the conversion is not possible.
+        """
         if isinstance(nb, Domega):
             if nb.is_zsqrt2:
                 return cls(nb.d.num, nb.c.num)
+            
         elif isinstance(nb, Zomega):
             if nb.is_zsqrt2:
                 return cls(nb.d, nb.c)
+            
         elif isinstance(nb, Dsqrt2):
             if nb.is_zsqrt2:
                 return cls(nb.a.num, nb.b.num)
+            
         elif isinstance(nb, Zsqrt2):
             return nb
+        
         elif isinstance(nb, D):
             if nb.is_integer:
                 return cls(nb.num, 0)
+            
         elif isinstance(nb, (int, np.integer)):
             return cls(nb, 0)
+        
         raise ValueError(f"Cannot convert {type(nb).__name__} to Zsqrt2.")
 
     def sqrt2_conjugate(self) -> Zsqrt2:
@@ -296,10 +321,12 @@ class Zsqrt2:
     def __float__(self) -> float:
         """Define the float value of the ring element."""
         bsqrt = self.b * SQRT2
+
         if math.isclose(self.a, -bsqrt, rel_tol=1e-5):
             # Maintain high precision if the two values are close to each other.
             getcontext().prec = 50
             return float(self.a + self.b * Decimal(2).sqrt())
+        
         return self.a + bsqrt
 
     def mpfloat(self) -> float:
@@ -314,18 +341,18 @@ class Zsqrt2:
         """Define the string representation of the ring element."""
         if self.b < 0:
             return str(self.a) + str(self.b) + "\u221A2"
+        
         return str(self.a) + "+" + str(self.b) + "\u221A2"
 
     def __eq__(self, nb: Any) -> bool:
         """Define the equality of Zsqrt2 classes."""
         if isinstance(nb, Zsqrt2):
             return self.a == nb.a and self.b == nb.b
+        
         elif isinstance(nb, (int, np.integer)):
             return self.a == nb and self.b == 0
-        try:
-            return float(self) == float(nb)
-        except Exception:
-            return False
+        
+        return False   
 
     def __lt__(self, nb: Any) -> bool:
         """Define the < operation for the Zsqrt2 class."""
@@ -354,8 +381,10 @@ class Zsqrt2:
         """
         if isinstance(nb, Zsqrt2):
             return Zsqrt2(self.a + nb.a, self.b + nb.b)
+        
         elif isinstance(nb, (int, np.integer)):
             return Zsqrt2(self.a + nb, self.b)
+        
         raise TypeError(f"Summation is not defined between Zsqrt2 and {type(nb).__name__}.")
 
     def __radd__(self, nb: int | Zsqrt2) -> Zsqrt2:
@@ -373,8 +402,10 @@ class Zsqrt2:
         """
         if isinstance(nb, Zsqrt2):
             return Zsqrt2(self.a - nb.a, self.b - nb.b)
+        
         elif isinstance(nb, (int, np.integer)):
             return Zsqrt2(self.a - nb, self.b)
+        
         raise TypeError(f"Subtraction is not defined between Zsqrt2 and {type(nb).__name__}.")
 
     def __rsub__(self, nb: int | Zsqrt2) -> Zsqrt2:
@@ -392,8 +423,10 @@ class Zsqrt2:
         """
         if isinstance(nb, Zsqrt2):
             return Zsqrt2(self.a * nb.a + 2 * self.b * nb.b, self.a * nb.b + self.b * nb.a)
+        
         elif isinstance(nb, (int, np.integer)):
             return Zsqrt2(self.a * nb, self.b * nb)
+        
         raise TypeError(f"Multiplication is not defined between Zsqrt2 and {type(nb).__name__}.")
 
     def __rmul__(self, nb: int | Zsqrt2) -> Zsqrt2:
@@ -404,11 +437,11 @@ class Zsqrt2:
         """Define in-place multiplication for the Zsqrt2 class."""
         return self.__mul__(nb)
     
-    def __pow__(self, n: int) -> Domega:
+    def __pow__(self, n: int) -> Zsqrt2:
         """Define the power operation for the Zsqrt2 class. Exponent must be a positive integer."""
-        # Check the input
         if not isinstance(n, (int, np.integer)):
             raise TypeError(f"Expected power to be an integer, but got {type(n).__name__}.")
+        
         elif n < 0:
             raise ValueError(f"Expected power to be a positive integer, but got {n}.")
         
@@ -460,12 +493,15 @@ class Dsqrt2:
                     raise TypeError(
                         f"Tuples must take two integer values (num, denom), but received {input}."
                     )
+                
                 elif input[1] < 0:
                     raise ValueError(f"Denominator exponent must be positive, but got {input[1]}.")
+                
             elif not isinstance(input, D):
                 raise TypeError(
                     f"Class arguments must be of type tuple[int, int] or D objects, but received {type(input).__name__}."
                 )
+            
         self._a: D = a if isinstance(a, D) else D(a[0], a[1])
         self._b: D = b if isinstance(b, D) else D(b[0], b[1])
 
@@ -501,21 +537,38 @@ class Dsqrt2:
 
     @classmethod
     def from_ring(cls, nb: int | Ring) -> Dsqrt2:
-        """Convert a ring element to a Dsqrt2 object."""
+        """
+        Convert a ring element to a Dsqrt2 object. The conversion must be possible.
+        
+        Args:
+            nb (int | Ring): Ring element or integer to convert to Dsqrt2.
+
+        Returns:
+            Dsqrt2: Dsqrt2 object converted from the ring element.
+
+        Raises:
+            ValueError: If the conversion is not possible.
+        """
         if isinstance(nb, Domega):
             if nb.is_dsqrt2:
                 return cls(nb.d, nb.c)
+            
         elif isinstance(nb, Zomega):
             if nb.is_dsqrt2:
                 return cls((nb.d, 0), (nb.c, 0))
+            
         elif isinstance(nb, Dsqrt2):
             return nb
+        
         elif isinstance(nb, Zsqrt2):
             return cls((nb.a, 0), (nb.b, 0))
+        
         elif isinstance(nb, D):
             return cls(nb, (0, 0))
+        
         elif isinstance(nb, int):
             return cls((nb, 0), (0, 0))
+        
         raise ValueError(f"Cannot convert {type(nb).__name__} to Dsqrt2.")
 
     def sqrt2_conjugate(self) -> Dsqrt2:
@@ -530,6 +583,7 @@ class Dsqrt2:
         """Define the float value of the ring element."""
         bsqrt = float(self.b) * SQRT2
         a = float(self.a)
+
         if math.isclose(a, -bsqrt, rel_tol=1e-5):
             # Maintain high precision if the two values are close to each other.
             getcontext().prec = 50
@@ -537,6 +591,7 @@ class Dsqrt2:
                 self.a.num / (Decimal(2) ** self.a.denom)
                 + self.b.num * Decimal(2).sqrt() / (2**self.b.denom)
             )
+        
         return a + bsqrt
 
     def mpfloat(self) -> float:
@@ -551,18 +606,18 @@ class Dsqrt2:
         """Define the string representation of the ring element."""
         if self.b < 0:
             return str(self.a) + str(self.b) + "\u221A2"
+        
         return str(self.a) + "+" + str(self.b) + "\u221A2"
 
     def __eq__(self, nb: Any) -> bool:
         """Define the equality of Dsqrt2 classes."""
         if isinstance(nb, Dsqrt2):
             return self.a == nb.a and self.b == nb.b
+        
         elif isinstance(nb, (D, int, np.integer)):
             return self.a == nb and self.b == 0
-        try:
-            return float(self) == float(nb)
-        except Exception:
-            return False
+        
+        return False
 
     def __lt__(self, nb: Any) -> bool:
         """Define the < operation for the Dsqrt2 class."""
@@ -588,8 +643,10 @@ class Dsqrt2:
         """Define the summation operation for the Dsqrt2 class."""
         if isinstance(nb, Dsqrt2):
             return Dsqrt2(self.a + nb.a, self.b + nb.b)
+        
         elif isinstance(nb, (D, int, np.integer)):
             return Dsqrt2(self.a + nb, self.b)
+        
         raise TypeError(f"Summation is not defined between Dsqrt2 and {type(nb).__name__}.")
 
     def __radd__(self, nb: Dsqrt2 | D | int) -> Dsqrt2:
@@ -604,8 +661,10 @@ class Dsqrt2:
         """Define the subtraction operation for the Dsqrt2 class."""
         if isinstance(nb, Dsqrt2):
             return Dsqrt2(self.a - nb.a, self.b - nb.b)
+        
         elif isinstance(nb, (D, int, np.integer)):
             return Dsqrt2(self.a - nb, self.b)
+        
         raise TypeError(f"Subtraction is not defined between Dsqrt2 and {type(nb).__name__}.")
 
     def __rsub__(self, nb: Dsqrt2 | D | int) -> Dsqrt2:
@@ -620,8 +679,10 @@ class Dsqrt2:
         """Define the multiplication operation for the Dsqrt2 class."""
         if isinstance(nb, Dsqrt2):
             return Dsqrt2(self.a * nb.a + self.b * nb.b * 2, self.a * nb.b + self.b * nb.a)
+        
         elif isinstance(nb, (D, int, np.integer)):
             return Dsqrt2(self.a * nb, self.b * nb)
+        
         raise TypeError(f"Multiplication is not defined between Dsqrt2 and {type(nb).__name__}.")
 
     def __rmul__(self, nb: Dsqrt2 | D | int) -> Dsqrt2:
@@ -632,11 +693,12 @@ class Dsqrt2:
         """Define in-place multiplication operation for the Dsqrt2 class."""
         return self.__mul__(nb)
     
-    def __pow__(self, n: int) -> Domega:
-        """Define the power operation for the Zsqrt2 class. Exponent must be a positive integer."""
+    def __pow__(self, n: int) -> Dsqrt2:
+        """Define the power operation for the sqrt2 class. Exponent must be a positive integer."""
         # Check the input
         if not isinstance(n, (int, np.integer)):
             raise TypeError(f"Expected power to be an integer, but got {type(n).__name__}.")
+        
         elif n < 0:
             raise ValueError(f"Expected power to be a positive integer, but got {n}.")
         
@@ -690,6 +752,7 @@ class Zomega:
                 raise TypeError(
                     f"Class arguments must be of type int but received {type(input).__name__}."
                 )
+            
         self._a: int = a
         self._b: int = b
         self._c: int = c
@@ -737,25 +800,43 @@ class Zomega:
 
     @classmethod
     def from_ring(cls, nb: int | complex | Ring) -> Zomega:
-        """Convert a ring element to a Zomega object."""
+        """
+        Convert a ring element to a Zomega object. The conversion must be possible.
+        
+        Args:
+            nb (int | complex | Ring): Ring element to convert to Zomega.
+
+        Returns:
+            Zomega: Zomega object converted from the ring element.
+
+        Raises:
+            ValueError: If the conversion is not possible.
+        """
         if isinstance(nb, Domega):
             if nb.is_zomega:
                 return cls(nb.a.num, nb.b.num, nb.c.num, nb.d.num)
+            
         elif isinstance(nb, Zomega):
             return nb
+        
         elif isinstance(nb, Dsqrt2):
             if nb.is_zomega:
                 return cls(-nb.b.num, 0, nb.b.num, nb.a.num)
+            
         elif isinstance(nb, Zsqrt2):
             return cls(-nb.b, 0, nb.b, nb.a)
+        
         elif isinstance(nb, D):
             if nb.is_integer:
                 return cls(0, 0, 0, nb.num)
+            
         elif isinstance(nb, (int, np.integer)):
             return cls(0, 0, 0, nb)
+        
         elif isinstance(nb, complex):
             if nb.real.is_integer() and nb.imag.is_integer():
                 return cls(a=0, b=int(nb.imag), c=0, d=int(nb.real))
+            
         raise ValueError(f"Cannot convert {type(nb).__name__} to Zomega.")
 
     def real(self) -> float:
@@ -765,10 +846,12 @@ class Zomega:
             float: Real part of the ring element in float representation.
         """
         sqrt_value = (self.c - self.a) / SQRT2
+
         if math.isclose(self.d, -sqrt_value, rel_tol=1e-5):
             # Maintain high precision if the two values are close to each other.
             getcontext().prec = 50
             return float(self.d + (self.c - self.a) / Decimal(2).sqrt())
+        
         return self.d + sqrt_value
 
     def mp_real(self) -> float:
@@ -782,10 +865,12 @@ class Zomega:
             float : Imaginary part of the ring element in float representation.
         """
         sqrt_value = (self.c + self.a) / SQRT2
+
         if math.isclose(self.b, -sqrt_value, rel_tol=1e-5):
             # Maintain high precision if the two values are close to each other.
             getcontext().prec = 50
             return float(self.b + (self.c + self.a) / Decimal(2).sqrt())
+        
         return self.b + sqrt_value
 
     def mp_imag(self) -> float:
@@ -845,13 +930,11 @@ class Zomega:
         """Define the equality of Zomega classes."""
         if isinstance(nb, Zomega):
             return self.a == nb.a and self.b == nb.b and self.c == nb.c and self.d == nb.d
+        
         elif isinstance(nb, (int, np.integer)):
             return self.is_integer and self.d == nb
-        else:
-            try:
-                return complex(self) == complex(nb)
-            except Exception:
-                return False
+        
+        return False
 
     def __neg__(self) -> Zomega:
         """Define the negation of the ring element."""
@@ -861,8 +944,10 @@ class Zomega:
         """Define the summation operation for the Zomega class."""
         if isinstance(nb, Zomega):
             return Zomega(self.a + nb.a, self.b + nb.b, self.c + nb.c, self.d + nb.d)
+        
         elif isinstance(nb, (int, np.integer)):
             return Zomega(self.a, self.b, self.c, self.d + nb)
+        
         raise TypeError(f"Summation is not defined between Zomega and {type(nb).__name__}.")
 
     def __radd__(self, nb: int | Zomega) -> Zomega:
@@ -877,6 +962,7 @@ class Zomega:
         """Define the subtraction operation for the Zomega class."""
         if isinstance(nb, (Zomega, int, np.integer)):
             return self.__add__(-nb)
+        
         raise TypeError(f"Subtraction is not defined between Zomega and {type(nb).__name__}.")
 
     def __rsub__(self, nb: int | Zomega) -> Zomega:
@@ -909,11 +995,12 @@ class Zomega:
         """Define the in-place multiplication for the Zomega class."""
         return self.__mul__(nb)
 
-    def __pow__(self, power: int) -> Domega:
+    def __pow__(self, power: int) -> Zomega:
         """Define the power operation for the Zomega class. Exponent must be a positive integer."""
         # Check the input
         if not isinstance(power, (int, np.integer)):
             raise TypeError(f"Exponent must be an integer, but received {type(power).__name__}.")
+        
         elif power < 0:
             raise ValueError(f"Exponent must be a positive integer, but got {power}.")
         
@@ -979,8 +1066,10 @@ class Domega:
                     raise TypeError(
                         f"Tuples must take two integer values (num, denom), but received {input}."
                     )
+                
                 elif input[1] < 0:
                     raise ValueError(f"Denominator exponent must be positive but got {input[1]}.")
+                
             elif not isinstance(input, D):
                 raise TypeError(
                     f"Class arguments must be of type tuple[int, int] or D objects but received {type(input).__name__}."
@@ -1038,22 +1127,40 @@ class Domega:
 
     @classmethod
     def from_ring(cls, nb: int | complex | Ring) -> Domega:
-        """Convert a ring element to a Domega object."""
+        """
+        Convert a ring element to a Domega object. The conversion must be possible.
+        
+        Args:
+            nb (int | complex | Ring): Ring element to convert to Domega.
+
+        Returns:
+            Domega: Domega object converted from the ring element.
+
+        Raises:
+            ValueError: If the conversion is not possible.
+        """
         if isinstance(nb, Domega):
             return nb
+        
         elif isinstance(nb, Zomega):
             return cls((nb.a, 0), (nb.b, 0), (nb.c, 0), (nb.d, 0))
+        
         elif isinstance(nb, Dsqrt2):
             return cls(-nb.b, (0, 0), nb.b, nb.a)
+        
         elif isinstance(nb, Zsqrt2):
             return cls((-nb.b, 0), (0, 0), (nb.b, 0), (nb.a, 0))
+        
         elif isinstance(nb, D):
             return cls((0, 0), (0, 0), (0, 0), nb)
+        
         elif isinstance(nb, (int, np.integer)):
             return cls((0, 0), (0, 0), (0, 0), (nb, 0))
+        
         elif isinstance(nb, complex):
             if nb.real.is_integer() and nb.imag.is_integer():
                 return cls((0, 0), (int(nb.imag), 0), (0, 0), (int(nb.real), 0))
+            
         raise ValueError(f"Cannot convert {type(nb).__name__} to Domega.")
 
     def real(self) -> float:
@@ -1064,6 +1171,7 @@ class Domega:
         """
         sqrt_value = float(self.c - self.a) / SQRT2
         d = float(self.d)
+
         if math.isclose(d, -sqrt_value, rel_tol=1e-5):
             # Maintain high precision if the two values are close to each other.
             getcontext().prec = 50
@@ -1073,6 +1181,7 @@ class Domega:
                 / (Decimal(2) ** (self.c - self.a).denom)
                 / Decimal(2).sqrt()
             )
+        
         return d + sqrt_value
 
     def mp_real(self) -> float:
@@ -1087,6 +1196,7 @@ class Domega:
         """
         sqrt_value = float(self.c + self.a) / SQRT2
         b = float(self.b)
+
         if math.isclose(b, -sqrt_value, rel_tol=1e-5):
             # Maintain high precision if the two values are close to each other.
             getcontext().prec = 50
@@ -1096,6 +1206,7 @@ class Domega:
                 / (Decimal(2) ** (self.c + self.a).denom)
                 / Decimal(2).sqrt()
             )
+        
         return b + sqrt_value
 
     def mp_imag(self) -> float:
@@ -1143,6 +1254,7 @@ class Domega:
             delta: int = (coeffs[2] - coeffs[0]) >> 1
             coeffs = [alpha, beta, gamma, delta]
             sde -= 1
+
         return sde
 
     def complex_conjugate(self) -> Domega:
@@ -1165,6 +1277,7 @@ class Domega:
         """Define the string representation of the class."""
         sign: Callable[[D], str] = lambda coeff: " + " if coeff.num >= 0 else " - "
         value: Callable[[D], str] = lambda coeff: str(coeff) if coeff.num >= 0 else str(-coeff)
+
         return (
             str(self.a)
             + "\u03C93"
@@ -1190,13 +1303,11 @@ class Domega:
         """Define the equality of Domega classes."""
         if isinstance(nb, Domega):
             return self.a == nb.a and self.b == nb.b and self.c == nb.c and self.d == nb.d
+        
         elif isinstance(nb, (D, int, np.integer)):
             return self.is_d and self.d == nb
-        else:
-            try:
-                return complex(self) == complex(nb)
-            except Exception:
-                return False
+        
+        return False
 
     def __neg__(self) -> Domega:
         """Define the negation of the ring element."""
@@ -1206,8 +1317,10 @@ class Domega:
         """Define the summation operation for the Domega class."""
         if isinstance(nb, Domega):
             return Domega(self.a + nb.a, self.b + nb.b, self.c + nb.c, self.d + nb.d)
+        
         elif isinstance(nb, (D, int, np.integer)):
             return Domega(self.a, self.b, self.c, self.d + nb)
+        
         raise TypeError(f"Summation is not defined between Domega and {type(nb).__name__}.")
 
     def __radd__(self, nb: int | D | Domega) -> Domega:
@@ -1222,6 +1335,7 @@ class Domega:
         """Define the subtraction operation for the Domega class."""
         if isinstance(nb, (Domega, D, int, np.integer)):
             return self.__add__(-nb)
+        
         raise TypeError(f"Subtraction is not defined between Domega and {type(nb).__name__}.")
 
     def __rsub__(self, nb: int | D | Domega) -> Domega:
@@ -1259,6 +1373,7 @@ class Domega:
         # Check the input
         if not isinstance(power, (int, np.integer)):
             raise TypeError(f"Exponent must be an integer, but received {type(power).__name__}.")
+        
         if power < 0:
             raise ValueError(f"Expected exponent to be a positive integer, but got {power}.")
         
