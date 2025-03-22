@@ -37,6 +37,11 @@ def initialization(epsilon: float, theta: float):
     return E, p_p, bbox_1, bbox_2
 
 def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
+    exponent = round(2 * theta / math.pi)
+    if np.isclose(2 * theta / math.pi, exponent):
+        T = np.array([[Domega(D(1, 0), D(0, 0), D(0, 0), D(0, 0)), Domega.from_ring(0)], [Domega.from_ring(0), Domega(D(0, 0), D(0, 0), D(1, 0), D(0, 0))]], dtype=object)
+        M = T ** exponent
+        return M
     E, p_p, bbox_1, bbox_2 = initialization(epsilon, theta)
     I = np.array([[mp.mpf(1), mp.mpf(0)], 
               [mp.mpf(0), mp.mpf(1)]], dtype=object)
@@ -65,17 +70,19 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
                 u_conj_vec = np.array([Dsqrt2(u_conj.d, D(1, 1) * (u_conj.c - u_conj.a)), Dsqrt2(u_conj.b, D(1, 1) * (u_conj.c + u_conj.a))])
                 u_float = np.array([u_vec[0].mpfloat(), u_vec[1].mpfloat()])
                 u_conj_float = np.array([u_conj_vec[0].mpfloat(), u_conj_vec[1].mpfloat()])
-                if is_inside_ellipse(u_float, E, p_p) and is_inside_ellipse(u_conj_float, I, np.zeros(2)):
-                    if np.dot(u_float, z) < 1 and np.dot(u_float, z) > mp.mpf(1) - mp.mpf(0.5 * epsilon**2):
-                        print("Found candidate")
-                        xi = 1 - u.complex_conjugate() * u
-                        # t = diop.solve_xi_eq_ttdag_in_d_cpp(Dsqrt2.from_ring(xi))
-                        t = solve_xi_eq_ttdag_in_d(Dsqrt2.from_ring(xi))
-                        if t is None:
-                            print("Failed")
-                        else:
-                            solution = True
-                            M = np.array([[u, -t.complex_conjugate()], [t, u.complex_conjugate()]])
-                            return M
+                dot = np.dot(u_float, z)
+                delta = mp.mpf(1) - mp.mpf(0.5 * epsilon**2)
+                if dot < 1 and dot > delta and is_inside_ellipse(u_conj_float, I, np.zeros(2)):
+                    print("Found candidate")
+                    xi = 1 - u.complex_conjugate() * u
+                    # t = diop.solve_xi_eq_ttdag_in_d_cpp(Dsqrt2.from_ring(xi))
+                    t = solve_xi_eq_ttdag_in_d(Dsqrt2.from_ring(xi))
+                    if t is None:
+                        print("Failed")
+                    else:
+                        solution = True
+                        print(Dsqrt2.from_ring(xi))
+                        M = np.array([[u, -t.complex_conjugate()], [t, u.complex_conjugate()]])
+                        return M
         print("Denominator exponent: ", n)
         n += 1
