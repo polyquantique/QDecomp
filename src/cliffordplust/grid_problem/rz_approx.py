@@ -19,69 +19,120 @@ import mpmath as mp
 from cliffordplust.grid_problem.grid_problem import find_points, find_grid_operator
 from cliffordplust.grid_problem.grid_algorithms import solve_grid_problem_2d
 from cliffordplust.rings.rings import *
-# import cliffordplust.diophantine.diophantine_equation_cpp as diop
 from cliffordplust.diophantine.diophantine_equation import *
 from cliffordplust.grid_problem.steiner_ellipse import *
 
 def initialization(epsilon: float, theta: float):
+    """
+    Initializes important parameters necessary to find the appropriate Rz approximation.
+
+    This function calculates points based on the angle and the error provided, finds the 
+    necessary ellipse, and determines grid operators and bounding boxes for further 
+    computations.
+
+    Args:
+        epsilon (float): Maximum allowable error.
+        theta (float): Angle of the z-rotational gate.
+
+    Returns:
+        tuple: A tuple containing:
+            - E (mp.matrix): The matrix representation of the bounding ellipse.
+            - p_p (list): A list of points defining the center of the ellipse.
+            - bbox_1 (tuple): Bounding box coordinates for the transformed ellipse.
+            - bbox_2 (tuple): Bounding box coordinates for the transformed unit disk.
+    """
+    # Initializes the ellipses using the points
     p1, p2, p3 = find_points(epsilon, theta)
     E, p_p = steiner_ellipse_def(p1, p2, p3)
     I = np.array([[mp.mpf(1), mp.mpf(0)], 
               [mp.mpf(0), mp.mpf(1)]], dtype=object)
+    
+    # Find the grid operator using the ellipses
     inv_gop, gop = find_grid_operator(E, I)
     inv_gop_conj = inv_gop.conjugate()
+
+    # Transform the ellipse using the grid operator
     mod_E = (inv_gop.dag()).as_mpmath() @ E @ inv_gop.as_mpmath()
     mod_D = (inv_gop_conj.dag()).as_mpmath() @ I @ inv_gop_conj.as_mpmath()
+
+    # Finds the bounding boxes
     bbox_1 = ellipse_bbox(mod_E, p_p)
     bbox_2 = ellipse_bbox(mod_D, [mp.mpf(0), mp.mpf(0)])
-    return E, p_p, bbox_1, bbox_2
+
+    return E, p_p, I, bbox_1, bbox_2
 
 def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
+    """
+    Finds the z-rotational approximation up to an error \u03B5. 
+
+    This function finds an approximation of a z-rotational inside the Clifford+T subset. 
+
+    Args:
+        epsilon (float): Maximum allowable error.
+        theta (float): Angle of the z-rotational gate.
+
+    Returns:
+        M (np.ndarray): Approximation of a z-rotational inside the Clifford+T subset
+    """
+
+    # Checks if the angle is trivial
     exponent = round(2 * theta / math.pi)
     if np.isclose(2 * theta / math.pi, exponent):
         T = np.array([[Domega(D(1, 0), D(0, 0), D(0, 0), D(0, 0)), Domega.from_ring(0)], [Domega.from_ring(0), Domega(D(0, 0), D(0, 0), D(1, 0), D(0, 0))]], dtype=object)
         M = T ** exponent
         return M
-    E, p_p, bbox_1, bbox_2 = initialization(epsilon, theta)
-    I = np.array([[mp.mpf(1), mp.mpf(0)], 
-              [mp.mpf(0), mp.mpf(1)]], dtype=object)
+    
+    # Run the initialization function
+    E, p_p, I, bbox_1, bbox_2 = initialization(epsilon, theta)
+
+    # Initialize the exact solution vector in order to evaluate the error later
     z = np.array([mp.cos(theta / 2), -mp.sin(theta / 2)])
     n = 0
     solution = False
     while solution == False:
+        # Varies if odd or even
         odd = n % 2
         if odd:
             const = Dsqrt2(D(0, 0), D(1, int((n + 1) / 2)))
         else:
             const = D(1, int(n / 2))
+        
+        # Initialize the bounding boxes using n
         A = mp.sqrt(2 ** n) * bbox_1
         if odd:
             bbox_2_flip = np.array([[bbox_2[0, 1], bbox_2[0, 0]], [bbox_2[1, 1], bbox_2[1, 0]]])
             B = -mp.sqrt(2 ** n) * bbox_2_flip
         else: 
             B = mp.sqrt(2 ** n) * bbox_2
-        U = solve_grid_problem_2d(A.tolist(), B.tolist())
-        print(f"Found {len(U)} solutions")
-        for candidate in U:
-            if n > 0 and (abs(candidate.a - candidate.c) % 2 == 1 or abs(candidate.b - candidate.d) % 2 ==1):
-                u = Domega.from_ring(candidate) * Domega.from_ring(const)
-                u_vec = np.array([Dsqrt2(u.d, D(1, 1) * (u.c - u.a)), Dsqrt2(u.b, D(1, 1) * (u.c + u.a))])
+        
+        # For every solution found
+        for cand in solve_grid_problem_2d(A.tolist(), B.tolist()):
+            # Ensure the solution was not already found previously
+            is_double = abs(cand.a - cand.c) % 2 == 1 or abs(cand.b - cand.d) % 2 ==1
+            if n > 0 and is_double:
+                # Find u as Domega and as mpfloat
+                u = Domega.from_ring(cand) * Domega.from_ring(const)
                 u_conj = u.sqrt2_conjugate()
-                u_conj_vec = np.array([Dsqrt2(u_conj.d, D(1, 1) * (u_conj.c - u_conj.a)), Dsqrt2(u_conj.b, D(1, 1) * (u_conj.c + u_conj.a))])
-                u_float = np.array([u_vec[0].mpfloat(), u_vec[1].mpfloat()])
-                u_conj_float = np.array([u_conj_vec[0].mpfloat(), u_conj_vec[1].mpfloat()])
+                u_float = np.array([u.mp_real(), u.mp_imag()])
+                u_conj_float = np.array([u_conj.mp_real(), u_conj.mp_imag()])
+
+                # Compute the dot product and the lower bound
                 dot = np.dot(u_float, z)
                 delta = mp.mpf(1) - mp.mpf(0.5 * epsilon**2)
+
+                # If the solution u is valid
                 if dot < 1 and dot > delta and is_inside_ellipse(u_conj_float, I, np.zeros(2)):
                     print("Found candidate")
+
+                    # Run the diophantine module
                     xi = 1 - u.complex_conjugate() * u
-                    # t = diop.solve_xi_eq_ttdag_in_d_cpp(Dsqrt2.from_ring(xi))
                     t = solve_xi_eq_ttdag_in_d(Dsqrt2.from_ring(xi))
                     if t is None:
+                        # No associated t values exists
                         print("Failed")
                     else:
+                        # The solution is found and returned!
                         solution = True
-                        print(Dsqrt2.from_ring(xi))
                         M = np.array([[u, -t.complex_conjugate()], [t, u.complex_conjugate()]])
                         return M
         print("Denominator exponent: ", n)

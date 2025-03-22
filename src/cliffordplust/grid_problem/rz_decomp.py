@@ -36,7 +36,7 @@ def rz_decomp(epsilon: float, theta: float):
     duration = t2 - t1
     return Sequence, Error, duration
 
-Sequence, Error, duration = rz_decomp(1e-9, 4 * math.pi / 4)
+Sequence, Error, duration = rz_decomp(1e-9, 4 * math.pi / 3)
 print("Sequence: ", Sequence)
 print("Error: ", Error)
 print("time: ", duration)
