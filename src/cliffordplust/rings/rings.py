@@ -403,26 +403,6 @@ class Zsqrt2:
     def __imul__(self, nb: int | Zsqrt2) -> Zsqrt2:
         """Define in-place multiplication for the Zsqrt2 class."""
         return self.__mul__(nb)
-
-    # def __pow__(self, n: int) -> Zsqrt2:
-    #     """Define the power operation for the Zsqrt2 class.
-
-    #     Computed using the binomial theorem.
-    #     Exponent must be a positive integer.
-    #     """
-    #     if not isinstance(n, (int, np.integer)):
-    #         raise TypeError(f"Expected power to be an integer, but got {type(n).__name__}.")
-    #     elif n < 0:
-    #         raise ValueError(f"Expected power to be a positive integer, but got {n}.")
-
-    #     a: int = 0
-    #     b: int = 0
-    #     for k in range(n + 1):
-    #         if k % 2 == 0:
-    #             a += math.comb(n, k) * self.a ** (n - k) * self.b**k * 2 ** (k // 2)
-    #         else:
-    #             b += math.comb(n, k) * self.a ** (n - k) * self.b**k * 2 ** (k // 2)
-    #     return Zsqrt2(a, b)
     
     def __pow__(self, n: int) -> Domega:
         """Define the power operation for the Zsqrt2 class. Exponent must be a positive integer."""
@@ -651,26 +631,6 @@ class Dsqrt2:
     def __imul__(self, nb: Dsqrt2 | D | int) -> Dsqrt2:
         """Define in-place multiplication operation for the Dsqrt2 class."""
         return self.__mul__(nb)
-
-    # def __pow__(self, n: int) -> Dsqrt2:
-    #     """Define the power operation for the Dsqrt2 class.
-
-    #     Computed using the binomial theorem.
-    #     Exponent must be a positive integer.
-    #     """
-    #     if not isinstance(n, (int, np.integer)):
-    #         raise TypeError(f"Expected power to be an integer, but got {type(n).__name__}.")
-    #     elif n < 0:
-    #         raise ValueError(f"Expected power to be a positive integer, but got {n}.")
-
-    #     a: D = D(0, 0)
-    #     b: D = D(0, 0)
-    #     for k in range(n + 1):
-    #         if k % 2 == 0:
-    #             a += math.comb(n, k) * self.a ** (n - k) * self.b**k * 2 ** (k // 2)
-    #         else:
-    #             b += math.comb(n, k) * self.a ** (n - k) * self.b**k * 2 ** (k // 2)
-    #     return Dsqrt2(a, b)
     
     def __pow__(self, n: int) -> Domega:
         """Define the power operation for the Zsqrt2 class. Exponent must be a positive integer."""
@@ -948,35 +908,6 @@ class Zomega:
     def __imul__(self, nb: int | Zomega) -> Zomega:
         """Define the in-place multiplication for the Zomega class."""
         return self.__mul__(nb)
-
-    # def __pow__(self, power: int) -> Zomega:
-    #     """Define the power operation for the Zomega class.
-
-    #     Exponent must be a positive integer. Uses the multinomial theorem.
-    #     """
-    #     if not isinstance(power, (int, np.integer)):
-    #         raise TypeError(f"Exponent must be an integer, but received {type(power).__name__}.")
-    #     elif power < 0:
-    #         raise ValueError(f"Exponent must be a positive integer, but got {power}.")
-
-    #     coeff: list[int] = [0, 0, 0, 0]
-    #     for k1 in range(power + 1):
-    #         for k2 in range(power + 1 - k1):
-    #             for k3 in range(power + 1 - k1 - k2):
-    #                 k4: int = power - (k1 + k2 + k3)
-    #                 exponent: int = 3 * k1 + 2 * k2 + k3
-    #                 multinomial_coefficient: int = math.factorial(power) // math.prod(
-    #                     map(math.factorial, (k1, k2, k3, k4))
-    #                 )
-    #                 coeff[3 - exponent % 4] += (
-    #                     (-1) ** (exponent // 4)
-    #                     * self.a**k1
-    #                     * self.b**k2
-    #                     * self.c**k3
-    #                     * self.d**k4
-    #                     * multinomial_coefficient
-    #                 )
-    #     return Zomega(coeff[0], coeff[1], coeff[2], coeff[3])
 
     def __pow__(self, power: int) -> Domega:
         """Define the power operation for the Zomega class. Exponent must be a positive integer."""
@@ -1323,35 +1254,6 @@ class Domega:
         """Define the in-place multiplication for the Domega class."""
         return self.__mul__(nb)
 
-    # def __pow__(self, power: int) -> Domega:
-    #     """Define the power operation for the Domega class.
-
-    #     Exponent must be a positive integers. Uses the multinomial theorem.
-    #     """
-    #     if not isinstance(power, (int, np.integer)):
-    #         raise TypeError(f"Exponent must be an integer, but received {type(power).__name__}.")
-    #     if power < 0:
-    #         raise ValueError(f"Expected exponent to be a positive integer, but got {power}.")
-
-    #     coeff: list[D] = [D(0, 0), D(0, 0), D(0, 0), D(0, 0)]
-    #     for k1 in range(power + 1):
-    #         for k2 in range(power + 1 - k1):
-    #             for k3 in range(power + 1 - k1 - k2):
-    #                 k4: int = power - (k1 + k2 + k3)
-    #                 exponent: int = 3 * k1 + 2 * k2 + k3
-    #                 multinomial_coefficient: int = math.factorial(power) // math.prod(
-    #                     map(math.factorial, (k1, k2, k3, k4))
-    #                 )
-    #                 coeff[3 - exponent % 4] += (
-    #                     (-1) ** (exponent // 4)
-    #                     * self.a**k1
-    #                     * self.b**k2
-    #                     * self.c**k3
-    #                     * self.d**k4
-    #                     * multinomial_coefficient
-    #                 )
-    #     return Domega(coeff[0], coeff[1], coeff[2], coeff[3])
-    
     def __pow__(self, power: int) -> Domega:
         """Define the power operation for the Domega class. Exponent must be a positive integer."""
         # Check the input
