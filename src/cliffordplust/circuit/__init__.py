@@ -13,4 +13,3 @@
 #    limitations under the License.
 
 from cliffordplust.circuit.qgate import QGate
-from cliffordplust.circuit.qcircuit import QCircuit
