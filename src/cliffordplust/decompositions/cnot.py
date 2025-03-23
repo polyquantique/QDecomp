@@ -46,14 +46,26 @@ from __future__ import annotations
 from typing import NamedTuple
 
 import numpy as np
-from cliffordplust.circuit import QGate
-from cliffordplust.decompositions import Circuit, Gates
 from numpy.typing import NDArray
+
+from cliffordplust import gates
+from cliffordplust.circuit import QGate
+from cliffordplust.decompositions.gate_decompositions import common_decompositions
+
+__all__ = [
+    "kronecker_decomposition",
+    "so4_decomposition",
+    "o4_det_minus1_decomposition",
+    "canonical_decomposition",
+    "u4_decomposition",
+    "cnot_decomposition",
+    "known_decomposition",
+]
 
 SQRT2 = np.sqrt(2)
 
 # The magic gate is a 4 x 4 matrix used in many decompositions of quantum gates.
-MAGIC = Gates.MAGIC
+MAGIC = gates.MAGIC
 MAGIC_DAG = MAGIC.T.conj()
 
 
@@ -206,12 +218,12 @@ def so4_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
 
     # List of gates to return
     decomposition_circuit = (
-        Circuit.decompositions("MAGIC", q0, q1)
+        common_decompositions("MAGIC", q0, q1)
         + [
             QGate.from_matrix(a, name="A", matrix_target=(q0,)),
             QGate.from_matrix(b, name="B", matrix_target=(q1,)),
         ]
-        + Circuit.decompositions("MAGIC_DAG", q0, q1)
+        + common_decompositions("MAGIC_DAG", q0, q1)
     )
 
     return decomposition_circuit
@@ -265,21 +277,21 @@ def o4_det_minus1_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
         )
 
     # Decompose the matrix
-    a_tensor_b = MAGIC @ matrix @ MAGIC_DAG @ Gates.SWAP
+    a_tensor_b = MAGIC @ matrix @ MAGIC_DAG @ gates.SWAP
 
     # Extract A and B
     a, b = kronecker_decomposition(a_tensor_b)
 
     # List of gates to return
     decomposition_circuit = (
-        Circuit.decompositions("MAGIC", q0, q1)[:-1]
+        common_decompositions("MAGIC", q0, q1)[:-1]
         + [
             QGate.from_tuple(("CNOT", (q0, q1), 0)),
             QGate.from_tuple(("CNOT", (q1, q0), 0)),
             QGate.from_matrix(a, name="A", matrix_target=(q0,)),
             QGate.from_matrix(b, name="B", matrix_target=(q1,)),
         ]
-        + Circuit.decompositions("MAGIC_DAG", q0, q1)
+        + common_decompositions("MAGIC_DAG", q0, q1)
     )
 
     return decomposition_circuit
@@ -456,18 +468,18 @@ def u4_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
     # Extract A1, A2, B1 and B2
     a1, a2 = kronecker_decomposition(a_matrix)
     b1, b2 = kronecker_decomposition(b_matrix)
-    a2 = Gates.S @ a2
-    b1 = b1 @ Gates.S.conj()
+    a2 = gates.S @ a2
+    b1 = b1 @ gates.S.conj()
 
     # List of gates to return
     decomposition_circuit = [
         QGate.from_matrix(a1, name="A1", matrix_target=(q0,)),
         QGate.from_matrix(a2, name="A2", matrix_target=(q1,)),
         QGate.from_tuple(("CNOT", (q1, q0), 0)),
-        QGate.from_matrix(Gates.power_pauli_z(tz - 0.5), name="PZ", matrix_target=(q0,)),
-        QGate.from_matrix(Gates.power_pauli_y(tx - 0.5), name="PY", matrix_target=(q1,)),
+        QGate.from_matrix(gates.power_pauli_z(tz - 0.5), name="PZ", matrix_target=(q0,)),
+        QGate.from_matrix(gates.power_pauli_y(tx - 0.5), name="PY", matrix_target=(q1,)),
         QGate.from_tuple(("CNOT", (q0, q1), 0)),
-        QGate.from_matrix(Gates.power_pauli_y(0.5 - ty), name="PY", matrix_target=(q1,)),
+        QGate.from_matrix(gates.power_pauli_y(0.5 - ty), name="PY", matrix_target=(q1,)),
         QGate.from_tuple(("CNOT", (q1, q0), 0)),
         QGate.from_matrix(b1, name="B1", matrix_target=(q0,)),
         QGate.from_matrix(b2, name="B2", matrix_target=(q1,)),
@@ -517,38 +529,38 @@ def known_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate] | None:
     if (matrix == np.eye(4)).all():  # Identity
         return []
 
-    if (matrix == Gates.CNOT).all():  # CNOT
+    if (matrix == gates.CNOT).all():  # CNOT
         return [QGate.from_tuple(("CNOT", (q0, q1), 0))]
 
-    if (matrix == Gates.CNOT1).all():  # CNOT (flipped)
+    if (matrix == gates.CNOT1).all():  # CNOT (flipped)
         return [QGate.from_tuple(("CNOT", (q1, q0), 0))]
 
-    if (matrix == Gates.DCNOT).all():  # DCNOT (CNOT, then CNOT flipped)
-        return Circuit.decompositions("DCNOT", q0, q1)
+    if (matrix == gates.DCNOT).all():  # DCNOT (CNOT, then CNOT flipped)
+        return common_decompositions("DCNOT", q0, q1)
 
-    if (matrix == Gates.INV_DCNOT).all():  # INV_DCNOT (CNOT flipped, then CNOT)
-        return Circuit.decompositions("INV_DCNOT", q0, q1)
+    if (matrix == gates.INV_DCNOT).all():  # INV_DCNOT (CNOT flipped, then CNOT)
+        return common_decompositions("INV_DCNOT", q0, q1)
 
-    if (matrix == Gates.SWAP).all():  # SWAP
-        return Circuit.decompositions("SWAP", q0, q1)
+    if (matrix == gates.SWAP).all():  # SWAP
+        return common_decompositions("SWAP", q0, q1)
 
-    if (matrix == Gates.ISWAP).all():  # ISWAP
-        return Circuit.decompositions("ISWAP", q0, q1)
+    if (matrix == gates.ISWAP).all():  # ISWAP
+        return common_decompositions("ISWAP", q0, q1)
 
-    if (matrix == Gates.CY).all():  # Controlled Y
-        return Circuit.decompositions("CY", q0, q1)
+    if (matrix == gates.CY).all():  # Controlled Y
+        return common_decompositions("CY", q0, q1)
 
-    if (matrix == Gates.CZ).all():  # Controlled Z
-        return Circuit.decompositions("CZ", q0, q1)
+    if (matrix == gates.CZ).all():  # Controlled Z
+        return common_decompositions("CZ", q0, q1)
 
-    if (matrix == Gates.CH).all():  # Controlled Hadamard
-        return Circuit.decompositions("CH", q0, q1)
+    if (matrix == gates.CH).all():  # Controlled Hadamard
+        return common_decompositions("CH", q0, q1)
 
-    if (matrix == Gates.MAGIC).all():  # Magic gate
-        return Circuit.decompositions("MAGIC", q0, q1)
+    if (matrix == gates.MAGIC).all():  # Magic gate
+        return common_decompositions("MAGIC", q0, q1)
 
-    if (matrix == Gates.MAGIC.conj().T).all():  # Magic gate (Hermitian conjugate)
-        return Circuit.decompositions("MAGIC_DAG", q0, q1)
+    if (matrix == gates.MAGIC.conj().T).all():  # Magic gate (Hermitian conjugate)
+        return common_decompositions("MAGIC_DAG", q0, q1)
 
     return None
 
