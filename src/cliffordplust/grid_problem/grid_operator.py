@@ -153,7 +153,8 @@ class Grid_Operator:
     def __mul__(self, other: int | D | Zsqrt2 | Dsqrt2 | Grid_Operator) -> Grid_Operator:
         """Define the multiplication operation of the grid operator"""
         if isinstance(other, (int, D, Zsqrt2, Dsqrt2)):
-            return Grid_Operator([other * self.a, other * self.b, other * self.c, other * self.d])
+            num = Dsqrt2.from_ring(other)
+            return Grid_Operator([num * self.a, num * self.b, num * self.c, num * self.d])
         elif isinstance(other, Grid_Operator):
             G = self.G
             G_p = other.G

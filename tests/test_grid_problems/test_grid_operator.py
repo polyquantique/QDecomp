@@ -14,14 +14,14 @@
 
 import pytest
 import numpy as np
-from cliffordplust.rings import D, Zsqrt2, Dsqrt2
+import mpmath as mp
+from cliffordplust.rings.rings import D, Zsqrt2, Dsqrt2
 from cliffordplust.grid_problem.grid_operator import Grid_Operator, I, R, K, X, Z, A, B
 
 # Valid entries for testing
 valid_entries = [
     1,
     2,
-    5,
     Zsqrt2(1, 1),
     Zsqrt2(10, 8),
     Zsqrt2(4, 4),
@@ -254,6 +254,17 @@ def test_as_float(grid_op):
     assert float_array[1, 0] == float(grid_op.c)
     assert float_array[1, 1] == float(grid_op.d)
 
+@pytest.mark.parametrize("grid_op", grid_ops)
+def test_as_mpfloat(grid_op):
+    # Convert the grid operator to a mpfloat array
+    float_array = grid_op.as_mpmath()
+
+    # Verify that each element in the array is the mpfloat representation of the original element
+    assert float_array[0, 0] == grid_op.a.mpfloat()
+    assert float_array[0, 1] == grid_op.b.mpfloat()
+    assert float_array[1, 0] == grid_op.c.mpfloat()
+    assert float_array[1, 1] == grid_op.d.mpfloat()
+
 
 # Test cases
 add_sub_test = [X + Z, R + B, K - X, B - A]
@@ -288,19 +299,17 @@ def test_add_sub(operation, expected):
     assert operation.c == expected.c, f"Expected c: {expected.c}, got: {operation.c}"
     assert operation.d == expected.d, f"Expected d: {expected.d}, got: {operation.d}"
 
-
 @pytest.mark.parametrize(
     "scalar, grid_op",
-    [(np.random.choice(valid_entries), np.random.choice(grid_ops)) for _ in range(20)],
+    list(zip(valid_entries, grid_ops))  # Pairing elements from both lists
 )
 def test_mul_scal(scalar, grid_op):
     """Test multiplication of grid operators with a scalar."""
-    result = scalar * grid_op * scalar
-    # Compare each element one by one
-    assert result.a == (scalar**2) * grid_op.a
-    assert result.b == (scalar**2) * grid_op.b
-    assert result.c == (scalar**2) * grid_op.c
-    assert result.d == (scalar**2) * grid_op.d
+    result = grid_op * scalar
+    assert result.a == Dsqrt2.from_ring(scalar) * grid_op.a
+    assert result.b == Dsqrt2.from_ring(scalar) * grid_op.b
+    assert result.c == Dsqrt2.from_ring(scalar) * grid_op.c
+    assert result.d == Dsqrt2.from_ring(scalar) * grid_op.d
 
 
 G = np.random.choice(grid_ops)

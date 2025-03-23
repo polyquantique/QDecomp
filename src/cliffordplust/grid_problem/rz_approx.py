@@ -12,6 +12,16 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+"""
+This file runs the entire z-rotational approximation algorithm to find the associated sequence. 
+
+It contains the initialization function, which is only to visualy lighten the code and the 
+z_rotational_approximation function which is the main function of this file. Given an angle and
+an error, it finds an approximation of the associated z-rotation by solving for potential values
+of u, and then checking if there exists a valid associated value for t. When u and t are found, 
+it returns the Clifford+T approximation of the z-rotation. 
+"""
+
 import numpy as np
 import math
 import mpmath as mp
@@ -73,12 +83,33 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
 
     Returns:
         M (np.ndarray): Approximation of a z-rotational inside the Clifford+T subset
+
+    Raises:
+        ValueError: If theta is not in the range [0, 4\u03C0].
+        ValueError: If epsilon is not less than 0.5.
+        ValueError: If theta or epsilon cannot be converted to floats.
+
     """
 
+    # Attempt to convert the input parameters to floats
+    try:
+        theta = float(theta)
+        epsilon = float(epsilon)
+    except (ValueError, TypeError):
+        raise TypeError("Both theta and epsilon must be convertible to floats.")
+    
+    # Verify the value of theta
+    if theta > 4 * math.pi or theta < 0:
+        raise ValueError("The value of theta must be between 0 and 4\u03C0.")
+
+    # Verify the value of epsilon
+    if epsilon >= 0.5:
+        raise ValueError("The maximal allowable error is 0.5.")
+    
     # Checks if the angle is trivial
     exponent = round(2 * theta / math.pi)
     if np.isclose(2 * theta / math.pi, exponent):
-        T = np.array([[Domega(D(1, 0), D(0, 0), D(0, 0), D(0, 0)), Domega.from_ring(0)], [Domega.from_ring(0), Domega(D(0, 0), D(0, 0), D(1, 0), D(0, 0))]], dtype=object)
+        T = np.array([[Domega(-D(1, 0), D(0, 0), D(0, 0), D(0, 0)), Domega.from_ring(0)], [Domega.from_ring(0), Domega(D(0, 0), D(0, 0), D(1, 0), D(0, 0))]], dtype=object)
         M = T ** exponent
         return M
     

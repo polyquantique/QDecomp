@@ -12,16 +12,19 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+import pytest
 import numpy as np
 import math
 import mpmath as mp
-import time
 
-from cliffordplust.grid_problem.rz_approx import z_rotational_approximation
-from cliffordplust.exact_synthesis.exact_synthesis import exact_synthesis_alg
+from cliffordplust.grid_problem.rz_approx import *
 
-def rz_decomp(epsilon: float, theta: float):
-    t1 = time.time()
+errors = [1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6]
+angles = [2 * math.pi / 3, math.pi / 128, 6, 3 * math.pi / 2, 2 * math.pi]
+
+@pytest.mark.parametrize("theta", angles)
+@pytest.mark.parametrize("epsilon", errors)
+def test_rz_approx(epsilon, theta):
     dps = int(-math.log10(epsilon**2)) + 8
     with mp.workdps(dps):
         U = z_rotational_approximation(epsilon, theta)
@@ -31,12 +34,23 @@ def rz_decomp(epsilon: float, theta: float):
         [0, math.cos(theta / 2) + 1.j * math.sin(theta / 2)]
     ])
     Error = op_norm = max(np.linalg.svd(U_complex - rz, compute_uv=False))
-    Sequence = exact_synthesis_alg(U)
-    t2 = time.time()
-    duration = t2 - t1
-    return Sequence, Error, duration
+    assert Error < epsilon
 
-Sequence, Error, duration = rz_decomp(1e-9, 4 * math.pi / 3)
-print("Sequence: ", Sequence)
-print("Error: ", Error)
-print("time: ", duration)
+def test_invalid_theta_type():
+    with pytest.raises(TypeError):
+        z_rotational_approximation(0.1, "invalid_theta")
+
+def test_invalid_epsilon_type():
+    with pytest.raises(TypeError):
+        z_rotational_approximation("invalid_epsilon", 1.0)
+
+def test_theta_out_of_range():
+    with pytest.raises(ValueError):
+        z_rotational_approximation(0.1, 5 * math.pi)  # theta > 4π
+
+    with pytest.raises(ValueError):
+        z_rotational_approximation(0.1, -1)  # theta < 0
+
+def test_epsilon_too_large():
+    with pytest.raises(ValueError):
+        z_rotational_approximation(0.6, math.pi)  # epsilon >= 0.5
