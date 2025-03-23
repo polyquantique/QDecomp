@@ -19,8 +19,9 @@ import math
 import numpy as np
 import pytest
 from cliffordplust.circuit import QGate
-from cliffordplust.decompositions import (Circuit, Gates,
-                                          canonical_decomposition,
+from cliffordplust import gates
+from cliffordplust.decompositions.gate_decompositions import common_decompositions
+from cliffordplust.decompositions.cnot import (canonical_decomposition,
                                           cnot_decomposition, is_hermitian,
                                           is_orthogonal, is_special,
                                           is_unitary, known_decomposition,
@@ -231,11 +232,11 @@ def test_o4_det_minus1_decomposition():
                     matrix_target=(0, 1),
                 )
             case 4:
-                U = Gates.CNOT
+                U = gates.CNOT
             case 5:
-                U = Gates.CZ
+                U = gates.CZ
             case 6:
-                U = Gates.SWAP
+                U = gates.SWAP
             case _:
                 U = ortho_group(dim=4, seed=i).rvs()
                 if np.isclose(np.linalg.det(U), 1):
@@ -290,17 +291,17 @@ def test_o4_det_minus1_decomposition_errors():
     list(unitary_group(dim=4, seed=42).rvs(10))
     + list(ortho_group(dim=4, seed=42).rvs(10))
     + [
-        Gates.SWAP,  # SWAP gate
-        Gates.CNOT,  # CNOT gate
-        Gates.CZ,  # CZ gate
-        Gates.CY,  # CY gate
-        Gates.CH,  # CH gate
-        Gates.ISWAP,  # iSWAP gate
-        Gates.DCNOT,  # DCNOT gate
+        gates.SWAP,  # SWAP gate
+        gates.CNOT,  # CNOT gate
+        gates.CZ,  # CZ gate
+        gates.CY,  # CY gate
+        gates.CH,  # CH gate
+        gates.ISWAP,  # iSWAP gate
+        gates.DCNOT,  # DCNOT gate
         np.eye(4),  # Identity gate
-        Gates.MAGIC,  # Magic gate
-        np.kron(Gates.power_pauli_y(0.39451), Gates.power_pauli_z(-0.22)),  # Parametric gate
-        Gates.canonical_gate(0.1, 0.2, 0.3),  # Canonical gate
+        gates.MAGIC,  # Magic gate
+        np.kron(gates.power_pauli_y(0.39451), gates.power_pauli_z(-0.22)),  # Parametric gate
+        gates.canonical_gate(0.1, 0.2, 0.3),  # Canonical gate
     ],
 )
 def test_canonical_decomposition(U):
@@ -311,7 +312,7 @@ def test_canonical_decomposition(U):
 
     # Assert the reconstructed matrix is equal to the original matrix
     assert np.allclose(
-        U, B @ Gates.canonical_gate(t[0], t[1], t[2]) @ A * np.exp(1.0j * alpha), rtol=1e-8
+        U, B @ gates.canonical_gate(t[0], t[1], t[2]) @ A * np.exp(1.0j * alpha), rtol=1e-8
     )
 
     # Assert that the matrices A and B have an exact Kroncker decomposition
@@ -353,17 +354,17 @@ def test_u4_decomposition():
             case 1:
                 U = np.eye(4)
             case 2:
-                U = Gates.CNOT
+                U = gates.CNOT
             case 3:
-                U = Gates.INV_DCNOT
+                U = gates.INV_DCNOT
             case 4:
-                U = Gates.ISWAP
+                U = gates.ISWAP
             case 5:
-                U = QGate.from_matrix(Gates.MAGIC, matrix_target=(0, 1))
+                U = QGate.from_matrix(gates.MAGIC, matrix_target=(0, 1))
             case 6:
-                U = np.kron(Gates.T, Gates.power_pauli_y(0.39451))
+                U = np.kron(gates.T, gates.power_pauli_y(0.39451))
             case 7:
-                U = Gates.canonical_gate(0.1, 0.2, 0.3)
+                U = gates.canonical_gate(0.1, 0.2, 0.3)
             case _:  # Randomly generated unitary matrix
                 U = unitary_group(dim=4, seed=i).rvs()
 
@@ -403,20 +404,20 @@ def test_u4_decomposition_errors():
     "matrix, expected",
     [
         (np.eye(4), []),
-        (Gates.CNOT, [QGate.from_tuple(("CNOT", (0, 1), 0))]),
-        (Gates.CNOT1, [QGate.from_tuple(("CNOT", (1, 0), 0))]),
-        (Gates.DCNOT, Circuit.decompositions("DCNOT", 0, 1)),
-        (Gates.INV_DCNOT, Circuit.decompositions("INV_DCNOT", 0, 1)),
+        (gates.CNOT, [QGate.from_tuple(("CNOT", (0, 1), 0))]),
+        (gates.CNOT1, [QGate.from_tuple(("CNOT", (1, 0), 0))]),
+        (gates.DCNOT, common_decompositions("DCNOT", 0, 1)),
+        (gates.INV_DCNOT, common_decompositions("INV_DCNOT", 0, 1)),
         (
-            QGate.from_matrix(Gates.ISWAP, matrix_target=(0, 1)),
-            Circuit.decompositions("ISWAP", 0, 1),
+            QGate.from_matrix(gates.ISWAP, matrix_target=(0, 1)),
+            common_decompositions("ISWAP", 0, 1),
         ),
-        (Gates.MAGIC, Circuit.decompositions("MAGIC", 0, 1)),
-        (Gates.SWAP, Circuit.decompositions("SWAP", 0, 1)),
-        (Gates.CZ, Circuit.decompositions("CZ", 0, 1)),
-        (Gates.CY, Circuit.decompositions("CY", 0, 1)),
-        (Gates.CH, Circuit.decompositions("CH", 0, 1)),
-        (Gates.MAGIC.conj().T, Circuit.decompositions("MAGIC_DAG", 0, 1)),
+        (gates.MAGIC, common_decompositions("MAGIC", 0, 1)),
+        (gates.SWAP, common_decompositions("SWAP", 0, 1)),
+        (gates.CZ, common_decompositions("CZ", 0, 1)),
+        (gates.CY, common_decompositions("CY", 0, 1)),
+        (gates.CH, common_decompositions("CH", 0, 1)),
+        (gates.MAGIC.conj().T, common_decompositions("MAGIC_DAG", 0, 1)),
         (np.diag([1, 1, -1, -1]), None),
     ],
 )
@@ -465,23 +466,23 @@ def test_cnot_decomposition():
         # Use a predefined or randomly generated 4 x 4 matrix
         match i:
             case 0:
-                U = Gates.CZ
+                U = gates.CZ
             case 1:
-                U = Gates.CNOT
+                U = gates.CNOT
             case 2:
-                U = Gates.CNOT1
+                U = gates.CNOT1
             case 3:
-                U = Gates.CH
+                U = gates.CH
             case 5:
-                U = Gates.canonical_gate(2.1, 1.2, 0.3)
+                U = gates.canonical_gate(2.1, 1.2, 0.3)
             case 6:
-                U = np.kron(Gates.T, Gates.power_pauli_y(0.39451))
+                U = np.kron(gates.T, gates.power_pauli_y(0.39451))
             case 7:
                 U = np.eye(4)
             case 8:
                 U = np.array([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
             case 9:
-                U = QGate.from_matrix(Gates.INV_DCNOT, matrix_target=(0, 1))
+                U = QGate.from_matrix(gates.INV_DCNOT, matrix_target=(0, 1))
             case j if 10 <= j < 20:
                 U = unitary_group(dim=4, seed=i).rvs()
             case j if 20 <= j < 25:
