@@ -17,10 +17,6 @@ This module contains functions to decompose general 2-qubits quantum gates into 
 
 The module contains the following functions:
 
-- `is_special`: Check if a matrix is special (determinant equal to 1).
-- `is_orthogonal`: Check if a matrix is orthogonal (inverse equal to its transpose).
-- `is_unitary`: Check if a matrix is unitary (inverse equal to its conjugate transpose).
-- `is_hermitian`: Check if a matrix is Hermitian (equal to its conjugate transpose).
 - `kronecker_decomposition`: Decompose a 4 x 4 matrix into two 2 x 2 matrices such that their Kronecker product is the closest to the original matrix.
 - `so4_decomposition`: Decompose a 4 x 4 matrix in SO(4) into a circuit of 2 CNOT gates and 8 single-qubit gates.
 - `o4_det_minus1_decomposition`: Decompose a 4 x 4 matrix in O(4) with a determinant of -1 into a circuit of 3 CNOT gates and 8 single-qubit gates.
@@ -50,7 +46,8 @@ from numpy.typing import NDArray
 
 from cliffordplust import gates
 from cliffordplust.circuit import QGate
-from cliffordplust.decompositions.gate_decompositions import common_decompositions
+from cliffordplust.decompositions.common_gate_decompositions import common_decompositions
+from cliffordplust.utils import is_hermitian, is_orthogonal, is_special, is_unitary
 
 __all__ = [
     "kronecker_decomposition",
@@ -67,66 +64,6 @@ SQRT2 = np.sqrt(2)
 # The magic gate is a 4 x 4 matrix used in many decompositions of quantum gates.
 MAGIC = gates.MAGIC
 MAGIC_DAG = MAGIC.T.conj()
-
-
-def is_special(matrix: NDArray[np.floating]) -> bool:
-    """
-    Check if a matrix is special.
-
-    Return True if the determinant of the matrix is 1 and False otherwise.
-
-    Args:
-        matrix (NDArray[float]): Matrix to check.
-
-    Returns:
-        bool: True if the matrix is special, False otherwise.
-    """
-    return np.isclose(np.linalg.det(matrix), 1)
-
-
-def is_orthogonal(matrix: NDArray[np.floating]) -> bool:
-    """
-    Check if a matrix is orthogonal.
-
-    Return True if the matrix inverse is equal to its transpose and False otherwise.
-
-    Args:
-        matrix (NDArray[float]): Matrix to check.
-
-    Returns:
-        bool: True if the matrix is orthogonal, False otherwise.
-    """
-    return np.allclose(matrix @ matrix.T, np.identity(matrix.shape[0]))
-
-
-def is_unitary(matrix: NDArray[np.floating]) -> bool:
-    """
-    Check if a matrix is unitary.
-
-    Return True if the matrix inverse is equal to its conjugate transpose and False otherwise.
-
-    Args:
-        matrix (NDArray[float]): Matrix to check.
-
-    Returns:
-        bool: True if the matrix is unitary, False otherwise.
-    """
-    return np.allclose(matrix @ matrix.T.conj(), np.identity(matrix.shape[0]))
-
-
-def is_hermitian(matrix: NDArray[np.floating]) -> bool:
-    """
-    Check if a matrix is Hermitian.
-
-    Return True if the matrix is equal to its conjugate transpose and False otherwise.
-
-    Args:
-        matrix (NDArray[float]): Matrix to check.
-
-    Returns:
-        bool: True if the matrix is Hermitian, False otherwise.
-    """
-    return np.allclose(matrix, matrix.T.conj())
 
 
 def kronecker_decomposition(

@@ -18,17 +18,20 @@ import math
 
 import numpy as np
 import pytest
-from cliffordplust.circuit import QGate
-from cliffordplust import gates
-from cliffordplust.decompositions.gate_decompositions import common_decompositions
-from cliffordplust.decompositions.cnot import (canonical_decomposition,
-                                          cnot_decomposition, is_hermitian,
-                                          is_orthogonal, is_special,
-                                          is_unitary, known_decomposition,
-                                          kronecker_decomposition,
-                                          o4_det_minus1_decomposition,
-                                          so4_decomposition, u4_decomposition)
 from scipy.stats import ortho_group, special_ortho_group, unitary_group
+
+from cliffordplust import gates
+from cliffordplust.circuit import QGate
+from cliffordplust.decompositions.cnot import (
+    canonical_decomposition,
+    cnot_decomposition,
+    known_decomposition,
+    kronecker_decomposition,
+    o4_det_minus1_decomposition,
+    so4_decomposition,
+    u4_decomposition,
+)
+from cliffordplust.decompositions.common_gate_decompositions import common_decompositions
 
 
 def multiply_circuit(circuit: list[QGate]) -> np.ndarray:
@@ -51,57 +54,6 @@ def multiply_circuit(circuit: list[QGate]) -> np.ndarray:
         else:
             M = gate.matrix @ M
     return M
-
-
-@pytest.mark.parametrize(
-    "matrix, result",
-    [
-        (np.eye(2), True),
-        (-np.eye(3), False),
-        (np.zeros((2, 2)), False),
-        (np.array([[1.2, 3.4], [5, -1]]), False),
-        (np.array([[0, 1], [1, 0]]), False),
-        (np.array([[0, 1], [-1, 0]]), True),
-        (special_ortho_group(dim=2, seed=42).rvs(), True),
-    ],
-)
-def test_is_special(matrix, result):
-    """Test the is_special function."""
-    assert is_special(matrix) == result
-
-
-@pytest.mark.parametrize(
-    "matrix, result",
-    [
-        (-np.eye(2), True),
-        (-np.eye(3), True),
-        (np.zeros((2, 2)), False),
-        (np.ones((2, 2)), False),
-        (np.array([[1.2, 3.4], [5, -1]]), False),
-        (np.array([[0, 1], [-1, 0]]), True),
-        (ortho_group(dim=2, seed=42).rvs(), True),
-    ],
-)
-def test_is_orthogonal(matrix, result):
-    """Test the is_orthogonal function."""
-    assert is_orthogonal(matrix) == result
-
-
-@pytest.mark.parametrize(
-    "matrix, result",
-    [
-        (-np.eye(2), True),
-        (-np.eye(3), True),
-        (np.zeros((2, 2)), False),
-        (np.ones((2, 2)), False),
-        (np.array([[1, -2], [-3, 1]]), False),
-        (np.array([[0, 1], [-1, 0]]), True),
-        (unitary_group(dim=2, seed=42).rvs(), True),
-    ],
-)
-def test_is_unitary(matrix, result):
-    """Test the is_unitary function."""
-    assert is_unitary(matrix) == result
 
 
 @pytest.mark.parametrize(
