@@ -108,7 +108,9 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
     
     # Checks if the angle is trivial
     exponent = round(2 * theta / math.pi)
-    if np.isclose(2 * theta / math.pi, exponent):
+    if np.isclose(0, theta):
+        return np.array([[Domega.from_ring(1), Domega.from_ring(0)], [Domega.from_ring(0), Domega.from_ring(1)]], dtype=object)
+    elif np.isclose(2 * theta / math.pi, exponent):
         T = np.array([[Domega(-D(1, 0), D(0, 0), D(0, 0), D(0, 0)), Domega.from_ring(0)], [Domega.from_ring(0), Domega(D(0, 0), D(0, 0), D(1, 0), D(0, 0))]], dtype=object)
         M = T ** exponent
         return M

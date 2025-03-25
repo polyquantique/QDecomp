@@ -20,7 +20,7 @@ import mpmath as mp
 from cliffordplust.grid_problem.rz_approx import *
 
 errors = [1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6]
-angles = [2 * math.pi / 3, math.pi / 128, 6, 3 * math.pi / 2, 2 * math.pi]
+angles = [2 * math.pi / 3, math.pi / 16, 6, 0, 3 * math.pi / 2, 2 * math.pi]
 
 @pytest.mark.parametrize("theta", angles)
 @pytest.mark.parametrize("epsilon", errors)
@@ -34,7 +34,7 @@ def test_rz_approx(epsilon, theta):
         [0, math.cos(theta / 2) + 1.j * math.sin(theta / 2)]
     ])
     Error = op_norm = max(np.linalg.svd(U_complex - rz, compute_uv=False))
-    assert Error < epsilon
+    assert Error <= epsilon
 
 def test_invalid_theta_type():
     with pytest.raises(TypeError):
