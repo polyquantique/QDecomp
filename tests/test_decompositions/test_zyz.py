@@ -14,7 +14,6 @@
 
 import numpy as np
 import pytest
-import numpy as np
 
 from cliffordplust.decompositions import zyz_decomposition
 
