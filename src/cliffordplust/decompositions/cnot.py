@@ -13,28 +13,29 @@
 #    limitations under the License.
 
 """
-This module contains functions to decompose general 2-qubits quantum gates into single-qubit CNOT gates.
+This module contains functions to decompose general 2-qubits quantum gates into single-qubit and CNOT gates.
 
 The module contains the following functions:
 
-- `kronecker_decomposition`: Decompose a 4 x 4 matrix into two 2 x 2 matrices such that their Kronecker product is the closest to the original matrix.
-- `so4_decomposition`: Decompose a 4 x 4 matrix in SO(4) into a circuit of 2 CNOT gates and 8 single-qubit gates.
-- `o4_det_minus1_decomposition`: Decompose a 4 x 4 matrix in O(4) with a determinant of -1 into a circuit of 3 CNOT gates and 8 single-qubit gates.
-- `canonical_decomposition`: Decompose a 4 x 4 unitary matrix into a global phase, two local 4 x 4 matrices, and the three parameters of the canonical gate.
-- `u4_decomposition`: Decompose a 4 x 4 matrix in U(4) into a circuit of 3 CNOT and 7 single-qubit gates.
-- `known_decomposition`: Decompose a 4 x 4 matrix into a circuit of CNOT and single-qubit gates using predefined decompositions for common gates.
-- `cnot_decomposition`: Decompose any two-qubits gate into a circuit of CNOT and single-qubit gates.
+- :func:`kronecker_decomposition`: Decompose a 4 x 4 matrix into two 2 x 2 matrices such that their Kronecker product is the closest to the original matrix.
+- :func:`so4_decomposition`: Decompose a 4 x 4 matrix in SO(4) into a circuit of 2 CNOT gates and 8 single-qubit gates.
+- :func:`o4_det_minus1_decomposition`: Decompose a 4 x 4 matrix in O(4) with a determinant of -1 into a circuit of 3 CNOT gates and 8 single-qubit gates.
+- :func:`canonical_decomposition`: Decompose a 4 x 4 unitary matrix into a global phase, two local 4 x 4 matrices, and the three parameters of the canonical gate.
+- :func:`u4_decomposition`: Decompose a 4 x 4 matrix in U(4) into a circuit of 3 CNOT and 7 single-qubit gates.
+- :func:`known_decomposition`: Decompose a 4 x 4 matrix into a circuit of CNOT and single-qubit gates using predefined decompositions for common gates.
+- :func:`cnot_decomposition`: Decompose any two-qubits gate into a circuit of CNOT and single-qubit gates.
 
-The function `cnot_decomposition` is the main function of the module. It decomposes any 4 x 4 unitary matrix into a 
+The function ``cnot_decomposition`` is the main function of the module. It decomposes any 4 x 4 unitary matrix into a 
 circuit of CNOT and single-qubit gates. The function determines which decomposition to use based on the Lie group of 
 the input matrix (SO(4), O(4), U(4)) or uses a predefined decomposition if the gate is common (SWAP, identity, CNOT).
-The function returns a list of QGate objects representing the circuit decomposition.
+The function returns a list of ``QGate`` objects representing the circuit decomposition.
 
-For more details on the theory, see 
-- G. E. Crooks, “Quantum gates,” March 2024, version 0.11.0, https://threeplusone.com/pubs/on_gates.pdf,
-- C. F. Van Loan, “The ubiquitous Kronecker product”, J. Comput. Appl. Math., vol. 123, no. 1-2, pp. 85-100, Nov. 2000, https://doi.org/10.1016/S0377-0427(00)00393-9,
-- Jun Zhang, Jiri Vala, Shankar Sastry, and K. Birgitta Whaley. Geometric theory of nonlocal two-qubit operations. Phys. Rev. A, 67:042313 (2003), https://arxiv.org/pdf/quant-ph/0209120.
-- F. Vatan and C. Williams, ‘Optimal quantum circuits for general two-qubit gates’, arXiv [quant-ph], 2003, https://arxiv.org/abs/quant-ph/0308006
+For more details on the theory, see
+
+.. [1] Crooks, G. E., “Quantum gates - Gates, States, and Circuits”, version 0.11.0., Mar. 2024, https://threeplusone.com/pubs/on_gates.pdf
+.. [2] Van Loan, C. F., “The ubiquitous Kronecker product”, J. Comput. Appl. Math., vol. 123, no. 1-2, pp. 85-100, Nov. 2000, https://doi.org/10.1016/S0377-0427(00)00393-9
+.. [3] Jun Zhang, Jiri Vala, Shankar Sastry, and K. Birgitta Whaley. Geometric theory of nonlocal two-qubit operations. Phys. Rev. A, 67:042313 (2003), https://arxiv.org/pdf/quant-ph/0209120
+.. [4] Vatan, F., Williams, C., “Optimal quantum circuits for general two-qubit gates”, arXiv [quant-ph], 2003, https://arxiv.org/abs/quant-ph/0308006
 """
 
 from __future__ import annotations
@@ -72,7 +73,7 @@ def kronecker_decomposition(
     """
     Compute the Kronecker decomposition of a 4 x 4 matrix.
 
-    Given a 4 x 4 matrix `M`, find the two 2 x 2 matrix `A` and `B` such that their Kronecker
+    Given a 4 x 4 matrix ``M``, find the two 2 x 2 matrix ``A`` and ``B`` such that their Kronecker
     product is the closest to the matrix `M` in the Frobenius norm.
 
     Args:
@@ -82,13 +83,22 @@ def kronecker_decomposition(
         tuple[NDArray[float], NDArray[float]]: The two 2 x 2 matrix of the decomposition.
 
     Raises:
-        TypeError: If `matrix` is not a numpy array.
-        ValueError: If `matrix` is not a 4 x 4 matrix.
+        TypeError: If matrix is not a numpy array.
+        ValueError: If matrix is not a 4 x 4 matrix.
 
-    ### References:
-        - G. E. Crooks, “Quantum gates,” March 2024, version 0.11.0, https://threeplusone.com/pubs/on_gates.pdf.
-        - C. F. Van Loan, “The ubiquitous Kronecker product”, J. Comput. Appl. Math., vol. 123, no. 1-2, pp. 85-100, Nov. 2000,
-        https://doi.org/10.1016/S0377-0427(00)00393-9.
+    Examples:
+        >>> # Define two 2 x 2 matrices
+        >>> A = np.array([[1, 2], [3, 4]])
+        >>> B = np.array([[5, 6], [7, 8]])
+
+        >>> # Compute the Kronecker decomposition
+        >>> a, b = kronecker_decomposition(np.kron(A, B))
+        >>> print(np.allclose(np.kron(A, B), np.kron(a, b)))
+        True
+
+    References:
+        .. [1] Crooks, G. E., “Quantum gates - Gates, States, and Circuits”, version 0.11.0., Mar. 2024, https://threeplusone.com/pubs/on_gates.pdf
+        .. [2] Van Loan, C. F., “The ubiquitous Kronecker product”, J. Comput. Appl. Math., vol. 123, no. 1-2, pp. 85-100, Nov. 2000, https://doi.org/10.1016/S0377-0427(00)00393-9
     """
     if not isinstance(matrix, np.ndarray):
         raise TypeError(
@@ -125,9 +135,9 @@ def so4_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
         TypeError: If the input matrix is not a numpy array or a QGate object.
         ValueError: If the input matrix is not in SO(4).
 
-    ### References:
-        - G. E. Crooks, “Quantum gates,” March 2024, version 0.11.0, https://threeplusone.com/pubs/on_gates.pdf
-        - F. Vatan and C. Williams, ‘Optimal quantum circuits for general two-qubit gates’, arXiv [quant-ph], 2003, https://arxiv.org/abs/quant-ph/0308006
+    References:
+        .. [1] Crooks, G., E. “Quantum gates - Gates, States, and Circuits”, version 0.11.0., Mar. 2024, https://threeplusone.com/pubs/on_gates.pdf
+        .. [2] Vatan, F., Williams, C., “Optimal quantum circuits for general two-qubit gates”, arXiv [quant-ph], 2003, https://arxiv.org/abs/quant-ph/0308006
     """
     # Check the input matrix
     if isinstance(U, QGate):
@@ -183,9 +193,9 @@ def o4_det_minus1_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
         TypeError: If the input matrix is not a numpy array or a QGate object.
         ValueError: If the input matrix is not in O(4) with a determinant of -1.
 
-    ### References:
-        - G. E. Crooks, “Quantum gates,” March 2024, version 0.11.0, https://threeplusone.com/pubs/on_gates.pdf
-        - F. Vatan and C. Williams, ‘Optimal quantum circuits for general two-qubit gates’, arXiv [quant-ph], 2003, https://arxiv.org/abs/quant-ph/0308006
+    References:
+        .. [1] Crooks, G. E., “Quantum gates - Gates, States, and Circuits”, version 0.11.0., Mar. 2024, https://threeplusone.com/pubs/on_gates.pdf
+        .. [2] Vatan, F., Williams, C., “Optimal quantum circuits for general two-qubit gates”, arXiv [quant-ph], 2003, https://arxiv.org/abs/quant-ph/0308006
     """
     # Check the input matrix
     if isinstance(U, QGate):
@@ -262,13 +272,16 @@ def canonical_decomposition(U: NDArray[np.floating]) -> CanonicalDecomposition:
     """
     Perform the canonical decomposition of a given 4 x 4 unitary matrix.
 
-    Given a 4 x 4 unitary matrix `U`, find the phase `alpha`, the two 4 x 4 local unitaries `A` and `B`, and
-    the three parameters of the canonical gate to decompose the input matrix `U` like
+    Given a 4 x 4 unitary matrix ``U``, find the phase ``alpha``, the two 4 x 4 local unitaries ``A`` and ``B``, and
+    the three parameters of the canonical gate to decompose the input matrix ``U`` like
+    
+    .. math:: U = e^{i \\alpha} B \\times Can(t_x, t_y, t_z) \\times A.
+        
+    ``Can(tx, ty, tz)`` is the canonical gate defined as
 
-    `U = exp(i*alpha) * B @ Can(tx, ty, tz) @ A`.
-
-    Can(tx, ty, tz) is the canonical gate defined as `exp(-i*pi/2 * (tx * XX + ty * YY + tz * ZZ))`, where
-    XX, YY, and ZZ are the Kronecker products of the Pauli matrices.
+    .. math:: Can(t_x, t_y, t_z) = exp(-i\\frac{\\pi}{2} (t_x X\\otimes X + t_y Y\\otimes Y + t_z Z\\otimes Z)), 
+    
+    where `X`, `Y`, and `Z` are the Pauli matrices.
 
     Args:
         U (NDArray[float]): 4 x 4 unitary matrix.
@@ -276,19 +289,31 @@ def canonical_decomposition(U: NDArray[np.floating]) -> CanonicalDecomposition:
     Returns:
         CanonicalDecomposition:
         A namedtuple with the following attributes:
-            A (NDArray[float]): 4 x 4 matrix A of the decomposition. A is the Kronecker product of two 2 x 2 matrices.
-            B (NDArray[float]): 4 x 4 matrix B of the decomposition. B is the Kronecker product of two 2 x 2 matrices.
-            t (tuple[float, float, float]): The three coordinates (tx, ty, tz) of the canonical gate.
-            phase (float): Phase of the unitary matrix.
+            - A (NDArray[float]): 4 x 4 matrix A of the decomposition. A is the Kronecker product of two 2 x 2 matrices.
+            - B (NDArray[float]): 4 x 4 matrix B of the decomposition. B is the Kronecker product of two 2 x 2 matrices.
+            - t (tuple[float, float, float]): The three coordinates (tx, ty, tz) of the canonical gate.
+            - phase (float): Phase of the unitary matrix.
 
     Raises:
         TypeError: If the matrix U is not a numpy object.
         ValueError: If U is not a 4 x 4 unitary matrix.
 
-    ### References:
-        - G. E. Crooks, “Quantum gates,” March 2024, version 0.11.0, https://threeplusone.com/pubs/on_gates.pdf
-        - Jun Zhang, Jiri Vala, Shankar Sastry, and K. Birgitta Whaley. Geometric theory of nonlocal two-qubit operations.
-        Phys. Rev. A, 67:042313 (2003), https://arxiv.org/pdf/quant-ph/0209120
+    Examples:
+        >>> # Define a 4 x 4 unitary matrix
+        >>> from scipy.stats import unitary_group
+        >>> U = unitary_group.rvs(4)
+
+        >>> # Perform the canonical decomposition and reconstruct the matrix
+        >>> decomp = canonical_decomposition(U)
+        >>> reconstructed_matrix = np.exp(1.j * decomp.phase) * decomp.B @ gates.canonical_gate(*decomp.t) @ decomp.A
+
+        >>> # Check if the decomposition is correct
+        >>> print(np.allclose(U, reconstructed_matrix))
+        True
+
+    References:
+        .. [1] Crooks, G. E., “Quantum gates - Gates, States, and Circuits”, version 0.11.0., Mar. 2024, https://threeplusone.com/pubs/on_gates.pdf
+        .. [2] Jun Zhang, Jiri Vala, Shankar Sastry, and K. Birgitta Whaley. Geometric theory of nonlocal two-qubit operations. Phys. Rev. A, 67:042313 (2003), https://arxiv.org/pdf/quant-ph/0209120
     """
     if not isinstance(U, np.ndarray):
         raise TypeError(f"Matrix U must be a numpy object, but received {type(U).__name__}.")
@@ -374,9 +399,9 @@ def u4_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
         TypeError: If the input matrix is not a numpy array or a QGate object.
         ValueError: If the input matrix is not in U(4).
 
-    ### References:
-        - G. E. Crooks, “Quantum gates,” March 2024, version 0.11.0, https://threeplusone.com/pubs/on_gates.pdf
-        - F. Vatan and C. Williams, ‘Optimal quantum circuits for general two-qubit gates’, arXiv [quant-ph], 2003, https://arxiv.org/abs/quant-ph/0308006
+    References:
+        .. [1] Crooks, G. E., “Quantum gates - Gates, States, and Circuits”, version 0.11.0., Mar. 2024, https://threeplusone.com/pubs/on_gates.pdf
+        .. [2] Vatan, F., Williams, C., “Optimal quantum circuits for general two-qubit gates”, arXiv [quant-ph], 2003, https://arxiv.org/abs/quant-ph/0308006
     """
     # Check the input matrix
     if isinstance(U, QGate):
@@ -430,7 +455,7 @@ def known_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate] | None:
     Circuit decompositions of common 4 x 4 matrices.
 
     Decompose a 4 x 4 matrix into a circuit of CNOT and single-qubit gates using predefined
-    decompositions for common gates (SWAP, identity, CNOT). The output is a list of QGate objects.
+    decompositions for common gates (SWAP, identity, CNOT, etc.). The output is a list of QGate objects.
     If the decomposition is not known, the function returns None.
 
     Args:
@@ -508,7 +533,7 @@ def cnot_decomposition(U: NDArray[np.floating]) -> list[QGate]:
 
     Decompose any two-qubits gate into a circuit of CNOT and single-qubit gates. The function
     determines which decomposition to use based on the Lie group of the input matrix (SO(4), O(4),
-    U(4)) or uses a predefined decomposition if the gate is common (SWAP, identity, CNOT). The output
+    U(4)) or uses a predefined decomposition if the gate is common (SWAP, identity, CNOT, etc.). The output
     is a list of QGate objects.
 
     Args:
@@ -520,6 +545,13 @@ def cnot_decomposition(U: NDArray[np.floating]) -> list[QGate]:
     Raises:
         TypeError: If the input matrix is not a numpy array or a QGate object.
         ValueError: If the input matrix is not a 4 x 4 unitary matrix.
+
+    Examples:
+        >>> # Use an arbitrary 4 x 4 unitary matrix
+        >>> from scipy.stats import unitary_group
+        >>> U = unitary_group.rvs(4)
+        >>> # Decompose the matrix into a circuit of CNOT and single-qubit gates
+        >>> circuit = cnot_decomposition(U)
     """
     # Check the input matrix
     if isinstance(U, QGate):
