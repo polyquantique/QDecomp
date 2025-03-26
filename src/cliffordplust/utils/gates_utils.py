@@ -16,6 +16,16 @@
 This module contains utility functions to check if a matrix is special, orthogonal, unitary or Hermitian.
 
 These functions are used to check the Lie group of a matrix and to select the appropriate decomposition to perform.
+
+The module contains the following functions:
+    
+    :func:`is_special`: Check if a matrix is special.
+
+    :func:`is_orthogonal`: Check if a matrix is orthogonal.
+
+    :func:`is_unitary`: Check if a matrix is unitary.
+    
+    :func:`is_hermitian`: Check if a matrix is Hermitian.
 """
 
 import numpy as np

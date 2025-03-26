@@ -13,9 +13,17 @@
 #    limitations under the License.
 
 """
+Definition of common quantum gates.
+
 This module contains the matrix definition of common single and two qubit quantum gates.
 
-The module also contains functions to generate parametric gates. 
+The module also contains functions to generate parametric gates:
+
+    :func:`power_pauli_y`: Return the Pauli Y power gate.
+
+    :func:`power_pauli_z`: Return the Pauli Z power gate.
+
+    :func:`canonical_gate`: Return the canonical gate.
 """
 
 import numpy as np
@@ -134,7 +142,7 @@ def canonical_gate(tx: float, ty: float, tz: float) -> NDArray[np.floating]:
     Return the matrix form of the canonical gate for the given parameters.
 
     Args:
-        tx, ty, tz (floats): Parameters of the canonical gates
+        tx, ty, tz (float): Parameters of the canonical gates.
 
     Returns:
         NDArray[float]: Matrix form of the canonical gate.

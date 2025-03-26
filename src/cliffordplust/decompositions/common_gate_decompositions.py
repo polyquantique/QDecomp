@@ -12,14 +12,20 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-"""This module contains the circuit decomposition of many common quantum gates in terms of Clifford+T gates."""
+"""
+Circuit decomposition of common quantum gates.
+
+This module contains the circuit decomposition of many common quantum gates in terms of Clifford+T gates.
+
+The decompositions are returned as a list of :class:QGate objects.
+"""
 
 from cliffordplust.circuit import QGate
 
 
 def dcnot_decomposition(q0: int, q1: int) -> list[QGate]:
     """
-    Circuit implementation of the DCNOT gate (CNOT, then CNOT inverted).
+    Circuit implementation of the double CNOT (DCNOT) gate (CNOT, then CNOT inverted).
 
     Decompose the DCNOT gate into a circuit of CNOT and inverted CNOT gates.
 
@@ -124,9 +130,9 @@ def swap_decomposition(q0: int, q1: int) -> list[QGate]:
 
 def cy_decomposition(q0: int, q1: int) -> list[QGate]:
     """
-    Circuit implementation of the controlled Y gate.
+    Circuit implementation of the controlled Y (CY) gate.
 
-    Decompose the controlled Y gate into a circuit of SDAG, CNOT and S gates.
+    Decompose the CY gate into a circuit of SDAG, CNOT and S gates.
 
     Args:
         q0 (int): First target qubit of the gate.
@@ -145,9 +151,9 @@ def cy_decomposition(q0: int, q1: int) -> list[QGate]:
 
 def cz_decomposition(q0: int, q1: int) -> list[QGate]:
     """
-    Circuit implementation of the controlled Z gate.
+    Circuit implementation of the controlled Z (CZ) gate.
 
-    Decompose the controlled Z gate into a circuit of H, CNOT, and H gates.
+    Decompose the CZ gate into a circuit of H, CNOT, and H gates.
 
     Args:
         q0 (int): First target qubit of the gate.
@@ -166,9 +172,9 @@ def cz_decomposition(q0: int, q1: int) -> list[QGate]:
 
 def ch_decomposition(q0: int, q1: int):
     """
-    Circuit implementation of the controlled Hadamard gate.
+    Circuit implementation of the controlled Hadamard (CH) gate.
 
-    Decompose the controlled Hadamard gate into a circuit of Clifford+T gates.
+    Decompose the CH gate into a circuit of Clifford+T gates.
 
     Args:
         q0 (int): First target qubit of the gate.
