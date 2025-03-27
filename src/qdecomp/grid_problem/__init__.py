@@ -12,5 +12,5 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-from cliffordplust.grid_problem.grid_algorithm_1D import *
-from cliffordplust.grid_problem.steiner_ellipse import *
+from qdecomp.grid_problem.grid_algorithm_1D import *
+from qdecomp.grid_problem.steiner_ellipse import *

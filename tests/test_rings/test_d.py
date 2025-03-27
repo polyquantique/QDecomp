@@ -19,7 +19,7 @@ import math
 import mpmath as mp
 import pytest
 
-from cliffordplust.rings import D
+from qdecomp.rings import D
 
 # Set a high precision for mpmath
 mp.mp.dps = 75

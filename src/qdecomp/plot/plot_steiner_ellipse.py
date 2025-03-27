@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.patches import Rectangle
 
-from cliffordplust.grid_problem import steiner_ellipse as se
+from qdecomp.grid_problem import steiner_ellipse as se
 
 
 def plot_ellipse(

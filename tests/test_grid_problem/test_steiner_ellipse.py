@@ -16,8 +16,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
-from cliffordplust.grid_problem import steiner_ellipse as se
-from cliffordplust.plot import plot_steiner_ellipse as pse
+from qdecomp.grid_problem import steiner_ellipse as se
+from qdecomp.plot import plot_steiner_ellipse as pse
 
 test_points_collin = [
     [(0, 1), (0, 2), (0, -5)],

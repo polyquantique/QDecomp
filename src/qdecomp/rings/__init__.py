@@ -12,6 +12,6 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-from cliffordplust.rings.rings import *
+from qdecomp.rings.rings import *
 
 __all__ = ["D", "Zsqrt2", "Dsqrt2", "Zomega", "Domega", "LAMBDA", "INVERSE_LAMBDA"]

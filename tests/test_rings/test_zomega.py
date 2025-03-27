@@ -18,8 +18,8 @@ import mpmath as mp
 import numpy as np
 import pytest
 
-import cliffordplust.rings as r
-from cliffordplust.rings import Zomega
+import qdecomp.rings as r
+from qdecomp.rings import Zomega
 
 # Set the precision of mpmath to 75 decimal places
 mp.mp.dps = 75

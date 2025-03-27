@@ -15,7 +15,7 @@
 import numpy as np
 import pytest
 
-from cliffordplust.decompositions import zyz_decomposition
+from qdecomp.decompositions import zyz_decomposition
 
 
 # Rotation and phase matrices

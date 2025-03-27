@@ -19,8 +19,8 @@ import numpy as np
 import pytest
 from numpy.random import uniform
 
-from cliffordplust.grid_problem import plot_grid_problem, solve_grid_problem_1d
-from cliffordplust.rings import Zsqrt2
+from qdecomp.grid_problem import plot_grid_problem, solve_grid_problem_1d
+from qdecomp.rings import Zsqrt2
 
 
 @pytest.mark.parametrize("A", [(1, 2, 3), "1, 2", (1.0j, 2), "12"])

@@ -71,8 +71,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Import the Steiner function
-import cliffordplust.grid_problem.steiner_ellipse as se
-from cliffordplust.plot import plot_ellipse
+import qdecomp.grid_problem.steiner_ellipse as se
+from qdecomp.plot import plot_ellipse
 
 # -
 
