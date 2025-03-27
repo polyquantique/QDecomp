@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
-from qdecomp.grid_problem import steiner_ellipse as se
+from qdecomp.utils import steiner_ellipse as se
 from qdecomp.plot import plot_steiner_ellipse as pse
 
 test_points_collin = [

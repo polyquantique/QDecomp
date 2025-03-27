@@ -19,7 +19,7 @@ import numpy as np
 import pytest
 from numpy.random import uniform
 
-from qdecomp.grid_problem import plot_grid_problem, solve_grid_problem_1d
+from qdecomp.utils.grid_problem import plot_grid_problem, solve_grid_problem_1d
 from qdecomp.rings import Zsqrt2
 
 
