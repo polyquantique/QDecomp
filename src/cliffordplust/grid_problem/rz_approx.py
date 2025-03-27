@@ -141,8 +141,8 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
         # For every solution found
         for cand in solve_grid_problem_2d(A.tolist(), B.tolist()):
             # Ensure the solution was not already found previously
-            is_double = abs(cand.a - cand.c) % 2 == 1 or abs(cand.b - cand.d) % 2 ==1
-            if n > 0 and is_double:
+            is_double = abs(cand.a - cand.c) % 2 == 1 or abs(cand.b - cand.d) % 2 == 1
+            if n == 0 or is_double:
                 # Find u as Domega and as mpfloat
                 u = Domega.from_ring(cand) * Domega.from_ring(const)
                 u_conj = u.sqrt2_conjugate()
