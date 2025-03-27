@@ -41,7 +41,7 @@ Domega Dsqrt2::to_Domega() const {return Domega(-_q, D(0, 0), _q, _p);}
 
 Zomega Dsqrt2::to_Zomega() const {
     if (! is_Zsqrt2()) {
-        throw std::runtime_error("The number to convert is not in Dsqrt2. Got " + to_string());
+        throw std::runtime_error("The number to convert is not in Zomega. Got " + to_string());
     }
     
     return Zomega(-_q.num(), 0, _q.num(), _p.num());
@@ -49,7 +49,7 @@ Zomega Dsqrt2::to_Zomega() const {
 
 Zsqrt2 Dsqrt2::to_Zsqrt2() const {
     if (! is_Zsqrt2()) {
-        throw std::runtime_error("The number to convert is not in Dsqrt2. Got " + to_string());
+        throw std::runtime_error("The number to convert is not in Zsqrt2. Got " + to_string());
     }
 
     return Zsqrt2(_p.num(), _q.num());
@@ -75,6 +75,9 @@ float Dsqrt2::to_float() const {
     return _p.to_float() + _q.to_float() * static_cast<float>(std::sqrt(2.0));
 }
 
+long double Dsqrt2::to_long_double() const {
+    return _p.to_long_double() + _q.to_long_double() * std::sqrt(static_cast<long double>(2.0));
+}
 
 bool Dsqrt2::operator==(const Dsqrt2& other) const {return (_p == other._p) and (_q == other._q);}
 bool Dsqrt2::operator==(const long long int& other) const {return (_p == other) and (_q == 0);}

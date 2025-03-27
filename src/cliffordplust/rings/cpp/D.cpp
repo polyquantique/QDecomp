@@ -84,3 +84,5 @@ std::string D::to_string() const {return std::to_string(_num) + "/2^" + std::to_
 void D::print() const {std::cout << to_string() << std::endl;}
 
 float D::to_float() const {return static_cast<float>(_num) / (1 << _denom);}
+
+long double D::to_long_double() const {return static_cast<long double>(_num) / (1 << _denom);}

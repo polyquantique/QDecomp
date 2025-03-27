@@ -145,6 +145,13 @@ class Dsqrt2 {
          */
         float to_float() const;
 
+        /**
+         * @brief Convert the number to a long double.
+         * 
+         * @return long double The double.
+         */
+        long double to_long_double() const;
+
         
         /**
          * @brief Check if the number is equal to another D[\221A2] object.

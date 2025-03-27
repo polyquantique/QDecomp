@@ -54,6 +54,9 @@ float Zsqrt2::to_float() const {
     return static_cast<float>(_p) + static_cast<float>(_q) * static_cast<float>(std::sqrt(2.0));
 }
 
+long double Zsqrt2::to_long_double() const {
+    return static_cast<long double>(_p) + static_cast<long double>(_q) * std::sqrt(static_cast<long double>(2.0));
+}
 
 bool Zsqrt2::operator==(const Zsqrt2& other) const {return (_p == other._p) and (_q == other._q);}
 bool Zsqrt2::operator==(const long long int& other) const {return (_p == other) and (_q == 0);}

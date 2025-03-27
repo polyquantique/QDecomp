@@ -17,13 +17,12 @@
 #define GRID_ALGORITHMS_HPP
 
 #include <cmath>
-#include <tuple>
 
 #include "..\..\rings\cpp\Rings.hpp"
 
 
-const double SQRT2 = std::sqrt(2);
-const double SQRT2_INV = 1.0 / SQRT2;
+const long double SQRT2 = std::sqrt(static_cast<long double>(2));
+const long double SQRT2_INV = 1.0 / SQRT2;
 inline const Zsqrt2 LAMBDA(1, 1);
 inline const Zsqrt2 LAMBDA_INV(-1, 1);
 
@@ -37,11 +36,11 @@ inline const Zsqrt2 LAMBDA_INV(-1, 1);
  */
 class GridProblem1D {
     private:
-        double _amin, _amax;  ///< Bounds of the first interval
-        double _bmin, _bmax;  ///< Bounds of the second interval
+        long double _amin, _amax;  ///< Bounds of the first interval
+        long double _bmin, _bmax;  ///< Bounds of the second interval
 
-        double _amin_, _amax_;  ///< Bounds of the scaled first interval
-        double _bmin_, _bmax_;  ///< Bounds of the scaled second interval
+        long double _amin_, _amax_;  ///< Bounds of the scaled first interval
+        long double _bmin_, _bmax_;  ///< Bounds of the scaled second interval
 
         long long int _qmin, _qmax;  ///< Bounds of the q coefficient
         int _n_scaling;              ///< Exponent used to scale the grid problem
@@ -56,7 +55,7 @@ class GridProblem1D {
          * @param bmax The maximum bound of the second interval
          * @throw std::invalid_argument if amin > amax or bmin > bmax
          */
-        GridProblem1D(double amin, double amax, double bmin, double bmax) :
+        GridProblem1D(long double amin, long double amax, long double bmin, long double bmax) :
         _amin(amin), _amax(amax), _bmin(bmin), _bmax(bmax)
         {
             // Check if the bounds are in increasing order
@@ -67,24 +66,24 @@ class GridProblem1D {
             }
 
             // Calculate the scaled intervals
-            double delta = amax - amin;
-            _n_scaling = (unsigned short int)std::floor(
-                log(LAMBDA.to_float() * delta) / log(LAMBDA.to_float())
+            long double delta = amax - amin;
+            _n_scaling = (int)std::floor(
+                std::log(LAMBDA.to_long_double() * delta) / std::log(LAMBDA.to_long_double())
             );
-            _amin_ = amin * std::pow(LAMBDA.to_float(), -_n_scaling);
-            _amax_ = amax * std::pow(LAMBDA.to_float(), -_n_scaling);
-            _bmin_ = bmin * std::pow(-LAMBDA.to_float(), _n_scaling);
-            _bmax_ = bmax * std::pow(-LAMBDA.to_float(), _n_scaling);
+            _amin_ = amin * std::pow(LAMBDA.to_long_double(), static_cast<long double>(-_n_scaling));
+            _amax_ = amax * std::pow(LAMBDA.to_long_double(), static_cast<long double>(-_n_scaling));
+            _bmin_ = bmin * std::pow(-LAMBDA.to_long_double(), static_cast<long double>(_n_scaling));
+            _bmax_ = bmax * std::pow(-LAMBDA.to_long_double(), static_cast<long double>(_n_scaling));
 
             if (_n_scaling & 1) {  // The interval is inverted in this case
-                double temp = _bmin_;
+                long double temp = _bmin_;
                 _bmin_ = _bmax_;
                 _bmax_ = temp;
             }
 
             // Calculate the interval of values that the q coefficient can take
-            double qmin_f = (_amin_ - _bmax_) / std::sqrt(8);
-            double qmax_f = (_amax_ - _bmin_) / std::sqrt(8);
+            long double qmin_f = (_amin_ - _bmax_) / std::sqrt(static_cast<long double>(8.0));
+            long double qmax_f = (_amax_ - _bmin_) / std::sqrt(static_cast<long double>(8.0));
 
             // Convert the floating bounds to integer bounds
             // To avoid floating-point errors that may result in forgetting a solution, we add a
@@ -99,10 +98,10 @@ class GridProblem1D {
          */
         class Iterator {
             private:
-                double _amin, _amax;    ///< Bounds of the first interval
-                double _amin_, _amax_;  ///< Bounds of the scaled first interval
+                long double _amin, _amax;    ///< Bounds of the first interval
+                long double _amin_, _amax_;  ///< Bounds of the scaled first interval
 
-                double _bmin, _bmax;  ///< Bounds of the second interval
+                long double _bmin, _bmax;  ///< Bounds of the second interval
 
                 long long int _p_last, _q_last;  ///< Coefficients of the last solution
                 long long int _p, _q;            ///< Current solution
@@ -124,8 +123,8 @@ class GridProblem1D {
                  * @param n_scaling The exponent used to scale the grid problem
                  */
                 Iterator(
-                    double amin, double amax, double bmin, double bmax,
-                    double amin_, double amax_, long long int qmin, long long int qmax,
+                    long double amin, long double amax, long double bmin, long double bmax,
+                    long double amin_, long double amax_, long long int qmin, long long int qmax,
                     int n_scaling
                 ) : _amin(amin), _amax(amax), _amin_(amin_), _amax_(amax_),
                     _bmin(bmin), _bmax(bmax), _q(qmin), _qmin(qmin), _qmax(qmax),
@@ -152,8 +151,8 @@ class GridProblem1D {
                         // Calculate the interval of values that the p coefficient can take
                         // To avoid floating-point errors that may result in forgetting a solution,
                         // we add a small epsilon to the bounds
-                        double pmin_f = _amin_ - (double)_q * std::sqrt(2) - 1.0e-6;
-                        double pmax_f = _amax_ - (double)_q * std::sqrt(2) + 1.0e-6;
+                        long double pmin_f = _amin_ - (long double)_q * std::sqrt(static_cast<long double>(2)) - 1.0e-12;
+                        long double pmax_f = _amax_ - (long double)_q * std::sqrt(static_cast<long double>(2)) + 1.0e-12;
 
                         // Determine if there is an integer solution in the p interval
                         if (std::floor(pmin_f) != std::floor(pmax_f)) {
@@ -164,14 +163,14 @@ class GridProblem1D {
                             // Unscaled solution
                             Zsqrt2 alpha(0, 0);
                             if (_n_scaling < 0) {
-                                alpha = alpha_ * LAMBDA_INV.pow((unsigned short int)-_n_scaling);
+                                alpha = alpha_ * LAMBDA_INV.pow(static_cast<unsigned short int>(-_n_scaling));
                             } else {
-                                alpha = alpha_ * LAMBDA.pow((unsigned short int)_n_scaling);
+                                alpha = alpha_ * LAMBDA.pow(static_cast<unsigned short int>(_n_scaling));
                             }
 
                             // Check if the unscaled solution is in the original interval
-                            double alpha_f = alpha.to_float();
-                            double alpha_conj_f = alpha.sqrt2_conjugate().to_float();
+                            long double alpha_f = alpha.to_long_double();
+                            long double alpha_conj_f = alpha.sqrt2_conjugate().to_long_double();
 
                             if ((alpha_f >= _amin) and (alpha_f <= _amax) and
                                 (alpha_conj_f >= _bmin) and (alpha_conj_f <= _bmax)) {
@@ -248,8 +247,8 @@ class GridProblem2D{
          * @throw std::invalid_argument if axmin > axmax, bxmin > bxmax, aymin > aymax or bymin > bymax
          */
         GridProblem2D(
-            double axmin, double axmax, double bxmin, double bxmax,
-            double aymin, double aymax, double bymin, double bymax
+            long double axmin, long double axmax, long double bxmin, long double bxmax,
+            long double aymin, long double aymax, long double bymin, long double bymax
         ) : _gp_x1(axmin, axmax, bxmin, bxmax), _gp_y1(aymin, aymax, bymin, bymax),
             _gp_x2(axmin - SQRT2_INV, axmax - SQRT2_INV, bxmin + SQRT2_INV, bxmax + SQRT2_INV),
             _gp_y2(aymin - SQRT2_INV, aymax - SQRT2_INV, bymin + SQRT2_INV, bymax + SQRT2_INV)
@@ -314,11 +313,12 @@ class GridProblem2D{
                 /**
                  * @brief Get the current solution
                 */
-                std::pair<Zsqrt2, Zsqrt2> operator*() const {
+                Zomega operator*() const {
                     if (_first_completed) {  // Solving the second problem
-                        return std::make_pair(*_x_it2, *_y_it2);
+                        return (*_x_it2).to_Zomega() + (*_y_it2).to_Zomega() * Zomega(0, 1, 0, 0)
+                            + Zomega(0, 0, 1, 0);
                     } else {  // Solving the first problem
-                        return std::make_pair(*_x_it1, *_y_it1);
+                        return (*_x_it1).to_Zomega() + (*_y_it1).to_Zomega() * Zomega(0, 1, 0, 0);
                     }
                 }
 

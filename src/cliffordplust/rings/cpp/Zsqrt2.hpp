@@ -119,6 +119,12 @@ class Zsqrt2 {
          */
         float to_float() const;
 
+        /**
+         * @brief Convert the number to a long double.
+         * 
+         * @return long double The long double.
+         */
+        long double to_long_double() const;
 
         /**
          * @brief Check if the number is equal to another Z[\u221A2] object.

@@ -262,6 +262,13 @@ class D {
          * @return float The float representation of the number.
          */
         float to_float() const;
+
+        /**
+         * @brief Convert the number to a double.
+         * 
+         * @return double The double representation of the number.
+         */
+        long double to_long_double() const;
 };
 
 #endif // D_HPP
