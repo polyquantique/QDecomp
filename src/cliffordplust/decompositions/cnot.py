@@ -47,8 +47,10 @@ from numpy.typing import NDArray
 
 from cliffordplust import gates
 from cliffordplust.circuit import QGate
-from cliffordplust.decompositions.common_gate_decompositions import common_decompositions
-from cliffordplust.utils import is_hermitian, is_orthogonal, is_special, is_unitary
+from cliffordplust.decompositions.common_gate_decompositions import \
+    common_decompositions
+from cliffordplust.utils import (is_hermitian, is_orthogonal, is_special,
+                                 is_unitary)
 
 __all__ = [
     "kronecker_decomposition",
@@ -274,13 +276,13 @@ def canonical_decomposition(U: NDArray[np.floating]) -> CanonicalDecomposition:
 
     Given a 4 x 4 unitary matrix ``U``, find the phase ``alpha``, the two 4 x 4 local unitaries ``A`` and ``B``, and
     the three parameters of the canonical gate to decompose the input matrix ``U`` like
-    
+
     .. math:: U = e^{i \\alpha} B \\times Can(t_x, t_y, t_z) \\times A.
-        
+
     ``Can(tx, ty, tz)`` is the canonical gate defined as
 
-    .. math:: Can(t_x, t_y, t_z) = exp(-i\\frac{\\pi}{2} (t_x X\\otimes X + t_y Y\\otimes Y + t_z Z\\otimes Z)), 
-    
+    .. math:: Can(t_x, t_y, t_z) = exp(-i\\frac{\\pi}{2} (t_x X\\otimes X + t_y Y\\otimes Y + t_z Z\\otimes Z)),
+
     where `X`, `Y`, and `Z` are the Pauli matrices.
 
     Args:
