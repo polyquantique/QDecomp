@@ -23,6 +23,13 @@ https://en.wikipedia.org/wiki/Steiner_ellipse
 
 import numpy as np
 
+__all__ = [
+    "assert_steiner_ellipse",
+    "steiner_ellipse_def",
+    "is_inside_ellipse",
+    "ellipse_bbox",
+]
+
 
 def assert_steiner_ellipse(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> None:
     """

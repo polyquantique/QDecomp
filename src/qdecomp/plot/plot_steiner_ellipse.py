@@ -21,8 +21,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.patches import Rectangle
 
-from qdecomp.grid_problem import steiner_ellipse as se
+from qdecomp.utils import steiner_ellipse as se
 
+__all__ = ["plot_ellipse"]
 
 def plot_ellipse(
     ax: plt.Axes, D: np.ndarray, p: np.ndarray, points: np.ndarray | None = None
