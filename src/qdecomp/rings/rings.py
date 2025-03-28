@@ -15,18 +15,19 @@
 """
 Symbolic computation with ring elements.
 
-The ring module provides tools for symbolic computations with elements of various mathematical rings.
+The :mod:`rings` module provides tools for symbolic computations with elements of various mathematical rings.
 Rings are used in many algorithms for the approximation of z-rotation gates into Clifford+T unitaries.
-For more information, see 
-Neil J. Ross and Peter Selinger, Optimal ancilla-free Clifford+T approximation of z-rotations, 
-https://arxiv.org/pdf/1403.2975.
 
-Classes:
-    - D: Ring of dyadic fractions \u2145.
-    - Zsqrt2: Ring of quadratic integers with radicand 2 \u2124[\u221a2].
-    - Dsqrt2: Ring of quadratic dyadic fractions with radicand 2 \u2145[\u221a2].
-    - Zomega: Ring of cyclotomic integers of degree 8 \u2124[\u03C9].
-    - Domega: Ring of cyclotomic dyadic fractions of degree 8 \u2145[\u03C9].
+The module includes the following classes:
+    - :class:`D`: Ring of dyadic fractions :math:`\\mathbb{D}`.
+    - :class:`Zsqrt2`: Ring of quadratic integers with radicand 2 :math:`\\mathbb{Z}[\\sqrt{2}]`.
+    - :class:`Dsqrt2`: Ring of quadratic dyadic fractions with radicand 2 :math:`\\mathbb{D}[\\sqrt{2}]`.
+    - :class:`Zomega`: Ring of cyclotomic integers of degree 8 :math:`\\mathbb{Z}[\\omega]`.
+    - :class:`Domega`: Ring of cyclotomic dyadic fractions of degree 8 :math:`\\mathbb{D}[\\omega]`.
+
+For more information, see 
+
+.. [1] Neil J. Ross and Peter Selinger, Optimal ancilla-free Clifford+T approximation of z-rotations, https://arxiv.org/pdf/1403.2975.
 """
 
 from __future__ import annotations
@@ -44,9 +45,10 @@ SQRT2: float = math.sqrt(2)
 
 
 class D:
-    """Class to do symbolic computation with elements of the ring of dyadic fractions \u2145.
+    """
+    Class to do symbolic computation with elements of the ring of dyadic fractions :math:`\\mathbb{D}`.
 
-    The ring element has the form a/(2^k), where a is an integer and k is a positive integer.
+    The ring element has the form :math:`a/(2^k)`, where a is an integer and k is a positive integer.
 
     Attributes:
         num (int): Numerator of the ring element.
@@ -55,7 +57,8 @@ class D:
     """
 
     def __init__(self, num: int, denom: int) -> None:
-        """Initialize the ring element.
+        """
+        Initialize the ring element.
 
         Args:
             num (int): Numerator of the ring element
@@ -229,21 +232,23 @@ class D:
 
 
 class Zsqrt2:
-    """Class to do symbolic computation with elements of the ring of quadratic integers with radicand 2 \u2124[\u221A2].
+    """
+    Class to do symbolic computation with elements of the ring of quadratic integers with radicand 2 :math:`\\mathbb{Z}[\\sqrt{2}]`.
 
-    The ring element has the form a + b\u221A2, where a and b are integers.
+    The ring element has the form :math:`a + b\\sqrt{2}`, where a and b are integers.
 
     Attributes:
         a (int): Integer coefficient of the ring element.
-        b (int): \u221A2 coefficient of the ring element.
+        b (int): :math:`\\sqrt{2}` coefficient of the ring element.
     """
 
     def __init__(self, a: int, b: int) -> None:
-        """Initialize the ring element.
+        """
+        Initialize the ring element.
 
         Args:
             a (int): Integer coefficient of the ring element.
-            b (int): \u221A2 coefficient of the ring element.
+            b (int): :math:`\\sqrt{2}` coefficient of the ring element.
 
         Raises:
             TypeError: If a or b are not integers.
@@ -264,7 +269,7 @@ class Zsqrt2:
 
     @property
     def b(self) -> int:
-        """\u221A2 coefficient of the ring element."""
+        """:math:`\\sqrt{2}` coefficient of the ring element."""
         return self._b
 
     @property
@@ -311,10 +316,10 @@ class Zsqrt2:
         raise ValueError(f"Cannot convert {type(nb).__name__} to Zsqrt2.")
 
     def sqrt2_conjugate(self) -> Zsqrt2:
-        """Define the \u221A2-conjugation operation.
+        """Define the :math:`\\sqrt{2}`-conjugation operation.
 
         Returns:
-            Zsqrt2: \u221A2-conjugate of the ring element.
+            Zsqrt2: :math:`\\sqrt{2}`-conjugate of the ring element.
         """
         return Zsqrt2(self.a, -self.b)
 
@@ -330,7 +335,7 @@ class Zsqrt2:
         return self.a + bsqrt
 
     def mpfloat(self) -> float:
-        """Define the mpfloat value of the Zsqrt2 class."""
+        """Define the `mpfloat` value of the Zsqrt2 class."""
         return self.a + self.b * mp.sqrt(2)
 
     def __getitem__(self, i: int) -> int:
@@ -463,23 +468,25 @@ class Zsqrt2:
 
 
 class Dsqrt2:
-    """Class to do symbolic computation with elements of the ring of quadratic dyadic fractions \u2145[\u221a2].
+    """
+    Class to do symbolic computation with elements of the ring of quadratic dyadic fractions :math:`\\mathbb{D}[\\sqrt{2}]`.
 
-    The ring element has the form a + b\u221a2, where a and b are dyadic fractions of the form m / 2^n,
+    The ring element has the form :math:`a + b\\sqrt{2}`, where a and b are dyadic fractions of the form :math:`m/2^n`,
     where m is an integer and n is a positive integer.
     The coefficients are automatically reduced when the class is initialized.
 
     Attributes:
         a (D): Rational coefficient of the ring element.
-        b (D): \u221a2 coefficient of the ring element.
+        b (D): :math:`\\sqrt{2}` coefficient of the ring element.
     """
 
     def __init__(self, a: tuple[int, int] | D, b: tuple[int, int] | D) -> None:
-        """Initialize the Dsqrt2 class.
+        """
+        Initialize the Dsqrt2 class.
 
         Args:
             a (tuple[int, int] | D): Rational coefficient of the ring element.
-            b (tuple[int, int] | D): \u221a2 coefficient of the ring element.
+            b (tuple[int, int] | D): :math:`\\sqrt{2}` coefficient of the ring element.
 
         Raises:
             TypeError: If the class arguments are not 2-tuples of integers or D objects.
@@ -512,22 +519,22 @@ class Dsqrt2:
 
     @property
     def b(self) -> D:
-        """\u221A2 coefficient of the ring element."""
+        """:math:`\\sqrt{2}` coefficient of the ring element."""
         return self._b
 
     @property
     def is_zomega(self) -> bool:
-        """Return True if the ring element is in the ring \u2124[\u03C9]."""
+        """Return True if the ring element is in the ring :math:`\\mathbb{Z}[\\omega]`."""
         return self.a.is_integer and self.b.is_integer
 
     @property
     def is_zsqrt2(self) -> bool:
-        """Return True if the ring element is in the ring \u2124[\u221a2]."""
+        """Return True if the ring element is in the ring :math:`\\mathbb{Z}[\\sqrt{2}]`."""
         return self.a.is_integer and self.b.is_integer
 
     @property
     def is_d(self) -> bool:
-        """Return True if the ring element is in the ring \u2145."""
+        """Return True if the ring element is in the ring :math:`\\mathbb{D}`."""
         return self.b == 0
 
     @property
@@ -572,10 +579,10 @@ class Dsqrt2:
         raise ValueError(f"Cannot convert {type(nb).__name__} to Dsqrt2.")
 
     def sqrt2_conjugate(self) -> Dsqrt2:
-        """Define the \u221A2-conjugation operation.
+        """Define the :math:`\\sqrt{2}`-conjugation operation.
 
         Returns:
-            Dsqrt2: \u221A2-conjugate of the ring element.
+            Dsqrt2: :math:`\\sqrt{2}`-conjugate of the ring element.
         """
         return Dsqrt2(self.a, -self.b)
 
@@ -595,7 +602,7 @@ class Dsqrt2:
         return a + bsqrt
 
     def mpfloat(self) -> float:
-        """Define the mpfloat value of the Dsqrt2 class."""
+        """Define the `mpfloat` value of the Dsqrt2 class."""
         return self.a.mpfloat() + self.b.mpfloat() * mp.sqrt(2)
 
     def __getitem__(self, i: int) -> D:
@@ -720,29 +727,31 @@ class Dsqrt2:
 
 
 class Zomega:
-    """Class to do symbolic computation with elements of the ring of cyclotomic integers of degree 8 \u2124[\u03C9].
+    """
+    Class to do symbolic computation with elements of the ring of cyclotomic integers of degree 8 :math:`\\mathbb{Z}[\\omega]`.
 
-    The ring element has the form a\u03C9^3 + b\u03C9^2 + c\u03C9 + d, where \u03C9 = (1 + i)/\u221a2.
+    The ring element has the form :math:`a\\omega^3 + b\\omega^2 + c\\omega + d`, where :math:`\\omega = (1 + i)/\\sqrt{2}`.
     The coefficients a, b, c, d are integers.
 
-    The ring element can also be expressed as \u03B1 + i*\u03B2, where i = \u221a-1, and \u03B1 and \u03B2 are numbers in the ring \u2145[\u221a2].
-    These numbers are related to the coefficient a, b, c and d through the expressions: \u03B1 = d + (c-a)/2 \u221a2 and \u03B2 = b + (c+a)/2 \u221a2.
+    The ring element can also be expressed as :math:`\\alpha + i\\beta`, where :math:`i = \\sqrt{-1}`, and :math:`\\alpha` and :math:`\\beta` are numbers in the ring :math:`\\mathbb{D}[\\sqrt{2}]`.
+    These numbers are related to the coefficient a, b, c and d through the expressions: :math:`\\alpha = d + (c-a)/2 \\sqrt{2}` and :math:`\\beta = b + (c+a)/2 \\sqrt{2}`.
 
     Attributes:
-        a (int): \u03C9^3 coefficient of the ring element.
-        b (int): \u03C9^2 coefficient of the ring element.
-        c (int): \u03C9^1 coefficient of the ring element.
-        d (int): \u03C9^0 coefficient of the ring element.
+        a (int): :math:`\\omega^3` coefficient of the ring element.
+        b (int): :math:`\\omega^2` coefficient of the ring element.
+        c (int): :math:`\\omega^1` coefficient of the ring element.
+        d (int): :math:`\\omega^0` coefficient of the ring element.
     """
 
     def __init__(self, a: int, b: int, c: int, d: int) -> None:
-        """Initialize the Zomega class.
+        """
+        Initialize the Zomega class.
 
         Args:
-            a (int): \u03C9^3 coefficient of the ring element.
-            b (int): \u03C9^2 coefficient of the ring element.
-            c (int): \u03C9^1 coefficient of the ring element.
-            d (int): \u03C9^0 coefficient of the ring element.
+            a (int): :math:`\\omega^3` coefficient of the ring element.
+            b (int): :math:`\\omega^2` coefficient of the ring element.
+            c (int): :math:`\\omega^1` coefficient of the ring element.
+            d (int): :math:`\\omega^0` coefficient of the ring element.
 
         Raises:
             TypeError: If the class arguments are not integers.
@@ -760,37 +769,37 @@ class Zomega:
 
     @property
     def a(self) -> int:
-        """\u03C9^3 coefficient of the ring element."""
+        """:math:`\\omega^3` coefficient of the ring element."""
         return self._a
 
     @property
     def b(self) -> int:
-        """\u03C9^2 coefficient of the ring element."""
+        """:math:`\\omega^2` coefficient of the ring element."""
         return self._b
 
     @property
     def c(self) -> int:
-        """\u03C9^1 coefficient of the ring element."""
+        """:math:`\\omega^1` coefficient of the ring element."""
         return self._c
 
     @property
     def d(self) -> int:
-        """\u03C9^0 coefficient of the ring element."""
+        """:math:`\\omega^0` coefficient of the ring element."""
         return self._d
 
     @property
     def is_dsqrt2(self) -> bool:
-        """True if the ring element is element of \u2145[\u221a2]."""
+        """True if the ring element is element of :math:`\\mathbb{D}[\\sqrt{2}]`."""
         return self.b == 0 and self.c + self.a == 0
 
     @property
     def is_zsqrt2(self) -> bool:
-        """True if the ring element is element of \u2124[\u221a2]."""
+        """True if the ring element is element of :math:`\\mathbb{Z}[\\sqrt{2}]`."""
         return self.b == 0 and self.c + self.a == 0
 
     @property
     def is_d(self) -> bool:
-        """True if the ring element is element of \u2145."""
+        """True if the ring element is element of :math:`\\mathbb{D}`."""
         return self.a == 0 and self.b == 0 and self.c == 0
 
     @property
@@ -855,7 +864,7 @@ class Zomega:
         return self.d + sqrt_value
 
     def mp_real(self) -> float:
-        """Return the real part of the ring element in mpfloat representation."""
+        """Return the real part of the ring element in `mpfloat` representation."""
         return self.d + (self.c - self.a) / mp.sqrt(2)
 
     def imag(self) -> float:
@@ -874,7 +883,7 @@ class Zomega:
         return self.b + sqrt_value
 
     def mp_imag(self) -> float:
-        """Return the imaginary part of the ring element in mpfloat representation."""
+        """Return the imaginary part of the ring element in `mpfloat` representation."""
         return self.b + (self.c + self.a) / mp.sqrt(2)
 
     def __complex__(self) -> complex:
@@ -882,7 +891,7 @@ class Zomega:
         return self.real() + 1j * self.imag()
 
     def mpcomplex(self) -> complex:
-        """Define the mpcomplex value of the Zomega class."""
+        """Define the `mpcomplex` value of the Zomega class."""
         return mp.mpc(self.mp_real(), self.mp_imag())
 
     def complex_conjugate(self) -> Zomega:
@@ -894,10 +903,10 @@ class Zomega:
         return Zomega(a=-self.c, b=-self.b, c=-self.a, d=self.d)
 
     def sqrt2_conjugate(self) -> Zomega:
-        """Compute the \u221a2-conjugate of the ring element.
+        """Compute the :math:`\\sqrt{2}`-conjugate of the ring element.
 
         Returns:
-            Zomega: \u221a2-conjugate of the ring element.
+            Zomega: :math:`\\sqrt{2}`-conjugate of the ring element.
         """
         return Zomega(a=-self.a, b=self.b, c=-self.c, d=self.d)
 
@@ -1022,21 +1031,22 @@ class Zomega:
 
 
 class Domega:
-    """Class to do symbolic computation with elements of the ring \u2145[\u03C9].
+    """
+    Class to do symbolic computation with elements of the ring :math:`\\mathbb{D}[\\omega]`.
 
-    The ring element has the form a\u03C9^3 + b\u03C9^2 + c\u03C9 + d, where \u03C9 = (1 + i)/\u221a2.
-    The coefficients a, b, c, d are dyadic fractions of the form m / 2^n, where m is an integer and n is a positive integer.
+    The ring element has the form :math:`a\\omega^3 + b\\omega^2 + c\\omega + d`, where :math:`\\omega = (1 + i)/\\sqrt{2}`.
+    The coefficients a, b, c, d are dyadic fractions of the form :math:`m / 2^n`, where m is an integer and n is a positive integer.
     The coefficients are automatically reduced when the class is initialized.
 
-    The ring element can also be expressed as \u03B1 + i*\u03B2, where i = \u221a-1, and \u03B1 and \u03B2 are numbers in the ring \u2145[\u221a2].
-    These numbers are related to the coefficient a, b, c and d through the expressions: \u03B1 = d + (c-a)/2 \u221a2 and \u03B2 = b + (c+a)/2 \u221a2.
+    The ring element can also be expressed as :math:`\\alpha + i\\beta`, where :math:`i = \\sqrt{-1}`, and :math:`\\alpha` and :math:`\\beta` are numbers in the ring :math:`\\mathbb{D}[\\sqrt{2}]`.
+    These numbers are related to the coefficient a, b, c and d through the expressions: :math:`\\alpha = d + (c-a)/2 \\sqrt{2}` and :math:`\\beta = b + (c+a)/2 \\sqrt{2}`.
 
 
     Attributes:
-        a (D): \u03C9^3 coefficient of the ring element.
-        b (D): \u03C9^2 coefficient of the ring element.
-        c (D): \u03C9^1 coefficient of the ring element.
-        d (D): \u03C9^0 coefficient of the ring element.
+        a (D): :math:`\\omega^3` coefficient of the ring element.
+        b (D): :math:`\\omega^2` coefficient of the ring element.
+        c (D): :math:`\\omega^1` coefficient of the ring element.
+        d (D): :math:`\\omega^0` coefficient of the ring element.
     """
 
     def __init__(
@@ -1046,13 +1056,14 @@ class Domega:
         c: tuple[int, int] | D,
         d: tuple[int, int] | D,
     ) -> None:
-        """Initialize the Domega class.
+        """
+        Initialize the Domega class.
 
         Args:
-            a (tuple[int, int] | D): \u03C9^3 coefficient of the ring element.
-            b (tuple[int, int] | D): \u03C9^2 coefficient of the ring element.
-            c (tuple[int, int] | D): \u03C9^1 coefficient of the ring element.
-            d (tuple[int, int] | D): \u03C9^0 coefficient of the ring element.
+            a (tuple[int, int] | D): :math:`\\omega^3` coefficient of the ring element.
+            b (tuple[int, int] | D): :math:`\\omega^2` coefficient of the ring element.
+            c (tuple[int, int] | D): :math:`\\omega^1` coefficient of the ring element.
+            d (tuple[int, int] | D): :math:`\\omega^0` coefficient of the ring element.
 
         Raises:
             TypeError: If the class arguments are not 2-tuples of integers or D objects.
@@ -1082,42 +1093,42 @@ class Domega:
 
     @property
     def a(self) -> D:
-        """\u03C9^3 coefficient of the ring element."""
+        """:math:`\\omega^3` coefficient of the ring element."""
         return self._a
 
     @property
     def b(self) -> D:
-        """\u03C9^2 coefficient of the ring element."""
+        """:math:`\\omega^2` coefficient of the ring element."""
         return self._b
 
     @property
     def c(self) -> D:
-        """\u03C9^1 coefficient of the ring element."""
+        """:math:`\\omega^1` coefficient of the ring element."""
         return self._c
 
     @property
     def d(self) -> D:
-        """\u03C9^0 coefficient of the ring element."""
+        """:math:`\\omega^0` coefficient of the ring element."""
         return self._d
 
     @property
     def is_zomega(self) -> bool:
-        """True if the ring element is element of \u2124[\u03C9]."""
+        """True if the ring element is element of :math:`\\mathbb{Z}[\\omega]`."""
         return self.a.is_integer and self.b.is_integer and self.c.is_integer and self.d.is_integer
 
     @property
     def is_dsqrt2(self) -> bool:
-        """True if the ring element is element of \u2145[\u221a2]."""
+        """True if the ring element is element of :math:`\\mathbb{D}[\\sqrt{2}]`."""
         return self.b == 0 and self.c + self.a == 0
 
     @property
     def is_zsqrt2(self) -> bool:
-        """True if the ring element is element of \u2124[\u221a2]."""
+        """True if the ring element is element of :math:`\\mathbb{Z}[\\sqrt{2}]`."""
         return self.b == 0 and self.c + self.a == 0 and self.d.is_integer and self.c.is_integer
 
     @property
     def is_d(self) -> bool:
-        """True if the ring element is element of \u2145."""
+        """True if the ring element is element of :math:`\\mathbb{D}`."""
         return self.a == 0 and self.b == 0 and self.c == 0
 
     @property
@@ -1185,7 +1196,7 @@ class Domega:
         return d + sqrt_value
 
     def mp_real(self) -> float:
-        """Return the real part of the ring element in mpfloat representation."""
+        """Return the real part of the ring element in `mpfloat` representation."""
         return self.d.mpfloat() + (self.c - self.a).mpfloat() / mp.sqrt(2)
 
     def imag(self) -> float:
@@ -1210,7 +1221,7 @@ class Domega:
         return b + sqrt_value
 
     def mp_imag(self) -> float:
-        """Return the imaginary part of the ring element in mpfloat representation."""
+        """Return the imaginary part of the ring element in `mpfloat` representation."""
         return self.b.mpfloat() + (self.c + self.a).mpfloat() / mp.sqrt(2)
 
     def __complex__(self) -> complex:
@@ -1218,13 +1229,14 @@ class Domega:
         return self.real() + 1j * self.imag()
 
     def mpcomplex(self) -> complex:
-        """Define the mpcomplex value of the Domega class."""
+        """Define the `mpcomplex` value of the Domega class."""
         return mp.mpc(self.mp_real(), self.mp_imag())
 
     def sde(self) -> int | float:
-        """Return the smallest denominator exponent (sde) of base \u221a2 of the ring element.
+        """
+        Return the smallest denominator exponent (sde) of base :math:`\\sqrt{2}` of the ring element.
 
-        The sde of the ring element d \u2208 \u2145[\u03C9] is the smallest integer value k such that d * (\u221a2)^k \u2208 \u2124[\u03C9].
+        The sde of the ring element :math:`d \\in \\mathbb{D}[\\omega]` is the smallest integer value k such that :math:`d * (\\sqrt{2})^k \\in \\mathbb{Z}[\\omega]`.
         """
         sde: int = 0
 
@@ -1266,10 +1278,10 @@ class Domega:
         return Domega(a=-self.c, b=-self.b, c=-self.a, d=self.d)
 
     def sqrt2_conjugate(self) -> Domega:
-        """Compute the \u221a2-conjugate of the ring element.
+        """Compute the :math:`\\sqrt{2}`-conjugate of the ring element.
 
         Returns:
-            Domega: \u221a2-conjugate of the ring element.
+            Domega: :math:`\\sqrt{2}`-conjugate of the ring element.
         """
         return Domega(a=-self.a, b=self.b, c=-self.c, d=self.d)
 
