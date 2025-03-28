@@ -13,8 +13,11 @@
 #    limitations under the License.
 
 """
-This module allows to plot an ellipse defined by its matrix D and center p (refer to the file
-"cliffordplust/grid_problem/steiner_ellipse.py").
+This module provides the function :func:`plot_ellipse`, which plot an ellipse defined by its matrix D and center p.
+
+The function also plots the bounding box (BBOX) of the ellipse.
+
+For more details, see the :mod:`qdecomp.utils.steiner_ellipse` module.
 """
 
 import matplotlib.pyplot as plt
