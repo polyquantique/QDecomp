@@ -236,19 +236,32 @@ Domega solve_xi_eq_ttdag_in_d(Dsqrt2 xi) {
     Domega delta_inv_l = delta_inv.pow(l);  // delta^-l
 
     Domega t = delta_inv_l * s.to_Domega();
-    Dsqrt2 tt = (t * t.complex_conjugate()).to_Dsqrt2();
+    // Dsqrt2 tt = (t * t.complex_conjugate()).to_Dsqrt2();
 
-    // Find u such that xi = u * t * t†
-    D denom = (tt * tt.sqrt2_conjugate()).to_D();
-    long long int num_ = denom.num();
-    unsigned short denom_ = denom.denom();
-    Zsqrt2 u_temp = (xi * tt.sqrt2_conjugate() * Dsqrt2(1 << denom_, 0, 0, 0)).to_Zsqrt2();
-    Zsqrt2 u(u_temp.p() / num_, u_temp.q() / num_);
+    // // Find u such that xi = u * t * t†
+    // D denom = (tt * tt.sqrt2_conjugate()).to_D();
+    // long long int num_ = denom.num();
+    // unsigned short denom_ = denom.denom();
+    // Zsqrt2 u_temp = (xi * tt.sqrt2_conjugate() * Dsqrt2(1 << denom_, 0, 0, 0)).to_Zsqrt2();
+    // Zsqrt2 u(u_temp.p() / num_, u_temp.q() / num_);
 
-    // u is of the form u = λ**2n => n = ln(u) / 2 ln(λ)
-    short n = static_cast<short>(
-        std::round(std::log(u.to_float()) / (2 * std::log(1+std::sqrt(2.0))))
-    );
+    // // u is of the form u = λ**2n => n = ln(u) / 2 ln(λ)
+    // short n = static_cast<short>(
+    //     std::round(std::log(u.to_float()) / (2 * std::log(1+std::sqrt(2.0))))
+    // );
+
+    // Find u such that xi = u * t * t†, u = λ**2n, t = δ^-l * s, δ * δ† = sqrt(2) * λ
+    // => xi = λ^2n (λ sqrt(2))^-l * s * s† = λ^(2n-l) * s * s†
+    // => ln(xi) = (2n-l) ln(λ) - l ln(sqrt(2)) + ln (s * s†)
+    // => 2n - l = ( ln(xi) + l ln(sqrt(2)) - ln(s * s†) ) / ln(λ)
+    // => n = ( ln(xi) + l ln(sqrt(2)) - ln(s * s†) ) / (2 ln(λ)) + l / 2
+    Zsqrt2 ss = (s * s.complex_conjugate()).to_Zsqrt2();
+    long double sqrt2 = std::sqrt(static_cast<long double>(2));
+    short n = static_cast<short>( std::round(
+        (std::log(xi.to_long_double()) + l * std::log(sqrt2) - std::log(ss.to_long_double())) / 
+        (2 * std::log(1 + sqrt2))
+        + static_cast<float>(l) / 2
+    ));
 
     // v**2 = u => v = λ**n
     Domega v(0, 0, 0, 0, 0, 0, 0, 0);
