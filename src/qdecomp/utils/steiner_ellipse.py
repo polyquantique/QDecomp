@@ -13,12 +13,9 @@
 #    limitations under the License.
 
 """
-This module allows to find the smallest ellipse englobing three points using the Steiner algorithm.
-The module also contains useful functions allowing find the bounding box (BBOX) of an ellipse and
+This module allows to find the smallest ellipse englobing three points using the `Steiner algorithm <https://en.wikipedia.org/wiki/Steiner_ellipse>`_.
+The module also contains useful functions allowing to find the bounding box (BBOX) of an ellipse and
 determine wether points are inside an ellipse using its matrix definition.
-
-See this page for more information:
-https://en.wikipedia.org/wiki/Steiner_ellipse
 """
 
 import numpy as np
