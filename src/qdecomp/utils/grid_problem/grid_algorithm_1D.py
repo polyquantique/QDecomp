@@ -13,18 +13,23 @@
 #    limitations under the License.
 
 """
-This file contains the functions solve_grid_problem_1d and plot_grid_problem.
+The ``grid_algorithm_1D`` module contains functions to solve the 1D grid problem for two intervals A and B.
 
-1) solve_grid_problem_1d
-Given two real closed intervals A and B, solve_grid_problem_1d finds all the solutions alpha in 
-the ring of quadratic integers with radicand 2, \u2124[\u221A2], such that alpha is in A and the \u221A2-conjugate 
-of alpha is in B. This function is a sub-algorithm to solve 2D grid problems for upright
-rectangles. For more information, see
-Neil J. Ross and Peter Selinger, Optimal ancilla-free Clifford+T approximation of z-rotations, https://arxiv.org/pdf/1403.2975
+The module provides two main functions:
 
-2) plot_grid_problem
-The function plot_grid_problem plots the solutions of the grid problem for the intervals A and B and their 
+1) :func:`solve_grid_problem_1d`:
+Given two real closed intervals A and B, :func:`solve_grid_problem_1d` finds all the solutions ``alpha`` in 
+the ring of quadratic integers with radicand 2, :math:`\\mathbb{Z}[\\sqrt{2}]`, such that ``alpha`` is in A and the :math:`\\sqrt{2}`-conjugate 
+of ``alpha`` is in B. This function is a sub-algorithm to solve 2D grid problems for upright
+rectangles. 
+
+2) :func:`plot_grid_problem`:
+The function :func:`plot_grid_problem` plots the solutions of the grid problem for the intervals A and B and their 
 conjugate on the real axis. The plot also contains the intervals A and B.
+
+For more information on solving 1D grid problems, see the following references:
+
+.. [1] Neil J. Ross and Peter Selinger, Optimal ancilla-free Clifford+T approximation of z-rotations, https://arxiv.org/pdf/1403.2975.
 """
 
 from __future__ import annotations
@@ -44,10 +49,11 @@ from qdecomp.rings import INVERSE_LAMBDA, LAMBDA, Zsqrt2
 __all__ = ["solve_grid_problem_1d", "plot_grid_problem"]
 
 def solve_grid_problem_1d(A: Sequence[num.Real], B: Sequence[num.Real]) -> list[Zsqrt2]:
-    """Solves the 1 dimensional grid problem for two sets and returns the result.
+    """
+    Solves the 1 dimensional grid problem for two sets and returns the result.
 
-    Given two real closed sets A and B, this function finds all the solutions x in the ring \u2124[\u221A2] such that
-    x is in A and the \u221A2-conjugate of x is in B.
+    Given two real closed sets A and B, this function finds all the solutions x in the ring :math:`\\mathbb{Z}[\\sqrt{2}]` such that
+    x is in A and the :math:`\\sqrt{2}`-conjugate of x is in B.
 
     Args:
         A (Sequence[Real, Real]): Bounds of the first interval.
@@ -140,7 +146,8 @@ def plot_grid_problem(
     solutions: Sequence[Zsqrt2],
     show: Optional[bool] = False,
 ) -> None:
-    """Plot the solutions of the 1D grid problem on the real axis.
+    """
+    Plot the solutions of the 1D grid problem on the real axis.
 
     Given the two real intervals A and B and the solution to their 1D grid problems,
     plot the solutions and their conjugate on the real axis.
