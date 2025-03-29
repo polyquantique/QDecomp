@@ -20,11 +20,11 @@ extensions = [
     'sphinx.ext.viewcode',  # Links source code in documentation
     'sphinx.ext.todo',  # Support for TODO notes
     'myst_parser',  # Enables Markdown support
+    "sphinx.ext.autosummary",  # Generates summary tables for modules, classes, and functions
 ]
 
 templates_path = ['_templates']
 exclude_patterns = []
-
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -36,3 +36,5 @@ html_static_path = ['_static']
 # -- Auto API configuration --------------------------------------------------
 autoapi_type = "python"
 autoapi_dirs = ["../../src/qdecomp"]
+
+autosummary_generate = True  # Automatically create summary tables
