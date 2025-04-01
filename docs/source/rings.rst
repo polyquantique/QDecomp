@@ -1,5 +1,5 @@
 Ring Module
-=============
+===========
 
 
 .. automodule:: qdecomp.rings.rings

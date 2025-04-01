@@ -1,11 +1,11 @@
 Decompositions
-===============
+==============
 
 The ``qdecomp.decompositions`` subpackage contains various decomposition and approximation algorithms for single and two-qubits quantum gates. 
 The following sections provide an overview of the available decompositions.
 
 ZYZ Module
-------------
+----------
 
 .. automodule:: qdecomp.decompositions.zyz
     :members:
@@ -13,6 +13,6 @@ ZYZ Module
     :show-inheritance:
 
 CNOT Module
--------------
+-----------
 
 

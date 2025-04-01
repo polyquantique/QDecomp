@@ -8,7 +8,7 @@ Reference documentation for the `QDecomp` package.
     :maxdepth: 2
 
     decompositions
-    utils/utils
+    utils/index
 
 .. toctree::
     :maxdepth: 1

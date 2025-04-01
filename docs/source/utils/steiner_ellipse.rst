@@ -1,5 +1,5 @@
 Steiner Ellipse Module
-=======================
+======================
 
 
 .. automodule:: qdecomp.utils.steiner_ellipse
