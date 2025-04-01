@@ -27,7 +27,7 @@ rectangles.
 The function :func:`plot_grid_problem` plots the solutions of the grid problem for the intervals A and B and their 
 conjugate on the real axis. The plot also contains the intervals A and B.
 
-For more information on solving 1D grid problems, see the following references:
+For more information on solving 1D grid problems, see [1]_.
 
 .. [1] Neil J. Ross and Peter Selinger, Optimal ancilla-free Clifford+T approximation of z-rotations, https://arxiv.org/pdf/1403.2975.
 """
