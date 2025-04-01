@@ -23,7 +23,7 @@ where :math:`R_z` and :math:`R_y` are the rotation gates around the Z and Y axes
 This module defines the function :func:`zyz_decomposition` that perform this decomposition on a given unitary 2 x 2 matrix.
 It returns the three rotation angles :math:`\\theta_0,  \\theta_1, \\theta_2` and the phase :math:`\\alpha`.
 
-For more details, see the following reference:
+For more details, see [1]_.
 
 .. [1] Section 4.1 of "Quantum Gates" by Gavin E. Crooks at https://threeplusone.com/pubs/on_gates.pdf.
 """

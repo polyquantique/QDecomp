@@ -25,7 +25,7 @@ The module includes the following classes:
     - :class:`Zomega`: Ring of cyclotomic integers of degree 8 :math:`\\mathbb{Z}[\\omega]`.
     - :class:`Domega`: Ring of cyclotomic dyadic fractions of degree 8 :math:`\\mathbb{D}[\\omega]`.
 
-For more information, see 
+For more information, see [1]_.
 
 .. [1] Neil J. Ross and Peter Selinger, Optimal ancilla-free Clifford+T approximation of z-rotations, https://arxiv.org/pdf/1403.2975.
 """
@@ -50,7 +50,7 @@ class D:
 
     The ring element has the form :math:`a/(2^k)`, where a is an integer and k is a positive integer.
 
-    Attributes:
+    Parameters:
         num (int): Numerator of the ring element.
         denom (int): Power of 2 in the denominator of the ring element.
         is_integer (bool): True if the ring element is an integer.
@@ -237,7 +237,7 @@ class Zsqrt2:
 
     The ring element has the form :math:`a + b\\sqrt{2}`, where a and b are integers.
 
-    Attributes:
+    Parameters:
         a (int): Integer coefficient of the ring element.
         b (int): :math:`\\sqrt{2}` coefficient of the ring element.
     """
@@ -475,7 +475,7 @@ class Dsqrt2:
     where m is an integer and n is a positive integer.
     The coefficients are automatically reduced when the class is initialized.
 
-    Attributes:
+    Parameters:
         a (D): Rational coefficient of the ring element.
         b (D): :math:`\\sqrt{2}` coefficient of the ring element.
     """
@@ -736,7 +736,7 @@ class Zomega:
     The ring element can also be expressed as :math:`\\alpha + i\\beta`, where :math:`i = \\sqrt{-1}`, and :math:`\\alpha` and :math:`\\beta` are numbers in the ring :math:`\\mathbb{D}[\\sqrt{2}]`.
     These numbers are related to the coefficient a, b, c and d through the expressions: :math:`\\alpha = d + (c-a)/2 \\sqrt{2}` and :math:`\\beta = b + (c+a)/2 \\sqrt{2}`.
 
-    Attributes:
+    Parameters:
         a (int): :math:`\\omega^3` coefficient of the ring element.
         b (int): :math:`\\omega^2` coefficient of the ring element.
         c (int): :math:`\\omega^1` coefficient of the ring element.
@@ -1042,7 +1042,7 @@ class Domega:
     These numbers are related to the coefficient a, b, c and d through the expressions: :math:`\\alpha = d + (c-a)/2 \\sqrt{2}` and :math:`\\beta = b + (c+a)/2 \\sqrt{2}`.
 
 
-    Attributes:
+    Parameters:
         a (D): :math:`\\omega^3` coefficient of the ring element.
         b (D): :math:`\\omega^2` coefficient of the ring element.
         c (D): :math:`\\omega^1` coefficient of the ring element.
