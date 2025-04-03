@@ -75,13 +75,5 @@ def generate_s3() -> None:
     with open(os.path.join(os.path.dirname(__file__), "s3_table.json"), "w") as f:
         f.write(serialized_dict)
 
-    # def serialize_dict(d):
-    #     return {
-    #         k: [[list(inner) for inner in outer] for outer in v] for k, v in d.items()
-    #     }
-
-    # with open(os.path.join(os.path.dirname(__file__), "s3_table.json"), "w") as f:
-    #     json.dump(serialize_dict(s3_dict), f, indent=4)
-
 
 generate_s3()

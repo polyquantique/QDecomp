@@ -21,6 +21,9 @@ import pytest
 
 from cliffordplust.exact_synthesis import *
 
+# Set a fixed random seed for reproducibility
+np.random.seed(42)
+
 
 def random_sequence(n: int) -> str:
     """Generate a random sequence of H and T gates of length n
@@ -31,7 +34,9 @@ def random_sequence(n: int) -> str:
     """
     sequence = ""
     for _ in range(n):
-        sequence += np.random.choice(["H", "HT", "HTT", "HTTT"])
+        sequence += np.random.choice(
+            ["H", "HT", "HTT", "HTTT", "HTTTT", "HTTTTT", "HTTTTTT", "HTTTTTTT"]
+        )
     return sequence
 
 
@@ -47,6 +52,28 @@ def test_random_sequence_characters():
     """Test if the random sequence contains only 'H' and 'T' characters."""
     sequence = random_sequence(10)
     assert all(char in "HT" for char in sequence)
+
+
+@pytest.mark.parametrize(
+    "sequence, expected",
+    [
+        ("HTHTTHTHTHW", H @ T @ H @ T @ T @ H @ T @ H @ T @ H @ W),
+        ("", I),
+        ("H", H),
+        ("T", T),
+        ("W", W),
+        ("HT", H @ T),
+        ("TH", T @ H),
+        ("HTW", H @ T @ W),
+        ("TWH", T @ W @ H),
+        ("HTHT", H @ T @ H @ T),
+        ("THTTHTTTTTTH", T @ H @ T @ T @ H @ T @ T @ T @ T @ T @ T @ H),
+    ],
+)
+def test_apply_sequence_identity_parametrized(sequence, expected):
+    """Test if apply_sequence correctly applies a sequence of gates to the identity matrix with various sequences."""
+    result = apply_sequence(sequence)
+    assert np.array_equal(result, expected)
 
 
 def test_apply_sequence_identity():
