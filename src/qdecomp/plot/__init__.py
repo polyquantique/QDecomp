@@ -12,4 +12,5 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+from qdecomp.plot.plot_grid_problem import *
 from qdecomp.plot.plot_steiner_ellipse import *

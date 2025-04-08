@@ -12,4 +12,4 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-from qdecomp.utils.grid_problem.grid_algorithm_1D import *
+from qdecomp.utils.grid_problem.grid_algorithms import *
