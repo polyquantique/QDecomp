@@ -13,19 +13,24 @@
 #    limitations under the License.
 
 """
-This file contains the functions solve_grid_problem_1d and solve_grid_problem_2d.
+The ``grid_algorithms`` module contains functions to solve 1D and 2D grid algorithms.
 
-1) solve_grid_problem_1d
-Given two real closed intervals A and B, solve_grid_problem_1d finds all the solutions alpha in 
-the ring of quadratic integers with radicand 2, \u2124[\u221A2], such that alpha is in A and the \u221A2-conjugate 
-of alpha is in B. This function is a sub-algorithm to solve 2D grid problems for upright
-rectangles. For more information, see
-Neil J. Ross and Peter Selinger, Optimal ancilla-free Clifford+T approximation of z-rotations, https://arxiv.org/pdf/1403.2975
+The module provides two main functions:
 
-2) solve_grid_problem_2d
-Given two upright rectangles A and B in the complex plane, solve_grid_problem_2d finds all the solutions alpha in the ring of 
-cyclotomic integers with radicand 2 \u2124[\u03C9] such that alpha is in A and the \u221A2-conjugate of alpha is in B. 
-The solutions are used as candidates for the Clifford+T approximation of z-rotation gates.
+1) :func:`solve_grid_problem_1d`:
+Given two real closed intervals A and B, :func:`solve_grid_problem_1d` finds all the solutions `x` in 
+the ring of quadratic integers with radicand 2, :math:`\\mathbb{Z}[\\sqrt{2}]`, such that `x` is in A and the :math:`\\sqrt{2}`-conjugate 
+of `x` is in B. This function is a sub-algorithm to solve 2D grid problems for upright
+rectangles. 
+
+2) :func:`solve_grid_problem_2d`:
+Given two upright rectangles A and B in the complex plane, :func:`solve_grid_problem_2d` finds all the solutions `x` in the ring of 
+cyclotomic integers with radicand 2, :math:`\\mathbb{Z}[\\omega]`, such that `x` is in A and the :math:`\\sqrt{2}`-conjugate of `x` is in B. 
+The solutions are used as candidates for unitary matrix entries in the Clifford+T approximation of z-rotation gates.
+
+For more information on solving 1D and 2D grid problems, see [1]_.
+
+.. [1] Neil J. Ross and Peter Selinger, Optimal ancilla-free Clifford+T approximation of z-rotations, https://arxiv.org/pdf/1403.2975.
 """
 
 from __future__ import annotations
@@ -36,8 +41,9 @@ from numbers import Real
 
 import mpmath as mp
 import numpy as np
-from cliffordplust.rings import INVERSE_LAMBDA, LAMBDA, Zomega, Zsqrt2
 from numpy.typing import NDArray
+
+from qdecomp.rings import INVERSE_LAMBDA, LAMBDA, Zomega, Zsqrt2
 
 SQRT2 = mp.sqrt(2)
 
@@ -49,12 +55,12 @@ def solve_grid_problem_1d(
 ) -> Generator[Zsqrt2]:
     """Solve the 1-dimensional grid problem for two intervals and return the result.
 
-    Given two real closed intervals A and B, find all the solutions x in the ring \u2124[\u221A2] such that
-    x \u2208 A and \u221A2-conjugate(x) \u2208 B.
+    Given two real closed sets A and B, this function finds all the solutions `x` in the ring :math:`\\mathbb{Z}[\\sqrt{2}]` such that
+    `x` is in A and the :math:`\\sqrt{2}`-conjugate of `x` is in B.
 
     Args:
-        A (Sequence[Real]): (A0, A1): Bounds of the first interval.
-        B (Sequence[Real]): (B0, B1): Bounds of the second interval.
+        A (Sequence[Real, Real]): (A0, A1): Bounds of the first interval.
+        B (Sequence[Real, Real]): (B0, B1): Bounds of the second interval.
 
     Returns:
         Generator[Zsqrt2]: A generator of all solutions to the grid problem. The solutions are given as Zsqrt2 objects.
@@ -153,17 +159,18 @@ def solve_grid_problem_2d(
     """
     Solve the 2-dimensional grid problem for two upright rectangles and return the result.
 
-    Given two real 2D closed sets A and B of the form [a b] x [c, d], find all the solutions x in \u2124[\u03C9] such that x \u2208 A and \u221a2-conjugate(x) \u2208 B.
+    Given two real 2D closed sets A and B of the form [a, b] x [c, d], find all the solutions `x` in the ring :math:`\\mathbb{Z}[\\omega]` 
+    such that `x` is in A and the :math:`\\sqrt{2}`-conjugate of `x` is in B.
 
     Args:
-        A (Sequence[Sequence[Real]]): [(A0, A1), (A2, A3)]: Bounds of the first upright rectangle. Rows correspond to the x and y axis respectively.
-        B (Sequence[Sequence[Real]]): [(B0, B1), (B2, B3)]: Bounds of the second upright rectangle. Rows correspond to the x and y axis respectively.
+        A (Sequence[Sequence[Real, Real]]): [(A0, A1), (A2, A3)]: Bounds of the first upright rectangle. Rows correspond to the x and y axis respectively.
+        B (Sequence[Sequence[Real, Real]]): [(B0, B1), (B2, B3)]: Bounds of the second upright rectangle. Rows correspond to the x and y axis respectively.
 
     Returns:
         Generator[Zomega]: A generator of all solutions to the grid problem. The solutions are given as Zomega objects.
 
     Raises:
-        TypeError: If intervals A and B are not real 2 x 2 sequences.
+        TypeError: If intervals A and B are not real 2 x 2 nested sequences.
     """
     try:
         # Define the intervals for A and B.

@@ -12,29 +12,38 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-"""This module contains functions to plot the solutions grid problems in 1D and 2D."""
+"""
+This module contains functions to plot the solutions of 1D and 2D grid problems.
+
+The module provides two functions:
+- :func:`plot_grid_problem_1d`: Plots the solutions of the 1D grid problem on the real axis.
+
+- :func:`plot_grid_problem_2d`: Plots the solutions of the 2D grid problem for upright rectangles on the complex plane.
+"""
 
 from typing import Sequence
 
 import matplotlib.pyplot as plt
 import numpy as np
-from cliffordplust.rings import Zomega, Zsqrt2
 from numpy.typing import NDArray
 
+from qdecomp.rings import Zomega, Zsqrt2
+
+__all__ = ["plot_grid_problem_1d", "plot_grid_problem_2d"]
 
 def plot_grid_problem_1d(
     ax: plt.Axes, A: NDArray[np.floating], B: NDArray[np.floating], solutions: Sequence[Zsqrt2]
 ) -> None:
     """Plot the solutions of the 1D grid problem on the real axis.
 
-    Given the two real intervals A and B and the solution to their 1D grid problems,
-    plot the solutions and their \u221A2-conjugate on the real axis.
+    Given the two real intervals `A` and `B` and the list of solutions to their 1D grid problem,
+    plot the solutions and their :math:`\\sqrt{2}`-conjugate on the real axis.
 
     Args:
-        ax (plt.Axes): Matplotlib axis on wich to plot the solutions.
-        A (Sequence[float, float]): (A0, A1): Bounds of the first interval.
-        B (Sequence[float, float]): (B0, B1): Bounds of the second interval.
-        solutions (Sequence[Zsqrt2]): Solutions of the 1D grid problem for A and B in \u2124[\u221A2].
+        ax (plt.Axes): Matplotlib axis on which to plot the solutions.
+        A (Sequence[Real, Real]): (A0, A1): Bounds of the first interval.
+        B (Sequence[Real, Real]): (B0, B1): Bounds of the second interval.
+        solutions (Sequence[Zsqrt2]): List of solutions to the 1D grid problem for A and B as Zsqrt objects.
 
     Raises:
         TypeError: If intervals A and B are not real sequences of length 2.
@@ -90,14 +99,18 @@ def plot_grid_problem_2d(
     """
     Plot the solutions of the 2D grid problem for upright rectangles on the complex plane.
 
-    Given the two upright rectangles A and B and the solutions to their 2D grid problem, plot the solutions and their
-    \u221A2-conjugate on the complex plane.
+    Given the two upright rectangles `A` and `B` and the solutions to their 2D grid problem, plot the solutions and their
+    :math:`\\sqrt{2}`-conjugate on the complex plane.
 
     Args:
         ax (plt.Axes): Matplotlib axis on which to plot the solutions.
-        A (Sequence[Sequence[float, float]]): ((Ax0, Ax1), (Ay0, Ay1)): Bounds of the first upright rectangle. Rows correspond to the x and y axis respectively.
-        B (Sequence[Sequence[float, float]]): ((Bx0, Bx1), (By0, By1)): Bounds of the second upright rectangle. Rows correspond to the x and y axis respectively.
-        solutions (Sequence[Zomega]): Solutions of the 2D grid problem for A and B in \u2124[\u03C9].
+        A (Sequence[Sequence[Real, Real]]): ((Ax0, Ax1), (Ay0, Ay1)): Bounds of the first upright rectangle. Rows correspond to the x and y axis respectively.
+        B (Sequence[Sequence[Real, Real]]): ((Bx0, Bx1), (By0, By1)): Bounds of the second upright rectangle. Rows correspond to the x and y axis respectively.
+        solutions (Sequence[Zomega]): List of solutions to the 2D grid problem for A and B as Zomega objects.
+
+    Raises:
+            TypeError: If intervals A and B are not real 2 x 2 nested sequences.
+            TypeError: If solutions is not a sequence of Zomega objects.
     """
 
     try:
@@ -113,7 +126,7 @@ def plot_grid_problem_2d(
                 )
             interval.sort()
     except (TypeError, ValueError) as e:
-        raise TypeError(f"Input intervals must be real 2x2 matrices.\nOrigin: {e}") from e
+        raise TypeError(f"Input intervals must be real 2 x 2 matrices.\nOrigin: {e}") from e
     
     if not all([isinstance(solution, Zomega) for solution in solutions]):
         raise TypeError("Solutions must be Zomega objects.")
