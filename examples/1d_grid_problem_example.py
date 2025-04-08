@@ -1,3 +1,17 @@
+# Copyright 2024-2025 Olivier Romain, Francis Blais, Vincent Girouard, Marius Trudeau
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
 # # Using the `grid_algorithm_1D.py` module
 #
 # In this notebook, the `grid_algorithm_1D.py` module is presented with examples. This module allows to find all the solutions of a **1-dimensional grid problem** in the ring $\mathbf{\mathbb{Z}[\sqrt{2}]}$.
@@ -9,7 +23,7 @@
 #
 
 
-from cliffordplust.rings import Zsqrt2
+from qdecomp.rings import Zsqrt2
 
 # +
 alpha = Zsqrt2(a=2, b=5)
@@ -54,7 +68,7 @@ print(f"Round: {round(alpha) = }")
 #
 # # Usage example
 
-from cliffordplust.grid_problem import plot_grid_problem, solve_grid_problem_1d
+from qdecomp.grid_problem import plot_grid_problem, solve_grid_problem_1d
 
 # Let's consider the two arbitrary intervals $A = [1, 6]$ and $B = [-11, -5]$. We can define the limits of those intervals as tuples:
 

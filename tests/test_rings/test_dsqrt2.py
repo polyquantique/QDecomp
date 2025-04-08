@@ -19,8 +19,8 @@ import math
 import mpmath as mp
 import pytest
 
-import cliffordplust.rings as r
-from cliffordplust.rings import D, Dsqrt2
+import qdecomp.rings as r
+from qdecomp.rings import D, Dsqrt2
 
 # Set the precision of mpmath to 75 decimal places
 mp.mp.dps = 75

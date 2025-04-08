@@ -3,8 +3,8 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "cliffordplust"
-version = "0.0.1"
+name = "QDecomp"
+dynamic = ["version"]
 authors = [
   { name="Francis Blais", email="francis.blais@polymtl.ca" },
   { name="Marius Trudeau", email="marius.trudeau@polymtl.ca" },
@@ -15,7 +15,8 @@ description = "Clifford+T quantum gate compiler."
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-    "numpy>=1.24.4",
+    "numpy>=2.2.4",
+    "mpmath>=1.3.0",
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -28,3 +29,6 @@ Homepage = "https://github.com/polyquantique/CliffordPlusT"
 
 [tool.setuptools.packages.find]
 where = ["src"]   
+
+[tool.setuptools.dynamic]  
+version = {attr = "qdcomp.__version__"}
