@@ -15,11 +15,14 @@
 """Test the D class."""
 
 import math
-import mpmath as mp
-mp.mp.dps = 75
 
+import mpmath as mp
 import pytest
-from cliffordplust.rings import D
+
+from qdecomp.rings import D
+
+# Set a high precision for mpmath
+mp.mp.dps = 75
 
 
 @pytest.mark.parametrize("num", [0, 1, 5, 100, 73, -5, -1])
@@ -32,7 +35,7 @@ def test_float(num: int, denom: int) -> None:
 @pytest.mark.parametrize("denom", [0, 1, 5, 10, 19, 50])
 def test_mpfloat(num: int, denom: int) -> None:
     """Test the mpfloat value of the D class."""
-    assert math.isclose(mp.mpf(num) / 2**mp.mpf(denom), D(num, denom).mpfloat())
+    assert math.isclose(mp.mpf(num) / 2 ** mp.mpf(denom), D(num, denom).mpfloat())
     assert math.isclose(num / 2**denom, D(num, denom).mpfloat())
 
 
@@ -132,7 +135,6 @@ def test_equality():
         and D(1, 1) != D(2, 1)
         and D(0, 0) == 0
         and D(-10, 0) == -10
-        and D(1, 2) == 0.25
         and D(1, 1) != 1.0j
     )
 

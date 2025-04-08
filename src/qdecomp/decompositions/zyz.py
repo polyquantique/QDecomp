@@ -14,55 +14,65 @@
 
 """
 Any single qubit gate can be decomposed into a series of three rotations around the Z, Y, and Z axis
-and a phase (refer Section 4.1 of "Quantum Gates" by Gavin E. Crooks at
-https://threeplusone.com/pubs/on_gates.pdf).
+and a global phase factor:
 
-This module defines the function that computes this decomposition of a unitary 2x2 matrix.
-It returns the three rotation angles and the phase.
+.. math:: U = e^{i \\alpha} R_z(\\theta_2) R_y(\\theta_1) R_z(\\theta_0),
 
-Input: U, a unitary 2x2 matrix
-Output: Angles of the decomposition (t0, t1, t2, alpha) [rad] such that
-        U = e**(i alpha) R_z(t2) R_y(t1) R_z(t0)
+where :math:`R_z` and :math:`R_y` are the rotation gates around the Z and Y axes, respectively. This is known as the **ZYZ decomposition**.
+
+This module defines the function :func:`zyz_decomposition` that perform this decomposition on a given unitary 2 x 2 matrix.
+It returns the three rotation angles :math:`\\theta_0,  \\theta_1, \\theta_2` and the phase :math:`\\alpha`.
+
+For more details, see [1]_.
+
+.. [1] Section 4.1 of "Quantum Gates" by Gavin E. Crooks at https://threeplusone.com/pubs/on_gates.pdf.
 """
 
 import numpy as np
+from numpy.typing import NDArray
+
+__all__ = ["zyz_decomposition"]
 
 
-def zyz_decomposition(U: np.ndarray | list[list[float]]) -> tuple[float, ...]:
+def zyz_decomposition(U: NDArray) -> tuple[float, ...]:
     """
-    Compute the ZYZ decomposition of a 2x2 unitary matrix U.
-    U = e**(i alpha) * Rz(t2) * Ry(t1) * Rz(t0)
+    Perform the ZYZ decomposition of a 2x2 unitary matrix.
+
+    Given a 2 x 2 unitary matrix ``U``, find the three angles ``t0``, ``t1``, and ``t2`` and the phase ``alpha`` such that:
+
+        U = e**(i alpha) * Rz(t2) * Ry(t1) * Rz(t0).
 
     Args:
-        U (np.ndarray): A 2x2 unitary matrix.
+        U (NDArray): A 2 x 2 unitary matrix.
 
     Returns:
-        tuple (float, ...): (t0, t1, t2, alpha), the ZYZ rotation angles (rad) and the global phase (rad)
+        tuple[float, ...]: (t0, t1, t2, alpha), the three rotation angles (rad) and the global phase (rad)
 
     Raises:
-        ValueError: If the input matrix is not 2x2.
+        ValueError: If the input matrix is not 2 x 2.
         ValueError: If the input matrix is not unitary.
 
-    Example:
+    Examples:
+
     .. code-block:: python
 
         # Define rotation and phase matrices
         ry = lambda teta: np.array([[np.cos(teta / 2), -np.sin(teta / 2)], [np.sin(teta / 2), np.cos(teta / 2)]])
         rz = lambda teta: np.array([[np.exp(-1.0j * teta / 2), 0], [0, np.exp(1.0j * teta / 2)]])
         phase = lambda alpha: np.exp(1.0j * alpha)
-            
+
         # Create a unitary matrix U
         a = complex(1, 1) / np.sqrt(3)
         b = np.sqrt(complex(1, 0) - np.abs(a) ** 2)  # Ensure that U is unitary
         alpha = np.pi/3
         U = np.exp(1.0j * alpha) * np.array([[a, -b.conjugate()], [b, a.conjugate()]])
-            
+
         # Compute the decomposition of U
         t0, t1, t2, alpha_ = zyz_decomposition(U)
-            
+
         # Recreate U from the decomposition
         U_calculated = phase(alpha_) * Rz(t2) @ Ry(t1) @ Rz(t0)
-            
+
         # Print the results
         print("U =")
         print(U)

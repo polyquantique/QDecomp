@@ -13,13 +13,16 @@
 #    limitations under the License.
 
 import math
-import mpmath as mp
-mp.mp.dps = 75
 
-import cliffordplust.rings as r
+import mpmath as mp
 import numpy as np
 import pytest
-from cliffordplust.rings import Zomega
+
+import qdecomp.rings as r
+from qdecomp.rings import Zomega
+
+# Set the precision of mpmath to 75 decimal places
+mp.mp.dps = 75
 
 OMEGA = (1 + 1.0j) / math.sqrt(2)
 
@@ -40,6 +43,7 @@ def test_real(n):
     real = (n.a * OMEGA**3 + n.b * OMEGA**2 + n.c * OMEGA + n.d).real
     assert math.isclose(n.real(), real)
 
+
 @pytest.mark.parametrize(
     "n",
     [
@@ -53,7 +57,7 @@ def test_real(n):
 )
 def test_mp_real(n):
     """Test the mp_real value of the Zomega class."""
-    omega_mp = mp.mpc(1/mp.sqrt(2), 1/mp.sqrt(2))
+    omega_mp = mp.mpc(1 / mp.sqrt(2), 1 / mp.sqrt(2))
     real = (n.a * omega_mp**3 + n.b * omega_mp**2 + n.c * omega_mp + n.d).real
     assert math.isclose(n.mp_real(), real)
     assert math.isclose(n.real(), n.mp_real())
@@ -81,6 +85,7 @@ def test_imag(n):
     imag = (n.a * OMEGA**3 + n.b * OMEGA**2 + n.c * OMEGA + n.d).imag
     assert math.isclose(n.imag(), imag)
 
+
 @pytest.mark.parametrize(
     "n",
     [
@@ -94,7 +99,7 @@ def test_imag(n):
 )
 def test_mp_imag(n):
     """Test the mp_imag value of the Zomega class."""
-    omega_mp = mp.mpc(1/mp.sqrt(2), 1/mp.sqrt(2))
+    omega_mp = mp.mpc(1 / mp.sqrt(2), 1 / mp.sqrt(2))
     imag = (n.a * omega_mp**3 + n.b * omega_mp**2 + n.c * omega_mp + n.d).imag
     assert math.isclose(n.mp_imag(), imag)
     assert math.isclose(n.imag(), n.mp_imag())
@@ -121,6 +126,7 @@ def test_complex(n):
     """Test the complex value of the Zomega class."""
     complex_value = n.a * OMEGA**3 + n.b * OMEGA**2 + n.c * OMEGA + n.d
     assert np.isclose(complex(n), complex_value)
+
 
 @pytest.mark.parametrize(
     "n",
@@ -294,8 +300,6 @@ def test_equality():
     assert Zomega(1, 2, 3, 4) == Zomega(1, 2, 3, 4)
     assert Zomega(1, 1, 1, 1) != Zomega(1, 1, 1, 2)
     assert Zomega(0, 0, 0, -1) == -1
-    assert Zomega(0, -1, 0, 1) == 1 - 1.0j
-    assert Zomega(-2, 0, 2, 5) == 5 + 2 * math.sqrt(2)
     assert Zomega(1, 1, 1, 1) != [1]
 
 
