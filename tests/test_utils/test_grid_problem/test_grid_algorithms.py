@@ -18,10 +18,10 @@ from itertools import combinations_with_replacement
 import matplotlib.pyplot as plt
 import mpmath as mp
 import pytest
-from cliffordplust.grid_problem import (solve_grid_problem_1d,
+from qdecomp.utils.grid_problem import (solve_grid_problem_1d,
                                         solve_grid_problem_2d)
-from cliffordplust.plot import plot_grid_problem_1d, plot_grid_problem_2d
-from cliffordplust.rings import Zomega, Zsqrt2
+from qdecomp.plot import plot_grid_problem_1d, plot_grid_problem_2d
+from qdecomp.rings import Zomega, Zsqrt2
 
 
 @pytest.mark.parametrize("A", [(1, 2, 3), "1, 2", (1.0j, 2), "12", 1, [mp.mpc(1, 1), mp.mpc(2, 2)]])
@@ -151,9 +151,9 @@ def test_plot_solutions_1d_type_errors_solutions():
 def test_plot_solutions_2d_type_errors_intervals():
     """Test the raise of a TypeError when plotting the solutions of the 2D grid problem if the input intervals are not of the correct form."""
     fig, ax = plt.subplots()
-    with pytest.raises(TypeError, match="Input intervals must be real 2x2 matrices"):
+    with pytest.raises(TypeError, match="Input intervals must be real 2 x 2 matrices"):
         plot_grid_problem_2d(ax, ((1, 2, 3), (1, 2)), ((-1, 1), (-1, 1)), [])
-    with pytest.raises(TypeError, match="Input intervals must be real 2x2 matrices"):
+    with pytest.raises(TypeError, match="Input intervals must be real 2 x 2 matrices"):
         plot_grid_problem_2d(ax, ((1, 2), (1, 2)), ((1.0j, 0), (1, 2)), [])
 
 
