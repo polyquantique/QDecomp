@@ -48,6 +48,7 @@ from qdecomp.rings import INVERSE_LAMBDA, LAMBDA, Zsqrt2
 
 __all__ = ["solve_grid_problem_1d", "plot_grid_problem"]
 
+
 def solve_grid_problem_1d(A: Sequence[num.Real], B: Sequence[num.Real]) -> list[Zsqrt2]:
     """
     Solves the 1 dimensional grid problem for two sets and returns the result.

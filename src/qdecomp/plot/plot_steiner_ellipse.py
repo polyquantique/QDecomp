@@ -28,6 +28,7 @@ from qdecomp.utils import steiner_ellipse as se
 
 __all__ = ["plot_ellipse"]
 
+
 def plot_ellipse(
     ax: plt.Axes, D: np.ndarray, p: np.ndarray, points: np.ndarray | None = None
 ) -> None:
