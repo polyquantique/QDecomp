@@ -44,6 +44,7 @@ def test_float(n):
     """Test the float value of the Dsqrt2 class."""
     assert math.isclose(float(n), float(n.a) + float(n.b) * SQRT2)
 
+
 @pytest.mark.parametrize(
     "n",
     [

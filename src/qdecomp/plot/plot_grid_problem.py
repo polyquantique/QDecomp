@@ -32,6 +32,7 @@ from qdecomp.rings import Zomega, Zsqrt2
 
 __all__ = ["plot_grid_problem_1d", "plot_grid_problem_2d"]
 
+
 def plot_grid_problem_1d(
     ax: plt.Axes, A: NDArray[np.floating], B: NDArray[np.floating], solutions: Sequence[Zsqrt2]
 ) -> None:
@@ -128,7 +129,7 @@ def plot_grid_problem_2d(
             interval.sort()
     except (TypeError, ValueError) as e:
         raise TypeError(f"Input intervals must be real 2 x 2 matrices.\nOrigin: {e}") from e
-    
+
     if not all([isinstance(solution, Zomega) for solution in solutions]):
         raise TypeError("Solutions must be Zomega objects.")
 

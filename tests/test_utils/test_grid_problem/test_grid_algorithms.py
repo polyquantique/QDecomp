@@ -18,10 +18,11 @@ from itertools import combinations_with_replacement
 import matplotlib.pyplot as plt
 import mpmath as mp
 import pytest
-from qdecomp.utils.grid_problem import (solve_grid_problem_1d,
-                                        solve_grid_problem_2d)
+
 from qdecomp.plot import plot_grid_problem_1d, plot_grid_problem_2d
 from qdecomp.rings import Zomega, Zsqrt2
+from qdecomp.utils.grid_problem import (solve_grid_problem_1d,
+                                        solve_grid_problem_2d)
 
 
 @pytest.mark.parametrize("A", [(1, 2, 3), "1, 2", (1.0j, 2), "12", 1, [mp.mpc(1, 1), mp.mpc(2, 2)]])
@@ -45,7 +46,7 @@ def test_1d_grid_algorithm_type_error(A):
         [-10, 10],
         [-47.9, 12.4],
         [33.33, 44.44],
-        [mp.mpf('-9'), mp.mpf('2.00000000000001')],
+        [mp.mpf("-9"), mp.mpf("2.00000000000001")],
     ],
 )
 @pytest.mark.parametrize(
@@ -76,7 +77,15 @@ def test_grid_algorithm_1D_solutions(A, B):
 
 
 @pytest.mark.parametrize(
-    "A", [((1, 2, 3), (1, 2)), [[1, 2], [1, 2, 3]], ((0, 1j), (1, 2)), ((1, 2), ([1], 2)), 30, [[1, 1], [1, mp.mpc(1, 1)]]]
+    "A",
+    [
+        ((1, 2, 3), (1, 2)),
+        [[1, 2], [1, 2, 3]],
+        ((0, 1j), (1, 2)),
+        ((1, 2), ([1], 2)),
+        30,
+        [[1, 1], [1, mp.mpc(1, 1)]],
+    ],
 )
 def test_2d_grid_algorithm_type_error(A):
     """Test the raise of a TypeError when solving the 2D grid problem if the input intervals are not of the correct form."""
@@ -94,7 +103,7 @@ def test_2d_grid_algorithm_type_error(A):
                 [-1, 1],
                 [-23.5, -6.7],
                 [-11.2, 0],
-                [mp.mpf('-3.333333333333333'), mp.mpf('0.999999999999999')],
+                [mp.mpf("-3.333333333333333"), mp.mpf("0.999999999999999")],
             ],
             2,
         )
@@ -108,7 +117,7 @@ def test_2d_grid_algorithm_type_error(A):
                 [-1, 1],
                 [13.2, 27.7],
                 [0, 19.9],
-                [mp.mpf('-3.333333333333333'), mp.mpf('0.999999999999999')],
+                [mp.mpf("-3.333333333333333"), mp.mpf("0.999999999999999")],
             ],
             2,
         )

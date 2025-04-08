@@ -159,7 +159,7 @@ def solve_grid_problem_2d(
     """
     Solve the 2-dimensional grid problem for two upright rectangles and return the result.
 
-    Given two real 2D closed sets A and B of the form [a, b] x [c, d], find all the solutions `x` in the ring :math:`\\mathbb{Z}[\\omega]` 
+    Given two real 2D closed sets A and B of the form [a, b] x [c, d], find all the solutions `x` in the ring :math:`\\mathbb{Z}[\\omega]`
     such that `x` is in A and the :math:`\\sqrt{2}`-conjugate of `x` is in B.
 
     Args:
