@@ -16,6 +16,7 @@
 This module contains functions to plot the solutions of 1D and 2D grid problems.
 
 The module provides two functions:
+
 - :func:`plot_grid_problem_1d`: Plots the solutions of the 1D grid problem on the real axis.
 
 - :func:`plot_grid_problem_2d`: Plots the solutions of the 2D grid problem for upright rectangles on the complex plane.
