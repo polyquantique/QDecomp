@@ -13,7 +13,7 @@
 #    limitations under the License.
 
 """
-This module contains functions to decompose general 2-qubits quantum gates into single-qubit and
+This module contains functions to decompose general 2-qubit quantum gates into single-qubit and
 canonical gates.
 
 The canonical gate is a 3 parameter gate that can be decomposed into CNOT gates and single-qubit
