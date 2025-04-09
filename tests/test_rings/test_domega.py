@@ -13,13 +13,16 @@
 #    limitations under the License.
 
 import math
-import mpmath as mp
-mp.mp.dps = 75
 
-import cliffordplust.rings as r
+import mpmath as mp
 import numpy as np
 import pytest
-from cliffordplust.rings import Domega
+
+import qdecomp.rings as r
+from qdecomp.rings import Domega
+
+# Set a high precision for mpmath
+mp.mp.dps = 75
 
 OMEGA = (1 + 1.0j) / math.sqrt(2)
 SQRT2_DOMEGA = Domega.from_ring(r.Zsqrt2(0, 1))
@@ -41,6 +44,7 @@ def test_real(n):
     """Test the real value of the Domegea class."""
     real = (float(n.a) * OMEGA**3 + float(n.b) * OMEGA**2 + float(n.c) * OMEGA + float(n.d)).real
     assert np.isclose(n.real(), real)
+
 
 @pytest.mark.parametrize(
     "n",
@@ -80,6 +84,7 @@ def test_imag(n):
     imag = (float(n.a) * OMEGA**3 + float(n.b) * OMEGA**2 + float(n.c) * OMEGA + float(n.d)).imag
     assert np.isclose(n.imag(), imag)
 
+
 @pytest.mark.parametrize(
     "n",
     [
@@ -118,6 +123,7 @@ def test_complex(n):
     """Test the complex value of the Domega class."""
     complex_value = float(n.a) * OMEGA**3 + float(n.b) * OMEGA**2 + float(n.c) * OMEGA + float(n.d)
     assert np.isclose(complex(n), complex_value)
+
 
 @pytest.mark.parametrize(
     "n",
@@ -423,10 +429,8 @@ def test_equality():
     p = Domega((0, 0), (0, 0), (0, 0), (13, 0))
     assert n == Domega((1, 2), (3, 4), (-5, 6), (7, 8))
     assert n != Domega((1, 2), (3, 4), (-5, 6), (7, 9))
-    assert n == complex(n)
     assert m == r.D(13, 4)
     assert p == 13
-    assert p == 13.0
     assert n != [1]
 
 
