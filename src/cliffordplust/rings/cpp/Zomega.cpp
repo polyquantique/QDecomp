@@ -158,10 +158,10 @@ std::tuple<Zomega, Zomega> euclidean_div(const Zomega& num, const Zomega& div) {
 
     // Perform the division
     Zomega q = Zomega(
-        static_cast<long long int>(std::round(static_cast<float>(numer.a()) / static_cast<float>(denom))),
-        static_cast<long long int>(std::round(static_cast<float>(numer.b()) / static_cast<float>(denom))),
-        static_cast<long long int>(std::round(static_cast<float>(numer.c()) / static_cast<float>(denom))),
-        static_cast<long long int>(std::round(static_cast<float>(numer.d()) / static_cast<float>(denom)))
+        static_cast<long long int>(std::round(static_cast<long double>(numer.a()) / denom)),
+        static_cast<long long int>(std::round(static_cast<long double>(numer.b()) / denom)),
+        static_cast<long long int>(std::round(static_cast<long double>(numer.c()) / denom)),
+        static_cast<long long int>(std::round(static_cast<long double>(numer.d()) / denom))
     );
 
     return {q, num - q * div};
@@ -170,7 +170,7 @@ std::tuple<Zomega, Zomega> euclidean_div(const Zomega& num, const Zomega& div) {
 Zomega gcd(const Zomega& x, const Zomega& y) {
     Zomega a = y;
     Zomega b = x;
-    
+
     Zomega r(0, 0, 0, 0);
     do {
         std::tie(std::ignore, r) = euclidean_div(a, b);

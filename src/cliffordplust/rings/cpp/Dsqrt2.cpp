@@ -96,6 +96,23 @@ Dsqrt2 Dsqrt2::operator*(const Dsqrt2& other) const {
 }
 
 
+Dsqrt2 Dsqrt2::sqrt2_multiply(const unsigned short n) const {
+    if (n & 1) {
+        return Dsqrt2(0, 0, 1, 0) * (*this).sqrt2_multiply(n - 1);
+    } else {  // Multiply by 2**(l/2)
+        unsigned short power = n >> 1;
+
+        unsigned short decrease_p_power_by = std::min(_p.denom(), power);
+        long long int new_p = _p.num() * (1 << (power - decrease_p_power_by));
+
+        unsigned short decrease_q_power_by = std::min(_q.denom(), power);
+        long long int new_q = _q.num() * (1 << (power - decrease_q_power_by));
+
+        return Dsqrt2(new_p, _p.denom() - decrease_p_power_by, new_q, _q.denom() - decrease_q_power_by);
+    }
+}
+
+
 Dsqrt2 Dsqrt2::pow(unsigned short n) const {
     Dsqrt2 nth_power = *this;
     Dsqrt2 result(1, 0, 0, 0);

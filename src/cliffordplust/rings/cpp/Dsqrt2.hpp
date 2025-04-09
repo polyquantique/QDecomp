@@ -223,6 +223,14 @@ class Dsqrt2 {
 
 
         /**
+         * @brief Multiply the number by a power of sqrt(2).
+         * 
+         * @param n The power of sqrt(2).
+         * @return Dsqrt2 The result of the multiplication.
+         */
+        Dsqrt2 sqrt2_multiply(const unsigned short n) const;
+
+        /**
          * @brief Raise the number to a power.
          * 
          * @param n The exponent.

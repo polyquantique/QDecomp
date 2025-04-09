@@ -190,7 +190,7 @@ class GridProblem1D {
                  * @return true If this iterator is at the end
                  * @return false If this iterators are not at the end
                  */
-                bool operator!=(const Iterator& _) const { return _q <= _qmax; }
+                bool operator!=(const Iterator&) const { return _q <= _qmax; }
         };
 
         /**
@@ -353,7 +353,9 @@ class GridProblem2D{
                                 _first_completed = true;
                                 
                                 // Might be true if the second problem has no solution
-                                _second_completed = !(_x_it2 != _x_it2_end & _y_it2 != _y_it2_end);  
+                                _second_completed = !(
+                                    (_x_it2 != _x_it2_end) & (_y_it2 != _y_it2_end)
+                                );  
                                 
                                 return;
                             }
@@ -368,7 +370,7 @@ class GridProblem2D{
                  * @return true If this iterator is at the end
                  * @return false If this iterators are not at the end
                  */
-                bool operator!=(const Iterator& _) const { return !_second_completed; }
+                bool operator!=(const Iterator&) const { return !_second_completed; }
         };
 
         /**

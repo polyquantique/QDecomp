@@ -43,6 +43,12 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
     z = np.array([mp.cos(theta / 2), -mp.sin(theta / 2)])
     n = 0
     solution = False
+
+    print(E)
+    print(p_p)
+    print(bbox_1)
+    print(bbox_2)
+
     while solution == False:
         odd = n % 2
         if odd:

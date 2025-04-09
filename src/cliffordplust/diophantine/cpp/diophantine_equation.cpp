@@ -221,12 +221,12 @@ Zomega solve_xi_sim_ttdag_in_z(Zsqrt2 xi) {
 
 Domega solve_xi_eq_ttdag_in_d(Dsqrt2 xi) {
     // xi must be doubly positive for this equation to have a solution.
-    if (xi.to_float() < 0 or xi.sqrt2_conjugate().to_float() < 0) {
+    if (xi.to_long_double() < 0 or xi.sqrt2_conjugate().to_long_double() < 0) {
         return Domega(0, 0, 0, 0, 0, 0, 0, 0);
     }
 
     unsigned short l = (xi * xi.sqrt2_conjugate()).p().denom();
-    Zsqrt2 xi_prime = (Dsqrt2(0, 0, 1, 0).pow(l) * xi).to_Zsqrt2();
+    Zsqrt2 xi_prime = (xi.sqrt2_multiply(l)).to_Zsqrt2();
 
     Zomega s = solve_xi_sim_ttdag_in_z(xi_prime);
     if (s == 0) {return Domega(0, 0, 0, 0, 0, 0, 0, 0);}
@@ -236,19 +236,6 @@ Domega solve_xi_eq_ttdag_in_d(Dsqrt2 xi) {
     Domega delta_inv_l = delta_inv.pow(l);  // delta^-l
 
     Domega t = delta_inv_l * s.to_Domega();
-    // Dsqrt2 tt = (t * t.complex_conjugate()).to_Dsqrt2();
-
-    // // Find u such that xi = u * t * t†
-    // D denom = (tt * tt.sqrt2_conjugate()).to_D();
-    // long long int num_ = denom.num();
-    // unsigned short denom_ = denom.denom();
-    // Zsqrt2 u_temp = (xi * tt.sqrt2_conjugate() * Dsqrt2(1 << denom_, 0, 0, 0)).to_Zsqrt2();
-    // Zsqrt2 u(u_temp.p() / num_, u_temp.q() / num_);
-
-    // // u is of the form u = λ**2n => n = ln(u) / 2 ln(λ)
-    // short n = static_cast<short>(
-    //     std::round(std::log(u.to_float()) / (2 * std::log(1+std::sqrt(2.0))))
-    // );
 
     // Find u such that xi = u * t * t†, u = λ**2n, t = δ^-l * s, δ * δ† = sqrt(2) * λ
     // => xi = λ^2n (λ sqrt(2))^-l * s * s† = λ^(2n-l) * s * s†

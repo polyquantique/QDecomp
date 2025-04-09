@@ -83,6 +83,10 @@ std::pair<Domega, Domega> rz_approx(
 
     // Solve the problem
     while (true) {
+        if (n == 34) {
+            std::cout << "n = 34" << std::endl;
+        }
+
         odd = (bool)(n & 1);
 
         if (odd) { constant = Dsqrt2(0, 0, 1, (n >> 1) + 1).to_Domega(); }
@@ -91,21 +95,17 @@ std::pair<Domega, Domega> rz_approx(
         long double A[2][2] = {{bbox1[0][0], bbox1[0][1]}, {bbox1[1][0], bbox1[1][1]}};  // Bbox
         long double B[2][2] = {{bbox2[0][0], bbox2[0][1]}, {bbox2[1][0], bbox2[1][1]}};  // Transformed bbox
 
-        multiply_bbox(A, std::sqrt(static_cast<long double>(1 << n)));
-        multiply_bbox(B, std::sqrt(static_cast<long double>(1 << n)));
-
+        long double sqrt2_n = std::pow(2, n >> 1);
+        if (odd) { sqrt2_n *= std::sqrt(2); }    
+        multiply_bbox(A, sqrt2_n);
+        multiply_bbox(B, sqrt2_n);
+        
         GridProblem2D gp(A[0][0], A[0][1], B[0][0], B[0][1], A[1][0], A[1][1], B[1][0], B[1][1]);
         int n_candidate = 0;
         for (const auto& candidate : gp) {
             n_candidate++;
-            if (n == 20 and candidate.a() == -558 and candidate.b() == -196) {
-                std::cout << candidate.to_string() << std::endl;
-            }
+
             if ( n == 0 or (candidate.a() - candidate.c()) & 1 or (candidate.b() - candidate.d()) & 1 ) {
-                if (n == 0) {
-                    std::cout << "Remove this line!" << std::endl;
-                    continue;
-                }
                 Domega u = candidate.to_Domega() * constant;
                 Dsqrt2 re = u.real();
                 Dsqrt2 im = u.imag();
@@ -113,8 +113,7 @@ std::pair<Domega, Domega> rz_approx(
                 long double u_tuple[2] = {re.to_long_double(), im.to_long_double()};
                 if (! is_inside_ellipse(ellipse, u_tuple, point)) { continue; }  // True if the candidate is not in the ellipse
                 if ( (re.pow(2) + im.pow(2)).to_long_double() > 1) { continue; }  // True if the candidate is not in the unit disk
-                long double dst = re.to_long_double() * z[0] + im.to_long_double() * z[1];  // Distance of the point from the center of the ellipse
-                if ( dst > 1 ) { continue; }  // True if the candidate is not in the slice
+                long double dst = re.to_long_double() * z[0] - im.to_long_double() * z[1];  // Distance of the point from the center of the ellipse
                 if ( dst < 1 - std::pow(epsilon, static_cast<long double>(2)) / 2 ) { continue; }  // True if the candidate is not in the slice
                 
                 // At this point, the candidate solves the grid problem and is in the slice
@@ -127,8 +126,6 @@ std::pair<Domega, Domega> rz_approx(
                 return std::make_pair(u, t);
             }
         }
-        std::cout << "n: " << n << " candidates: " << n_candidate << std::endl;
-        if (n > 19) { return std::make_pair(Domega(0, 0, 0, 0, 0, 0, 0, 0), Domega(0, 0, 0, 0, 0, 0, 0, 0)); }
         n++;
     }
 }

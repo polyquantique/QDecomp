@@ -85,4 +85,6 @@ void D::print() const {std::cout << to_string() << std::endl;}
 
 float D::to_float() const {return static_cast<float>(_num) / (1 << _denom);}
 
-long double D::to_long_double() const {return static_cast<long double>(_num) / (1 << _denom);}
+long double D::to_long_double() const {
+    return static_cast<long double>(_num) / ((unsigned long long int) 1 << _denom);
+}

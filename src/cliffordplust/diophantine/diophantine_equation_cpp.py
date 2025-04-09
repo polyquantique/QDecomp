@@ -69,7 +69,7 @@ dioph_lib.solve_xi_eq_ttdag_in_d_helper.restype = Domega_struct  # 1 bool and 8 
 # Helper to call the C++ function
 def solve_xi_eq_ttdag_in_d_cpp(xi: Dsqrt2) -> Domega | None:
     """
-    Solve the equation \u03BE = t * t\u2020 or t where \u2020 denotes the complex conjugate. \u03BE
+    Solve the equation \u03BE = t * t\u2020 for t where \u2020 denotes the complex conjugate. \u03BE
     is an element of D[\u221A2] and t is an element of D[\u03C9]. This function returns the first
     solution of the equation. If no solution exists, the function returns None.
 
