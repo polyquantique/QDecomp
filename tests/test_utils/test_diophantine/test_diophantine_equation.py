@@ -18,7 +18,7 @@ import numpy as np
 import pytest
 from sympy import factorint, primerange
 
-from qdecomp.decompositions.diophantine_equation import *
+from qdecomp.utils.diophantine.diophantine_equation import *
 from qdecomp.rings import *
 
 

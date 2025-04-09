@@ -13,4 +13,3 @@
 #    limitations under the License.
 
 from qdecomp.decompositions.zyz import *
-from qdecomp.decompositions.diophantine_equation import solve_xi_eq_ttdag_in_d
