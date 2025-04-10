@@ -15,7 +15,7 @@
 import pytest
 import numpy as np
 
-from cliffordplust.circuit import QGate
+from qdecomp.utils import QGate
 
 
 def test_from_matrix():
@@ -25,18 +25,18 @@ def test_from_matrix():
     name = "test_gate"
     gate = QGate.from_matrix(matrix=matrix, name=name)
 
-    assert (gate.matrix == matrix).all()
+    assert (gate.init_matrix == matrix).all()
     assert gate.name == name
-    assert gate.matrix_target == (0, )
+    assert gate.target == (0, )
 
     # Test a 2 qubits gate
     matrix = np.array([[0, 1, 0, 0], [1, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
     name = "test_gate"
-    gate = QGate.from_matrix(matrix=matrix, name=name, matrix_target=(2, 5))
+    gate = QGate.from_matrix(matrix=matrix, name=name, target=(2, 5))
 
-    assert (gate.matrix == matrix).all()
+    assert (gate.init_matrix == matrix).all()
     assert gate.name == name
-    assert gate.matrix_target == (2, 5)
+    assert gate.target == (2, 5)
 
 
 def test_from_matrix_error():
@@ -59,7 +59,7 @@ def test_from_matrix_error():
     # The size of the matrix does not match the number of qubits
     matrix = np.array([[0, 1], [1, 0]])
     with pytest.raises(ValueError, match="The input matrix must have a size of 2"):
-        QGate.from_matrix(matrix=matrix, matrix_target=(0, 1))
+        QGate.from_matrix(matrix=matrix, target=(0, 1))
 
 
 def test_from_sequence():
@@ -72,28 +72,15 @@ def test_from_sequence():
     assert gate.sequence == sequence
     assert gate.name == name
     assert gate.target == (0, )
-    assert gate.control is None
 
     # Test a 2 qubits gate
     sequence = "CNOT"
     name = "test_gate"
-    gate = QGate.from_sequence(sequence=sequence, name=name, target=(2, ), control=5)
+    gate = QGate.from_sequence(sequence=sequence, name=name, target=(2, 5))
 
     assert gate.sequence == sequence
     assert gate.name == name
-    assert gate.target == (2, )
-    assert gate.control == 5
-
-
-def test_from_sequence_error():
-    """Test the QGate.from_sequence() errors"""
-    with pytest.raises(ValueError, match=
-                       "The sequence must start with 'C' if the gate is controlled."):
-        QGate.from_sequence(sequence="H", control=1)
-
-    with pytest.raises(ValueError, match=
-                       "The sequence must not start with 'C' if the gate is not controlled."):
-        QGate.from_sequence(sequence="C")
+    assert gate.target == (2, 5)
 
 
 def test_qgate_init_error():
@@ -104,9 +91,11 @@ def test_qgate_init_error():
         with pytest.raises(TypeError, match="The target qubit must be a tuple of integers. Got "):
             QGate.from_sequence(sequence="H", target=target)
     
-    # If the control qubit is the same as a target qubit
-    with pytest.raises(ValueError, match="The control qubit "):
-        QGate.from_sequence(sequence="CNOT", target=(2, ), control=2)
+    # If the target qubits are not in ascending order
+    target_list = [(2, 1), (4, 4), (1, 4, 2)]
+    for target in target_list:
+        with pytest.raises(ValueError, match="The target qubits must be in ascending order. Got "):
+            QGate.from_sequence(sequence="CNOT", target=target)
 
 
 @pytest.mark.parametrize("name", ["test_gate", None])
@@ -119,82 +108,67 @@ def test_name(name):
 @pytest.mark.parametrize("sequence", ["H", "CNOT", "S T"])
 def test_sequence(sequence):
     """Test the QGate.sequence property"""
-    ctrl = 1 if sequence.startswith("C") else None
-    gate = QGate.from_sequence(sequence=sequence, control=ctrl)
+    gate = QGate.from_sequence(sequence=sequence)
     assert gate.sequence == sequence
 
 
-@pytest.mark.parametrize("gate, target, control", [
-    ("H", (1, ), None),
-    ("CNOT", (3, ), 1),
+@pytest.mark.parametrize("gate, target", [
+    ("H", (1, )),
+    ("CNOT", (3, )),
 ])
-def test_target_control(gate, target, control):
-    """Test the QGate.target and QGate.control properties"""
-    gate = QGate.from_sequence(sequence=gate, control=control, target=target)
+def test_target(gate, target):
+    """Test the QGate.target property"""
+    gate = QGate.from_sequence(sequence=gate, target=target)
     assert gate.target == target
-    assert gate.control == control
 
 
-def test_target_control_error():
-    """Test the QGate.target and QGate.control properties with errors"""
-    gate = QGate.from_matrix(matrix=np.eye(2))
-
-    with pytest.raises(ValueError, match=
-                       "The sequence must be initialized to get the control qubit."):
-        gate.control
-    with pytest.raises(ValueError, match=
-                       "The sequence must be initialized to get the target qubit."):
-        gate.target
-
-
-@pytest.mark.parametrize("gate, qubit_no", [
-    (np.eye(2), (1, )),
-    (np.eye(4)[[0, 1, 3, 2]], (3, 4)),
+@pytest.mark.parametrize("sequence, target, matrix", [
+    ("I", (1, ), np.eye(2)),
+    ("CNOT", (1, 3), np.eye(4)[[0, 1, 3, 2]]),
+    ("H", (1, ), np.array([[1, 1], [1, -1]]) / np.sqrt(2)),
+    ("S T", (1, ), np.diag([1, np.exp(3.j * np.pi / 4)])),
+    ("CNOT1", (0, 3), np.eye(4)[[0, 3, 2, 1]],),
+    ("H H", (0, ), np.eye(2)),
+    ("T Tdag", (0, ), np.eye(2)),
 ])
-def test_matrix_target(gate, qubit_no):
-    """Test the QGate.matrix_target property"""
-    gate = QGate.from_matrix(matrix=gate, matrix_target=qubit_no)
-    assert gate.matrix_target == qubit_no
-
-
-@pytest.mark.parametrize("sequence, target, control, matrix, matrix_target", [
-    ("I", (1, ), None, np.eye(2), (1, )),
-    ("CNOT", (1, ), 0, np.eye(4)[[0, 1, 3, 2]], (0, 1)),
-    ("H", (1, ), None, np.array([[1, 1], [1, -1]]) / np.sqrt(2), (1, )),
-    ("S T", (1, ), None, np.diag([1, np.exp(3.j * np.pi / 4)]), (1, )),
-    ("CNOT", (0, ), 1, np.eye(4)[[0, 3, 2, 1]], (0, 1)),
-    ("H H", (0, ), None, np.eye(2), (0, )),
-])
-def test_matrix__calculate_matrix(sequence, target, control, matrix, matrix_target):
+def test_seq_matrix__calculate_seq_matrix(sequence, target, matrix):
     """Test the QGate.matrix property and QGate.calculate_matrix() method"""
-    gate = QGate.from_sequence(sequence=sequence, target=target, control=control)
-    assert np.allclose(gate.matrix, matrix)
-    assert gate.matrix_target == matrix_target
+    gate = QGate.from_sequence(sequence=sequence, target=target)
+    assert np.allclose(gate.sequence_matrix, matrix)
 
 
-@pytest.mark.parametrize("gate", [
-    QGate.from_sequence(sequence="H"),
-    QGate.from_matrix(np.eye(2)),
-])
-def test_calculate_matrix_error(gate):
+def test_calculate_seq_matrix_error():
     """Test the QGate.calculate_matrix() method with errors"""
-    with pytest.raises(ValueError, match="The matrix is already known."):
-        gate.calculate_matrix()
-        gate.calculate_matrix()
+    gate = QGate.from_sequence(sequence="H")
+    with pytest.raises(ValueError, match="The sequence_matrix is already known."):
+        gate.calculate_seq_matrix()
+        gate.calculate_seq_matrix()
+    
+    gate = QGate.from_matrix(matrix=np.eye(2))
+    with pytest.raises(ValueError, match="The sequence must be initialized."):
+        gate.calculate_seq_matrix()
+    
+    gate = QGate.from_sequence(sequence="T Unknown Z")
+    with pytest.raises(ValueError, match="The sequence contains an unknown gate: Unknown."):
+        gate.calculate_seq_matrix()
+    
+    gate = QGate.from_sequence(sequence="H CNOT T")
+    with pytest.raises(ValueError, match="The sequence contains a gate that applies on the wrong number of qubits: CNOT"):
+        gate.calculate_seq_matrix()
 
 
-@pytest.mark.parametrize("gate, target, control, initializer, expected", [
-    ("H", (1, ), None, "sequence", 1),
-    ("CNOT", (3, ), 1, "sequence", 2),
-    (np.eye(2), (1, ), None, "matrix", 1),
-    (np.eye(4)[[0, 1, 3, 2]], (3, 4), None, "matrix", 2),
+@pytest.mark.parametrize("gate, target, initializer, expected", [
+    ("H", (1, ), "sequence", 1),
+    ("CNOT", (3, 5), "sequence", 2),
+    (np.eye(2), (1, ), "matrix", 1),
+    (np.eye(4)[[0, 1, 3, 2]], (3, 4), "matrix", 2),
 ])
-def test_nb_qubits(gate, target, control, initializer, expected):
+def test_nb_qubits(gate, target, initializer, expected):
     """Test the QGate.nb_qubits property"""
     if initializer == "sequence":
-        gate = QGate.from_sequence(sequence=gate, target=target, control=control)
+        gate = QGate.from_sequence(sequence=gate, target=target)
     else:
-        gate = QGate.from_matrix(matrix=gate, matrix_target=target)
+        gate = QGate.from_matrix(matrix=gate, target=target)
 
     assert gate.nb_qubits == expected
 
@@ -202,60 +176,58 @@ def test_nb_qubits(gate, target, control, initializer, expected):
 def test_str():
     """Test the QGate.__str__() method"""
     gate = QGate()
-    assert str(gate) == ""
+    assert str(gate) == "Target: (0,)\n"
 
     gate = QGate(name="test_gate")
-    assert str(gate) == "Gate: test_gate\n"
+    assert str(gate) == "Gate: test_gate\nTarget: (0,)\n"
 
     gate = QGate.from_sequence(sequence="H", target=(1, ))
     assert str(gate) == """\
 Sequence: H
-Control: None
 Target: (1,)
 """
 
-    gate = QGate.from_sequence(sequence="CNOT", target=(1, ), control=0)
+    gate = QGate.from_sequence(sequence="CNOT", target=(0, 1))
     assert str(gate) == """\
 Sequence: CNOT
-Control: 0
-Target: (1,)
+Target: (0, 1)
 """
 
-    gate = QGate.from_matrix(matrix=np.eye(2), matrix_target=(1, ))
+    gate = QGate.from_matrix(matrix=np.eye(2), target=(1, ), epsilon=0.01)
     assert str(gate) == """\
-Matrix:
+Target: (1,)
+Epsilon: 0.01
+Init. matrix:
 [[1. 0.]
  [0. 1.]]
-Matrix target: (1,)
 """
 
-    gate = QGate.from_matrix(matrix=np.eye(4)[[0, 1, 3, 2]], matrix_target=(3, 4))
+    gate = QGate.from_matrix(matrix=np.eye(4)[[0, 1, 3, 2]], target=(3, 4))
     assert str(gate) == """\
-Matrix:
+Target: (3, 4)
+Init. matrix:
 [[1. 0. 0. 0.]
  [0. 1. 0. 0.]
  [0. 0. 0. 1.]
  [0. 0. 1. 0.]]
-Matrix target: (3, 4)
 """
 
     gate = QGate.from_sequence(sequence="H", target=(1, ), name="H_gate")
-    gate.calculate_matrix()
+    gate.calculate_seq_matrix()
     assert str(gate) == """\
 Gate: H_gate
 Sequence: H
-Control: None
 Target: (1,)
-Matrix:
-[[ 0.70710678  0.70710678]
- [ 0.70710678 -0.70710678]]
-Matrix target: (1,)
+Seq. matrix:
+[[ 0.70710678+0.j  0.70710678+0.j]
+ [ 0.70710678+0.j -0.70710678+0.j]]
 """
 
 
 @pytest.mark.parametrize("tup", [
     ("H", (1, ), 0),
-    ("CNOT", (3, 1), 0),
+    ("CNOT", (1, 3), 0),
+    ("CNOT1", (1, 3), 0),
     ("S T", (1, ), 0),
     ("CNOT", (0, 1), 0),
     ("H", (0, ), 0),
@@ -273,8 +245,8 @@ def test_to_and_from_tuple_with_errors(tup):
 
     elif isinstance(tup[0], np.ndarray):
         gate = QGate.from_tuple(tup)
-        assert gate.matrix_target == tup[1]
-        assert (gate.matrix == tup[0]).all()
+        assert gate.target == tup[1]
+        assert (gate.init_matrix == tup[0]).all()
         
         with pytest.raises(ValueError, match=
                            "The sequence must be initialized to convert the gate to a tuple."):
@@ -287,17 +259,24 @@ def test_to_and_from_tuple_with_errors(tup):
 
 @pytest.mark.parametrize("gate", [
     QGate.from_sequence(sequence="H"),
-    QGate.from_sequence(sequence="CNOT", target=(1, ), control=0),
+    QGate.from_sequence(sequence="CNOT", target=(0, 1)),
     QGate.from_matrix(matrix=np.eye(2)),
-    QGate.from_matrix(matrix=np.eye(4)[[0, 1, 3, 2]], matrix_target=(3, 4)),
+    QGate.from_matrix(matrix=np.eye(4)[[0, 1, 3, 2]], target=(3, 4)),
 ])
 def test_convert(gate):
     """Test the QGate.convert() method"""
     def to_dict(gate):
         """Convert a gate to a dictionary"""
         dic = dict()
-        for attr in ["name", "matrix", "matrix_target", "epsilon"]:
-            dic[attr] = getattr(gate, attr)
+        for attr in ["name", "matrix", "target", "epsilon"]:
+            if attr is "matrix":
+                if gate.sequence is not None:
+                    dic[attr] = gate.sequence_matrix
+                else:
+                    dic[attr] = gate.init_matrix
+
+            else:
+                dic[attr] = getattr(gate, attr)
 
         return dic
 
@@ -309,7 +288,7 @@ def test_convert(gate):
 
 @pytest.mark.parametrize("gate, decomposition, epsilon", [
     (QGate.from_matrix(matrix=np.eye(2)), "I", 0),
-    (QGate.from_matrix(matrix=np.eye(4)[[0, 3, 2, 1]], matrix_target=(1, 0)), "CNOT", 0),
+    (QGate.from_matrix(matrix=np.eye(4)[[0, 3, 2, 1]], target=(0, 1)), "CNOT1", 0),
     (QGate.from_matrix(np.array([[1, 1], [1, -1]]) / np.sqrt(2)), "H", 1e-10),
 ])
 def test_set_decomposition(gate, decomposition, epsilon):
@@ -317,66 +296,54 @@ def test_set_decomposition(gate, decomposition, epsilon):
     gate.set_decomposition(decomposition, epsilon)
 
     assert gate.sequence == decomposition
-    assert gate.target == (0, )
-    assert gate._matrix == None
-    assert np.allclose(gate.matrix, gate.approx_matrix)
+    assert np.allclose(gate.sequence_matrix, gate.init_matrix)
     assert gate.epsilon == epsilon
-    assert isinstance(gate.approx_matrix_target, tuple)
 
 
-def test_set_decomposition_error():
+def test_set_decomposition_errors():
     """Test the QGate.set_decomposition() method with errors"""
+    # Sequence already initialized
     gate = QGate.from_sequence("H H")
-
     with pytest.raises(ValueError, match="The sequence is already initialized."):
-        gate.set_decomposition("I", epsilon=0)    
+        gate.set_decomposition("I", epsilon=0)
+    
+    # Epsilon not defined
+    gate = QGate.from_matrix(np.eye(2))
+    with pytest.raises(ValueError, match="The epsilon must be initialized."):
+        gate.set_decomposition("I")
 
 
-@pytest.mark.parametrize("sequence, matrix, control", [
-    ("I", np.eye(2), None),
-    ("", np.eye(2), None),
-    ("X", np.array([[0, 1], [1, 0]]), None),
-    ("Y", np.array([[0, -1.j], [1.j, 0]]), None),
-    ("Z", np.array([[1, 0], [0, -1]]), None),
-    ("H", np.array([[1, 1], [1, -1]]) / np.sqrt(2), None),
-    ("S", np.array([[1, 0], [0, 1.j]]), None),
-    ("SDAG", np.diag([1, -1.j]), None),
-    ("Sdag", np.diag([1, -1.j]), None),
-    ("T", np.diag([1, np.exp(1.j * np.pi / 4)]), None),
-    ("Tdag", np.diag([1, np.exp(-1.j * np.pi / 4)]), None),
-    ("TDAG", np.diag([1, np.exp(-1.j * np.pi / 4)]), None),
-    ("CNOT", np.eye(4)[[0, 1, 3, 2]], 0),
-    ("CNOT", np.eye(4)[[0, 3, 2, 1]], 1),
-    ("CX", np.eye(4)[[0, 1, 3, 2]], 0),
-    ("CX", np.eye(4)[[0, 3, 2, 1]], 1),
-    ("SWAP", np.eye(4)[[0, 2, 1, 3]], None),
-    ("H H", np.eye(2), None),
-    ("H H ", np.eye(2), None),
-    ("H H  ", np.eye(2), None),
-    ("  H H  ", np.eye(2), None),
-    ("T S Z", np.diag([1, np.exp(-1.j * np.pi / 4)]), None),
-    ("X Y", np.diag([-1j, 1j]), None),
-    ("SWAP SWAP", np.eye(4), None),
+@pytest.mark.parametrize("sequence, matrix", [
+    ("I", np.eye(2)),
+    ("", np.eye(2)),
+    ("X", np.array([[0, 1], [1, 0]])),
+    ("Y", np.array([[0, -1.j], [1.j, 0]])),
+    ("Z", np.array([[1, 0], [0, -1]])),
+    ("H", np.array([[1, 1], [1, -1]]) / np.sqrt(2)),
+    ("S", np.array([[1, 0], [0, 1.j]])),
+    ("SDAG", np.diag([1, -1.j])),
+    ("Sdag", np.diag([1, -1.j])),
+    ("T", np.diag([1, np.exp(1.j * np.pi / 4)])),
+    ("Tdag", np.diag([1, np.exp(-1.j * np.pi / 4)])),
+    ("TDAG", np.diag([1, np.exp(-1.j * np.pi / 4)])),
+    ("CNOT", np.eye(4)[[0, 1, 3, 2]]),
+    ("CNOT1", np.eye(4)[[0, 3, 2, 1]]),
+    ("CX", np.eye(4)[[0, 1, 3, 2]]),
+    ("CX1", np.eye(4)[[0, 3, 2, 1]]),
+    ("SWAP", np.eye(4)[[0, 2, 1, 3]]),
+    ("H H", np.eye(2)),
+    ("H H ", np.eye(2)),
+    ("H H  ", np.eye(2)),
+    ("  H H  ", np.eye(2)),
+    ("T S Z", np.diag([1, np.exp(-1.j * np.pi / 4)])),
+    ("X Y", np.diag([-1j, 1j])),
+    ("SWAP SWAP", np.eye(4)),
 ])
-def test_calculate_matrix(sequence, matrix, control):
+def test_calculate_seq_matrix(sequence, matrix):
     """Test the QGate.calculate_matrix() and QGate.get_simple_matrix() methods"""
-    if sequence.startswith("SWAP"):
+    if matrix.shape[0] == 2:
+        gate = QGate.from_sequence(sequence=sequence, target=(0, ))
+    elif matrix.shape[0] == 4:
         gate = QGate.from_sequence(sequence=sequence, target=(0, 1))
 
-    elif control is not None:
-        target = (1, ) if control == 0 else (0, )
-        gate = QGate.from_sequence(sequence=sequence, control=control, target=target)
-
-    else:
-        gate = QGate.from_sequence(sequence=sequence)
-
-    assert np.allclose(gate.matrix, matrix)
-    assert gate.matrix is not None
-
-
-@pytest.mark.parametrize("sequence", ["A", "HTH", "cnot"])
-def test_calculate_matrix_error(sequence):
-    """Test the QGate.calculate_matrix() method with errors"""
-    with pytest.raises(ValueError, match=f"Unknown gate {sequence}."):
-        gate = QGate.from_sequence(sequence=sequence)
-        gate.calculate_matrix()
+    assert np.allclose(gate.sequence_matrix, matrix)

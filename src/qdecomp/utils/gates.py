@@ -33,6 +33,9 @@ from scipy.linalg import expm
 SQRT2 = np.sqrt(2)
 
 # Single qubit gates
+I = np.array([[1, 0], [0, 1]])
+"""NDArray[float]: Identity gate."""
+
 X = np.array([[0, 1], [1, 0]])
 """NDArray[float]: Pauli X gate."""
 
@@ -152,3 +155,45 @@ def canonical_gate(tx: float, ty: float, tz: float) -> NDArray[np.floating]:
     ZZ = np.array([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
     exponent = -1.0j * np.pi / 2 * (tx * XX + ty * YY + tz * ZZ)
     return expm(exponent)
+
+
+def get_matrix_by_name(name: str) -> NDArray[np.floating]:
+    """
+    Get the matrix of a gate by its name. If the name ends with "dag" or "DAG", the dagger of the
+    gate is returned.
+
+    Args:
+        name (str): Name of the gate.
+
+    Returns:
+        NDArray[float]: Matrix of the gate.
+    """
+    # Dagger of the gate
+    if name.endswith("dag") or name.endswith("DAG"):
+        matrix = get_matrix_by_name(name[:-3])
+        return matrix.T.conj()
+    
+    # Single qubit gates
+    if name in ["", "I"]: return I
+    if name in ["X", "NOT"]: return X
+    if name == "Y": return Y
+    if name == "Z": return Z
+    if name == "H": return H
+    if name == "S": return S
+    if name == "V": return V
+    if name == "T": return T
+
+    # Two qubit gates
+    if name in ["CNOT", "CX"]: return CNOT
+    if name in ["CNOT1", "CX1"]: return CNOT1
+    if name == "DCNOT": return DCNOT
+    if name == "INV_DCNOT": return INV_DCNOT
+    if name == "SWAP": return SWAP
+    if name == "ISWAP": return ISWAP
+    if name == "CY": return CY
+    if name == "CY1": return CY1
+    if name == "CZ": return CZ
+    if name == "CZ1": return CZ1
+    if name == "CH": return CH
+    if name == "CH1": return CH1
+    if name == "MAGIC": return MAGIC

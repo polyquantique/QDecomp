@@ -13,3 +13,4 @@
 #    limitations under the License.
 
 from qdecomp.utils.steiner_ellipse import *
+from qdecomp.utils.qgate import QGate
