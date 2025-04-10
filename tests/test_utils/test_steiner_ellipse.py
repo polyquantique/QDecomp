@@ -218,4 +218,3 @@ def test_ellipse_bbox(center):
     bbox = se.ellipse_bbox(D, p)
 
     assert np.allclose(bbox, bbox_expected)
-    assert np.allclose(bbox, bbox_expected)

@@ -15,7 +15,7 @@
 """
 This module allows to find the smallest ellipse englobing three points using the Steiner algorithm [1]_.
 The module also contains useful functions allowing to find the bounding box (BBOX) of an ellipse and
-determine wether points are inside an ellipse using its matrix definition.
+determine whether points are inside an ellipse using its matrix definition.
 
 .. [1] Wikipedia, Steiner ellipse, https://en.wikipedia.org/wiki/Steiner_ellipse.
 """
@@ -82,9 +82,9 @@ def steiner_ellipse_def(
         p3 (list[float]): Third point
 
     Returns:
-        typle[np.ndarray, np.ndarray]: :math:`(D, p)`: the matrix defining the shape and orientation of the ellipse, and the center of the ellipse
+        tuple[np.ndarray, np.ndarray]: :math:`(D, p)`: the matrix defining the shape and orientation of the ellipse, and the center of the ellipse
     """
-    # Determine wether to use high precision or not
+    # Determine whether to use high precision or not
     high_precision = isinstance(p1[0], mp.mpf)
 
     # Convert the points to numpy arrays
@@ -208,7 +208,7 @@ def ellipse_bbox(D: np.ndarray, p: np.ndarray) -> np.ndarray:
         corresponds to each spatial dimension (e.g., x, y, ...), and the second index contains the
         minimum and maximum bounds along that dimension.
     """
-    # Determine wether to use high precision or not
+    # Determine whether to use high precision or not
     high_precision = isinstance(p[0], mp.mpf)
 
     if high_precision:
