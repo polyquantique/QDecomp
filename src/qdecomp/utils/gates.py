@@ -172,28 +172,49 @@ def get_matrix_by_name(name: str) -> NDArray[np.floating]:
     if name.endswith("dag") or name.endswith("DAG"):
         matrix = get_matrix_by_name(name[:-3])
         return matrix.T.conj()
-    
+
     # Single qubit gates
-    if name in ["", "I"]: return I
-    if name in ["X", "NOT"]: return X
-    if name == "Y": return Y
-    if name == "Z": return Z
-    if name == "H": return H
-    if name == "S": return S
-    if name == "V": return V
-    if name == "T": return T
+    if name in ["", "I"]:
+        return I
+    if name in ["X", "NOT"]:
+        return X
+    if name == "Y":
+        return Y
+    if name == "Z":
+        return Z
+    if name == "H":
+        return H
+    if name == "S":
+        return S
+    if name == "V":
+        return V
+    if name == "T":
+        return T
 
     # Two qubit gates
-    if name in ["CNOT", "CX"]: return CNOT
-    if name in ["CNOT1", "CX1"]: return CNOT1
-    if name == "DCNOT": return DCNOT
-    if name == "INV_DCNOT": return INV_DCNOT
-    if name == "SWAP": return SWAP
-    if name == "ISWAP": return ISWAP
-    if name == "CY": return CY
-    if name == "CY1": return CY1
-    if name == "CZ": return CZ
-    if name == "CZ1": return CZ1
-    if name == "CH": return CH
-    if name == "CH1": return CH1
-    if name == "MAGIC": return MAGIC
+    if name in ["CNOT", "CX"]:
+        return CNOT
+    if name in ["CNOT1", "CX1"]:
+        return CNOT1
+    if name in ["DCNOT", "DCX"]:
+        return DCNOT
+    if name in ["INV_DCNOT", "INV_DCX"]:
+        return INV_DCNOT
+    if name == "SWAP":
+        return SWAP
+    if name == "ISWAP":
+        return ISWAP
+    if name == "CY":
+        return CY
+    if name == "CY1":
+        return CY1
+    if name == "CZ":
+        return CZ
+    if name == "CZ1":
+        return CZ1
+    if name == "CH":
+        return CH
+    if name == "CH1":
+        return CH1
+    if name == "MAGIC":
+        return MAGIC

@@ -47,7 +47,7 @@ class QGate:
 
         init_matrix (np.ndarray or None): Matrix used to initialize the gate.
         sequence_matrix (np.ndarray or None): Approximated matrix representation of the gate.
-        
+
         epsilon (float): Tolerance for the gate.
 
     Class methods:
@@ -68,7 +68,7 @@ class QGate:
 
     **Example**
     .. code-block:: python
-        
+
         # Import the necessary library and module
         import numpy as np
 
@@ -126,7 +126,7 @@ class QGate:
     def __init__(
         self,
         name: str | None = None,
-        target: tuple[int] = (0, ),
+        target: tuple[int] = (0,),
     ) -> None:
         """
         Initialize the QGate object.
@@ -141,12 +141,10 @@ class QGate:
         # Check if the target is a tuple of integers
         if not isinstance(target, tuple) or not all(isinstance(i, int) for i in target):
             raise TypeError(f"The target qubit must be a tuple of integers. Got {target}.")
-        
+
         # Check if the target qubits are in ascending order
         if not all(target[i] < target[i + 1] for i in range(len(target) - 1)):
-            raise ValueError(
-                f"The target qubits must be in ascending order. Got {target}."
-            )
+            raise ValueError(f"The target qubits must be in ascending order. Got {target}.")
 
         # Populate the attributes
         self._name = name
@@ -221,7 +219,7 @@ class QGate:
                 "The input matrix must have a size of 2^nb_of_qubit. Got shape "
                 + f"{matrix.shape} and {len(target)} qubit(s)."
             )
-        
+
         # Create the gate
         gate = cls(name=name, target=target)
         gate._init_matrix = matrix
@@ -294,7 +292,7 @@ class QGate:
             ValueError: If the tuple does not contain three elements.
 
         **Example**
-        
+
         .. code-block:: python
 
             # Import the necessary module
@@ -331,7 +329,9 @@ class QGate:
             return cls.from_matrix(matrix=first, name=name, target=tup[1], epsilon=tup[2])
 
         else:
-            raise ValueError(f"The first element of the tuple must be a string or a np.ndarray. Got {type(first)}.")
+            raise ValueError(
+                f"The first element of the tuple must be a string or a np.ndarray. Got {type(first)}."
+            )
 
     @property
     def name(self) -> str | None:
@@ -418,21 +418,21 @@ class QGate:
 
         if self.name is not None:
             string += "Gate: " + self.name + "\n"
-        
+
         if self.sequence is not None:
             string += "Sequence: " + self.sequence + "\n"
-        
+
         string += "Target: " + str(self.target) + "\n"
 
         if self.epsilon is not None:
             string += "Epsilon: " + str(self.epsilon) + "\n"
-        
+
         if self._init_matrix is not None:
             string += "Init. matrix:\n" + str(self.init_matrix) + "\n"
 
         if self._sequence_matrix is not None:
             string += "Seq. matrix:\n" + str(self.sequence_matrix) + "\n"
-        
+
         return string
 
     def to_tuple(self) -> tuple:
@@ -521,12 +521,12 @@ class QGate:
 
             if simple_matrix is None:
                 raise ValueError(f"The sequence contains an unknown gate: {name}.")
-            
+
             if simple_matrix.shape[0] != matrix_shape:
                 raise ValueError(
                     f"The sequence contains a gate that applies on the wrong number of qubits: {name}."
                 )
-            
+
             matrix = simple_matrix @ matrix
 
         # Store the matrix and the qubits on which the gate applies
