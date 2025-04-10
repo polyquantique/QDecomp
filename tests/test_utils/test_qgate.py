@@ -151,8 +151,8 @@ def test_calculate_seq_matrix_error():
     """Test the QGate.calculate_matrix() method with errors"""
     gate = QGate.from_sequence(sequence="H")
     with pytest.raises(ValueError, match="The sequence_matrix is already known."):
-        gate.calculate_seq_matrix()
-        gate.calculate_seq_matrix()
+        gate.calculate_seq_matrix()  # The first call computes the sequence_matrix
+        gate.calculate_seq_matrix()  # The second call raises an error
 
     gate = QGate.from_matrix(matrix=np.eye(2))
     with pytest.raises(ValueError, match="The sequence must be initialized."):
@@ -308,7 +308,7 @@ def test_convert(gate):
         """Convert a gate to a dictionary"""
         dic = dict()
         for attr in ["name", "matrix", "target", "epsilon"]:
-            if attr is "matrix":
+            if attr == "matrix":
                 if gate.sequence is not None:
                     dic[attr] = gate.sequence_matrix
                 else:
