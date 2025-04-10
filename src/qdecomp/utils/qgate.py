@@ -20,7 +20,7 @@ initial approximation and its error. Finally, the class provides a method to cal
 representation of the gate from its sequence.
 
 Classes:
-    - QGate: Class representing a quantum gate.
+    - :class:`QGate`: Class representing a quantum gate.
 """
 
 from typing import Any, Callable
@@ -38,7 +38,12 @@ class QGate:
     if any, and its error if a sequence is used to approximate it. The class also provides a method
     to calculate the matrix representation of the gate from its sequence.
 
-    Attributes:
+    Class methods to instantiate a QGate object:
+        - from_matrix: Create a QGate object from a matrix.
+        - from_sequence: Create a QGate object from a sequence.
+        - from_tuple: Create a QGate object from a tuple.
+
+    Parameters:
         name (str or None): Name of the gate.
         nb_qubits (int): Number of qubits on which the gate applies.
 
@@ -49,24 +54,16 @@ class QGate:
         sequence_matrix (np.ndarray or None): Approximated matrix representation of the gate.
 
         epsilon (float): Tolerance for the gate.
-
-    Class methods:
-        from_matrix: Create a QGate object from a matrix.
-        from_sequence: Create a QGate object from a sequence.
-        from_tuple: Create a QGate object from a tuple.
-
-    Methods:
-        __str__: Convert the gate to a string representation.
-        to_tuple: Convert the gate to a tuple representation.
-        convert: Convert the gate by using a user-defined function.
-        set_decomposition: Set the decomposition of the gate. The decomposition might be an
-            approximation of the initial gate stored in the approx_matrix attribute.
-        calculate_matrix: Calculate the matrix representation of the gate from its sequence.
-
-    Static methods:
-        get_simple_matrix: Get the matrix representation of a simple gate.
+    
+    Methods to change the QGate representation:
+        - __str__: Convert the gate to a string representation.
+        - to_tuple: Convert the gate to a tuple representation.
+        - convert: Convert the gate by using a user-defined function.
+        - set_decomposition: Set the decomposition of the gate. The decomposition might be an approximation of the initial gate stored in the approx_matrix attribute.
+        - calculate_seq_matrix: Calculate the matrix representation of the gate from its sequence.
 
     **Example**
+
     .. code-block:: python
 
         # Import the necessary library and module
@@ -78,23 +75,21 @@ class QGate:
         g1 = QGate.from_sequence(sequence="CNOT", target=(1, 3))
         print(g1)
         # Sequence: CNOT
-        # Control: 1
-        # Target: (3,)
+        # Target: (1, 3)
 
         # Create a gate from a matrix
         g2 = QGate.from_matrix(matrix=np.diag([1, -1]), name="My_Z_Gate")
         print(g2)
         # Gate: My_Z_Gate
-        # Matrix:
+        # Target: (0,)
+        # Init. matrix:
         # [[ 1  0]
         #  [ 0 -1]]
-        # Matrix target: (0,)
 
         # Create a gate from a tuple
         g3 = QGate.from_tuple(("H", (0, ), 0))
         print(g3)
         # Sequence: H
-        # Control: None
         # Target: (0,)
 
         # Get the matrix of a from_sequence() gate
@@ -102,23 +97,22 @@ class QGate:
         print("Name:", gate.name)          # Name: my_gate
         print("Sequence:", gate.sequence)  # Sequence: X Z Y
         print("Target:", gate.target)      # Target: (0,)
-        print("Matrix:\n", gate.matrix)
+        print("Matrix:\n", gate.sequence_matrix, "\n")
         # Matrix:
         #  [[ 0.+1.j  0.+0.j]
         #  [-0.+0.j  0.+1.j]]
-        print()
 
         # Set the approximation sequence of a gate
         approx_gate = QGate.from_matrix(matrix=np.diag([1-0.001j, 1.j+0.001]), name="approx_my_gate")
         approx_gate.set_decomposition("S", epsilon=0.01)
         print("Name:", approx_gate.name)          # Name: approx_my_gate
         print("Sequence:", approx_gate.sequence)  # Sequence: S
-        print("Initial matrix:\n", approx_gate.approx_matrix)
+        print("Initial matrix:\n", approx_gate.init_matrix)
         # Initial matrix:
         #  [[1.   -0.001j 0.   +0.j   ]
         #  [0.   +0.j    0.001+1.j   ]]
-        print("Approximated matrix:\n", approx_gate.matrix)
-        # Approximated matrix:
+        print("Matrix from sequence:\n", approx_gate.sequence_matrix)
+        # Matrix from sequence:
         #  [[1.+0.j 0.+0.j]
         #  [0.+0.j 0.+1.j]]
     """
@@ -188,15 +182,15 @@ class QGate:
         .. code-block:: python
 
             import numpy as np
-            from cliffordplust.circuit import QGate
+            from qdecomp.utils import QGate
 
-            gate = QGate.from_matrix(np.diag([1, 1j]), name="my_S_gate", matrix_target=(1, ))
+            gate = QGate.from_matrix(np.diag([1, 1j]), name="my_S_gate", target=(1, ))
             print(gate)
             # Gate: my_S_gate
-            # Matrix:
+            # Target: (1,)
+            # Init. matrix:
             # [[1.+0.j 0.+0.j]
             #  [0.+0.j 0.+1.j]]
-            # Matrix target: (1,)
         """
         # Convert the matrix to a numpy array
         matrix = np.asarray(matrix)
@@ -248,21 +242,19 @@ class QGate:
 
         .. code-block:: python
 
-            from cliffordplust.circuit import QGate
+            from qdecomp.utils import QGate
 
             h_gate = QGate.from_sequence("H", name="my_H_gate", target=(2, ))
             print(h_gate)
             # Gate: my_H_gate
             # Sequence: H
-            # Control: None
             # Target: (2,)
 
-            cx_gate = QGate.from_sequence("CNOT", name="my_CNOT_gate", control=(3, ), target=(1, ))
+            cx_gate = QGate.from_sequence("CNOT", name="my_CNOT_gate", target=(1, 3))
             print(cx_gate)
             # Gate: my_CNOT_gate
             # Sequence: CNOT
-            # Control: (3,)
-            # Target: (1,)
+            # Target: (1, 3)
         """
         # Create the gate
         gate = cls(name=name, target=target)
@@ -272,12 +264,12 @@ class QGate:
 
     @classmethod
     def from_tuple(cls, tup: tuple, name: str | None = None) -> "QGate":
-        """
+        r"""
         Create a QGate object from a tuple.
 
         Two tuple formats are allowed:
-        - (sequence, target, epsilon)
-        - (matrix, target, epsilon)
+            - (sequence, target, epsilon)
+            - (matrix, target, epsilon)
 
         In the first case, the epsilon is discarded.
 
@@ -296,26 +288,24 @@ class QGate:
         .. code-block:: python
 
             # Import the necessary module
-            from cliffordplust.circuit import QGate
+            from qdecomp.utils import QGate
 
             # Create a QGate object from a sequence
             init_gate = QGate.from_sequence("H", name="my_H_gate", target=(2, ))
             print(init_gate)
             # Gate: my_H_gate
             # Sequence: H
-            # Control: None
             # Target: (2,)
 
             # Get the tuple representation of the QGate object
             tup = init_gate.to_tuple()
-            print(tup)
+            print(tup, "\n")
             # ('H', (2,), 0)
 
             # Reconstruct the QGate object from the tuple
             tup_gate = QGate.from_tuple(tup)
             print(tup_gate)
             # Sequence: H
-            # Control: None
             # Target: (2,)
         """
         if len(tup) != 3:
@@ -497,7 +487,8 @@ class QGate:
 
     def calculate_seq_matrix(self) -> None:
         """
-        Calculate the matrix representation of the gate from its sequence.
+        Calculate the matrix representation of the gate from its sequence. The result can be
+        accessed using the `sequence_matrix` attribute.
 
         Raises:
             ValueError: If the sequence_matrix is already known.
