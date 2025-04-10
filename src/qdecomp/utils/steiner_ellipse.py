@@ -139,7 +139,6 @@ def steiner_ellipse_def(
             ]
         )
 
-
     # Calculate the final D matrix that defines the oriented ellipse
     D = rotation_matrix.T @ D_ @ rotation_matrix
 

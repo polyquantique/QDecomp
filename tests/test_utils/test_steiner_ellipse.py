@@ -133,7 +133,7 @@ def test_inside_ellipse_D_shape_error():
 
     with pytest.raises(IndexError, match=match_msg):
         se.is_inside_ellipse(points, D, p)
-    
+
     # Test with mpmath
     points = np.vectorize(mp.mpf)(points)
     D = np.vectorize(mp.mpf)(D)
@@ -157,7 +157,7 @@ def test_inside_ellipse_points_shape_error():
     )
     with pytest.raises(IndexError, match=match_msg):
         se.is_inside_ellipse(points, D, p)
-    
+
     # Test with mpmath
     points = np.vectorize(mp.mpf)(points)
     D = np.vectorize(mp.mpf)(D)
