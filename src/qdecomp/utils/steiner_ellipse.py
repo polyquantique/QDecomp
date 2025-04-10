@@ -13,9 +13,11 @@
 #    limitations under the License.
 
 """
-This module allows to find the smallest ellipse englobing three points using the `Steiner algorithm <https://en.wikipedia.org/wiki/Steiner_ellipse>`_.
+This module allows to find the smallest ellipse englobing three points using the Steiner algorithm [1]_.
 The module also contains useful functions allowing to find the bounding box (BBOX) of an ellipse and
 determine wether points are inside an ellipse using its matrix definition.
+
+.. [1] Wikipedia, Steiner ellipse, https://en.wikipedia.org/wiki/Steiner_ellipse.
 """
 
 import mpmath as mp
@@ -33,7 +35,7 @@ def assert_steiner_ellipse(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> No
     """
     Check if the three given points can be used to define a Steiner ellipse. The three points must
     be distinct and non-collinear to define a valid ellipse. If the points are not valid, a
-    ValueError is raised.
+    `ValueError` is raised.
 
     Args:
         p1 (list[float]): First point
@@ -70,8 +72,8 @@ def steiner_ellipse_def(
 ) -> tuple[np.ndarray, np.ndarray]:
     """
     Calculates the smallest ellipse that passes through the three given points using the Steiner
-    method. The ellipse is represented by the equation (u − p)† D (u − p) <= 1, where p is the
-    center of the ellipse and D is a matrix that defines its shape and orientation. p1, p2, p3 can
+    method. The ellipse is represented by the equation :math:`(u − p)^\dagger D (u − p) \leq 1`, where :math:`p` is the
+    center of the ellipse and :math:`D` is a matrix that defines its shape and orientation. :math:`p1`, :math:`p2`, :math:`p3` can
     be any iterable containing real numbers.
 
     Args:
@@ -80,7 +82,7 @@ def steiner_ellipse_def(
         p3 (list[float]): Third point
 
     Returns:
-        typle[np.ndarray, np.ndarray]: D matrix (defines the shape and orientation of the ellipse), p (center of the ellipse)
+        typle[np.ndarray, np.ndarray]: :math:`(D, p)`: the matrix defining the shape and orientation of the ellipse, and the center of the ellipse
     """
     # Determine wether to use high precision or not
     high_precision = isinstance(p1[0], mp.mpf)
@@ -193,10 +195,10 @@ def is_inside_ellipse(u: NestedList, D: np.ndarray, p: np.ndarray) -> np.ndarray
 
 def ellipse_bbox(D: np.ndarray, p: np.ndarray) -> np.ndarray:
     """
-    Find the axis-aligned bounding box (BBOX) of an ellipse.
+    Find the axis-aligned bounding box (BBOX) of an ellipse. Refer to the comment made by Rodrigo de
+    Azevedo on November 30th, 2020 in [2]_.
 
-    See this link for the algorithm (comment from Rodrigo de Azevedo on November 30th, 2020):
-    https://math.stackexchange.com/questions/3926884/smallest-axis-aligned-bounding-box-of-hyper-ellipsoid
+    .. [2] Rodrigo de Azevedo, Smallest axis-aligned bounding box of hyper-ellipsoid, Stack Exchange, https://math.stackexchange.com/questions/3926884/smallest-axis-aligned-bounding-box-of-hyper-ellipsoid
 
     Args:
         D (np.ndarray): Matrix defining the ellipse's shape and orientation
