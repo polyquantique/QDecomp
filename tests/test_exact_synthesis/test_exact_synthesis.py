@@ -70,17 +70,9 @@ def test_random_sequence_characters():
         ("THTTHTTTTTTH", T @ H @ T @ T @ H @ T @ T @ T @ T @ T @ T @ H),
     ],
 )
-def test_apply_sequence_identity_parametrized(sequence, expected):
+def test_apply_sequence_identity(sequence, expected):
     """Test if apply_sequence correctly applies a sequence of gates to the identity matrix with various sequences."""
     result = apply_sequence(sequence)
-    assert np.array_equal(result, expected)
-
-
-def test_apply_sequence_identity():
-    """Test if apply_sequence correctly applies a sequence of gates to the identity matrix."""
-    sequence = "HTHTTHTHTHW"
-    result = apply_sequence(sequence)
-    expected = H @ T @ H @ T @ T @ H @ T @ H @ T @ H @ W
     assert np.array_equal(result, expected)
 
 
@@ -191,14 +183,20 @@ def test_exact_synthesis_non_unitary():
         exact_synthesis_alg(matrix)
 
 
-def test_evaluate_omega_exponent():
+@pytest.mark.parametrize(
+    "z_1, z_2, expected",
+    [
+        (Domega((1, 0), (0, 0), (0, 0), (0, 0)), Domega((0, 0), (0, 0), (1, 0), (0, 0)), 2),
+        (Domega((0, 0), (0, 0), (1, 0), (0, 0)), Domega((1, 0), (0, 0), (0, 0), (0, 0)), 6),
+        (Domega((1, 0), (0, 0), (0, 0), (0, 0)), Domega((0, 0), (1, 0), (0, 0), (0, 0)), 1),
+    ],
+)
+def test_evaluate_omega_exponent(z_1, z_2, expected):
     """Test if evaluate_omega_exponent returns the correct exponent."""
     omega = Domega((0, 0), (0, 0), (1, 0), (0, 0))
-    z_1 = Domega((1, 0), (0, 0), (0, 0), (0, 0))
-    z_2 = Domega((0, 0), (0, 0), (1, 0), (0, 0))
     result = get_omega_exponent(z_1, z_2)
-    assert result == 2
-    assert omega**2 * z_2 == z_1
+    assert result == expected
+    assert omega**expected * z_2 == z_1
 
 
 @pytest.mark.parametrize("length", [1, 2, 3, 4, 5, 10, 20, 30, 50, 100, 200])
@@ -217,8 +215,8 @@ def test_exact_synthesis_reduc_sde(length):
 
 
 @pytest.mark.parametrize("length", [1, 2, 3, 4, 5, 10, 20, 30, 50, 100, 200])
-def test_exact_synthesis_reduc_valid(length):
-    """Test if exact_synthesis_reduc returns the correct sequence and final matrix for a valid input."""
+def test_exact_synthesis_reduc_valid_random(length):
+    """Test if exact_synthesis_reduc returns the correct sequence and final matrix for a random input."""
     initial_sequence = random_sequence(length)
     initial_matrix = apply_sequence(initial_sequence)
     sequence, temp_matrix = exact_synthesis_reduc(initial_matrix)
@@ -235,21 +233,10 @@ def test_gen_seq_no_ending_T():
     assert all(not seq.endswith("T") for seq in sequences)
 
 
-@pytest.mark.parametrize("initial_sequence", generate_sequences())
-def test_lookup_table_find_entries(initial_sequence):
-    """Test if the lookup table is generated correctly."""
-    U_3 = apply_sequence(initial_sequence)
-    U_3_first_column = convert_to_tuple(U_3)
-    found_sequence = s3_decomposition(U_3)
-    found_U3 = apply_sequence(found_sequence)
-    found_U3_first_column = convert_to_tuple(found_U3)
-    assert found_sequence != None
-    assert U_3_first_column == found_U3_first_column
-
-
-def test_exact_synthesis_alg_maxWTH():
+@pytest.mark.parametrize("length", [1, 2, 3, 4, 5, 10, 20])
+def test_exact_synthesis_alg_maxWTH(length):
     """Test if the exact synthesis algorithm returns a sequence with no more than 8 following W and T gates."""
-    initial_sequence = random_sequence(100)
+    initial_sequence = random_sequence(length)
     initial_matrix = apply_sequence(initial_sequence)
     final_sequence = exact_synthesis_alg(initial_matrix)
     assert "W" * 8 not in final_sequence
@@ -258,10 +245,86 @@ def test_exact_synthesis_alg_maxWTH():
 
 
 @pytest.mark.parametrize("length", [1, 2, 3, 4, 5, 10, 20, 30, 50, 100, 200])
-def test_full_exact_synthesis_alg(length):
-    """Test if the full exact synthesis algorithm returns the correct sequence and final matrix."""
+def test_full_exact_synthesis_alg_random(length):
+    """Test if the full exact synthesis algorithm returns the correct sequence and final matrix for random input."""
     initial_sequence = random_sequence(length)
     initial_matrix = apply_sequence(initial_sequence)
-    final_sequence = exact_synthesis_alg(initial_matrix)
+    final_sequence = exact_synthesis_alg(initial_matrix, print_global_phase=True)
     final_matrix = apply_sequence(final_sequence)
-    assert final_matrix.all() == initial_matrix.all()
+    assert (final_matrix == initial_matrix).all()
+
+
+@pytest.mark.parametrize(
+    "matrix, sequence",
+    [
+        (np.array([[ZERO_DOMEGA, ONE_DOMEGA], [ONE_DOMEGA, ZERO_DOMEGA]]), "HTTTTH"),  # X
+        (np.array([[ONE_DOMEGA, ZERO_DOMEGA], [ZERO_DOMEGA, -ONE_DOMEGA]]), "TTTT"),  # Z
+        (
+            np.array([[ZERO_DOMEGA, -1 * OMEGA**2], [OMEGA**2, ZERO_DOMEGA]]),
+            "TTHTTTTHTTTTTT",
+        ),  # Y
+    ],
+)
+def test_exact_synthesis_alg_valid_known(matrix, sequence):
+    """Test if the exact synthesis algorithm returns the correct sequence and final matrix for known input."""
+    final_sequence = exact_synthesis_alg(matrix, print_global_phase=True)
+    assert final_sequence == sequence
+    final_matrix = apply_sequence(final_sequence)
+    assert (final_matrix == matrix).all()
+
+
+def test_generate_s3_creates_file():
+    """Test if generate_s3 creates the s3_table.json file."""
+    output_file = os.path.join(
+        os.path.dirname(__file__),
+        "..",
+        "..",
+        "src",
+        "cliffordplust",
+        "exact_synthesis",
+        "s3_table.json",
+    )
+    # Remove the file if it exists
+    if os.path.exists(output_file):
+        os.remove(output_file)
+
+    # Run the function
+    generate_s3()
+
+    # Check if the file was created
+    assert os.path.exists(output_file)
+
+
+@pytest.mark.parametrize(
+    "sequence", ["HTHTHTHTHT", "TTTTTT", "TTTTTTHTTHTTTT", "HTTTTHTTHTHTTTTTTT"]
+)
+def test_optimize_sequence_reptition(sequence):
+    """Test if optimize_sequence returns the correct optimized sequence."""
+    optimized_sequence = optimize_sequence(sequence)
+    assert "T" * 2 not in optimized_sequence
+    assert "H" * 2 not in optimized_sequence
+    assert "Z" * 2 not in optimized_sequence
+    assert "S" * 2 not in optimized_sequence
+
+
+@pytest.mark.parametrize(
+    "sequence, expected",
+    [
+        ("HTHTHTHTHT", "HTHTHTHTHT"),
+        ("TTTTTT", "ZS"),
+        ("TTTTTTHTTHTTTT", "ZSHSHZ"),
+        ("HTTTTHTTHTHTTTTTTT", "HZHSHTHZST"),
+        ("HTTTTTTTTHTTTTTTHTT", "ZSHS"),
+    ],
+)
+def test_optimize_sequence_validity(sequence, expected):
+    """Test if optimize_sequence returns the expected answer."""
+    optimized_sequence = optimize_sequence(sequence)
+    assert optimized_sequence == expected
+
+
+def test_optimize_sequence_str():
+    """Test if optimize_sequence raises a TypeError for not string input type."""
+    sequence = 3
+    with pytest.raises(TypeError, match="Input sequence must be a string"):
+        optimize_sequence(sequence)

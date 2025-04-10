@@ -25,6 +25,7 @@ import os
 
 
 from cliffordplust.exact_synthesis import apply_sequence, convert_to_tuple
+from cliffordplust.rings import Domega
 
 
 def generate_sequences() -> list[str]:
@@ -60,14 +61,34 @@ def generate_sequences() -> list[str]:
 
 
 def generate_s3() -> None:
-    """Generate the S3 table for the first column of Clifford+ gate set and write it to a json file.
-    Args:
-        max_consecutive_t (int): Maximum number of consecutive T gates
-    """
+    """Generate the S3 table for the first column of Clifford+T gate set and write it to a json file."""
 
     s3_sequences = generate_sequences()
     s3_dict = {seq: convert_to_tuple(apply_sequence(seq)) for seq in s3_sequences}
 
+    # Remove duplicate values in s3_dict
+    unique_values = {}
+    for key, value in s3_dict.items():
+
+        # Check if the sde is greater than 3, if so do not add to table
+        if (
+            Domega(value[0][0], value[0][1], value[0][2], value[0][3])
+            * Domega(
+                value[0][0], value[0][1], value[0][2], value[0][3]
+            ).complex_conjugate()
+        ).sde() > 3:
+            continue
+
+        if value not in unique_values.values():
+            unique_values[key] = value
+        else:
+            # Replace the existing key if the current key has fewer 'T' gates
+            existing_key = next(k for k, v in unique_values.items() if v == value)
+            if key.count("T") < existing_key.count("T"):
+                del unique_values[existing_key]
+                unique_values[key] = value
+
+    s3_dict = unique_values
     # Serialize the S3 dictionary
     serialized_dict = json.dumps(s3_dict).replace(', "', ',\n"')
 
