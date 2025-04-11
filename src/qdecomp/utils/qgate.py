@@ -16,18 +16,22 @@
 This module contains the QGate class, which represents a quantum gate. It provides methods to easily
 create a gate from different representations (matrix, sequence, tuple) and to stock its information
 in an intuitive way. The class also contains methods to stock the decomposition of the gate, its
-initial approximation and its error. Finally, the class provides a method to calculate the matrix
+initial representation and its error. Finally, the class provides a method to calculate the matrix
 representation of the gate from its sequence.
 
 Classes:
     - :class:`QGate`: Class representing a quantum gate.
 """
 
+from __future__ import annotations
+
 from typing import Any, Callable
 
 import numpy as np
 
-from qdecomp.utils.gates import get_matrix_by_name
+from qdecomp.utils.gates import get_matrix_from_name
+
+__all__ = ["QGate"]
 
 
 class QGate:
@@ -44,22 +48,21 @@ class QGate:
         - from_tuple: Create a QGate object from a tuple.
 
     Parameters:
-        name (str or None): Name of the gate.
+        name (str | None): Name of the gate.
         nb_qubits (int): Number of qubits on which the gate applies.
 
-        sequence (str or None): Sequence associated with the gate decomposition.
+        sequence (str | None): Sequence associated with the gate decomposition.
         target (tuple[int]): Qubits on which the gate acts.
 
-        init_matrix (np.ndarray or None): Matrix used to initialize the gate.
-        sequence_matrix (np.ndarray or None): Approximated matrix representation of the gate.
+        init_matrix (np.ndarray | None): Matrix used to initialize the gate.
+        sequence_matrix (np.ndarray | None): Approximated matrix representation of the gate.
 
         epsilon (float): Tolerance for the gate.
-    
+
     Methods to change the QGate representation:
-        - __str__: Convert the gate to a string representation.
         - to_tuple: Convert the gate to a tuple representation.
         - convert: Convert the gate by using a user-defined function.
-        - set_decomposition: Set the decomposition of the gate. The decomposition might be an approximation of the initial gate stored in the approx_matrix attribute.
+        - set_decomposition: Set the decomposition of the gate. The decomposition might be an approximation of the initial gate stored in the init_matrix attribute.
         - calculate_seq_matrix: Calculate the matrix representation of the gate from its sequence.
 
     **Example**
@@ -120,20 +123,26 @@ class QGate:
     def __init__(
         self,
         name: str | None = None,
-        target: tuple[int] = (0,),
+        target: tuple[int, ...] = (0,),
     ) -> None:
         """
         Initialize the QGate object.
 
         Args:
-            name (str or None): Name of the gate
-            target (tuple[int]): Qubits on which the gate applies.
+            name (str | None): Name of the gate
+            target (tuple[int, ...]): Qubits on which the gate applies.
 
         Raises:
+            ValueError: If the target qubits are not a tuple.
+            ValueError: If the target qubits are not integers.
             ValueError: If the target qubits are not in ascending order.
         """
         # Check if the target is a tuple of integers
-        if not isinstance(target, tuple) or not all(isinstance(i, int) for i in target):
+        if not isinstance(target, tuple):
+            raise TypeError(f"The target qubit must be a tuple. Got {target}.")
+
+        # Check if that target qubit(s) are integers
+        if not all(isinstance(i, int) for i in target):
             raise TypeError(f"The target qubit must be a tuple of integers. Got {target}.")
 
         # Check if the target qubits are in ascending order
@@ -156,7 +165,7 @@ class QGate:
         cls,
         matrix: np.ndarray,
         name: str | None = None,
-        target: tuple[int] = (0,),
+        target: tuple[int, ...] = (0,),
         epsilon: float | None = None,
     ) -> "QGate":
         """
@@ -164,16 +173,14 @@ class QGate:
 
         Args:
             matrix (np.ndarray): Matrix representation of the gate.
-            name (str or None): Name of the gate.
-            target (tuple[int]): Qubits on which the gate applies.
-            epsilon (float or None): Tolerance for the gate.
+            name (str | None): Name of the gate.
+            target (tuple[int, ...]): Qubits on which the gate applies.
+            epsilon (float | None): Tolerance for the gate.
 
         Returns:
             QGate: The QGate object.
 
         Raises:
-            ValueError: If the matrix doesn't have 2 dimensions.
-            ValueError: If the matrix is not a square matrix.
             ValueError: If the matrix is not unitary.
             ValueError: If the number of rows of the matrix is not 2^nb_of_qubits.
 
@@ -226,14 +233,14 @@ class QGate:
         cls,
         sequence: str,
         name: str | None = None,
-        target: tuple[int] = (0,),
+        target: tuple[int, ...] = (0,),
     ) -> "QGate":
         """
         Create a QGate object from a sequence.
 
         Args:
             sequence (str): Sequence associated with the gate decomposition.
-            target (tuple[int]): Qubits on which the gate applies.
+            target (tuple[int, ...]): Qubits on which the gate applies.
 
         Returns:
             QGate: The QGate object.
@@ -263,7 +270,7 @@ class QGate:
         return gate
 
     @classmethod
-    def from_tuple(cls, tup: tuple, name: str | None = None) -> "QGate":
+    def from_tuple(cls, gate_tuple: tuple, name: str | None = None) -> "QGate":
         r"""
         Create a QGate object from a tuple.
 
@@ -274,13 +281,13 @@ class QGate:
         In the first case, the epsilon is discarded.
 
         Args:
-            tup (tuple): Tuple representation of the gate.
+            gate_tuple (tuple): Tuple representation of the gate.
 
         Returns:
             QGate: The QGate object.
 
         Raises:
-            ValueError: If the first elements of the tuple is not a string or a np.ndarray.
+            TypeError: If the first elements of the tuple is not a string or a np.ndarray.
             ValueError: If the tuple does not contain three elements.
 
         **Example**
@@ -308,18 +315,20 @@ class QGate:
             # Sequence: H
             # Target: (2,)
         """
-        if len(tup) != 3:
+        if len(gate_tuple) != 3:
             raise ValueError("The tuple must contain three elements.")
 
-        first = tup[0]
+        first = gate_tuple[0]
         if isinstance(first, str):
-            return cls.from_sequence(sequence=first, name=name, target=tup[1])
+            return cls.from_sequence(sequence=first, name=name, target=gate_tuple[1])
 
         elif isinstance(first, np.ndarray):
-            return cls.from_matrix(matrix=first, name=name, target=tup[1], epsilon=tup[2])
+            return cls.from_matrix(
+                matrix=first, name=name, target=gate_tuple[1], epsilon=gate_tuple[2]
+            )
 
         else:
-            raise ValueError(
+            raise TypeError(
                 f"The first element of the tuple must be a string or a np.ndarray. Got {type(first)}."
             )
 
@@ -329,7 +338,7 @@ class QGate:
         Get the name of the gate.
 
         Returns:
-            str or None: The name of the gate.
+            str | None: The name of the gate.
         """
         return self._name
 
@@ -339,7 +348,7 @@ class QGate:
         Get the sequence associated with the gate decomposition.
 
         Returns:
-            str or None: The sequence associated with the gate decomposition.
+            str | None: The sequence associated with the gate decomposition.
         """
         return self._sequence
 
@@ -364,16 +373,19 @@ class QGate:
         return self._init_matrix
 
     @property
-    def sequence_matrix(self) -> np.ndarray | None:
+    def sequence_matrix(self) -> np.ndarray:
         """
-        Get the approximated matrix representation of the gate.
+        Get the matrix representation of the gate given by its sequence. If the gate is initialized
+        with a matrix (obtained with the `init_matrix` property), and then its sequence is
+        specified, the sequence matrix represents the matrix obtained by multiplying the gates in
+        the sequence.
 
         Returns:
-            np.ndarray or None: Approximated matrix representation of the gate.
+            np.ndarray: Approximated matrix representation of the gate.
         """
         # Calculate the matrix if it is not already known
         if self._sequence_matrix is None:
-            self.calculate_seq_matrix()
+            self._calculate_seq_matrix()
 
         return self._sequence_matrix
 
@@ -393,7 +405,7 @@ class QGate:
         Get the tolerance for the gate.
 
         Returns:
-            float or None: The tolerance for the gate.
+            float | None: The tolerance for the gate.
         """
         return self._epsilon
 
@@ -464,7 +476,7 @@ class QGate:
 
         Args:
             sequence (str): The decomposition of the gate.
-            epsilon (float or None): The tolerance for the gate. If None, the value of the epsilon
+            epsilon (float | None): The tolerance for the gate. If None, the value of the epsilon
                 attribute is used.
 
         Raises:
@@ -485,7 +497,7 @@ class QGate:
         # Set the sequence
         self._sequence = sequence
 
-    def calculate_seq_matrix(self) -> None:
+    def _calculate_seq_matrix(self) -> None:
         """
         Calculate the matrix representation of the gate from its sequence. The result can be
         accessed using the `sequence_matrix` attribute.
@@ -493,7 +505,6 @@ class QGate:
         Raises:
             ValueError: If the sequence_matrix is already known.
             ValueError: If the sequence is not initialized.
-            ValueError: If the sequence contains an unknown gate.
             ValueError: If the sequence contains a gate that applies on the wrong number of qubits.
         """
         # Check if the matrix is not already known
@@ -508,10 +519,7 @@ class QGate:
         matrix_shape = 2**self.nb_qubits
         matrix = np.eye(matrix_shape, dtype=complex)
         for name in self.sequence.split(" "):
-            simple_matrix = get_matrix_by_name(name)
-
-            if simple_matrix is None:
-                raise ValueError(f"The sequence contains an unknown gate: {name}.")
+            simple_matrix = get_matrix_from_name(name)
 
             if simple_matrix.shape[0] != matrix_shape:
                 raise ValueError(

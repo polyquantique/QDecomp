@@ -21,6 +21,7 @@ The module also contains functions to generate parametric gates:
     - :func:`power_pauli_y`: Return the Pauli Y power gate.
     - :func:`power_pauli_z`: Return the Pauli Z power gate.
     - :func:`canonical_gate`: Return the canonical gate.
+    - :func:`get_matrix_from_name`: Return the matrix of a gate from its name.
 """
 
 import numpy as np
@@ -154,7 +155,7 @@ def canonical_gate(tx: float, ty: float, tz: float) -> NDArray[np.floating]:
     return expm(exponent)
 
 
-def get_matrix_by_name(name: str) -> NDArray[np.floating]:
+def get_matrix_from_name(name: str) -> NDArray[np.floating]:
     """
     Get the matrix of a gate by its name. If the name ends with "dag" or "DAG", the dagger of the
     gate is returned.
@@ -164,11 +165,23 @@ def get_matrix_by_name(name: str) -> NDArray[np.floating]:
 
     Returns:
         NDArray[float]: Matrix of the gate.
+
+    Raises:
+        ValueError: If the gate name is not recognized.
     """
     # Dagger of the gate
-    if name.endswith("dag") or name.endswith("DAG"):
-        matrix = get_matrix_by_name(name[:-3])
-        return matrix.T.conj()
+    dag_suffix = ["dag", "dagger"]
+    for suffix in dag_suffix:
+        n_char = len(suffix)  # Number of characters in the suffix
+        if name[-n_char:].lower() == suffix:
+            if len(suffix) == len(name):  # The gate "_{suffix}" is the identity gate
+                return I
+
+            if name[-n_char - 1] == "_":  # Handle the case where the name ends with "_{suffix}"
+                n_char += 1
+
+            matrix = get_matrix_from_name(name[:-n_char])
+            return matrix.T.conj()
 
     # Single qubit gates
     if name in ["", "I"]:
@@ -215,3 +228,5 @@ def get_matrix_by_name(name: str) -> NDArray[np.floating]:
         return CH1
     if name == "MAGIC":
         return MAGIC
+
+    raise ValueError(f"The gate {name} is not recognized. Please check the name.")

@@ -85,8 +85,14 @@ def test_from_sequence():
 
 def test_qgate_init_error():
     """Test the QGate.__init__() errors"""
-    # The target qubit is not a tuple of integers
-    target_list = [(1.2,), 3, "a"]
+    # The target qubit is not a tuple
+    target_list = [[1, 4], 3, "a"]
+    for target in target_list:
+        with pytest.raises(TypeError, match="The target qubit must be a tuple. Got "):
+            QGate.from_sequence(sequence="H", target=target)
+
+    # If the tuple elements are not integers
+    target_list = [(1.0, 4), (3.0, 4), (1, "a"), (None,)]
     for target in target_list:
         with pytest.raises(TypeError, match="The target qubit must be a tuple of integers. Got "):
             QGate.from_sequence(sequence="H", target=target)
@@ -147,27 +153,23 @@ def test_seq_matrix__calculate_seq_matrix(sequence, target, matrix):
     assert np.allclose(gate.sequence_matrix, matrix)
 
 
-def test_calculate_seq_matrix_error():
+def test__calculate_seq_matrix_error():
     """Test the QGate.calculate_matrix() method with errors"""
     gate = QGate.from_sequence(sequence="H")
     with pytest.raises(ValueError, match="The sequence_matrix is already known."):
-        gate.calculate_seq_matrix()  # The first call computes the sequence_matrix
-        gate.calculate_seq_matrix()  # The second call raises an error
+        gate._calculate_seq_matrix()  # The first call computes the sequence_matrix
+        gate._calculate_seq_matrix()  # The second call raises an error
 
     gate = QGate.from_matrix(matrix=np.eye(2))
     with pytest.raises(ValueError, match="The sequence must be initialized."):
-        gate.calculate_seq_matrix()
-
-    gate = QGate.from_sequence(sequence="T Unknown Z")
-    with pytest.raises(ValueError, match="The sequence contains an unknown gate: Unknown."):
-        gate.calculate_seq_matrix()
+        gate._calculate_seq_matrix()
 
     gate = QGate.from_sequence(sequence="H CNOT T")
     with pytest.raises(
         ValueError,
         match="The sequence contains a gate that applies on the wrong number of qubits: CNOT",
     ):
-        gate.calculate_seq_matrix()
+        gate._calculate_seq_matrix()
 
 
 @pytest.mark.parametrize(
@@ -241,7 +243,7 @@ Init. matrix:
     )
 
     gate = QGate.from_sequence(sequence="H", target=(1,), name="H_gate")
-    gate.calculate_seq_matrix()
+    gate._calculate_seq_matrix()
     assert (
         str(gate)
         == """\
@@ -287,8 +289,14 @@ def test_to_and_from_tuple_with_errors(tup):
         ):
             gate.to_tuple()
 
+    elif len(tup) != 3:
+        with pytest.raises(ValueError, match="The tuple must contain three elements."):
+            QGate.from_tuple(tup)
+
     else:
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            TypeError, match="The first element of the tuple must be a string or a np.ndarray. Got "
+        ):
             QGate.from_tuple(tup)
 
 

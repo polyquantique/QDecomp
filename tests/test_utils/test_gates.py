@@ -67,6 +67,9 @@ def test_canonical_gate(tx, ty, tz):
     "name",
     [
         "I",
+        "_dag",
+        "dagger",
+        "_DAGdagger_dagger",
         "X",
         "Y",
         "Z",
@@ -89,10 +92,15 @@ def test_canonical_gate(tx, ty, tz):
         "MAGIC",
     ],
 )
-def test_get_matrix_by_name(name):
+def test_get_matrix_from_name(name):
     """Test the single qubit gates."""
-    gate = get_matrix_by_name(name)
-    gate_dag = get_matrix_by_name(name + "dag")
+    gate = get_matrix_from_name(name)
+
+    dag_list = ["dag", "_dag", "dagger", "_dagger", "DAG", "_DAG", "DAGGER", "_DAGGER"]
+    dag_choice = dag_list[
+        sum(ord(letter) for letter in name) % len(dag_list)
+    ]  # Randomly choose a suffix
+    gate_dag = get_matrix_from_name(name + dag_choice)
 
     tqg = "C" in name or "SWAP" in name  # True if the gate is a two-qubit gate
     if tqg:
@@ -102,3 +110,12 @@ def test_get_matrix_by_name(name):
 
     assert gate.shape == shape
     assert np.allclose(gate_dag @ gate, np.eye(shape[0]))
+
+
+@pytest.mark.parametrize("name", ["NoT", "HADAMARD", "INVALID_GATE", "H_dag_"])
+def test_get_matrix_from_name_error(name):
+    """Test the error when the gate name is not recognized."""
+    with pytest.raises(
+        ValueError, match=f"The gate {name} is not recognized. Please check the name."
+    ):
+        get_matrix_from_name(name)
