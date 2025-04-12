@@ -115,9 +115,9 @@ def zyz_decomposition(U: NDArray) -> tuple[float, ...]:
     b = 2 * np.atan2(V10_.imag, V10_.real)
 
     # The following system of equations is solved to find t0 and t2
-    # t0 + t2 = a
-    # t0 - t2 = b
-    t0 = (a + b) / 2
-    t2 = (a - b) / 2
+    # t0 - t2 = a
+    # t0 + t2 = b
+    t0 = (a - b) / 2
+    t2 = (a + b) / 2
 
     return t0, t1, t2, alpha
