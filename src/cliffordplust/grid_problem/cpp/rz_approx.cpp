@@ -83,10 +83,6 @@ std::pair<Domega, Domega> rz_approx(
 
     // Solve the problem
     while (true) {
-        if (n == 34) {
-            std::cout << "n = 34" << std::endl;
-        }
-
         odd = (bool)(n & 1);
 
         if (odd) { constant = Dsqrt2(0, 0, 1, (n >> 1) + 1).to_Domega(); }
@@ -99,7 +95,7 @@ std::pair<Domega, Domega> rz_approx(
         if (odd) { sqrt2_n *= std::sqrt(2); }    
         multiply_bbox(A, sqrt2_n);
         multiply_bbox(B, sqrt2_n);
-        
+
         GridProblem2D gp(A[0][0], A[0][1], B[0][0], B[0][1], A[1][0], A[1][1], B[1][0], B[1][1]);
         int n_candidate = 0;
         for (const auto& candidate : gp) {
@@ -117,11 +113,14 @@ std::pair<Domega, Domega> rz_approx(
                 if ( dst < 1 - std::pow(epsilon, static_cast<long double>(2)) / 2 ) { continue; }  // True if the candidate is not in the slice
                 
                 // At this point, the candidate solves the grid problem and is in the slice
+                Domega t(0, 0, 0, 0, 0, 0, 0, 0);  // Create a Domega object to store the solution
                 Dsqrt2 xi = Dsqrt2(1, 0, 0, 0) - (u * u.complex_conjugate()).to_Dsqrt2();
-                Domega t = solve_xi_eq_ttdag_in_d(xi);
 
-                if ( t == Domega(0, 0, 0, 0, 0, 0, 0, 0) ) { continue; }  // True if the solution does not exist
-                
+                if (xi != Dsqrt2(0, 0, 0, 0)) {  // If xi == 0, the solution to the diophantine equation is t = 0
+                    t = solve_xi_eq_ttdag_in_d(xi);  // Solve the diophantine equation
+                    if ( t == Domega(0, 0, 0, 0, 0, 0, 0, 0) ) { continue; }  // True if the solution does not exist for the diophantine equation
+                }
+
                 // Return the solution
                 return std::make_pair(u, t);
             }
