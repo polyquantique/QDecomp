@@ -1,4 +1,5 @@
 object=diophantine_lib
+LIBS_DIR=../../../../libs
 
 all: ${object}.dll
 
@@ -6,7 +7,7 @@ clean:
 	del /q ${object}.dll
 
 %.dll: %.o
-	g++ -shared -fPIC -static -o $@ $< -lstdc++
+	g++ -shared -I$(LIBS_DIR) -fPIC -static -o $@ $< -lstdc++
 
 %.o: %.cpp
-	g++ -c -fPIC -o $@ $< -lstdc++
+	g++ -c -I$(LIBS_DIR) -fPIC -o $@ $< -lstdc++

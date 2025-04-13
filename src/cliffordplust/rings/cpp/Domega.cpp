@@ -106,12 +106,13 @@ bool Domega::is_D() const {return _a == 0 and _b == 0 and _c == 0;}
 bool Domega::is_int() const {return is_D() and _d.is_int();}
 
 
-Zomega Domega::to_Zomega() const {
+template <typename T>
+Zomega<T> Domega::to_Zomega() const {
     if (! is_Zomega()) {
         throw std::runtime_error("The number to convert is not in Zomega. Got " + to_string());
     }
 
-    return Zomega(_a.num(), _b.num(), _c.num(), _d.num());
+    return Zomega<T>(_a.num(), _b.num(), _c.num(), _d.num());
 }
 
 Dsqrt2 Domega::to_Dsqrt2() const {
