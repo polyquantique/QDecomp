@@ -55,6 +55,8 @@ V = 1 / 2 * np.array([[1 + 1j, 1 - 1j], [1 - 1j, 1 + 1j]])
 T = np.array([[1, 0], [0, np.exp(1.0j * np.pi / 4)]])
 """NDArray[float]: T gate. T is the fourth root of the Pauli Z gate."""
 
+W = np.exp(1.0j * np.pi / 4) * np.eye(2)
+"""NDArray[float]: W gate. W is the global omega phase gate"""
 
 # Two qubit gates
 CNOT = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
