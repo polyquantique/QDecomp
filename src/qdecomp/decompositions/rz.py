@@ -14,9 +14,8 @@
 
 import numpy as np
 
-from cliffordplust.grid_problem.rz_approx import z_rotational_approximation
-from cliffordplust.exact_synthesis import *
-from cliffordplust.circuit import QGate
+from qdecomp.utils.grid_problem import z_rotational_approximation
+from qdecomp.utils.exact_synthesis import *
 
 
 def rz_decomposition(epsilon: float, angle: float) -> str:

@@ -18,12 +18,33 @@ import numpy as np
 from scipy.stats import unitary_group
 import pytest
 
-from cliffordplust.decompositions import tqg_decomp
-from cliffordplust.circuit import QGate
-from tests.test_decompositions.test_cnot import multiply_circuit
+from qdecomp.decompositions import tqg_decomp
+from qdecomp.utils import QGate
 
 
 np.random.seed(42)  # For reproducibility
+
+
+def multiply_circuit(circuit: list[QGate]) -> np.ndarray:
+    """
+    Multiply a list of QGates objects to get the matrix representation of the circuit.
+
+    Args:
+        circuit (list[QGate]): The list of gates in the circuit.
+
+    Returns:
+        np.ndarray: The matrix representation of the circuit.
+    """
+    M = np.eye(4)
+    for gate in circuit:
+        if gate.matrix.shape == (2, 2):
+            if gate.matrix_target == (0,):
+                M = np.kron(gate.matrix, np.eye(2)) @ M
+            else:
+                M = np.kron(np.eye(2), gate.matrix) @ M
+        else:
+            M = gate.matrix @ M
+    return M
 
 
 @pytest.mark.parametrize("trial", range(10))

@@ -15,8 +15,8 @@
 import pytest
 import numpy as np
 import mpmath as mp
-from cliffordplust.rings.rings import D, Zsqrt2, Dsqrt2
-from cliffordplust.grid_problem.grid_operator import Grid_Operator, I, R, K, X, Z, A, B
+from qdecomp.rings import D, Zsqrt2, Dsqrt2
+from qdecomp.utils.grid_problem import Grid_Operator, I, R, K, X, Z, A, B
 
 # Valid entries for testing
 valid_entries = [
@@ -92,6 +92,7 @@ def test_grid_operator_list_error(invalid_list):
         match="G must be a 4-element flat list or a 2x2 nested list with valid elements.",
     ):
         Grid_Operator(invalid_list)
+
 
 # Parametrize the test to run 20 times
 @pytest.mark.parametrize(
@@ -254,6 +255,7 @@ def test_as_float(grid_op):
     assert float_array[1, 0] == float(grid_op.c)
     assert float_array[1, 1] == float(grid_op.d)
 
+
 @pytest.mark.parametrize("grid_op", grid_ops)
 def test_as_mpfloat(grid_op):
     # Convert the grid operator to a mpfloat array
@@ -299,9 +301,9 @@ def test_add_sub(operation, expected):
     assert operation.c == expected.c, f"Expected c: {expected.c}, got: {operation.c}"
     assert operation.d == expected.d, f"Expected d: {expected.d}, got: {operation.d}"
 
+
 @pytest.mark.parametrize(
-    "scalar, grid_op",
-    list(zip(valid_entries, grid_ops))  # Pairing elements from both lists
+    "scalar, grid_op", list(zip(valid_entries, grid_ops))  # Pairing elements from both lists
 )
 def test_mul_scal(scalar, grid_op):
     """Test multiplication of grid operators with a scalar."""

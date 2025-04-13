@@ -13,31 +13,31 @@
 #    limitations under the License.
 
 """
-This file runs the entire z-rotational approximation algorithm to find the associated sequence. 
+This file runs the entire z-rotational approximation algorithm to find the associated sequence.
 
-It contains the initialization function, which is only to visualy lighten the code and the 
+It contains the initialization function, which is only to visualy lighten the code and the
 z_rotational_approximation function which is the main function of this file. Given an angle and
 an error, it finds an approximation of the associated z-rotation by solving for potential values
-of u, and then checking if there exists a valid associated value for t. When u and t are found, 
-it returns the Clifford+T approximation of the z-rotation. 
+of u, and then checking if there exists a valid associated value for t. When u and t are found,
+it returns the Clifford+T approximation of the z-rotation.
 """
 
 import numpy as np
 import math
 import mpmath as mp
 
-from cliffordplust.grid_problem.grid_problem import find_points, find_grid_operator
-from cliffordplust.grid_problem.grid_algorithms import solve_grid_problem_2d
-from cliffordplust.rings.rings import *
-from cliffordplust.diophantine.diophantine_equation import *
-from cliffordplust.grid_problem.steiner_ellipse import *
+from qdecomp.utils.grid_problem import find_points, find_grid_operator, solve_grid_problem_2d
+from qdecomp.rings import *
+from qdecomp.utils.diophantine import *
+from qdecomp.utils import ellipse_bbox, is_inside_ellipse, steiner_ellipse_def
+
 
 def initialization(epsilon: float, theta: float):
     """
     Initializes important parameters necessary to find the appropriate Rz approximation.
 
-    This function calculates points based on the angle and the error provided, finds the 
-    necessary ellipse, and determines grid operators and bounding boxes for further 
+    This function calculates points based on the angle and the error provided, finds the
+    necessary ellipse, and determines grid operators and bounding boxes for further
     computations.
 
     Args:
@@ -54,9 +54,8 @@ def initialization(epsilon: float, theta: float):
     # Initializes the ellipses using the points
     p1, p2, p3 = find_points(epsilon, theta)
     E, p_p = steiner_ellipse_def(p1, p2, p3)
-    I = np.array([[mp.mpf(1), mp.mpf(0)], 
-              [mp.mpf(0), mp.mpf(1)]], dtype=object)
-    
+    I = np.array([[mp.mpf(1), mp.mpf(0)], [mp.mpf(0), mp.mpf(1)]], dtype=object)
+
     # Find the grid operator using the ellipses
     inv_gop, gop = find_grid_operator(E, I)
     inv_gop_conj = inv_gop.conjugate()
@@ -71,11 +70,12 @@ def initialization(epsilon: float, theta: float):
 
     return E, p_p, I, bbox_1, bbox_2
 
+
 def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
     """
-    Finds the z-rotational approximation up to an error \u03B5. 
+    Finds the z-rotational approximation up to an error \u03b5.
 
-    This function finds an approximation of a z-rotational inside the Clifford+T subset. 
+    This function finds an approximation of a z-rotational inside the Clifford+T subset.
 
     Args:
         epsilon (float): Maximum allowable error.
@@ -85,7 +85,7 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
         M (np.ndarray): Approximation of a z-rotational inside the Clifford+T subset
 
     Raises:
-        ValueError: If theta is not in the range [0, 4\u03C0].
+        ValueError: If theta is not in the range [0, 4\u03c0].
         ValueError: If epsilon is not less than 0.5.
         ValueError: If theta or epsilon cannot be converted to floats.
 
@@ -97,24 +97,36 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
         epsilon = float(epsilon)
     except (ValueError, TypeError):
         raise TypeError("Both theta and epsilon must be convertible to floats.")
-    
+
     # Verify the value of theta
     if theta > 4 * math.pi or theta < 0:
-        raise ValueError("The value of theta must be between 0 and 4\u03C0.")
+        raise ValueError("The value of theta must be between 0 and 4\u03c0.")
 
     # Verify the value of epsilon
     if epsilon >= 0.5:
         raise ValueError("The maximal allowable error is 0.5.")
-    
+
     # Checks if the angle is trivial
     exponent = round(2 * theta / math.pi)
     if np.isclose(0, theta):
-        return np.array([[Domega.from_ring(1), Domega.from_ring(0)], [Domega.from_ring(0), Domega.from_ring(1)]], dtype=object)
+        return np.array(
+            [
+                [Domega.from_ring(1), Domega.from_ring(0)],
+                [Domega.from_ring(0), Domega.from_ring(1)],
+            ],
+            dtype=object,
+        )
     elif np.isclose(2 * theta / math.pi, exponent):
-        T = np.array([[Domega(-D(1, 0), D(0, 0), D(0, 0), D(0, 0)), Domega.from_ring(0)], [Domega.from_ring(0), Domega(D(0, 0), D(0, 0), D(1, 0), D(0, 0))]], dtype=object)
-        M = T ** exponent
+        T = np.array(
+            [
+                [Domega(-D(1, 0), D(0, 0), D(0, 0), D(0, 0)), Domega.from_ring(0)],
+                [Domega.from_ring(0), Domega(D(0, 0), D(0, 0), D(1, 0), D(0, 0))],
+            ],
+            dtype=object,
+        )
+        M = T**exponent
         return M
-    
+
     # Run the initialization function
     E, p_p, I, bbox_1, bbox_2 = initialization(epsilon, theta)
 
@@ -129,15 +141,15 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
             const = Dsqrt2(D(0, 0), D(1, int((n + 1) / 2)))
         else:
             const = D(1, int(n / 2))
-        
+
         # Initialize the bounding boxes using n
-        A = mp.sqrt(2 ** n) * bbox_1
+        A = mp.sqrt(2**n) * bbox_1
         if odd:
             bbox_2_flip = np.array([[bbox_2[0, 1], bbox_2[0, 0]], [bbox_2[1, 1], bbox_2[1, 0]]])
-            B = -mp.sqrt(2 ** n) * bbox_2_flip
-        else: 
-            B = mp.sqrt(2 ** n) * bbox_2
-        
+            B = -mp.sqrt(2**n) * bbox_2_flip
+        else:
+            B = mp.sqrt(2**n) * bbox_2
+
         # For every solution found
         for cand in solve_grid_problem_2d(A.tolist(), B.tolist()):
             # Ensure the solution was not already found previously

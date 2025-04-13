@@ -45,10 +45,10 @@ from typing import NamedTuple
 import numpy as np
 from numpy.typing import NDArray
 
-from cliffordplust import gates
-from cliffordplust.circuit import QGate
+from qdecomp.utils import gates
+from qdecomp.utils import QGate
 from qdecomp.decompositions.common_gate_decompositions import common_decompositions
-from cliffordplust.utils import is_hermitian, is_orthogonal, is_special, is_unitary
+from qdecomp.utils import is_hermitian, is_orthogonal, is_special, is_unitary
 
 __all__ = [
     "kronecker_decomposition",

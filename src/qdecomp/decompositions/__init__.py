@@ -13,3 +13,8 @@
 #    limitations under the License.
 
 from qdecomp.decompositions.zyz import *
+from qdecomp.decompositions.cnot import cnot_decomposition
+from qdecomp.decompositions.rz import rz_decomposition
+from qdecomp.decompositions.sqg import sqg_decomp
+from qdecomp.decompositions.tqg import tqg_decomp
+from qdecomp.decompositions.circuit import circuit_decomposition

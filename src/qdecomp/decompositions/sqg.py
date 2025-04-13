@@ -13,13 +13,10 @@
 #    limitations under the License.
 
 import numpy as np
-from cliffordplust.exact_synthesis import *
-from cliffordplust.decompositions import zyz_decomposition, rz_decomposition
-from cliffordplust.circuit import QGate
-
-
 from typing import Union
-from scipy.stats import unitary_group
+
+from qdecomp.decompositions import zyz_decomposition, rz_decomposition
+from qdecomp.utils import QGate
 
 
 def sqg_decomp(sqg: Union[np.array, QGate], epsilon: float = 0.01) -> str:
@@ -65,93 +62,3 @@ def sqg_decomp(sqg: Union[np.array, QGate], epsilon: float = 0.01) -> str:
             rz_sequence = rz_decomposition(epsilon=epsilon, angle=angle)
             sequence = sequence + rz_sequence
     return sequence, alpha
-
-
-if __name__ == "__main__":
-
-    def ry(teta):
-        return np.array(
-            [[np.cos(teta / 2), -np.sin(teta / 2)], [np.sin(teta / 2), np.cos(teta / 2)]]
-        )
-
-    def rz(teta):
-        return np.array([[np.exp(-1.0j * teta / 2), 0], [0, np.exp(1.0j * teta / 2)]])
-
-    def phase(alpha):
-        return np.exp(1.0j * alpha)
-
-    # # Create unitary matrix
-    np.random.seed(42)  # For reproducibility
-    epsilon = 1e-3
-    U = unitary_group.rvs(2)
-    U = np.array(
-        [
-            [-0.68321574 + 0.52428132j, -0.49707281 + 0.10613191j],
-            [-0.10627305 - 0.49704265j, -0.19929413 + 0.8378165j],
-        ]
-    )
-    sqg = QGate.from_matrix(U, matrix_target=(0,), epsilon=epsilon)
-
-    # # Decomposition of the SQG
-    sequence, alpha = sqg_decomp(U, epsilon)
-    sqg.set_decomposition(sequence, epsilon=epsilon)
-    print(sqg.sequence)
-    print(f"Initial matrix : {sqg.approx_matrix} ")
-    print(f"Decomposed matrix : {phase(alpha) * sqg.matrix} ")
-# #### Test all decomposition parts ####
-# # Test the ZYZ decomposition
-# t0, t1, t2, alpha_ = zyz_decomposition(U)
-# U_calculated = phase(alpha_) * rz(t0) @ ry(t1) @ rz(t2)
-# # print("ZYZ : ", U_calculated)
-# assert np.allclose(U, U_calculated, atol=epsilon)
-# if t0 < 0:
-#     t0 = t0 + 4 * np.pi
-# if t1 < 0:
-#     t1 = t1 + 4 * np.pi
-# if t2 < 0:
-#     t2 = t2 + 4 * np.pi
-
-# # print(f"t0 = {t0}, t1 = {t1}, t2 = {t2}")
-# t0_gate = QGate.from_matrix(rz(t0), matrix_target=(0,), epsilon=epsilon)
-# t0_sequence = rz_decomposition(epsilon=epsilon, angle=t0)
-# t0_gate.set_decomposition(t0_sequence, epsilon=epsilon)
-# assert np.allclose(t0_gate.matrix, t0_gate.approx_matrix, atol=epsilon)
-
-# t1_gate = QGate.from_matrix(ry(t1), matrix_target=(0,), epsilon=epsilon)
-# t1_sequence = rz_decomposition(epsilon=epsilon, angle=t1)
-# t1_sequence = "H S H " + t1_sequence + " H S S S H"
-# t1_gate.set_decomposition(t1_sequence, epsilon=epsilon)
-# assert np.allclose(t1_gate.matrix, t1_gate.approx_matrix, atol=epsilon)
-
-# t2_gate = QGate.from_matrix(rz(t2), matrix_target=(0,), epsilon=epsilon)
-# t2_sequence = rz_decomposition(epsilon=epsilon, angle=t2)
-# t2_gate.set_decomposition(t2_sequence, epsilon=epsilon)
-# assert np.allclose(t2_gate.matrix, t2_gate.approx_matrix, atol=epsilon)
-
-# decomposed_U = t0_gate.matrix @ t1_gate.matrix @ t2_gate.matrix
-# print("Decomposed U =", decomposed_U)
-# # assert np.allclose(U, decomposed_U, atol=epsilon)
-
-# print(
-#     f" t0 {t0}: {t0_gate.sequence} \n t1 {t1}: {t1_gate.sequence} \n t2 {t2}: {t2_gate.sequence}\n"
-# )
-# total_sequence = (
-#     t2_gate.sequence + " " + t1_gate.sequence + " " + t0_gate.sequence
-# )  # Fix sequence concatenation
-
-# print(total_sequence)
-# assert total_sequence == sqg.sequence
-# sqg.set_decomposition(total_sequence, epsilon=epsilon)
-# print("Final matrix", sqg.matrix)
-# assert np.allclose(decomposed_U, sqg.matrix, atol=epsilon)
-# assert np.allclose(phase(alpha_) * sqg.matrix, sqg.approx_matrix, atol=epsilon)
-
-# t0 test
-# print(t0)
-# t0_gate = QGate.from_matrix(rz(t0), matrix_target=(0,), epsilon=epsilon)
-# t0_sequence = rz_decomposition(epsilon=epsilon, angle=t0)
-# t0_gate.set_decomposition(t0_sequence, epsilon=epsilon)
-# print(t0_gate.approx_matrix)
-# print(t0_gate.matrix)
-# error = max(np.linalg.svd(t0_gate.matrix - t0_gate.approx_matrix, compute_uv=False))
-# print(error)

@@ -13,12 +13,12 @@
 #    limitations under the License.
 
 """
-This file defines the `State` class, which is a key component in solving the grid problem. 
-Specifically, it is used to ensure that the uprightness of the ellipse pair is augmented to 
-at least 1/6. 
+This file defines the `State` class, which is a key component in solving the grid problem.
+Specifically, it is used to ensure that the uprightness of the ellipse pair is augmented to
+at least 1/6.
 
-The `State` class depends on the `Grid_Operator` class, which is defined in the `grid_operator.py` file. 
-The primary operations that can be performed on a state, along with the detailed definition and 
+The `State` class depends on the `Grid_Operator` class, which is defined in the `grid_operator.py` file.
+The primary operations that can be performed on a state, along with the detailed definition and
 usage of a state, are explained in Appendix A of the paper: https://arxiv.org/pdf/1403.2975.
 """
 
@@ -27,8 +27,8 @@ from __future__ import annotations
 import mpmath as mp
 
 import numpy as np
-from cliffordplust.grid_problem.grid_operator import Grid_Operator
-from cliffordplust.rings.rings import *
+from qdecomp.utils.grid_problem import Grid_Operator
+from qdecomp.rings import *
 
 
 class State:
@@ -43,8 +43,8 @@ class State:
     Attributes:
         A (np.ndarray): First matrix of the state.
         B (np.ndarray): Second matrix of the state.
-        z (float): Exponent of \u03BB in A.
-        zeta (float): Exponent of \u03BB in B.
+        z (float): Exponent of \u03bb in A.
+        zeta (float): Exponent of \u03bb in B.
         e (float): Diagonal component of A.
         epsilon (float): Diagonal component of B.
         b (float): Antidiagonal component of A.
@@ -74,11 +74,11 @@ class State:
         # Check that both matrices are 2x2
         if A.shape != (2, 2) or B.shape != (2, 2):
             raise ValueError("Both A and B must be 2x2 matrices.")
-        
+
         # Ensure that A and B contain mp.mpf
         if not np.all(np.vectorize(lambda x: isinstance(x, mp.mpf))(A)):
             raise TypeError("The elements of A must be mp.mpf")
-        
+
         if not np.all(np.vectorize(lambda x: isinstance(x, mp.mpf))(B)):
             raise TypeError("The elements of B must be mp.mpf")
 
@@ -188,8 +188,8 @@ class State:
             tau_k = (special_tau**k).as_mpmath() * mp.sqrt((INVERSE_LAMBDA**k).mpfloat())
         else:
             # Since k is negative, we have to take the inverse
-            sigma_k = (inv_special_sigma**-k).as_mpmath() * mp.sqrt((LAMBDA ** -k).mpfloat())
-            tau_k = (inv_special_tau**-k).as_mpmath() * mp.sqrt((LAMBDA ** -k).mpfloat())
+            sigma_k = (inv_special_sigma**-k).as_mpmath() * mp.sqrt((LAMBDA**-k).mpfloat())
+            tau_k = (inv_special_tau**-k).as_mpmath() * mp.sqrt((LAMBDA**-k).mpfloat())
         shift_A = sigma_k @ A @ sigma_k
         shift_B = tau_k @ B @ tau_k
         return State(shift_A, shift_B)

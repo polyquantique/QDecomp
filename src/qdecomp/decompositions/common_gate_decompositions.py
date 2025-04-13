@@ -20,7 +20,7 @@ This module contains the circuit decomposition of many common quantum gates in t
 The decompositions are returned as a list of :class:QGate objects.
 """
 
-from cliffordplust.circuit import QGate
+from qdecomp.utils import QGate
 
 
 def dcnot_decomposition(q0: int, q1: int) -> list[QGate]:

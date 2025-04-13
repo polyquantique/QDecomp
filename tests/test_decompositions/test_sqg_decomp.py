@@ -17,11 +17,23 @@
 import numpy as np
 import pytest
 from scipy.stats import unitary_group
-from cliffordplust.decompositions import sqg_decomp, zyz_decomposition
-from tests.test_decompositions.test_zyz import ry, rz, phase
-from cliffordplust.circuit import QGate
+from qdecomp.decompositions import sqg_decomp, zyz_decomposition
+from qdecomp.utils import QGate
 
 np.random.seed(42)  # For reproducibility
+
+
+# Rotation and phase matrices
+def ry(teta):
+    return np.array([[np.cos(teta / 2), -np.sin(teta / 2)], [np.sin(teta / 2), np.cos(teta / 2)]])
+
+
+def rz(teta):
+    return np.array([[np.exp(-1.0j * teta / 2), 0], [0, np.exp(1.0j * teta / 2)]])
+
+
+def phase(alpha):
+    return np.exp(1.0j * alpha)
 
 
 @pytest.mark.parametrize("trial", range(10))

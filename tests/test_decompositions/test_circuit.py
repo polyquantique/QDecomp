@@ -17,8 +17,8 @@
 import numpy as np
 import pytest
 from scipy.stats import unitary_group
-from cliffordplust.decompositions.circuit import circuit_decomposition
-from cliffordplust.circuit import QGate
+from qdecomp.decompositions import circuit_decomposition
+from qdecomp.utils import QGate
 
 
 def test_circuit_decomposition_single_qubit_gate_output_type():

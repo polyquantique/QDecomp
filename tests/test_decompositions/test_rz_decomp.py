@@ -14,8 +14,8 @@
 
 import pytest
 import numpy as np
-from cliffordplust.decompositions.rz import rz_decomposition, optimize_sequence
-from cliffordplust.circuit import QGate
+from qdecomp.decompositions.rz import rz_decomposition, optimize_sequence
+from qdecomp.utils import QGate
 
 """
 Tests for the rz_decomposition function to ensure correct decomposition of RZ gates into Clifford+T sequences.

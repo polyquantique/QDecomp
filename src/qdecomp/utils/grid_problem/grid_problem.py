@@ -17,27 +17,27 @@ import mpmath as mp
 
 import numpy as np
 
-from cliffordplust.grid_problem.grid_operator import A, B, I, K, R, X, Z, Grid_Operator
-from cliffordplust.rings.rings import *
-from cliffordplust.grid_problem.state import inv_special_sigma, special_sigma, State
+from qdecomp.utils.grid_problem import A, B, I, K, R, X, Z, Grid_Operator
+from qdecomp.rings import *
+from qdecomp.utils.grid_problem.state import inv_special_sigma, special_sigma, State
 
 
 def find_points(epsilon: float, theta: float) -> np.ndarray:
-    """Find the three points which define the slice \u211B_\u03B5 as shown in Section 7.2 of 
+    """Find the three points which define the slice \u211b_\u03b5 as shown in Section 7.2 of
     https://arxiv.org/pdf/1403.2975.
 
     Args:
-        theta (float): The angle \u03B8 (0 \u2264 \u03B8 < 4\u03C0) of the R_z gate.
+        theta (float): The angle \u03b8 (0 \u2264 \u03b8 < 4\u03c0) of the R_z gate.
         epsilon (float): The error of the approximation of R_z.
 
     Returns:
         tuple: A tuple containing three points (p1, p2, p3), where:
-            - p1 (array[float]): The origin point [cos(\u03B8 / 2), sin(\u03B8 / 2)].
+            - p1 (array[float]): The origin point [cos(\u03b8 / 2), sin(\u03b8 / 2)].
             - p2 (array[float]): The first computed point on the slice.
             - p3 (array[float]): The second computed point on the slice.
 
     Raises:
-        ValueError: If theta is not in the range [0, 4\u03C0].
+        ValueError: If theta is not in the range [0, 4\u03c0].
         ValueError: If epsilon is not less than 0.5.
         ValueError: If theta or epsilon cannot be converted to floats.
 
@@ -52,12 +52,12 @@ def find_points(epsilon: float, theta: float) -> np.ndarray:
 
     # Verify the value of theta
     if theta > 4 * math.pi or theta < 0:
-        raise ValueError("The value of theta must be between 0 and 4\u03C0.")
+        raise ValueError("The value of theta must be between 0 and 4\u03c0.")
 
     # Verify the value of epsilon
     if epsilon >= 0.5:
         raise ValueError("The maximal allowable error is 0.5.")
-    
+
     theta = mp.mpf(theta)
     epsilon = mp.mpf(epsilon)
 
@@ -110,7 +110,7 @@ def find_grid_operator(A: np.ndarray, B: np.ndarray) -> Grid_Operator:
 
     # Set the inverse grid operator to the identity
     inv_grid_op = I
-    
+
     while state.skew >= 15:
         # Adjust the bias
         if abs(state.bias) > 1:
@@ -130,7 +130,7 @@ def find_grid_operator(A: np.ndarray, B: np.ndarray) -> Grid_Operator:
             G_i = (special_sigma**k) * G_i * (inv_special_sigma**k)
         inv_grid_op = inv_grid_op * G_i
         state = state.transform(G_i)
-        
+
     grid_op = inv_grid_op.inv()
     return inv_grid_op, grid_op
 
@@ -155,12 +155,12 @@ def find_special_grid_operator(state: State) -> Grid_Operator:
     if state.beta < 0:
         special_grid_operator = special_grid_operator * Z
         state = state.transform(Z)
-    
-    # Flip the signs of both z and zeta 
+
+    # Flip the signs of both z and zeta
     if state.zeta < -state.z:
-            special_grid_operator = special_grid_operator * X
-            state = state.transform(X)
-            
+        special_grid_operator = special_grid_operator * X
+        state = state.transform(X)
+
     # Refer to Figure 7 of Appendix A in https://arxiv.org/pdf/1403.2975 for this part (it really helps)
     if abs(state.z) <= 0.8 and abs(state.zeta) <= 0.8:
         special_grid_operator = special_grid_operator * R
@@ -175,7 +175,9 @@ def find_special_grid_operator(state: State) -> Grid_Operator:
             special_grid_operator = special_grid_operator * K.conjugate()
         else:
             # The algorithm should never reach this line
-            raise ValueError("Encountered unaccounted-for values for the state parameters in Step-Lemma")
+            raise ValueError(
+                "Encountered unaccounted-for values for the state parameters in Step-Lemma"
+            )
     else:
         if state.z >= -0.2 and state.zeta >= -0.2:
             c = min(state.z, state.zeta)
@@ -183,5 +185,7 @@ def find_special_grid_operator(state: State) -> Grid_Operator:
             special_grid_operator = special_grid_operator * B**n
         else:
             # The algorithm should never reach this line
-            raise ValueError("Encountered unaccounted-for values for the state parameters in Step-Lemma")
+            raise ValueError(
+                "Encountered unaccounted-for values for the state parameters in Step-Lemma"
+            )
     return special_grid_operator

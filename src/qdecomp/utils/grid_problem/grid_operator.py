@@ -18,7 +18,7 @@ from typing import Union
 
 import numpy as np
 import mpmath as mp
-from cliffordplust.rings.rings import *
+from qdecomp.rings import *
 
 """
 This file defines the `Grid_Operator` class. Grid operators are defined in section 5.3 of 
@@ -26,6 +26,7 @@ https://arxiv.org/pdf/1403.2975, but this class applies to any matrix with eleme
 the ring D[\u221a2]. Grid operators are a key component to solving the grid problem, as they 
 are needed to bring the uprightness of the ellipses pair (represented by a state) to at least 1/6. 
 """
+
 
 class Grid_Operator:
     """Class to initialize a grid operator.
@@ -55,10 +56,7 @@ class Grid_Operator:
             if len(G) == 4:
                 # Convert flat 4-element list to 2x2 ndarray
                 G = np.array(G, dtype=object).reshape((2, 2))
-            elif (
-                len(G) == 2
-                and all(len(row) == 2 for row in G)
-            ):
+            elif len(G) == 2 and all(len(row) == 2 for row in G):
                 # Convert 2x2 nested list to ndarray
                 G = np.array(G, dtype=object)
             else:
@@ -74,22 +72,24 @@ class Grid_Operator:
         if G.shape != (2, 2):
             raise ValueError(f"G must be of shape (2, 2). Got shape {G.shape}.")
 
-        # Validate each element  
-        for element in G.flatten():  
-            if not isinstance(element, (int, D, Zsqrt2, Dsqrt2)):  
-                raise TypeError(f"Element {element} must be an int, D, Zsqrt2, or Dsqrt2. Got type {type(element)}.")
-        
+        # Validate each element
+        for element in G.flatten():
+            if not isinstance(element, (int, D, Zsqrt2, Dsqrt2)):
+                raise TypeError(
+                    f"Element {element} must be an int, D, Zsqrt2, or Dsqrt2. Got type {type(element)}."
+                )
+
         # Convert to Dsqrt2
         G = np.vectorize(Dsqrt2.from_ring)(G)
-            
+
         self.G = G
         self.a = G[0, 0]
         self.b = G[0, 1]
         self.c = G[1, 0]
         self.d = G[1, 1]
 
-    def __repr__(self) -> str:  
-        """Define the string representation of the grid operator"""  
+    def __repr__(self) -> str:
+        """Define the string representation of the grid operator"""
         return str(self.G)
 
     def __neg__(self) -> Grid_Operator:
@@ -136,7 +136,7 @@ class Grid_Operator:
 
     def as_float(self) -> np.ndarray:
         return np.array(self.G, dtype=float)
-    
+
     def as_mpmath(self) -> np.ndarray:
         return np.vectorize(lambda x: x.mpfloat())(self.G)
 

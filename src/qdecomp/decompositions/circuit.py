@@ -72,13 +72,13 @@ for gate in decomposed_circuit:
     #  [0. 0. 1. 0.]]
     # Matrix target: (0, 1)
 """
-from cliffordplust.decompositions import (
+from qdecomp.decompositions import (
     zyz_decomposition,
     cnot_decomposition,
 )
-from cliffordplust.grid_problem.rz_approx import z_rotational_approximation
-from cliffordplust.exact_synthesis import *
-from cliffordplust.circuit import QGate
+from qdecomp.utils.grid_problem import z_rotational_approximation
+from qdecomp.utils.exact_synthesis import *
+from qdecomp.utils import QGate
 import numpy as np
 
 
@@ -166,9 +166,7 @@ def circuit_decomposition(
             cnot_decomp_lists = cnot_decomposition(gate.matrix)
         # if gate is not 2x2 or 4x4, raise error
         else:
-            raise ValueError(
-                f"Input gate must be a 2x2 or 4x4 matrix, got {gate.matrix.shape}"
-            )
+            raise ValueError(f"Input gate must be a 2x2 or 4x4 matrix, got {gate.matrix.shape}")
 
         for cnot_decomp_qgate in cnot_decomp_lists:
 

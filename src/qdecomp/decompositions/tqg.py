@@ -14,9 +14,9 @@
 
 from typing import Union
 import numpy as np
-from scipy.stats import unitary_group
-from cliffordplust.decompositions import sqg_decomp, cnot_decomposition
-from cliffordplust.circuit import QGate
+
+from qdecomp.decompositions import sqg_decomp, cnot_decomposition
+from qdecomp.utils import QGate
 
 
 def tqg_decomp(tqg: Union[np.array, QGate], epsilon: float = 0.01) -> list[QGate]:
@@ -56,16 +56,3 @@ def tqg_decomp(tqg: Union[np.array, QGate], epsilon: float = 0.01) -> list[QGate
 
         # Decomposition of all single qubit gates using zyz, rz_approx and exact synthesis
     return cnot_decomp_lists
-
-
-if __name__ == "__main__":
-    # Example usage
-    np.random.seed(42)  # For reproducibility
-    tqg = unitary_group.rvs(4)
-    print(tqg)
-    epsilon = 1e-2
-
-    decomposed_gates = tqg_decomp(tqg, epsilon=epsilon)
-
-    for gate in decomposed_gates:
-        print(gate.sequence)

@@ -20,8 +20,8 @@ import numpy as np
 import pytest
 from scipy.stats import ortho_group, special_ortho_group, unitary_group
 
-from cliffordplust import gates
-from cliffordplust.circuit import QGate
+from qdecomp.utils import gates
+from qdecomp.utils import QGate
 from qdecomp.decompositions.cnot import (
     canonical_decomposition,
     cnot_decomposition,
