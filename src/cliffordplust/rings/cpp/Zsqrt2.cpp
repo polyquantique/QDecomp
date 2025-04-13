@@ -31,7 +31,10 @@ Zsqrt2 Zsqrt2::sqrt2_conjugate() const {return Zsqrt2(_p, -_q);}
 bool Zsqrt2::is_int() const {return _q == 0;}
 
 Domega Zsqrt2::to_Domega() const {return Domega(-_q, 0, 0, 0, _q, 0, _p, 0);}
-Zomega Zsqrt2::to_Zomega() const {return Zomega(-_q, 0, _q, _p);}
+
+template <typename T>
+Zomega<T> Zsqrt2::to_Zomega() const {return Zomega<T>(-_q, 0, _q, _p);}
+
 Dsqrt2 Zsqrt2::to_Dsqrt2() const {return Dsqrt2(_p, 0, _q, 0);}
 
 D Zsqrt2::to_D() const {

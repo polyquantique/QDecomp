@@ -13,88 +13,74 @@
  *    limitations under the License.
  */
 
-#ifndef DOMEGA_HPP
-#define DOMEGA_HPP
+#ifndef ZOMEGA_HPP
+#define ZOMEGA_HPP
 
 #include <string>
+#include <boost/multiprecision/cpp_int.hpp> // Include the Boost Multiprecision library header
 
 #include "Rings.hpp"
 
 
 /**
- * @class Domega
- * @brief A class representing elements of the D[\u03C9] ring.
+ * @class Zomega
+ * @brief A class representing elements of the Z[\u03C9] ring.
  * 
- * This class represents D[\u03C9] elements with 4 elements from the D ring, the four powers of \u039C.
+ * This class represents Z[\u03C9] elements as four integers, the four powers of \u039C.
  * 
  * The class provides basic arithmetic operations, comparison operators, and a method to raise the number to a power.
+ * 
+ * \tparam T The type of the coefficients. Default is long long int.
  */
-class Domega {
+template <typename T = long long int>
+class Zomega {
     private:
-        D _a;  ///< \u03C9^3 coefficient of the ring element
-        D _b;  ///< \u03C9^2 coefficient of the ring element
-        D _c;  ///< \u03C9^1 coefficient of the ring element
-        D _d;  ///< \u03C9^0 coefficient of the ring element
+        T _a;  ///< \u03C9^3 coefficient of the ring element
+        T _b;  ///< \u03C9^2 coefficient of the ring element
+        T _c;  ///< \u03C9^1 coefficient of the ring element
+        T _d;  ///< \u03C9^0 coefficient of the ring element
 
     public:
         /**
-         * @brief Construct a new D[\u03C9] object.
+         * @brief Construct a new Z[\u03C9] object.
          * 
          * @param a The numerator of the \u03C9^3 coefficient.
-         * @param la The denominator's power of 2 of the \u03C9^3 coefficient.
          * @param b The numerator of the \u03C9^2 coefficient.
-         * @param lb The denominator's power of 2 of the \u03C9^2 coefficient.
          * @param c The numerator of the \u03C9^1 coefficient.
-         * @param lc The denominator's power of 2 of the \u03C9^1 coefficient.
          * @param d The numerator of the \u03C9^0 coefficient.
-         * @param ld The denominator's power of 2 of the \u03C9^0 coefficient.
          */
-        Domega(
-            long long int a, unsigned short la,
-            long long int b, unsigned short lb,
-            long long int c, unsigned short lc,
-            long long int d, unsigned short ld
-        );
-
-        /**
-         * @brief Construct a new D[\u03C9] object.
-         * 
-         * @param a The \u03C9^3 coefficient.
-         * @param b The \u03C9^2 coefficient.
-         * @param c The \u03C9^1 coefficient.
-         * @param d The \u03C9^0 coefficient.
-         */
-        Domega(D a, D b, D c, D d);
+        Zomega(T a, T b, T c, T d);
 
 
         /**
          * @brief Get the \u03C9^3 coefficient of the ring element.
          * 
-         * @return const D& The \u03C9^3 coefficient.
+         * @return int The \u03C9^3 coefficient.
          */
-        const D& a() const;
+        T a() const;
 
         /**
          * @brief Get the \u03C9^2 coefficient of the ring element.
          * 
-         * @return const D& The \u03C9^2 coefficient.
+         * @return int The \u03C9^2 coefficient.
          */
-        const D& b() const;
+        T b() const;
 
         /**
          * @brief Get the \u03C9^1 coefficient of the ring element.
          * 
-         * @return const D& The \u03C9^1 coefficient.
+         * @return int The \u03C9^1 coefficient.
          */
-        const D& c() const;
+        T c() const;
 
         /**
          * @brief Get the \u03C9^0 coefficient of the ring element.
          * 
-         * @return const D& The \u03C9^0 coefficient.
+         * @return int The \u03C9^0 coefficient.
          */
-        const D& d() const;
-        
+        T d() const;
+
+
         /**
          * @brief Get the coefficient of the ring element.
          *
@@ -102,65 +88,41 @@ class Domega {
          * It is useful to access the coefficients of the ring element.
          * 
          * @param i The index of the coefficient.
-         * @return const D& The coefficient.
+         * @return int The coefficient.
          * @throw std::invalid_argument if the index is not between 0 and 3.
          */
-        const D& operator[](unsigned short i) const;
+        T operator[](unsigned short i) const;
 
 
         /**
          * @brief Get the real part of the number.
          * 
-         * @return Dsqrt2 The real part of the number.
+         * @return Zsqrt2 The real part of the number.
          */
-        Dsqrt2 real() const;
+        Zsqrt2 real() const;
 
         /**
          * @brief Get the imaginary part of the number.
          * 
-         * @return Dsqrt2 The imaginary part of the number.
+         * @return Zsqrt2 The imaginary part of the number.
          */
-        Dsqrt2 imag() const;
+        Zsqrt2 imag() const;
 
 
         /**
          * @brief Get the \u221A2 conjugate of the number.
          * 
-         * @return Domega The \u221A2 conjugate of the number.
+         * @return Zomega The \u221A2 conjugate of the number.
          */
-        Domega sqrt2_conjugate() const;
+        Zomega<T> sqrt2_conjugate() const;
 
         /**
          * @brief Get the complex conjugate of the number.
          * 
-         * @return Domega The complex conjugate of the number.
+         * @return Zomega The complex conjugate of the number.
          */
-        Domega complex_conjugate() const;
+        Zomega<T> complex_conjugate() const;
 
-
-        /**
-         * @brief Get the smallest denominator exponent.
-         * 
-         * This method returns the smallest denominator exponent of the coefficients of the number.
-         * 
-         * @return int The smallest denominator exponent.
-         */
-        unsigned short sde() const;
-
-
-        /**
-         * @brief Check if the number is in the ring Z[\u03C9].
-         *
-         * @return true If the number is in the ring Z[\u03C9].
-         */
-        bool is_Zomega() const;
-
-        /**
-         * @brief Check if the number is in the ring D[\u221A2].
-         *
-         * @return true If the number is in the ring D[\u221A2].
-         */
-        bool is_Dsqrt2() const;
 
         /**
          * @brief Check if the number is in the ring Z[\u221A2].
@@ -170,28 +132,26 @@ class Domega {
         bool is_Zsqrt2() const;
 
         /**
-         * @brief Check if the number is in the ring D.
-         *
-         * @return true If the number is in the ring D.
-         */
-        bool is_D() const;
-
-        /**
          * @brief Check if the number is an integer.
          *
          * @return true If the number is an integer.
          */
         bool is_int() const;
 
-        
         /**
-         * @brief Convert the number in the ring Z[\u03C9].
+         * @brief Check if the number real.
          * 
-         * @return Zomega The number in the ring Z[\u03C9].
-         * @throw std::runtime_error if the number is not in Z[\u03C9].
+         * @return true If the number is real.
          */
-        template <typename T = long long int>
-        Zomega<T> to_Zomega() const;
+        bool is_real() const;
+
+
+        /**
+         * @brief Convert the number in the ring D[\u03C9].
+         * 
+         * @return Domega The number in the ring D[\u03C9].
+         */
+        Domega to_Domega() const;
 
         /**
          * @brief Convert the number in the ring D[\u221A2].
@@ -223,17 +183,17 @@ class Domega {
          * @return int The integer.
          * @throw std::runtime_error if the number is not an integer.
          */
-        long long int to_int() const;
+        T to_int() const;
 
 
         /**
-         * @brief Check if the number is equal to another D[\u03C9] object.
+         * @brief Check if the number is equal to another Z[\u03C9] object.
          * 
-         * @param other The other D[\u03C9] object.
+         * @param other The other Z[\u03C9] object.
          * @return true If the numbers are equal.
          * @return false If the numbers are not equal.
          */
-        bool operator==(const Domega& other) const;
+        bool operator==(const Zomega<T>& other) const;
 
         /**
          * @brief Check if the number is equal to an integer.
@@ -242,16 +202,16 @@ class Domega {
          * @return true If the numbers are equal.
          * @return false If the numbers are not equal.
          */
-        bool operator==(const long long int& other) const;
+        bool operator==(const T& other) const;
 
         /**
-         * @brief Check if the number is not equal to another D[\u03C9] object.
+         * @brief Check if the number is not equal to another Z[\u03C9] object.
          * 
-         * @param other The other D[\u03C9] object.
+         * @param other The other Z[\u03C9] object.
          * @return true If the numbers are not equal.
          * @return false If the numbers are equal.
          */
-        bool operator!=(const Domega& other) const;
+        bool operator!=(const Zomega<T>& other) const;
 
         /**
          * @brief Check if the number is not equal to an integer.
@@ -260,81 +220,80 @@ class Domega {
          * @return true If the numbers are not equal.
          * @return false If the numbers are equal.
          */
-        bool operator!=(const long long int& other) const;
+        bool operator!=(const T& other) const;
 
 
         /**
-         * @brief Add a number in D[\u03C9] to the number.
+         * @brief Add a number in Z[\u03C9] to the number.
          * 
-         * @param other The other D[\u03C9] object.
-         * @return Domega The result of the addition.
+         * @param other The other Z[\u03C9] object.
+         * @return Zomega The result of the addition.
          */
-        Domega operator+(const Domega& other) const;
+        Zomega<T> operator+(const Zomega<T>& other) const;
 
         /**
          * @brief Add an integer to the number.
          * 
          * @param other The integer.
-         * @return Domega The result of the addition.
+         * @return Zomega The result of the addition.
          */
-        Domega operator+(const long long int& other) const;
+        Zomega<T> operator+(const T& other) const;
 
         /**
          * @brief Negate the number.
          * 
-         * @return Domega The negated number.
+         * @return Zomega The negated number.
          */
-        Domega operator-() const;
+        Zomega<T> operator-() const;
 
         /**
-         * @brief Subtract another D[\u03C9] object from the number.
+         * @brief Subtract another Z[\u03C9] object from the number.
          * 
-         * @param other The other D[\u03C9] object.
-         * @return Domega The result of the subtraction.
+         * @param other The other Z[\u03C9] object.
+         * @return Zomega The result of the subtraction.
          */
-        Domega operator-(const Domega& other) const;
+        Zomega<T> operator-(const Zomega<T>& other) const;
 
         /**
          * @brief Subtract an integer from the number.
          * 
          * @param other The integer.
-         * @return Domega The result of the subtraction.
+         * @return Zomega The result of the subtraction.
          */
-        Domega operator-(const long long int& other) const;
+        Zomega<T> operator-(const T& other) const;
 
         /**
-         * @brief Multiply the number by another D[\u03C9] object.
+         * @brief Multiply the number by another Z[\u03C9] object.
          * 
-         * @param other The other D[\u03C9] object.
-         * @return Domega The result of the multiplication.
+         * @param other The other Z[\u03C9] object.
+         * @return Zomega The result of the multiplication.
          */
-        Domega operator*(const Domega& other) const;
+        Zomega<T> operator*(const Zomega<T>& other) const;
 
         /**
          * @brief Multiply the number by an integer.
          * 
          * @param other The integer.
-         * @return Domega The result of the multiplication.
+         * @return Zomega The result of the multiplication.
          */
-        Domega operator*(const long long int& other) const;
+        Zomega<T> operator*(const T& other) const;
 
 
         /**
          * @brief Raise the number to a power.
          * 
          * @param n The power.
-         * @return Domega The result of the power.
+         * @return Zomega The result of the power.
          */
-        Domega pow(unsigned short n) const;
+        Zomega<T> pow(unsigned short n) const;
 
 
         /**
-         * @brief Get a string representation of the number.
+         * @brief Convert the number to a string.
          * 
          * @return std::string The string representation of the number.
          */
         std::string to_string() const;
-
 
         /**
          * @brief Print the number.
@@ -342,4 +301,27 @@ class Domega {
         void print() const;
 };
 
-#endif // DOMEGA_HPP
+
+/**
+ * @brief Perform the Euclidean division of two Z[\u03C9] objects.
+ * 
+ * This function returns q and r such that num = q * div + r.
+ * 
+ * @param num The numerator.
+ * @param div The denominator.
+ * @return std::tuple<Zomega, Zomega> The quotient and the remainder.
+ */
+template <typename T = long long int>
+std::tuple<Zomega<T>, Zomega<T>> euclidean_div(const Zomega<T>& num, const Zomega<T>& div);
+
+/**
+ * @brief Compute the greatest common divisor of two Z[\u03C9] numbers.
+ * 
+ * @param x The first Z[\u03C9] number.
+ * @param b The second Z[\u03C9] number.
+ * @return Zomega The greatest common divisor of the two numbers.
+ */
+ template <typename T = long long int>
+Zomega<T> gcd(const Zomega<T>& x, const Zomega<T>& y);
+
+#endif  // ZOMEGA_HPP

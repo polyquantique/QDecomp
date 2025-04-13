@@ -102,7 +102,7 @@ class Dsqrt2 {
         /**
          * @brief Convert the number in the ring D[\u03C9].
          * 
-         * @return Zomega The number in the ring D[\u03C9].
+         * @return Domega The number in the ring D[\u03C9].
          */
         Domega to_Domega() const;
 
@@ -112,7 +112,8 @@ class Dsqrt2 {
          * @return Zomega The number in the ring Z[\u03C9].
          * @throw std::runtime_error if the number is not in Z[\u03C9].
          */
-        Zomega to_Zomega() const;
+        template <typename T = long long int>
+        Zomega<T> to_Zomega() const;
 
         /**
          * @brief Convert the number in the ring Z[\u221A2].

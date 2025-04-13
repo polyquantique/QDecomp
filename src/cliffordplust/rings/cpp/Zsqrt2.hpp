@@ -87,7 +87,8 @@ class Zsqrt2 {
          * 
          * @return Zomega The number in the ring Z[\u03C9].
          */
-        Zomega to_Zomega() const;
+        template <typename T = long long int>
+        Zomega<T> to_Zomega() const;
 
         /**
          * @brief Convert the number in the ring D[\u221A2].

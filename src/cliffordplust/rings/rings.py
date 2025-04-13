@@ -12,23 +12,6 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-"""
-Symbolic computation with ring elements.
-
-The ring module provides tools for symbolic computations with elements of various mathematical rings.
-Rings are used in many algorithms for the approximation of z-rotation gates into Clifford+T unitaries.
-For more information, see 
-Neil J. Ross and Peter Selinger, Optimal ancilla-free Clifford+T approximation of z-rotations, 
-https://arxiv.org/pdf/1403.2975.
-
-Classes:
-    - D: Ring of dyadic fractions \u2145.
-    - Zsqrt2: Ring of quadratic integers with radicand 2 \u2124[\u221a2].
-    - Dsqrt2: Ring of quadratic dyadic fractions with radicand 2 \u2145[\u221a2].
-    - Zomega: Ring of cyclotomic integers of degree 8 \u2124[\u03C9].
-    - Domega: Ring of cyclotomic dyadic fractions of degree 8 \u2145[\u03C9].
-"""
-
 from __future__ import annotations
 
 import math

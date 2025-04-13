@@ -39,12 +39,13 @@ bool Dsqrt2::is_int() const {return _p.is_int() and _q == 0;}
 
 Domega Dsqrt2::to_Domega() const {return Domega(-_q, D(0, 0), _q, _p);}
 
-Zomega Dsqrt2::to_Zomega() const {
+template <typename T>
+Zomega<T> Dsqrt2::to_Zomega() const {
     if (! is_Zsqrt2()) {
         throw std::runtime_error("The number to convert is not in Zomega. Got " + to_string());
     }
     
-    return Zomega(-_q.num(), 0, _q.num(), _p.num());
+    return Zomega<T>(-_q.num(), 0, _q.num(), _p.num());
 }
 
 Zsqrt2 Dsqrt2::to_Zsqrt2() const {

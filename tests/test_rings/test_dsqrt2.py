@@ -12,8 +12,6 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-"""Test the Dsqrt2 class."""
-
 import math
 import mpmath as mp
 mp.mp.dps = 75

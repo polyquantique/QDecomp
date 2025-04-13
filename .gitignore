@@ -9,6 +9,7 @@ build/
 
 Local_only/
 Solutions/
+libs/
 *_debug.*
 
 *.ipynb
