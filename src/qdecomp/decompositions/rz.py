@@ -18,13 +18,13 @@ from qdecomp.utils.grid_problem import z_rotational_approximation
 from qdecomp.utils.exact_synthesis import *
 
 
-def rz_decomposition(epsilon: float, angle: float) -> str:
+def rz_decomposition(epsilon: float, angle: float, add_global_phase=False) -> str:
     """
     Decomposes a single-qubit RZ gate its Clifford+T sequence
 
     Args:
-        angle (float): The angle of the RZ gate in radians.
         epsilon (float): The tolerance for the approximation.
+        angle (float): The angle of the RZ gate in radians.
 
     Returns:
         sequence (str): The sequence of Clifford+T gates that approximates the RZ gate.
@@ -34,7 +34,7 @@ def rz_decomposition(epsilon: float, angle: float) -> str:
     Domega_matrix = z_rotational_approximation(epsilon, angle)
 
     # Convert the Domega matrix to a string representation
-    sequence = exact_synthesis_alg(Domega_matrix)
+    sequence = exact_synthesis_alg(Domega_matrix, print_global_phase=add_global_phase)
     optimized_sequence = optimize_sequence(sequence)
 
     # Test if TUTdag has less T than U

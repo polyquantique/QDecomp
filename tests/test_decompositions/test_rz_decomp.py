@@ -27,15 +27,15 @@ np.random.seed(42)  # For reproducibility
 @pytest.mark.parametrize("angle", [np.pi / 2, np.pi / 4, np.pi / 6, np.pi, np.pi / 8, np.pi / 12])
 def test_rz_decomposition_precision(angle, epsilon):
     """Test if rz_decomposition returns a sequence within the desired error."""
-    sequence = rz_decomposition(epsilon, angle)
+    sequence = rz_decomposition(epsilon=epsilon, angle=angle, add_global_phase=True)
     gate = QGate.from_matrix(
         np.array([[np.exp(-1j * angle / 2), 0], [0, np.exp(1j * angle / 2)]]),
-        matrix_target=(0,),
+        target=(0,),
         epsilon=epsilon,
     )
     gate.set_decomposition(sequence, epsilon)
-    sequence_matrix = gate.matrix
-    error = max(np.linalg.svd(sequence_matrix - gate.approx_matrix, compute_uv=False))
+    sequence_matrix = gate.sequence_matrix
+    error = max(np.linalg.svd(sequence_matrix - gate.init_matrix, compute_uv=False))
     assert error < epsilon
 
 
@@ -46,12 +46,12 @@ def test_rz_decomposition_random_angle(angle, epsilon):
     sequence = rz_decomposition(epsilon, angle)
     gate = QGate.from_matrix(
         np.array([[np.exp(-1j * angle / 2), 0], [0, np.exp(1j * angle / 2)]]),
-        matrix_target=(0,),
+        target=(0,),
         epsilon=epsilon,
     )
     gate.set_decomposition(sequence, epsilon)
-    sequence_matrix = gate.matrix
-    error = max(np.linalg.svd(sequence_matrix - gate.approx_matrix, compute_uv=False))
+    sequence_matrix = gate.sequence_matrix
+    error = max(np.linalg.svd(sequence_matrix - gate.init_matrix, compute_uv=False))
     assert error < epsilon
 
 
