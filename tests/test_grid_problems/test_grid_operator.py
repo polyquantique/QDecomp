@@ -16,7 +16,7 @@ import pytest
 import numpy as np
 import mpmath as mp
 from cliffordplust.rings.rings import D, Zsqrt2, Dsqrt2
-from cliffordplust.grid_problem.grid_operator import Grid_Operator, I, R, K, X, Z, A, B
+from cliffordplust.grid_problem.grid_operator import GridOperator, I, R, K, X, Z, A, B
 
 # Valid entries for testing
 valid_entries = [
@@ -47,12 +47,12 @@ invalid_entries = [1.0, 3.5, 5.111, "invalid", "not_valid"]
     ],
 )
 def test_grid_operator_list_1(grid_op_list):
-    # Test Grid_Operator initialization
+    # Test GridOperator initialization
     try:
-        grid_op = Grid_Operator(grid_op_list)
+        grid_op = GridOperator(grid_op_list)
         assert grid_op is not None  # Ensuring the object was initialized correctly
     except Exception as e:
-        pytest.fail(f"Grid_Operator initialization failed: {e}")
+        pytest.fail(f"GridOperator initialization failed: {e}")
 
 
 # Parametrize the test to run 20 times
@@ -67,12 +67,12 @@ def test_grid_operator_list_1(grid_op_list):
     ],
 )
 def test_grid_operator_list2(grid_op_list):
-    # Test Grid_Operator initialization
+    # Test GridOperator initialization
     try:
-        grid_op = Grid_Operator(grid_op_list)
+        grid_op = GridOperator(grid_op_list)
         assert grid_op is not None  # Ensuring the object was initialized correctly
     except Exception as e:
-        pytest.fail(f"Grid_Operator initialization failed: {e}")
+        pytest.fail(f"GridOperator initialization failed: {e}")
 
 
 # Invalid inputs that should raise a ValueError
@@ -91,7 +91,7 @@ def test_grid_operator_list_error(invalid_list):
         ValueError,
         match="G must be a 4-element flat list or a 2x2 nested list with valid elements.",
     ):
-        Grid_Operator(invalid_list)
+        GridOperator(invalid_list)
 
 # Parametrize the test to run 20 times
 @pytest.mark.parametrize(
@@ -108,12 +108,12 @@ def test_grid_operator_list_error(invalid_list):
     ],
 )
 def test_grid_operator_array(grid_op_array):
-    # Test Grid_Operator initialization
+    # Test GridOperator initialization
     try:
-        grid_op = Grid_Operator(grid_op_array)
+        grid_op = GridOperator(grid_op_array)
         assert grid_op is not None  # Ensuring the object was initialized correctly
     except Exception as e:
-        pytest.fail(f"Grid_Operator initialization failed: {e}")
+        pytest.fail(f"GridOperator initialization failed: {e}")
 
 
 # Parametrize the test to run 20 times
@@ -133,7 +133,7 @@ def test_grid_operator_array(grid_op_array):
 def test_grid_operator_array_error(grid_op_array):
     element = grid_op_array[0, 0]
     with pytest.raises(TypeError, match=f"Element {element} must be an int, D, Zsqrt2, or Dsqrt2."):
-        Grid_Operator(grid_op_array)
+        GridOperator(grid_op_array)
 
 
 grid_ops = [I, R, K, X, Z, A, B]
@@ -180,7 +180,7 @@ def test_dag(grid_op):
     dag_op = grid_op.dag()
 
     # Expected transpose of the grid operator
-    expected_dag = Grid_Operator([grid_op.a, grid_op.c, grid_op.b, grid_op.d])
+    expected_dag = GridOperator([grid_op.a, grid_op.c, grid_op.b, grid_op.d])
 
     # Verify that the resulting dag matches the expected transpose
     assert dag_op.a == expected_dag.a
@@ -215,9 +215,9 @@ def test_inv_valid(grid_op):
     # Compute the expected inverse based on the determinant
     det = grid_op.det()
     if det == 1:
-        expected_inv = Grid_Operator([grid_op.d, -grid_op.b, -grid_op.c, grid_op.a])
+        expected_inv = GridOperator([grid_op.d, -grid_op.b, -grid_op.c, grid_op.a])
     else:  # determinant == -1
-        expected_inv = Grid_Operator([-grid_op.d, grid_op.b, grid_op.c, -grid_op.a])
+        expected_inv = GridOperator([-grid_op.d, grid_op.b, grid_op.c, -grid_op.a])
 
     # Verify that each element of the computed inverse matches the expected result
     assert inv_op.a == expected_inv.a
@@ -230,9 +230,9 @@ def test_inv_valid(grid_op):
     "grid_op",
     [
         # Determinant = 0 (should raise ValueError)
-        Grid_Operator([1, 2, 2, 4]),
+        GridOperator([1, 2, 2, 4]),
         # Determinant not equal to ±1 (should raise ValueError)
-        Grid_Operator([2, 0, 0, 2]),
+        GridOperator([2, 0, 0, 2]),
     ],
 )
 def test_inv_invalid(grid_op):
@@ -269,8 +269,8 @@ def test_as_mpfloat(grid_op):
 # Test cases
 add_sub_test = [X + Z, R + B, K - X, B - A]
 add_sub_expected = [
-    Grid_Operator([1, 1, 1, -1]),  # Expected result of X + Z
-    Grid_Operator(
+    GridOperator([1, 1, 1, -1]),  # Expected result of X + Z
+    GridOperator(
         [
             Dsqrt2(D(1, 0), D(1, 1)),
             Dsqrt2(D(0, 0), D(1, 1)),
@@ -278,7 +278,7 @@ add_sub_expected = [
             Dsqrt2(D(1, 0), D(1, 1)),
         ]
     ),  # R + B
-    Grid_Operator(
+    GridOperator(
         [
             Dsqrt2(D(-1, 0), D(1, 1)),
             Dsqrt2(D(-1, 0), D(-1, 1)),
@@ -286,7 +286,7 @@ add_sub_expected = [
             Dsqrt2(D(0, 0), D(1, 1)),
         ]
     ),  # K - X
-    Grid_Operator([0, Zsqrt2(2, 1), 0, 0]),  # B - A
+    GridOperator([0, Zsqrt2(2, 1), 0, 0]),  # B - A
 ]
 
 
