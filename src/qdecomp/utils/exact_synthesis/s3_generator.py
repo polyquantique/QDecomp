@@ -24,12 +24,13 @@ import json
 import os
 
 
-from qdecomp.utils.exact_synthesis import apply_sequence, convert_to_tuple
+from qdecomp.utils.exact_synthesis import apply_sequence, Domega_matrix_to_tuple
 from qdecomp.rings import Domega
 
 
 def generate_sequences() -> list[str]:
-    """Generate all valid sequences of T and H gates with a maximum of 7 consecutive T gates, 3 H gates, and
+    """
+    Generate all valid sequences of T and H gates with a maximum of 7 consecutive T gates, 3 H gates, and
     starting by an H gate.
 
     Returns:
@@ -37,32 +38,39 @@ def generate_sequences() -> list[str]:
     """
     max_consecutive_t = 7
     valid_sequences = []
+
     for n_3 in range(0, max_consecutive_t + 1):
         if n_3 == 0:
             valid_sequences.append("H")
             valid_sequences.append("")
+
         else:
             for n_2 in range(0, max_consecutive_t + 1):
                 if n_2 == 0:
                     valid_sequences.append("T" * n_3 + "H")
                     valid_sequences.append("H" + "T" * n_3 + "H")
+
                 else:
                     for n_1 in range(0, max_consecutive_t + 1):
                         if n_1 == 0:
                             valid_sequences.append("T" * n_3 + "H" + "T" * n_2 + "H")
                             valid_sequences.append("H" + "T" * n_3 + "H" + "T" * n_2 + "H")
+
                         else:
                             valid_sequences.append(
                                 "T" * n_3 + "H" + "T" * n_2 + "H" + "T" * n_1 + "H"
                             )
+
     return valid_sequences
 
 
 def generate_s3() -> None:
-    """Generate the S3 table for the first column of Clifford+T gate set and write it to a json file."""
+    """
+    Generate the S3 table of all Clifford+T gates with sde <= 3. This function stores only the first
+    column of the matrix in a json file named s3_table.json in the same directory as this script."""
 
     s3_sequences = generate_sequences()
-    s3_dict = {seq: convert_to_tuple(apply_sequence(seq)) for seq in s3_sequences}
+    s3_dict = {seq: Domega_matrix_to_tuple(apply_sequence(seq)) for seq in s3_sequences}
 
     # Remove duplicate values in s3_dict
     unique_values = {}

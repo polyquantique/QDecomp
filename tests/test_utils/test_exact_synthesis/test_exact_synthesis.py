@@ -76,13 +76,6 @@ def test_apply_sequence_identity(sequence, expected):
     assert np.array_equal(result, expected)
 
 
-def test_apply_sequence_empty_sequence():
-    """Test if apply_sequence returns the identity matrix for an empty sequence."""
-    sequence = ""
-    result = apply_sequence(sequence)
-    assert np.array_equal(result, I)
-
-
 def test_apply_sequence_invalid_character():
     """Test if apply_sequence raises a ValueError for invalid characters in the sequence."""
     sequence = "HTX"
@@ -90,97 +83,165 @@ def test_apply_sequence_invalid_character():
         apply_sequence(sequence)
 
 
-def test_is_unitary_true():
+@pytest.mark.parametrize(
+    "matrix, expected",
+    [
+        (H, True),
+        (T, True),
+        (W, True),
+        (I, True),
+        (H @ T, True),
+        (H @ W, True),
+        (T @ H, True),
+        (T @ W, True),
+        (2 * H, False),
+        (2 * T, False),
+        (1 * H, True),
+        (3 * H @ T @ T @ H, False),
+        (1 * H @ T @ H @ T @ T, True),
+    ],
+)
+def test_is_unitary_output(matrix, expected):
     """Test if is_unitary correctly identifies unitary matrices."""
-    matrix = H  # Identity matrix
-    assert is_unitary(matrix)
-
-
-def test_is_unitary_false():
-    """Test if is_unitary correctly identifies non-unitary matrices."""
-    matrix = 2 * H  # Non-unitary matrix
-    assert not is_unitary(matrix)
+    assert is_unitary_deomega(matrix) == expected
 
 
 def test_convert_to_tuple_invalid_elements():
     """Test if convert_to_tuple raises TypeError for invalid matrix elements."""
     matrix = np.array([[1, 0], [0, 1]])  # Not Domega elements
     with pytest.raises(TypeError, match="Matrix elements must be of class"):
-        convert_to_tuple(matrix)
+        Domega_matrix_to_tuple(matrix)
 
 
-def test_convert_to_tuple_non_2x2():
+D = Domega((1, 0), (0, 1), (0, 0), (0, 0))
+
+
+@pytest.mark.parametrize(
+    "matrix", [np.array([[D, D, D], [D, D, D], [D, D, D]]), np.array([D]), np.array([D, D])]
+)
+def test_convert_to_tuple_non_2x2(matrix):
     """Test if convert_to_tuple raises TypeError for non-2x2 matrices."""
-    D = Domega((1, 0), (0, 1), (0, 0), (0, 0))
-    matrix = np.array([[D, D, D], [D, D, D], [D, D, D]])  # 3x3 matrix
-    with pytest.raises(TypeError, match="Matrix must be of size 2x2"):
-        convert_to_tuple(matrix)
+    with pytest.raises(TypeError, match="Matrix must be of shape 2x2"):
+        Domega_matrix_to_tuple(matrix)
 
 
-def test_exact_synthesis_reduc_invalid_elements():
-    """Test if exact_synthesis_reduc raises TypeError for invalid matrix elements."""
-    matrix = np.array([[1, 0], [0, 1]])  # Not Domega elements
-    with pytest.raises(TypeError, match="Matrix elements must be of class"):
-        exact_synthesis_reduc(matrix)
-
-
-def test_exact_synthesis_reduc_non_2x2():
-    """Test if exact_synthesis_reduc raises TypeError for non-2x2 matrices."""
-    D = Domega((1, 0), (0, 1), (0, 0), (0, 0))
-    matrix = np.array([[D, D, D], [D, D, D], [D, D, D]])  # 3x3 matrix
-    with pytest.raises(TypeError, match="Matrix must be of size 2x2"):
-        exact_synthesis_reduc(matrix)
-
-
-def test_exact_synthesis_reduc_non_unitary():
-    """Test if exact_synthesis_reduc raises ValueError for non-unitary matrices."""
-    matrix = 2 * H  # Non-unitary matrix
-    with pytest.raises(ValueError, match="Matrix must be unitary"):
-        exact_synthesis_reduc(matrix)
-
-
-def test_lookup_sequence_invalid_elements():
-    """Test if lookup_sequence raises TypeError for invalid matrix elements."""
-    matrix = np.array([[1, 0], [0, 1]])  # Not Domega elements
-    with pytest.raises(TypeError, match="Matrix elements must be of class"):
-        s3_decomposition(matrix)
-
-
-def test_lookup_sequence_non_2x2():
-    """Test if lookup_sequence raises TypeError for non-2x2 matrices."""
-    D = Domega((1, 0), (0, 1), (0, 0), (0, 0))
-    matrix = np.array([[D, D, D], [D, D, D], [D, D, D]])  # 3x3 matrix
-    with pytest.raises(TypeError, match="Matrix must be of size 2x2"):
-        s3_decomposition(matrix)
-
-
-def test_lookup_sequence_non_unitary():
-    """Test if lookup_sequence raises ValueError for non-unitary matrices."""
-    matrix = 2 * H  # Non-unitary matrix
-    with pytest.raises(ValueError, match="Matrix must be unitary"):
-        s3_decomposition(matrix)
-
-
-def test_exact_synthesis_invalid_elements():
+@pytest.mark.parametrize(
+    "matrix",
+    [
+        np.array([["a", "b"], ["c", "d"]]),
+        np.array([[1, 2], [3, 4]]),
+        np.array([[1.0, 2.0], [3.0, 4.0]]),
+        np.array([[1 + 1j, 2 + 2j], [3 + 3j, 4 + 4j]]),
+        np.array([[1, 0], [0, 1]]),
+    ],
+)
+def test_exact_synthesis_invalid_elements(matrix):
     """Test if exact_synthesis_alg raises TypeError for invalid matrix elements."""
-    matrix = np.array([[1, 0], [0, 1]])  # Not Domega elements
-    with pytest.raises(TypeError, match="Matrix elements must be of class"):
+    with pytest.raises(TypeError, match="The matrix elements must be of class"):
         exact_synthesis_alg(matrix)
 
 
-def test_exact_synthesis_non_2x2():
+@pytest.mark.parametrize(
+    "matrix", [np.array([[D, D, D], [D, D, D], [D, D, D]]), np.array([D]), np.array([D, D])]
+)
+def test_exact_synthesis_non_2x2(matrix):
     """Test if exact_synthesis_alg raises TypeError for non-2x2 matrices."""
-    D = Domega((1, 0), (0, 1), (0, 0), (0, 0))
-    matrix = np.array([[D, D, D], [D, D, D], [D, D, D]])  # 3x3 matrix
-    with pytest.raises(TypeError, match="Matrix must be of size 2x2"):
+    with pytest.raises(TypeError, match="The matrix must be of shape 2x2"):
         exact_synthesis_alg(matrix)
 
 
-def test_exact_synthesis_non_unitary():
+@pytest.mark.parametrize(
+    "matrix",
+    [2 * H, 2 * T, 2 * W, 3 * H, 3 * T, 19 * H, 19 * W],
+)
+def test_exact_synthesis_non_unitary(matrix):
     """Test if exact_synthesis_alg raises ValueError for non-unitary matrices."""
-    matrix = 2 * H  # Non-unitary matrix
-    with pytest.raises(ValueError, match="Matrix must be unitary"):
+    with pytest.raises(ValueError, match="The matrix must be unitary"):
         exact_synthesis_alg(matrix)
+
+
+@pytest.mark.parametrize(
+    "matrix",
+    [
+        np.array([["a", "b"], ["c", "d"]]),
+        np.array([[1, 2], [3, 4]]),
+        np.array([[1.0, 2.0], [3.0, 4.0]]),
+        np.array([[1 + 1j, 2 + 2j], [3 + 3j, 4 + 4j]]),
+        np.array([[1, 0], [0, 1]]),
+    ],
+)
+def test_lookup_sequence_invalid_elements(matrix):
+    """Test if lookup_sequence raises TypeError for invalid matrix elements."""
+    with pytest.raises(TypeError, match="The matrix elements must be of class"):
+        s3_decomposition(matrix)
+
+
+@pytest.mark.parametrize(
+    "matrix", [np.array([[D, D, D], [D, D, D], [D, D, D]]), np.array([D]), np.array([D, D])]
+)
+def test_lookup_sequence_non_2x2(matrix):
+    """Test if lookup_sequence raises TypeError for non-2x2 matrices."""
+    with pytest.raises(TypeError, match="The matrix must be of shape 2x2"):
+        s3_decomposition(matrix)
+
+
+@pytest.mark.parametrize(
+    "matrix",
+    [2 * H, 2 * T, 2 * W, 3 * H, 3 * T, 19 * H, 19 * W],
+)
+def test_lookup_sequence_non_unitary(matrix):
+    """Test if lookup_sequence raises ValueError for non-unitary matrices."""
+    with pytest.raises(ValueError, match="The matrix must be unitary"):
+        s3_decomposition(matrix)
+
+
+@pytest.mark.parametrize(
+    "matrix",
+    [
+        H @ T @ H @ T @ H @ T @ H,
+        H @ T @ H @ T @ H @ T @ H @ T @ H,
+        H @ T @ H @ T @ H @ T @ H @ T @ H @ T @ H,
+    ],
+)
+def test_lookup_sequence_invalid_sde(matrix):
+    """Test if lookup_sequence raises ValueError for matrices with sde > 3."""
+    with pytest.raises(ValueError, match="The matrix must have a sde < 4"):
+        s3_decomposition(matrix)
+
+
+@pytest.mark.parametrize(
+    "matrix",
+    [
+        np.array([["a", "b"], ["c", "d"]]),
+        np.array([[1, 2], [3, 4]]),
+        np.array([[1.0, 2.0], [3.0, 4.0]]),
+        np.array([[1 + 1j, 2 + 2j], [3 + 3j, 4 + 4j]]),
+        np.array([[1, 0], [0, 1]]),
+    ],
+)
+def test_exact_synthesis_reduc_invalid_elements(matrix):
+    """Test if exact_synthesis_reduc raises TypeError for invalid matrix elements."""
+    with pytest.raises(TypeError, match="The matrix elements must be of class"):
+        exact_synthesis_reduc(matrix)
+
+
+@pytest.mark.parametrize(
+    "matrix", [np.array([[D, D, D], [D, D, D], [D, D, D]]), np.array([D]), np.array([D, D])]
+)
+def test_exact_synthesis_reduc_non_2x2(matrix):
+    """Test if exact_synthesis_reduc raises TypeError for non-2x2 matrices."""
+    with pytest.raises(TypeError, match="The matrix must be of shape 2x2"):
+        exact_synthesis_reduc(matrix)
+
+
+@pytest.mark.parametrize(
+    "matrix",
+    [2 * H, 2 * T, 2 * W, 3 * H, 3 * T, 19 * H, 19 * W],
+)
+def test_exact_synthesis_reduc_non_unitary(matrix):
+    """Test if exact_synthesis_reduc raises ValueError for non-unitary matrices."""
+    with pytest.raises(ValueError, match="The matrix must be unitary"):
+        exact_synthesis_reduc(matrix)
 
 
 @pytest.mark.parametrize(
@@ -223,7 +284,7 @@ def test_exact_synthesis_reduc_valid_random(length):
     final_matrix = apply_sequence(sequence, temp_matrix)
     assert isinstance(sequence, str)
     assert final_matrix.shape == (2, 2)
-    assert is_unitary(final_matrix)
+    assert is_unitary_deomega(final_matrix)
     assert initial_matrix.all() == final_matrix.all()
 
 
@@ -249,7 +310,7 @@ def test_full_exact_synthesis_alg_random(length):
     """Test if the full exact synthesis algorithm returns the correct sequence and final matrix for random input."""
     initial_sequence = random_sequence(length)
     initial_matrix = apply_sequence(initial_sequence)
-    final_sequence = exact_synthesis_alg(initial_matrix, print_global_phase=True)
+    final_sequence = exact_synthesis_alg(initial_matrix, insert_global_phase=True)
     final_matrix = apply_sequence(final_sequence)
     assert (final_matrix == initial_matrix).all()
 
@@ -267,7 +328,7 @@ def test_full_exact_synthesis_alg_random(length):
 )
 def test_exact_synthesis_alg_valid_known(matrix, sequence):
     """Test if the exact synthesis algorithm returns the correct sequence and final matrix for known input."""
-    final_sequence = exact_synthesis_alg(matrix, print_global_phase=True)
+    final_sequence = exact_synthesis_alg(matrix, insert_global_phase=True)
     assert final_sequence == sequence
     final_matrix = apply_sequence(final_sequence)
     assert (final_matrix == matrix).all()
