@@ -19,7 +19,9 @@ Test of exact_synthesis
 import numpy as np
 import pytest
 
-from qdecomp.utils.exact_synthesis import *
+from qdecomp.rings import Domega  # type: ignore[import]
+from qdecomp.utils.exact_synthesis import *  # type: ignore[import]
+from qdecomp.utils.exact_synthesis import OMEGA, ONE_DOMEGA, ZERO_DOMEGA, H, I, T, W
 
 # Set a fixed random seed for reproducibility
 np.random.seed(42)
@@ -110,7 +112,7 @@ def test_convert_to_tuple_invalid_elements():
     """Test if convert_to_tuple raises TypeError for invalid matrix elements."""
     matrix = np.array([[1, 0], [0, 1]])  # Not Domega elements
     with pytest.raises(TypeError, match="Matrix elements must be of class"):
-        Domega_matrix_to_tuple(matrix)
+        domega_matrix_to_tuple(matrix)
 
 
 D = Domega((1, 0), (0, 1), (0, 0), (0, 0))
@@ -122,7 +124,7 @@ D = Domega((1, 0), (0, 1), (0, 0), (0, 0))
 def test_convert_to_tuple_non_2x2(matrix):
     """Test if convert_to_tuple raises TypeError for non-2x2 matrices."""
     with pytest.raises(TypeError, match="Matrix must be of shape 2x2"):
-        Domega_matrix_to_tuple(matrix)
+        domega_matrix_to_tuple(matrix)
 
 
 @pytest.mark.parametrize(
