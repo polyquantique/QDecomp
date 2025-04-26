@@ -105,7 +105,7 @@ def test_apply_sequence_invalid_character():
 )
 def test_is_unitary_output(matrix, expected):
     """Test if is_unitary correctly identifies unitary matrices."""
-    assert is_unitary_deomega(matrix) == expected
+    assert is_unitary_domega(matrix) == expected
 
 
 def test_convert_to_tuple_invalid_elements():
@@ -286,7 +286,7 @@ def test_exact_synthesis_reduc_valid_random(length):
     final_matrix = apply_sequence(sequence, temp_matrix)
     assert isinstance(sequence, str)
     assert final_matrix.shape == (2, 2)
-    assert is_unitary_deomega(final_matrix)
+    assert is_unitary_domega(final_matrix)
     assert initial_matrix.all() == final_matrix.all()
 
 
@@ -358,3 +358,17 @@ def test_generate_s3_creates_file():
 
     # Check if the file was created
     assert os.path.exists(output_file)
+
+
+@pytest.mark.parametrize(
+    "matrix",
+    [
+        H @ T @ H @ T @ H @ T @ H,
+        H @ T @ H @ T @ H @ T @ H @ T @ H,
+        H @ T @ H @ T @ H @ T @ H @ T @ H @ T @ H,
+    ],
+)
+def test_s3_decomposition_invalid_sde(matrix):
+    """Test if s3_decomposition raises ValueError for matrices with sde > 3."""
+    with pytest.raises(ValueError, match="The matrix must have a sde < 4"):
+        s3_decomposition(matrix)

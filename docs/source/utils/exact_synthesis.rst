@@ -11,7 +11,7 @@ Decomposable Clifford+T gates are represented as a matrix of the form:
     w & z^{\dagger} \omega^k
     \end{bmatrix},
 
-where :math:`z` and :math:`w` are elements in :math:`\mathbb{D}[\omega]`, :math:`\omega = e^{i \frac{\pi}{4}}` and :math:`k \in \mathbb{Z}`. 
+where :math:`z` and :math:`w` are elements in :math:`\mathbb{D}[\omega]`, :math:`\omega = e^{i \frac{\pi}{4}}` and :math:`k \in \{ 0, ..., 7\}`. 
 
 
 Exact Synthesis Module

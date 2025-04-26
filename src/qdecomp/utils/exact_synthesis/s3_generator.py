@@ -37,7 +37,7 @@ def generate_sequences() -> list[str]:
 
     - A maximum of 7 consecutive T gates.
     - A maximum of 3 H gates.
-    - The sequence must start with an H gate.
+    - The sequence starts with an H gate.
 
     Returns:
         list[str]: A list of strings containing the valid sequences of T and H gates.
