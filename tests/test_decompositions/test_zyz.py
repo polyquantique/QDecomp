@@ -14,8 +14,8 @@
 
 import numpy as np
 import pytest
-
-from cliffordplust.decompositions import zyz_decomposition
+from qdecomp.decompositions import zyz_decomposition
+from scipy.stats import unitary_group
 
 
 # Rotation and phase matrices
@@ -59,6 +59,21 @@ def test_zyz_decomposition(a, b, alpha):
     U_calculated = phase(alpha_) * rz(t2) @ ry(t1) @ rz(t0)
 
     assert np.allclose(U, U_calculated, atol=1e-7, rtol=1e-7)
+
+
+def test_zyz_decomposition_arbitrary_unitary():
+    """
+    Test the ZYZ decomposition of arbitrary unitary matrices.
+    """
+    unitary_generator = unitary_group(dim=2, seed=42)
+    for _ in range(15):
+        U = unitary_generator.rvs()  # Generate a random unitary matrix
+        t0, t1, t2, alpha_ = zyz_decomposition(U)
+
+        # Check that the decomposition is correct
+        U_calculated = phase(alpha_) * rz(t2) @ ry(t1) @ rz(t0)
+
+        assert np.allclose(U, U_calculated, atol=1e-7, rtol=1e-7)
 
 
 def test_zyz_decomposition_unitary_error():

@@ -18,8 +18,8 @@ import mpmath as mp
 import numpy as np
 import pytest
 
-import cliffordplust.rings as r
-from cliffordplust.rings import Domega
+import qdecomp.rings as r
+from qdecomp.rings import Domega
 
 # Set a high precision for mpmath
 mp.mp.dps = 75
