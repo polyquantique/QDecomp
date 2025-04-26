@@ -349,14 +349,16 @@ def test_set_decomposition(gate, decomposition, epsilon):
     assert np.allclose(gate.sequence_matrix, gate.init_matrix)
     assert gate.epsilon == epsilon
 
+    # Test if the sequence can be specified twice
+    gate.set_decomposition(decomposition + " X X", epsilon)
+
+    assert gate.sequence == decomposition + " X X"
+    assert np.allclose(gate.sequence_matrix, gate.init_matrix)
+    assert gate.epsilon == epsilon
+
 
 def test_set_decomposition_errors():
     """Test the QGate.set_decomposition() method with errors"""
-    # Sequence already initialized
-    gate = QGate.from_sequence("H H")
-    with pytest.raises(ValueError, match="The sequence is already initialized."):
-        gate.set_decomposition("I", epsilon=0)
-
     # Epsilon not defined
     gate = QGate.from_matrix(np.eye(2))
     with pytest.raises(ValueError, match="The epsilon must be initialized."):

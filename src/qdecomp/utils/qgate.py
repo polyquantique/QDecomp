@@ -483,9 +483,9 @@ class QGate:
             ValueError: If the sequence is already initialized.
             ValueError: If the epsilon is not already initialized for the gate and not provided as an argument.
         """
-        # Check if the sequence is not already initialized
+        # Reinitialize the _sequence_matrix attribute if the sequence was already specified
         if self.sequence is not None:
-            raise ValueError("The sequence is already initialized.")
+            self._sequence_matrix
 
         # Check if epsilon is defined in the gate or specified as an argument, and set it if necessary
         if epsilon is None:
