@@ -313,12 +313,13 @@ class GridProblem2D{
                 /**
                  * @brief Get the current solution
                 */
-                Zomega operator*() const {
+                Zomega<long long int> operator*() const {
                     if (_first_completed) {  // Solving the second problem
-                        return (*_x_it2).to_Zomega() + (*_y_it2).to_Zomega() * Zomega(0, 1, 0, 0)
-                            + Zomega(0, 0, 1, 0);
+                        return (*_x_it2).to_Zomega<long long int>() + (*_y_it2).to_Zomega<long long int>() *
+                            Zomega<long long int>(0, 1, 0, 0) + Zomega<long long int>(0, 0, 1, 0);
                     } else {  // Solving the first problem
-                        return (*_x_it1).to_Zomega() + (*_y_it1).to_Zomega() * Zomega(0, 1, 0, 0);
+                        return (*_x_it1).to_Zomega<long long int>() + (*_y_it1).to_Zomega<long long int>() *
+                            Zomega<long long int>(0, 1, 0, 0);
                     }
                 }
 

@@ -303,6 +303,20 @@ class Zomega {
 
 
 /**
+ * @brief Convert a Z[\u03C9] object to a Z[\u03C9] object with different template types.
+ * 
+ * This function is used to convert a Z[\u03C9] object with one coefficient type to another.
+ * 
+ * @tparam t_in The type of the coefficients of the input Z[\u03C9] object.
+ * @tparam t_out The type of the coefficients of the output Z[\u03C9] object.
+ * @param element The input Z[\u03C9] object.
+ * @return Zomega<t_out> The output Z[\u03C9] object with the new coefficient type.
+ */
+template <typename t_in = long long int, typename t_out = long long int>
+Zomega<t_out> cast_Zomega(const Zomega<t_in>& element);
+
+
+/**
  * @brief Perform the Euclidean division of two Z[\u03C9] objects.
  * 
  * This function returns q and r such that num = q * div + r.

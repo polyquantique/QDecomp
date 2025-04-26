@@ -17,8 +17,11 @@
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
+#include <boost/multiprecision/cpp_int.hpp> // Include the Boost Multiprecision library header
 
 #include "Rings.hpp"
+
+using namespace boost::multiprecision; // Use the Boost Multiprecision namespace
 
 
 template <typename T>
@@ -207,6 +210,17 @@ void Zomega<T>::print() const {std::cout << to_string() << std::endl;}
 
 
 /// Functions in the Z[\u03C9] ring
+template <typename t_in, typename t_out>
+Zomega<t_out> cast_Zomega(const Zomega<t_in>& element) {
+    return Zomega<t_out>(
+        static_cast<t_out>(element.a()),
+        static_cast<t_out>(element.b()),
+        static_cast<t_out>(element.c()),
+        static_cast<t_out>(element.d())
+    );
+}
+
+
 template <typename T>
 std::tuple<Zomega<T>, Zomega<T>> euclidean_div(const Zomega<T>& num, const Zomega<T>& div) {
     // Convert the denominator into an integer, and apply the same transformation to the numerator
@@ -229,16 +243,16 @@ std::tuple<Zomega<T>, Zomega<T>> euclidean_div(const Zomega<T>& num, const Zomeg
 
 template <typename T>
 Zomega<T> gcd(const Zomega<T>& x, const Zomega<T>& y) {
-    Zomega<T> a = y;
-    Zomega<T> b = x;
+    Zomega<cpp_int> a = cast_Zomega<T, cpp_int>(y);
+    Zomega<cpp_int> b = cast_Zomega<T, cpp_int>(x);
     
-    Zomega<T> r(0, 0, 0, 0);
+    Zomega<cpp_int> r(0, 0, 0, 0);
     do {
         std::tie(std::ignore, r) = euclidean_div(a, b);
         a = b;
         b = r;
     } while (b != 0);
 
-    return a;
+    return cast_Zomega<cpp_int, T>(a);
 }
  

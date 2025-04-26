@@ -163,27 +163,27 @@ Zsqrt2 pi_fact_into_xi(long long int pi) {
     return Zsqrt2(0, 0);
 }
 
-Zomega xi_i_fact_into_ti(long long int pi, Zsqrt2 xi_i) {
+Zomega<long long int> xi_i_fact_into_ti(long long int pi, Zsqrt2 xi_i) {
     // Factorize a Zsqrt2 xi_i into a Zomega ti factor if possible
     switch (pi % 8) {
         case 2:
-            return Zomega(0, 0, 1, 1);
+            return Zomega<long long int>(0, 0, 1, 1);
 
         case 1:
         case 5:
         {
             long long int u = solve_usquare_eq_a_mod_p(1, pi);
-            return gcd(xi_i.to_Zomega(), Zomega(0, 1, 0, u));
+            return gcd(xi_i.to_Zomega<long long int>(), Zomega<long long int>(0, 1, 0, u));
         }
 
         case 3:
         {
             long long int u = solve_usquare_eq_a_mod_p(2, pi);
-            return gcd(xi_i.to_Zomega(), Zomega(1, 0, 1, u));
+            return gcd(xi_i.to_Zomega<long long int>(), Zomega<long long int>(1, 0, 1, u));
         }
         
         case 7:  // No solution possible
-            return Zomega(0, 0, 0, 0);
+            return Zomega<long long int>(0, 0, 0, 0);
 
         default:
             throw std::invalid_argument("pi must be a prime number. Got " + std::to_string(pi));
@@ -191,28 +191,28 @@ Zomega xi_i_fact_into_ti(long long int pi, Zsqrt2 xi_i) {
 }
 
 
-Zomega solve_xi_sim_ttdag_in_z(Zsqrt2 xi) {
+Zomega<long long int> solve_xi_sim_ttdag_in_z(Zsqrt2 xi) {
     auto xi_fact_list = xi_fact(xi);
     
     for (auto [pi, xi_i, m_i] : xi_fact_list) {
-        if ((m_i & 1) and (pi % 8 == 7)) {return Zomega(0, 0, 0, 0);}  // No solution possible
+        if ((m_i & 1) and (pi % 8 == 7)) {return Zomega<long long int>(0, 0, 0, 0);}  // No solution possible
     }
 
-    std::vector<std::future<Zomega>> threads;
+    std::vector<std::future<Zomega<long long int>>> threads;
     for (auto [pi, xi_i, m_i] : xi_fact_list) {
         if (m_i & 1 and pi != -1) {
             threads.push_back(std::async(std::launch::async, xi_i_fact_into_ti, pi, xi_i));
         }
     }
 
-    Zomega result(0, 0, 0, 1);
+    Zomega<long long int> result(0, 0, 0, 1);
     unsigned short thread_nb = 0;
     for (auto [pi, xi_i, m_i] : xi_fact_list) {
         if (m_i & 1 and pi != -1) {
             result = result * (threads[thread_nb].get()).pow(m_i);
             thread_nb++;
         } else {
-            result = result * (xi_i.pow(m_i >> 1)).to_Zomega();
+            result = result * (xi_i.pow(m_i >> 1)).to_Zomega<long long int>();
         }
     }
 
@@ -228,7 +228,7 @@ Domega solve_xi_eq_ttdag_in_d(Dsqrt2 xi) {
     unsigned short l = (xi * xi.sqrt2_conjugate()).p().denom();
     Zsqrt2 xi_prime = (xi.sqrt2_multiply(l)).to_Zsqrt2();
 
-    Zomega s = solve_xi_sim_ttdag_in_z(xi_prime);
+    Zomega<long long int> s = solve_xi_sim_ttdag_in_z(xi_prime);
     if (s == 0) {return Domega(0, 0, 0, 0, 0, 0, 0, 0);}
 
     Domega delta(0, 0, 0, 0, 1, 0, 1, 0);  // delta = 1 + omega

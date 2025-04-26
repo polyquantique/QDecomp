@@ -78,7 +78,7 @@ Zsqrt2 pi_fact_into_xi(long long int pi);
  * @param xi_i A prime number in Z[\u221A2] to factorize.
  * @return A prime factor of xi_i in Z[\u03C9]. The complex conjugate is also a prime factor of xi_i.
  */
-Zomega xi_i_fact_into_ti(long long int pi, Zsqrt2 xi_i);
+Zomega<long long int> xi_i_fact_into_ti(long long int pi, Zsqrt2 xi_i);
 
 
 /**
@@ -91,7 +91,7 @@ Zomega xi_i_fact_into_ti(long long int pi, Zsqrt2 xi_i);
  * @param xi The value of xi.
  * @return The solution t, or Zomega(0, 0, 0, 0) if no solution exists.
  */
-Zomega solve_xi_sim_ttdag_in_z(Zsqrt2 xi);
+Zomega<long long int> solve_xi_sim_ttdag_in_z(Zsqrt2 xi);
 
 /**
  * @brief Solve the Diophantine equation xi = t * t^\u2020.
