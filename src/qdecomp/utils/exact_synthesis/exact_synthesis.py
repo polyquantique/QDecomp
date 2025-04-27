@@ -244,8 +244,6 @@ def s3_decomposition(U: np.ndarray, insert_global_phase: bool = False) -> str:
                     key += "W" * ((8 - i) % 8)
                 return key
 
-    raise ValueError("The matrix is not in the S3 table. Please check the input matrix.")
-
 
 def is_unitary_domega(matrix: np.ndarray) -> bool:
     """
