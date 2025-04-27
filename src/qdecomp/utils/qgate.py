@@ -390,6 +390,23 @@ class QGate:
         return self._sequence_matrix
 
     @property
+    def matrix(self) -> np.ndarray:
+        """
+        Get a matrix representation of the gate. If the sequence is known, the matrix associated to
+        the sequence is returned, as the `sequence_matrix` property does. If the sequence is not
+        known, the matrix used to initialize the gate (accessed via the `init_matrix` property) is
+        returned.
+
+        Returns:
+            np.ndarray: Matrix representation of the gate.
+        """
+        if self.sequence is not None:
+            return self.sequence_matrix
+
+        else:
+            return self.init_matrix
+
+    @property
     def nb_qubits(self) -> int:
         """
         Get the number of qubits on which the gate applies.

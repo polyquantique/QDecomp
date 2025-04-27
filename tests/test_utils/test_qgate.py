@@ -132,6 +132,27 @@ def test_target(gate, target):
 
 
 @pytest.mark.parametrize(
+    "matrix",
+    [
+        np.eye(2),
+        1.0j * np.eye(2),
+        np.array([[0, 1], [1, 0]]),
+        np.array([[1, 0], [0, -1]]),
+        np.array([[1, 0], [0, 1.0j]]),
+        np.array([[0, -1.0j], [1.0j, 0]]),
+    ],
+)
+def test_matrix(matrix):
+    """Test the QGate.matrix property"""
+    gate = QGate.from_matrix(matrix=matrix, target=(1,))
+
+    assert (gate.matrix == gate.init_matrix).all()
+
+    gate.set_decomposition("I", 0.01)
+    assert (gate.matrix == gate.sequence_matrix).all()
+
+
+@pytest.mark.parametrize(
     "sequence, target, matrix",
     [
         ("I", (1,), np.eye(2)),
