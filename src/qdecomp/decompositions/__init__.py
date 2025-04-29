@@ -13,3 +13,4 @@
 #    limitations under the License.
 
 from qdecomp.decompositions.zyz import *
+from qdecomp.decompositions.cnot import *

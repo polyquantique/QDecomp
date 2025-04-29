@@ -18,7 +18,7 @@ import numpy as np
 import pytest
 from scipy.stats import ortho_group, special_ortho_group, unitary_group
 
-from cliffordplust.utils.gates_utils import (is_hermitian, is_orthogonal,
+from qdecomp.utils.gates_utils import (is_hermitian, is_orthogonal,
                                              is_special, is_unitary)
 
 
