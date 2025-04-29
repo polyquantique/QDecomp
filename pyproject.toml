@@ -25,7 +25,7 @@ classifiers = [
 license = {file = "LICENSE"}
 
 [project.urls]
-Homepage = "https://github.com/polyquantique/CliffordPlusT"
+Homepage = "https://github.com/polyquantique/QDecomp"
 
 [tool.setuptools.packages.find]
 where = ["src"]   
