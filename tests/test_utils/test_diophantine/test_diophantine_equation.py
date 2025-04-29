@@ -18,8 +18,8 @@ import numpy as np
 import pytest
 from sympy import factorint, primerange
 
-from qdecomp.utils.diophantine.diophantine_equation import *
 from qdecomp.rings import *
+from qdecomp.utils.diophantine.diophantine_equation import *
 
 
 @pytest.mark.parametrize("n", range(2, 20))
@@ -133,13 +133,14 @@ def test_xi_fact_into_ti_error(xi, is_prime):
         xi_i_fact_into_ti(xi, check_prime=True)
         assert True  # The code has run without error
 
+
 @pytest.mark.parametrize("n", range(-100, 1000))
 def test_is_square(n):
     """Test the is_square() function."""
     if n == 0:
         assert is_square(n)
         return
-    
+
     assert is_square(n**2)
     assert not is_square(n**2 + 1)
     if n < 0:

@@ -18,8 +18,7 @@ import numpy as np
 import pytest
 from scipy.stats import ortho_group, special_ortho_group, unitary_group
 
-from qdecomp.utils.gates_utils import (is_hermitian, is_orthogonal,
-                                             is_special, is_unitary)
+from qdecomp.utils.gates_utils import is_hermitian, is_orthogonal, is_special, is_unitary
 
 
 @pytest.mark.parametrize(

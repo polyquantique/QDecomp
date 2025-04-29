@@ -45,11 +45,9 @@ from typing import NamedTuple
 import numpy as np
 from numpy.typing import NDArray
 
-from qdecomp.utils import gates, QGate
-from qdecomp.decompositions.common_gate_decompositions import \
-    common_decompositions
-from qdecomp.utils.gates_utils import (is_hermitian, is_orthogonal, is_special,
-                                 is_unitary)
+from qdecomp.decompositions.common_gate_decompositions import common_decompositions
+from qdecomp.utils import QGate, gates
+from qdecomp.utils.gates_utils import is_hermitian, is_orthogonal, is_special, is_unitary
 
 __all__ = [
     "kronecker_decomposition",
@@ -534,7 +532,7 @@ def cnot_decomposition(U: NDArray[np.floating]) -> list[QGate]:
         ValueError: If the input matrix is not a 4 x 4 unitary matrix.
 
     Examples:
-    
+
     .. code-block:: python
 
         # Use an arbitrary 4 x 4 unitary matrix

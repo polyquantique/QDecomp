@@ -20,16 +20,17 @@ import numpy as np
 import pytest
 from scipy.stats import ortho_group, special_ortho_group, unitary_group
 
-from qdecomp.utils import gates, QGate
-from qdecomp.decompositions.cnot import (canonical_decomposition,
-                                               cnot_decomposition,
-                                               known_decomposition,
-                                               kronecker_decomposition,
-                                               o4_det_minus1_decomposition,
-                                               so4_decomposition,
-                                               u4_decomposition)
-from qdecomp.decompositions.common_gate_decompositions import \
-    common_decompositions
+from qdecomp.decompositions.cnot import (
+    canonical_decomposition,
+    cnot_decomposition,
+    known_decomposition,
+    kronecker_decomposition,
+    o4_det_minus1_decomposition,
+    so4_decomposition,
+    u4_decomposition,
+)
+from qdecomp.decompositions.common_gate_decompositions import common_decompositions
+from qdecomp.utils import QGate, gates
 
 
 def multiply_circuit(circuit: list[QGate]) -> np.ndarray:
