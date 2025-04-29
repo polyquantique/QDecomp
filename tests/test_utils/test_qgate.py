@@ -132,6 +132,27 @@ def test_target(gate, target):
 
 
 @pytest.mark.parametrize(
+    "matrix",
+    [
+        np.eye(2),
+        1.0j * np.eye(2),
+        np.array([[0, 1], [1, 0]]),
+        np.array([[1, 0], [0, -1]]),
+        np.array([[1, 0], [0, 1.0j]]),
+        np.array([[0, -1.0j], [1.0j, 0]]),
+    ],
+)
+def test_matrix(matrix):
+    """Test the QGate.matrix property"""
+    gate = QGate.from_matrix(matrix=matrix, target=(1,))
+
+    assert (gate.matrix == gate.init_matrix).all()
+
+    gate.set_decomposition("I", 0.01)
+    assert (gate.matrix == gate.sequence_matrix).all()
+
+
+@pytest.mark.parametrize(
     "sequence, target, matrix",
     [
         ("I", (1,), np.eye(2)),
@@ -349,14 +370,16 @@ def test_set_decomposition(gate, decomposition, epsilon):
     assert np.allclose(gate.sequence_matrix, gate.init_matrix)
     assert gate.epsilon == epsilon
 
+    # Test if the sequence can be specified twice
+    gate.set_decomposition(decomposition + " X X", epsilon)
+
+    assert gate.sequence == decomposition + " X X"
+    assert np.allclose(gate.sequence_matrix, gate.init_matrix)
+    assert gate.epsilon == epsilon
+
 
 def test_set_decomposition_errors():
     """Test the QGate.set_decomposition() method with errors"""
-    # Sequence already initialized
-    gate = QGate.from_sequence("H H")
-    with pytest.raises(ValueError, match="The sequence is already initialized."):
-        gate.set_decomposition("I", epsilon=0)
-
     # Epsilon not defined
     gate = QGate.from_matrix(np.eye(2))
     with pytest.raises(ValueError, match="The epsilon must be initialized."):
