@@ -55,8 +55,8 @@ V = 1 / 2 * np.array([[1 + 1j, 1 - 1j], [1 - 1j, 1 + 1j]])
 T = np.array([[1, 0], [0, np.exp(1.0j * np.pi / 4)]])
 """NDArray[float]: T gate. T is the fourth root of the Pauli Z gate."""
 
-W = np.exp(1.0j * np.pi / 4) * np.eye(2)
-"""NDArray[float]: W gate. W is the global omega phase gate"""
+W = np.exp(1.0j * np.pi / 4)
+"""Complex: W gate. W is the global omega phase gate"""
 
 # Two qubit gates
 CNOT = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
@@ -184,6 +184,10 @@ def get_matrix_from_name(name: str) -> NDArray[np.floating]:
 
             matrix = get_matrix_from_name(name[:-n_char])
             return matrix.T.conj()
+
+    # Phase gates
+    if name == "W":
+        return W
 
     # Single qubit gates
     if name in ["", "I"]:

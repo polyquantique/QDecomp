@@ -14,7 +14,6 @@
 
 import numpy as np
 import pytest
-
 from qdecomp.utils import QGate
 
 
@@ -413,6 +412,8 @@ def test_set_decomposition_errors():
         ("T S Z", np.diag([1, np.exp(-1.0j * np.pi / 4)])),
         ("X Y", np.diag([-1j, 1j])),
         ("SWAP SWAP", np.eye(4)),
+        ("W I", (1 + 1.0j) / np.sqrt(2) * np.eye(2)),
+        ("SWAP W_dag SWAP", (1 - 1.0j) / np.sqrt(2) * np.eye(4)),
     ],
 )
 def test_calculate_seq_matrix(sequence, matrix):

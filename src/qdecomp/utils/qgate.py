@@ -28,7 +28,6 @@ from __future__ import annotations
 from typing import Any, Callable
 
 import numpy as np
-
 from qdecomp.utils.gates import get_matrix_from_name
 
 __all__ = ["QGate"]
@@ -538,6 +537,12 @@ class QGate:
         for name in self.sequence.split(" "):
             simple_matrix = get_matrix_from_name(name)
 
+            # If the simple_matrix is a scalar (global phase)
+            if not isinstance(simple_matrix, np.ndarray):
+                matrix = simple_matrix * matrix
+                continue
+
+            # Check if the simple_matrix has the right shape
             if simple_matrix.shape[0] != matrix_shape:
                 raise ValueError(
                     f"The sequence contains a gate that applies on the wrong number of qubits: {name}."
