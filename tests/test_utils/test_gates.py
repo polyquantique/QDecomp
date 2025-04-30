@@ -14,7 +14,6 @@
 
 import numpy as np
 import pytest
-
 from qdecomp.utils.gates import *
 
 
@@ -90,6 +89,8 @@ def test_canonical_gate(tx, ty, tz):
         "CH",
         "CH1",
         "MAGIC",
+        "W",
+        "WDAGGER",
     ],
 )
 def test_get_matrix_from_name(name):
@@ -101,6 +102,12 @@ def test_get_matrix_from_name(name):
         sum(ord(letter) for letter in name) % len(dag_list)
     ]  # Randomly choose a suffix
     gate_dag = get_matrix_from_name(name + dag_choice)
+
+    phase_gate = name.startswith("W")
+    if phase_gate:
+        assert not isinstance(gate, np.ndarray)  # Phase gate is a scalar
+        assert np.isclose(gate * gate_dag, 1.0)
+        return
 
     tqg = "C" in name or "SWAP" in name  # True if the gate is a two-qubit gate
     if tqg:

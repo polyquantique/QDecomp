@@ -14,7 +14,6 @@
 
 import numpy as np
 import pytest
-
 from qdecomp.utils import QGate
 
 
@@ -129,6 +128,27 @@ def test_target(gate, target):
     """Test the QGate.target property"""
     gate = QGate.from_sequence(sequence=gate, target=target)
     assert gate.target == target
+
+
+@pytest.mark.parametrize(
+    "matrix",
+    [
+        np.eye(2),
+        1.0j * np.eye(2),
+        np.array([[0, 1], [1, 0]]),
+        np.array([[1, 0], [0, -1]]),
+        np.array([[1, 0], [0, 1.0j]]),
+        np.array([[0, -1.0j], [1.0j, 0]]),
+    ],
+)
+def test_matrix(matrix):
+    """Test the QGate.matrix property"""
+    gate = QGate.from_matrix(matrix=matrix, target=(1,))
+
+    assert (gate.matrix == gate.init_matrix).all()
+
+    gate.set_decomposition("I", 0.01)
+    assert (gate.matrix == gate.sequence_matrix).all()
 
 
 @pytest.mark.parametrize(
@@ -349,14 +369,16 @@ def test_set_decomposition(gate, decomposition, epsilon):
     assert np.allclose(gate.sequence_matrix, gate.init_matrix)
     assert gate.epsilon == epsilon
 
+    # Test if the sequence can be specified twice
+    gate.set_decomposition(decomposition + " X X", epsilon)
+
+    assert gate.sequence == decomposition + " X X"
+    assert np.allclose(gate.sequence_matrix, gate.init_matrix)
+    assert gate.epsilon == epsilon
+
 
 def test_set_decomposition_errors():
     """Test the QGate.set_decomposition() method with errors"""
-    # Sequence already initialized
-    gate = QGate.from_sequence("H H")
-    with pytest.raises(ValueError, match="The sequence is already initialized."):
-        gate.set_decomposition("I", epsilon=0)
-
     # Epsilon not defined
     gate = QGate.from_matrix(np.eye(2))
     with pytest.raises(ValueError, match="The epsilon must be initialized."):
@@ -390,6 +412,8 @@ def test_set_decomposition_errors():
         ("T S Z", np.diag([1, np.exp(-1.0j * np.pi / 4)])),
         ("X Y", np.diag([-1j, 1j])),
         ("SWAP SWAP", np.eye(4)),
+        ("W I", (1 + 1.0j) / np.sqrt(2) * np.eye(2)),
+        ("SWAP W_dag SWAP", (1 - 1.0j) / np.sqrt(2) * np.eye(4)),
     ],
 )
 def test_calculate_seq_matrix(sequence, matrix):

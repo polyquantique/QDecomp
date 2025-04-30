@@ -28,7 +28,6 @@ from __future__ import annotations
 from typing import Any, Callable
 
 import numpy as np
-
 from qdecomp.utils.gates import get_matrix_from_name
 
 __all__ = ["QGate"]
@@ -390,6 +389,23 @@ class QGate:
         return self._sequence_matrix
 
     @property
+    def matrix(self) -> np.ndarray:
+        """
+        Get a matrix representation of the gate. If the sequence is known, the matrix associated to
+        the sequence is returned, as the `sequence_matrix` property does. If the sequence is not
+        known, the matrix used to initialize the gate (accessed via the `init_matrix` property) is
+        returned.
+
+        Returns:
+            np.ndarray: Matrix representation of the gate.
+        """
+        if self.sequence is not None:
+            return self.sequence_matrix
+
+        else:
+            return self.init_matrix
+
+    @property
     def nb_qubits(self) -> int:
         """
         Get the number of qubits on which the gate applies.
@@ -483,9 +499,9 @@ class QGate:
             ValueError: If the sequence is already initialized.
             ValueError: If the epsilon is not already initialized for the gate and not provided as an argument.
         """
-        # Check if the sequence is not already initialized
+        # Reinitialize the _sequence_matrix attribute if the sequence was already specified
         if self.sequence is not None:
-            raise ValueError("The sequence is already initialized.")
+            self._sequence_matrix
 
         # Check if epsilon is defined in the gate or specified as an argument, and set it if necessary
         if epsilon is None:
@@ -521,6 +537,12 @@ class QGate:
         for name in self.sequence.split(" "):
             simple_matrix = get_matrix_from_name(name)
 
+            # If the simple_matrix is a scalar (global phase)
+            if not isinstance(simple_matrix, np.ndarray):
+                matrix = simple_matrix * matrix
+                continue
+
+            # Check if the simple_matrix has the right shape
             if simple_matrix.shape[0] != matrix_shape:
                 raise ValueError(
                     f"The sequence contains a gate that applies on the wrong number of qubits: {name}."
