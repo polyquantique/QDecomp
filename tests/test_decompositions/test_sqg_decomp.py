@@ -17,6 +17,7 @@
 import numpy as np
 import pytest
 from scipy.stats import unitary_group
+
 from qdecomp.decompositions import sqg_decomp, zyz_decomposition
 from qdecomp.utils import QGate
 
@@ -42,13 +43,16 @@ def test_sqg_decomp_random_unitary(trial, epsilon):
     """Test the validity of the output of the sqg_decomp function or an arbitrary gate"""
     # Generate a random 2x2 unitary matrix (single qubit gate)
     U = unitary_group.rvs(2)
-    sqg = QGate.from_matrix(U, (0,), epsilon=epsilon)
+    sqg = QGate.from_matrix(matrix=U, target=(0,), epsilon=epsilon)
     # Decompose the single qubit gate
-    sequence, alpha = sqg_decomp(sqg)
+    sequence, alpha = sqg_decomp(sqg, epsilon, add_gloabal_phase=True)
     sqg.set_decomposition(sequence, epsilon=epsilon)
 
     # Account for error propagation in the decomposition (10*epsilon)
-    assert np.allclose(phase(alpha) * sqg.matrix, sqg.approx_matrix, atol=10 * epsilon)
+    error = max(
+        np.linalg.svd(phase(alpha) * sqg.sequence_matrix - sqg.init_matrix, compute_uv=False)
+    )
+    assert error < 10 * epsilon
 
 
 @pytest.mark.parametrize("trial", range(10))
@@ -58,20 +62,21 @@ def test_sqg_decomp_zyz_random(trial, epsilon):
     # Generate a random 2x2 unitary matrix (single qubit gate)
     U = unitary_group.rvs(2)
     sqg = QGate.from_matrix(U, (0,), epsilon=epsilon)
-    sequence, alpha = sqg_decomp(sqg)
+    sequence, alpha = sqg_decomp(sqg, epsilon, add_gloabal_phase=True)
     sqg.set_decomposition(sequence, epsilon=epsilon)
     # Evaluate de zyz decomposition matrix
     t0, t1, t2, alpha = zyz_decomposition(U)
-    zyz_matrix = rz(t0) @ ry(t1) @ rz(t2)
+    zyz_matrix = rz(t2) @ ry(t1) @ rz(t0)
 
     # Account for error propagation in the decomposition (10*epsilon)
-    assert np.allclose(sqg.matrix, zyz_matrix, atol=10 * epsilon)
+    error = max(np.linalg.svd(sqg.sequence_matrix - zyz_matrix, compute_uv=False))
+    assert error < 10 * epsilon
 
 
 def test_sqg_decomp_identity():
     """Test if sqg_decomp correctly handles the identity matrix."""
     identity = np.eye(2)
-    sequence, alpha = sqg_decomp(identity)
+    sequence = sqg_decomp(identity)
     assert sequence == ""
 
 
@@ -80,3 +85,11 @@ def test_sqg_decomp_invalid_input_shape():
     invalid_matrix = np.eye(3)  # 3x3 matrix
     with pytest.raises(ValueError, match="The input must be a 2x2 matrix"):
         sqg_decomp(invalid_matrix)
+
+
+def test_sqg_decomp_invalid_epsilon():
+    """Test if sqg_decomp raises an error if epsilon is not defined in QGate object."""
+    U = unitary_group.rvs(2)
+    sqg = QGate.from_matrix(U, (0,))
+    with pytest.raises(ValueError, match="The QGate object has no epsilon value set."):
+        sqg_decomp(sqg)

@@ -12,13 +12,12 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-import numpy as np
 
-from qdecomp.utils.grid_problem import z_rotational_approximation
 from qdecomp.utils.exact_synthesis import *
+from qdecomp.utils.grid_problem import z_rotational_approximation
 
 
-def rz_decomposition(epsilon: float, angle: float, add_global_phase=False) -> str:
+def rz_decomp(epsilon: float, angle: float, add_global_phase=False) -> str:
     """
     Decomposes a single-qubit RZ gate its Clifford+T sequence
 

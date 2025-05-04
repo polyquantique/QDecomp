@@ -13,28 +13,38 @@
 #    limitations under the License.
 
 import numpy as np
-from typing import Union
 
-from qdecomp.decompositions import zyz_decomposition, rz_decomposition
+from qdecomp.decompositions import rz_decomp, zyz_decomposition
 from qdecomp.utils import QGate
 
 
-def sqg_decomp(sqg: Union[np.array, QGate], epsilon: float = 0.01) -> str:
+def sqg_decomp(
+    sqg: np.ndarray | QGate, epsilon: float, add_gloabal_phase: bool = False
+) -> tuple[str, float]:
     """
     Decomposes any single qubit gate (SQG) into its sequence of Clifford+T gates
 
     Args:
-        sqg (Union[np.array, QGate]): The single qubit gate to decompose.
-        epsilon (float): The tolerance for the decomposition (default: 0.01)
+        sqg (np.array || QGate]): The single qubit gate to decompose.
+        epsilon (float): The tolerance for the decomposition
+        add_global_phase (bool): If `True`, adds the global phase to the sequence and return statements (default: `False`).
 
     Returns:
-        str: The sequence of gates that approximates the input SQG.
+        tuple(str, float): Tuples containing the sequence of gates that approximates the input SQG and the global phase associated with the zyz decomposition of the gate
 
+    Raises:
+        ValueError: If the input is not a 2x2 matrix
+        ValueError: If the input is a QGate object with no epsilon value set
+        ValueError: If the input is not a QGate object or a 2x2 matrix
     """
     # Check if the input is a QGate object, if yes, the matrix to the input
     if isinstance(sqg, QGate):
-        epsilon = sqg.epsilon
-        sqg = sqg.matrix
+        if sqg.epsilon is None:
+            raise ValueError("The QGate object has no epsilon value set.")
+
+        else:
+            epsilon = sqg.epsilon
+            sqg = sqg.matrix
 
     # Check if the input is a 2x2 matrix
     if sqg.shape != (2, 2):
@@ -44,7 +54,7 @@ def sqg_decomp(sqg: Union[np.array, QGate], epsilon: float = 0.01) -> str:
     alpha = angles[3]
     angles = angles[:-1]
     sequence = ""
-    for angle in angles[::-1]:
+    for angle in angles:
         # Adjust angle to be in the range [0, 4*pi]
         if angle < 0:
             angle = angle + 4 * np.pi
@@ -55,10 +65,16 @@ def sqg_decomp(sqg: Union[np.array, QGate], epsilon: float = 0.01) -> str:
 
         # If it is second angle of angles, consider gate to be Y
         if np.allclose(angle, angles[1] + 4 * np.pi if angles[1] < 0 else angles[1]):
-            rz_sequence = rz_decomposition(epsilon=epsilon, angle=angle)
+            rz_sequence = rz_decomp(
+                epsilon=epsilon, angle=angle, add_global_phase=add_gloabal_phase
+            )
             sequence = sequence + " H S H " + rz_sequence + " H S S S H "
 
+        # Else, consider gate to be Z
         else:
-            rz_sequence = rz_decomposition(epsilon=epsilon, angle=angle)
+            rz_sequence = rz_decomp(
+                epsilon=epsilon, angle=angle, add_global_phase=add_gloabal_phase
+            )
             sequence = sequence + rz_sequence
+
     return sequence, alpha
