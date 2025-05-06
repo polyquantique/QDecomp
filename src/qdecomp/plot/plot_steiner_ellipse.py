@@ -13,11 +13,11 @@
 #    limitations under the License.
 
 """
-This module provides the function :func:`plot_ellipse`, which plot an ellipse defined by its matrix D and center p.
+This module provides the function :func:`plot_ellipse`, which plots an ellipse defined by its matrix
+:math:`D` and center :math:`p`. The function also plots the bounding box (BBOX) of the ellipse.
 
-The function also plots the bounding box (BBOX) of the ellipse.
-
-For more details, see the :mod:`qdecomp.utils.steiner_ellipse` module.
+For more details on the definition of an ellipse and its BBOX, refer to
+the :mod:`qdecomp.utils.steiner_ellipse` module.
 """
 
 import matplotlib.pyplot as plt
@@ -35,7 +35,7 @@ def plot_ellipse(
     """
     Plot the ellipse defined by matrix D and center p. The function also plots the BBOX of the
     ellipse and its center. Moreover, the (optional) points to plot are cyan if they lie inside the
-    ellipse of magenta if they are not.
+    ellipse or magenta if they are not.
 
     Args:
         ax (plt.Axes): Axes to plot the ellipse
@@ -43,6 +43,11 @@ def plot_ellipse(
         p (np.ndarray): Center of the ellipse
         points (np.ndarray): Points to plot
     """
+    # Ensure the points are in the correct format
+    D = np.asarray(D, dtype=float)
+    p = np.asarray(p, dtype=float)
+    points = np.asarray(points, dtype=float) if points is not None else None
+
     # Find the BBOX of the ellipse
     bbox = se.ellipse_bbox(D, p)  # BBOX of the ellipse
     edges = bbox[:, 1] - bbox[:, 0]  # Length of the edges of the BBOX
