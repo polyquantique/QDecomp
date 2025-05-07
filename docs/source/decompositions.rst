@@ -20,3 +20,26 @@ CNOT Module
     :undoc-members:
     :show-inheritance:
 
+RZ Module
+-----------
+
+.. automodule:: qdecomp.decompositions.rz
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+SQG Module
+-----------
+
+.. automodule:: qdecomp.decompositions.sqg
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+TQG Module
+-----------
+
+.. automodule:: qdecomp.decompositions.tqg
+    :members:
+    :undoc-members:
+    :show-inheritance:
