@@ -24,18 +24,36 @@ The module also contains functions to generate parametric gates:
     - :func:`get_matrix_from_name`: Return the matrix of a gate from its name.
 """
 
+import sys
+
 import numpy as np
 from numpy.typing import NDArray
 from scipy.linalg import expm
 
+from qdecomp.utils import gates as gates_module
+
 SQRT2 = np.sqrt(2)
+
+
+def create_alias(variable: any, *alias_name: str) -> None:
+    """
+    This function creates an alias for a variable in the module namespace.
+
+    :param variable: The variable to create an alias for.
+    :param *alias_name: The name(s) of the alias to create.
+    """
+    module = sys.modules[__name__]
+    for name in alias_name:
+        setattr(module, name, variable)  # Create the alias in the module namespace
+
 
 # Single qubit gates
 I = np.array([[1, 0], [0, 1]])
 """NDArray[float]: Identity gate."""
 
 X = np.array([[0, 1], [1, 0]])
-"""NDArray[float]: Pauli X gate."""
+"""NDArray[float]: Pauli X gate. Alias: 'NOT'."""
+create_alias(X, "NOT")
 
 Y = np.array([[0, -1j], [1j, 0]])
 """NDArray[float]: Pauli Y gate."""
@@ -60,16 +78,20 @@ W = np.exp(1.0j * np.pi / 4)
 
 # Two qubit gates
 CNOT = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
-"""NDArray[float]: CNOT | CX gate. Controlled-Not with the control on the first qubit."""
+"""NDArray[float]: CNOT | CX gate. Controlled-Not with the control on the first qubit. Alias: 'CX'."""
+create_alias(CNOT, "CX")
 
 CNOT1 = np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0], [0, 1, 0, 0]])
-"""NDArray[float]: CNOT gate with the control on the second qubit."""
+"""NDArray[float]: CNOT gate with the control on the second qubit. Alias: 'CX1'."""
+create_alias(CNOT1, "CX1")
 
 DCNOT = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1], [0, 1, 0, 0]])
-"""NDArray[float]: DCNOT (Double CNOT) gate. CNOT gate followed by an inverted CNOT gate."""
+"""NDArray[float]: DCNOT (Double CNOT) gate. CNOT gate followed by an inverted CNOT gate. Alias: 'DCX'."""
+create_alias(DCNOT, "DCX")
 
 INV_DCNOT = np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 1, 0, 0], [0, 0, 1, 0]])
-"""NDArray[float]: Inverted DCNOT gate. Inverted CNOT gate followed by a CNOT gate."""
+"""NDArray[float]: Inverted DCNOT gate. Inverted CNOT gate followed by a CNOT gate. Alias: 'INV_DCX'."""
+create_alias(INV_DCNOT, "INV_DCX")
 
 SWAP = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 0, 0, 1]])
 """NDArray[float]: SWAP gate."""
@@ -185,54 +207,13 @@ def get_matrix_from_name(name: str) -> NDArray[np.floating]:
             matrix = get_matrix_from_name(name[:-n_char])
             return matrix.T.conj()
 
-    # Phase gates
-    if name == "W":
-        return W
-
-    # Single qubit gates
-    if name in ["", "I"]:
+    # Check if the name is empty (alias for identity gate)
+    if name == "":
         return I
-    if name in ["X", "NOT"]:
-        return X
-    if name == "Y":
-        return Y
-    if name == "Z":
-        return Z
-    if name == "H":
-        return H
-    if name == "S":
-        return S
-    if name == "V":
-        return V
-    if name == "T":
-        return T
 
-    # Two qubit gates
-    if name in ["CNOT", "CX"]:
-        return CNOT
-    if name in ["CNOT1", "CX1"]:
-        return CNOT1
-    if name in ["DCNOT", "DCX"]:
-        return DCNOT
-    if name in ["INV_DCNOT", "INV_DCX"]:
-        return INV_DCNOT
-    if name == "SWAP":
-        return SWAP
-    if name == "ISWAP":
-        return ISWAP
-    if name == "CY":
-        return CY
-    if name == "CY1":
-        return CY1
-    if name == "CZ":
-        return CZ
-    if name == "CZ1":
-        return CZ1
-    if name == "CH":
-        return CH
-    if name == "CH1":
-        return CH1
-    if name == "MAGIC":
-        return MAGIC
+    # Get the gate from its string name
+    gate = getattr(gates_module, name, None)
+    if gate is not None:  # Check if the gate is a matrix
+        return gate
 
     raise ValueError(f"The gate {name} is not recognized. Please check the name.")
