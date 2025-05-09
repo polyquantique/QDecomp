@@ -31,4 +31,4 @@ Homepage = "https://github.com/polyquantique/CliffordPlusT"
 where = ["src"]   
 
 [tool.setuptools.dynamic]  
-version = {attr = "qdcomp.__version__"}
+version = {attr = "qdecomp.__version__"}
