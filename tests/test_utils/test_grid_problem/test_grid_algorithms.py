@@ -21,8 +21,7 @@ import pytest
 
 from qdecomp.plot import plot_grid_problem_1d, plot_grid_problem_2d
 from qdecomp.rings import Zomega, Zsqrt2
-from qdecomp.utils.grid_problem import (solve_grid_problem_1d,
-                                        solve_grid_problem_2d)
+from qdecomp.utils.grid_problem import solve_grid_problem_1d, solve_grid_problem_2d
 
 
 @pytest.mark.parametrize("A", [(1, 2, 3), "1, 2", (1.0j, 2), "12", 1, [mp.mpc(1, 1), mp.mpc(2, 2)]])
