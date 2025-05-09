@@ -13,20 +13,13 @@
 #    limitations under the License.
 
 """
-The ``grid_algorithms`` module contains functions to solve 1D and 2D grid algorithms.
+The ``grid_algorithms`` module contains functions to solve 1D and 2D grid problems.
 
 The module provides two main functions:
 
-- :func:`solve_grid_problem_1d`:
-Given two real closed intervals A and B, :func:`solve_grid_problem_1d` finds all the solutions `x` in 
-the ring of quadratic integers with radicand 2, :math:`\\mathbb{Z}[\\sqrt{2}]`, such that `x` is in A and the :math:`\\sqrt{2}`-conjugate 
-of `x` is in B. This function is a sub-algorithm to solve 2D grid problems for upright
-rectangles. 
+- :func:`solve_grid_problem_1d`: Given two real closed intervals `A` and `B`, :func:`solve_grid_problem_1d` finds all the solutions ``x`` in the ring of quadratic integers with radicand 2, :math:`\\mathbb{Z}[\\sqrt{2}]`, such that ``x`` is in A and the :math:`\\sqrt{2}`-conjugate of ``x`` is in B. This function is a sub-algorithm to solve 2D grid problems for upright rectangles. 
 
-- :func:`solve_grid_problem_2d`:
-Given two upright rectangles A and B in the complex plane, :func:`solve_grid_problem_2d` finds all the solutions `x` in the ring of 
-cyclotomic integers with radicand 2, :math:`\\mathbb{Z}[\\omega]`, such that `x` is in A and the :math:`\\sqrt{2}`-conjugate of `x` is in B. 
-The solutions are used as candidates for unitary matrix entries in the Clifford+T approximation of z-rotation gates.
+- :func:`solve_grid_problem_2d`: Given two upright rectangles `A` and `B` in the complex plane, :func:`solve_grid_problem_2d` finds all the solutions ``x`` in the ring of cyclotomic integers with radicand 2, :math:`\\mathbb{Z}[\\omega]`, such that ``x`` is in A and the :math:`\\sqrt{2}`-conjugate of ``x`` is in B. The solutions are used as candidates for unitary matrix entries in the Clifford+T approximation of z-rotation gates.
 
 For more information on solving 1D and 2D grid problems, see [1]_.
 
@@ -55,8 +48,8 @@ def solve_grid_problem_1d(
 ) -> Generator[Zsqrt2]:
     """Solve the 1-dimensional grid problem for two intervals and return the result.
 
-    Given two real closed sets A and B, this function finds all the solutions `x` in the ring :math:`\\mathbb{Z}[\\sqrt{2}]` such that
-    `x` is in A and the :math:`\\sqrt{2}`-conjugate of `x` is in B.
+    Given two real closed sets `A` and `B`, this function finds all the solutions ``x`` in the ring :math:`\\mathbb{Z}[\\sqrt{2}]` such that
+    ``x`` is in `A` and the :math:`\\sqrt{2}`-conjugate of ``x`` is in B.
 
     Args:
         A (Sequence[Real, Real]): (A0, A1): Bounds of the first interval.
@@ -68,24 +61,21 @@ def solve_grid_problem_1d(
     Raises:
         TypeError: If intervals A and B are not real sequences of length 2.
     """
-    try:
-        # Convert the input intervals to numpy arrays and check their validity
-        A_interval: np.ndarray = np.asarray(A, dtype=object)
-        B_interval: np.ndarray = np.asarray(B, dtype=object)
-        if A_interval.shape != (2,) or B_interval.shape != (2,):
-            raise TypeError(
-                f"Input intervals must have two bounds (lower, upper) but received: {A if A_interval.shape != (2,) else B}."
-            )
-        for bound in np.concatenate((A_interval, B_interval)):
-            if not isinstance(bound, Real):
-                raise TypeError(
-                    f"The bounds of the interval must be real numbers but received: {bound}."
-                )
-        A_interval.sort()
-        B_interval.sort()
+    # Convert the input intervals to numpy arrays
+    A_interval: np.ndarray = np.asarray(A, dtype=object)
+    B_interval: np.ndarray = np.asarray(B, dtype=object)
 
-    except (TypeError, ValueError) as e:
-        raise TypeError(f"Input intervals must be real sequences of length 2.\nOrigin: {e}") from e
+    if A_interval.shape != (2,) or B_interval.shape != (2,):
+        raise TypeError(
+            f"Input intervals must have two bounds (lower, upper) but received: {A if A_interval.shape != (2,) else B}."
+        )
+    for bound in np.concatenate((A_interval, B_interval)):
+        if not isinstance(bound, Real):
+            raise TypeError(
+                f"The bounds of the interval must be real numbers but received: {bound}."
+            )
+    A_interval.sort()
+    B_interval.sort()
 
     # Compute the width of the interval A
     deltaA = A_interval[1] - A_interval[0]
@@ -156,11 +146,10 @@ def solve_grid_problem_2d(
     A: Sequence[Sequence[Real]] | NDArray,
     B: Sequence[Sequence[Real]] | NDArray,
 ) -> Generator[Zomega]:
-    """
-    Solve the 2-dimensional grid problem for two upright rectangles and return the result.
+    """Solve the 2-dimensional grid problem for two upright rectangles and return the result.
 
-    Given two real 2D closed sets A and B of the form [a, b] x [c, d], find all the solutions `x` in the ring :math:`\\mathbb{Z}[\\omega]`
-    such that `x` is in A and the :math:`\\sqrt{2}`-conjugate of `x` is in B.
+    Given two real 2D closed sets `A` and `B` of the form [a, b] x [c, d], find all the solutions ``x`` in the ring :math:`\\mathbb{Z}[\\omega]`
+    such that ``x`` is in `A` and the :math:`\\sqrt{2}`-conjugate of ``x`` is in `B`.
 
     Args:
         A (Sequence[Sequence[Real, Real]]): [(A0, A1), (A2, A3)]: Bounds of the first upright rectangle. Rows correspond to the x and y axis respectively.
@@ -172,27 +161,25 @@ def solve_grid_problem_2d(
     Raises:
         TypeError: If intervals A and B are not real 2 x 2 nested sequences.
     """
-    try:
-        # Define the intervals for A and B.
-        Ax: np.ndarray = np.asarray(A[0], dtype=object)
-        Ay: np.ndarray = np.asarray(A[1], dtype=object)
-        Bx: np.ndarray = np.asarray(B[0], dtype=object)
-        By: np.ndarray = np.asarray(B[1], dtype=object)
-        for interval in (Ax, Ay, Bx, By):
-            if interval.shape != (2,):
-                raise TypeError(
-                    f"Input intervals must have two bounds (lower, upper) but received {interval}."
-                )
-        for bound in np.concatenate((Ax, Ay, Bx, By)):
-            if not isinstance(bound, Real):
-                raise TypeError(
-                    f"The bounds of the interval must be real numbers but received: {bound}."
-                )
-        for interval in (Ax, Ay, Bx, By):
-            interval.sort()
 
-    except (TypeError, ValueError) as e:
-        raise TypeError(f"Input intervals must be real 2 x 2 sequences.\nOrigin: {e}") from e
+    # Define the intervals for A and B.
+    Ax: np.ndarray = np.asarray(A[0], dtype=object)
+    Ay: np.ndarray = np.asarray(A[1], dtype=object)
+    Bx: np.ndarray = np.asarray(B[0], dtype=object)
+    By: np.ndarray = np.asarray(B[1], dtype=object)
+
+    for interval in (Ax, Ay, Bx, By):
+        if interval.shape != (2,):
+            raise TypeError(
+                f"Input intervals must have two bounds (lower, upper) but received {interval}."
+            )
+    for bound in np.concatenate((Ax, Ay, Bx, By)):
+        if not isinstance(bound, Real):
+            raise TypeError(
+                f"The bounds of the interval must be real numbers but received: {bound}."
+            )
+    for interval in (Ax, Ay, Bx, By):
+        interval.sort()
 
     # Solve two 1D grid problems for solutions of the form a + bi, where a and b are in Z[√2].
     alpha: Generator[Zsqrt2] = solve_grid_problem_1d(Ax, Bx)
