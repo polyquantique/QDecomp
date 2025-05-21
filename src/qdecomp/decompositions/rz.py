@@ -12,6 +12,40 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+"""
+This module contains the main function for the decomposition of :math:`R_z` gates of the form
+
+.. math:: 
+    
+    R_z = \\begin{pmatrix}
+    e^{-i\\theta / 2} & 0  \\\\
+    0 & e^{i\\theta / 2}
+    \\end{pmatrix},
+
+where :math:`\\theta` is the rotation angle around the Z axis. The :math:`R_z` gate is decomposed into a sequence of Clifford+T gates up to a given :math:`\\varepsilon` tolerance.
+The algorithm implemented in this module is based on the algorithm presented by Ross and Selinger in [1]_.
+
+This module combines the :mod:`qdecomp.utils.exact_synthesis`, :mod:`qdecomp.utils.grid_problem` and :mod:`qdecomp.utils.diophantine` modules to achieve this goal.
+
+ **Example**
+
+    .. code-block:: python
+
+        >>> from qdecomp.decompositions import rz_decomp
+        >>> from math import pi
+        
+        # Decompose a RZ gate with angle pi/128 and tolerance 0.001 exactly
+        >>> sequence = rz_decomp(epsilon=0.001, angle=pi/128, add_global_phase=True)
+        >>> print(sequence)
+        H S T H S T H [...] Z S W W W W W W
+
+        # Decompose a RZ gate with angle pi/128 and tolerance 0.001 up to a global phase
+        >>> sequence = rz_decomp(epsilon=0.001, angle=pi/128, add_global_phase=False)
+        >>> print(sequence)
+        H S T H S T H [...] Z S H S T H Z S
+
+.. [1] Neil J. Ross and Peter Selinger, Optimal ancilla-free Clifford+T approximation of z-rotations, https://arxiv.org/pdf/1403.2975.
+"""
 
 from qdecomp.utils.exact_synthesis import *
 from qdecomp.utils.grid_problem import z_rotational_approximation
