@@ -76,7 +76,7 @@ def test_sqg_decomp_zyz_random(trial, epsilon):
 def test_sqg_decomp_identity():
     """Test if sqg_decomp correctly handles the identity matrix."""
     identity = np.eye(2)
-    sequence = sqg_decomp(identity)
+    sequence, phase = sqg_decomp(identity, epsilon=0.01)
     assert sequence == ""
 
 
@@ -84,7 +84,7 @@ def test_sqg_decomp_invalid_input_shape():
     """Test if sqg_decomp raises an error for non-2x2 matrices."""
     invalid_matrix = np.eye(3)  # 3x3 matrix
     with pytest.raises(ValueError, match="The input must be a 2x2 matrix"):
-        sqg_decomp(invalid_matrix)
+        sqg_decomp(invalid_matrix, epsilon=0.01)
 
 
 def test_sqg_decomp_invalid_epsilon():
@@ -92,4 +92,4 @@ def test_sqg_decomp_invalid_epsilon():
     U = unitary_group.rvs(2)
     sqg = QGate.from_matrix(U, (0,))
     with pytest.raises(ValueError, match="The QGate object has no epsilon value set."):
-        sqg_decomp(sqg)
+        sqg_decomp(sqg, epsilon=0.01)
