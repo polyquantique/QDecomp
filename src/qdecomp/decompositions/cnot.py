@@ -30,12 +30,12 @@ circuit of CNOT and single-qubit gates. The function determines which decomposit
 the input matrix (SO(4), O(4), U(4)) or uses a predefined decomposition if the gate is common (SWAP, identity, CNOT).
 The function returns a list of ``QGate`` objects representing the circuit decomposition.
 
-For more details on the theory, see
+For more details on the theory, see [#f1]_ [#f2]_ [#f3]_ [#f4]_.
 
-.. [1] Crooks, G. E., “Quantum gates - Gates, States, and Circuits”, version 0.11.0., Mar. 2024, https://threeplusone.com/pubs/on_gates.pdf
-.. [2] Van Loan, C. F., “The ubiquitous Kronecker product”, J. Comput. Appl. Math., vol. 123, no. 1-2, pp. 85-100, Nov. 2000, https://doi.org/10.1016/S0377-0427(00)00393-9
-.. [3] Jun Zhang, Jiri Vala, Shankar Sastry, and K. Birgitta Whaley. Geometric theory of nonlocal two-qubit operations. Phys. Rev. A, 67:042313 (2003), https://arxiv.org/pdf/quant-ph/0209120
-.. [4] Vatan, F., Williams, C., “Optimal quantum circuits for general two-qubit gates”, arXiv [quant-ph], 2003, https://arxiv.org/abs/quant-ph/0308006
+.. [#f1] Crooks, G. E., “Quantum gates - Gates, States, and Circuits”, version 0.11.0., Mar. 2024, https://threeplusone.com/pubs/on_gates.pdf
+.. [#f2] Van Loan, C. F., “The ubiquitous Kronecker product”, J. Comput. Appl. Math., vol. 123, no. 1-2, pp. 85-100, Nov. 2000, https://doi.org/10.1016/S0377-0427(00)00393-9
+.. [#f3] Jun Zhang, Jiri Vala, Shankar Sastry, and K. Birgitta Whaley. Geometric theory of nonlocal two-qubit operations. Phys. Rev. A, 67:042313 (2003), https://arxiv.org/pdf/quant-ph/0209120
+.. [#f4] Vatan, F., Williams, C., “Optimal quantum circuits for general two-qubit gates”, arXiv [quant-ph], 2003, https://arxiv.org/abs/quant-ph/0308006
 """
 
 from __future__ import annotations
@@ -45,10 +45,9 @@ from typing import NamedTuple
 import numpy as np
 from numpy.typing import NDArray
 
-from qdecomp.utils import gates
-from qdecomp.utils import QGate
 from qdecomp.decompositions.common_gate_decompositions import common_decompositions
-from qdecomp.utils import is_hermitian, is_orthogonal, is_special, is_unitary
+from qdecomp.utils import QGate, gates
+from qdecomp.utils.gates_utils import is_hermitian, is_orthogonal, is_special, is_unitary
 
 __all__ = [
     "kronecker_decomposition",
@@ -74,7 +73,7 @@ def kronecker_decomposition(
     Compute the Kronecker decomposition of a 4 x 4 matrix.
 
     Given a 4 x 4 matrix ``M``, find the two 2 x 2 matrix ``A`` and ``B`` such that their Kronecker
-    product is the closest to the matrix `M` in the Frobenius norm.
+    product is the closest to the matrix `M` in the Frobenius norm [#f1]_ [#f2]_.
 
     Args:
         matrix (NDArray[float]): 4 x 4 matrix.
@@ -87,18 +86,17 @@ def kronecker_decomposition(
         ValueError: If matrix is not a 4 x 4 matrix.
 
     Examples:
-        >>> # Define two 2 x 2 matrices
-        >>> A = np.array([[1, 2], [3, 4]])
-        >>> B = np.array([[5, 6], [7, 8]])
 
-        >>> # Compute the Kronecker decomposition
-        >>> a, b = kronecker_decomposition(np.kron(A, B))
-        >>> print(np.allclose(np.kron(A, B), np.kron(a, b)))
+    .. code-block:: python
+
+        # Define two 2 x 2 matrices
+        A = np.array([[1, 2], [3, 4]])
+        B = np.array([[5, 6], [7, 8]])
+
+        # Compute the Kronecker decomposition
+        a, b = kronecker_decomposition(np.kron(A, B))
+        print(np.allclose(np.kron(A, B), np.kron(a, b)))
         True
-
-    References:
-        .. [1] Crooks, G. E., “Quantum gates - Gates, States, and Circuits”, version 0.11.0., Mar. 2024, https://threeplusone.com/pubs/on_gates.pdf
-        .. [2] Van Loan, C. F., “The ubiquitous Kronecker product”, J. Comput. Appl. Math., vol. 123, no. 1-2, pp. 85-100, Nov. 2000, https://doi.org/10.1016/S0377-0427(00)00393-9
     """
     if not isinstance(matrix, np.ndarray):
         raise TypeError(
@@ -123,7 +121,7 @@ def so4_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
     Circuit decomposition of SO(4) matrices.
 
     Decompose a 4 x 4 matrix in SO(4) (special orthogonal group) into a circuit of 2 CNOT gates
-    and 8 single-qubit gates. The output is a list of QGate objects.
+    and 8 single-qubit gates [#f1]_ [#f4]_. The output is a list of QGate objects.
 
     Args:
         U (NDArray[float]): 4 x 4 matrix in SO(4).
@@ -134,17 +132,13 @@ def so4_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
     Raises:
         TypeError: If the input matrix is not a numpy array or a QGate object.
         ValueError: If the input matrix is not in SO(4).
-
-    References:
-        .. [1] Crooks, G., E. “Quantum gates - Gates, States, and Circuits”, version 0.11.0., Mar. 2024, https://threeplusone.com/pubs/on_gates.pdf
-        .. [2] Vatan, F., Williams, C., “Optimal quantum circuits for general two-qubit gates”, arXiv [quant-ph], 2003, https://arxiv.org/abs/quant-ph/0308006
     """
     # Check the input matrix
     if isinstance(U, QGate):
         matrix = U.matrix
         if matrix.shape != (4, 4) or not is_orthogonal(matrix) or not is_special(matrix):
             raise ValueError("The input matrix must be a 4 x 4 special orthogonal matrix.")
-        q0, q1 = U.matrix_target
+        q0, q1 = U.target
 
     elif isinstance(U, np.ndarray):
         if U.shape != (4, 4) or not is_orthogonal(U) or not is_special(U):
@@ -167,8 +161,8 @@ def so4_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
     decomposition_circuit = (
         common_decompositions("MAGIC", q0, q1)
         + [
-            QGate.from_matrix(a, name="A", matrix_target=(q0,)),
-            QGate.from_matrix(b, name="B", matrix_target=(q1,)),
+            QGate.from_matrix(a, name="A", target=(q0,)),
+            QGate.from_matrix(b, name="B", target=(q1,)),
         ]
         + common_decompositions("MAGIC_DAG", q0, q1)
     )
@@ -181,7 +175,7 @@ def o4_det_minus1_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
     Circuit decomposition of O(4) matrices with a determinant of -1.
 
     Decompose a 4 x 4 matrix in O(4) (orthogonal group) with a determinant of -1 into a circuit of
-    3 CNOT and 8 single-qubit gates. The output is a list of QGate objects.
+    3 CNOT and 8 single-qubit gates [#f1]_ [#f4]_. The output is a list of QGate objects.
 
     Args:
         U (NDArray[float]): 4 x 4 matrix in O(4) with a determinant of -1.
@@ -192,10 +186,6 @@ def o4_det_minus1_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
     Raises:
         TypeError: If the input matrix is not a numpy array or a QGate object.
         ValueError: If the input matrix is not in O(4) with a determinant of -1.
-
-    References:
-        .. [1] Crooks, G. E., “Quantum gates - Gates, States, and Circuits”, version 0.11.0., Mar. 2024, https://threeplusone.com/pubs/on_gates.pdf
-        .. [2] Vatan, F., Williams, C., “Optimal quantum circuits for general two-qubit gates”, arXiv [quant-ph], 2003, https://arxiv.org/abs/quant-ph/0308006
     """
     # Check the input matrix
     if isinstance(U, QGate):
@@ -208,7 +198,7 @@ def o4_det_minus1_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
             raise ValueError(
                 "The input matrix must be a 4 x 4 orthogonal matrix with a determinant of -1."
             )
-        q0, q1 = U.matrix_target
+        q0, q1 = U.target
 
     elif isinstance(U, np.ndarray):
         if U.shape != (4, 4) or not is_orthogonal(U) or not np.isclose(np.linalg.det(U), -1):
@@ -234,9 +224,9 @@ def o4_det_minus1_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
         common_decompositions("MAGIC", q0, q1)[:-1]
         + [
             QGate.from_tuple(("CNOT", (q0, q1), 0)),
-            QGate.from_tuple(("CNOT", (q1, q0), 0)),
-            QGate.from_matrix(a, name="A", matrix_target=(q0,)),
-            QGate.from_matrix(b, name="B", matrix_target=(q1,)),
+            QGate.from_tuple(("CNOT1", (q0, q1), 0)),
+            QGate.from_matrix(a, name="A", target=(q0,)),
+            QGate.from_matrix(b, name="B", target=(q1,)),
         ]
         + common_decompositions("MAGIC_DAG", q0, q1)
     )
@@ -281,7 +271,7 @@ def canonical_decomposition(U: NDArray[np.floating]) -> CanonicalDecomposition:
 
     .. math:: Can(t_x, t_y, t_z) = exp(-i\\frac{\\pi}{2} (t_x X\\otimes X + t_y Y\\otimes Y + t_z Z\\otimes Z)),
 
-    where `X`, `Y`, and `Z` are the Pauli matrices.
+    where `X`, `Y`, and `Z` are the Pauli matrices [#f1]_ [#f3]_.
 
     Args:
         U (NDArray[float]): 4 x 4 unitary matrix.
@@ -299,21 +289,20 @@ def canonical_decomposition(U: NDArray[np.floating]) -> CanonicalDecomposition:
         ValueError: If U is not a 4 x 4 unitary matrix.
 
     Examples:
-        >>> # Define a 4 x 4 unitary matrix
-        >>> from scipy.stats import unitary_group
-        >>> U = unitary_group.rvs(4)
 
-        >>> # Perform the canonical decomposition and reconstruct the matrix
-        >>> decomp = canonical_decomposition(U)
-        >>> reconstructed_matrix = np.exp(1.j * decomp.phase) * decomp.B @ gates.canonical_gate(*decomp.t) @ decomp.A
+    .. code-block:: python
 
-        >>> # Check if the decomposition is correct
-        >>> print(np.allclose(U, reconstructed_matrix))
+        # Define a 4 x 4 unitary matrix
+        from scipy.stats import unitary_group
+        U = unitary_group.rvs(4)
+
+        # Perform the canonical decomposition and reconstruct the matrix
+        decomp = canonical_decomposition(U)
+        reconstructed_matrix = np.exp(1.j * decomp.phase) * decomp.B @ gates.canonical_gate(*decomp.t) @ decomp.A
+
+        # Check if the decomposition is correct
+        print(np.allclose(U, reconstructed_matrix))
         True
-
-    References:
-        .. [1] Crooks, G. E., “Quantum gates - Gates, States, and Circuits”, version 0.11.0., Mar. 2024, https://threeplusone.com/pubs/on_gates.pdf
-        .. [2] Jun Zhang, Jiri Vala, Shankar Sastry, and K. Birgitta Whaley. Geometric theory of nonlocal two-qubit operations. Phys. Rev. A, 67:042313 (2003), https://arxiv.org/pdf/quant-ph/0209120
     """
     if not isinstance(U, np.ndarray):
         raise TypeError(f"Matrix U must be a numpy object, but received {type(U).__name__}.")
@@ -386,7 +375,7 @@ def u4_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
     """
     Circuit decomposition of U(4) matrices.
 
-    Decompose a 4 x 4 matrix in U(4) (unitary group) into a circuit of 3 CNOT a 7 single-ubit gates.
+    Decompose a 4 x 4 matrix in U(4) (unitary group) into a circuit of 3 CNOT a 7 single-ubit gates [#f1]_ [#f4]_.
     The output is a list of QGate objects.
 
     Args:
@@ -398,17 +387,13 @@ def u4_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
     Raises:
         TypeError: If the input matrix is not a numpy array or a QGate object.
         ValueError: If the input matrix is not in U(4).
-
-    References:
-        .. [1] Crooks, G. E., “Quantum gates - Gates, States, and Circuits”, version 0.11.0., Mar. 2024, https://threeplusone.com/pubs/on_gates.pdf
-        .. [2] Vatan, F., Williams, C., “Optimal quantum circuits for general two-qubit gates”, arXiv [quant-ph], 2003, https://arxiv.org/abs/quant-ph/0308006
     """
     # Check the input matrix
     if isinstance(U, QGate):
         matrix = U.matrix
         if matrix.shape != (4, 4) or not is_unitary(matrix):
             raise ValueError("The input matrix must be a 4 x 4 unitary matrix.")
-        q0, q1 = U.matrix_target
+        q0, q1 = U.target
 
     elif isinstance(U, np.ndarray):
         if U.shape != (4, 4) or not is_unitary(U):
@@ -435,16 +420,16 @@ def u4_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
 
     # List of gates to return
     decomposition_circuit = [
-        QGate.from_matrix(a1, name="A1", matrix_target=(q0,)),
-        QGate.from_matrix(a2, name="A2", matrix_target=(q1,)),
-        QGate.from_tuple(("CNOT", (q1, q0), 0)),
-        QGate.from_matrix(gates.power_pauli_z(tz - 0.5), name="PZ", matrix_target=(q0,)),
-        QGate.from_matrix(gates.power_pauli_y(tx - 0.5), name="PY", matrix_target=(q1,)),
+        QGate.from_matrix(a1, name="A1", target=(q0,)),
+        QGate.from_matrix(a2, name="A2", target=(q1,)),
+        QGate.from_tuple(("CNOT1", (q0, q1), 0)),
+        QGate.from_matrix(gates.power_pauli_z(tz - 0.5), name="PZ", target=(q0,)),
+        QGate.from_matrix(gates.power_pauli_y(tx - 0.5), name="PY", target=(q1,)),
         QGate.from_tuple(("CNOT", (q0, q1), 0)),
-        QGate.from_matrix(gates.power_pauli_y(0.5 - ty), name="PY", matrix_target=(q1,)),
-        QGate.from_tuple(("CNOT", (q1, q0), 0)),
-        QGate.from_matrix(b1, name="B1", matrix_target=(q0,)),
-        QGate.from_matrix(b2, name="B2", matrix_target=(q1,)),
+        QGate.from_matrix(gates.power_pauli_y(0.5 - ty), name="PY", target=(q1,)),
+        QGate.from_tuple(("CNOT1", (q0, q1), 0)),
+        QGate.from_matrix(b1, name="B1", target=(q0,)),
+        QGate.from_matrix(b2, name="B2", target=(q1,)),
     ]
 
     return decomposition_circuit
@@ -474,7 +459,7 @@ def known_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate] | None:
         matrix = U.matrix
         if matrix.shape != (4, 4) or not is_unitary(matrix):
             raise ValueError("The input matrix must be a 4 x 4 unitary matrix.")
-        q0, q1 = U.matrix_target
+        q0, q1 = U.target
 
     elif isinstance(U, np.ndarray):
         if U.shape != (4, 4) or not is_unitary(U):
@@ -495,7 +480,7 @@ def known_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate] | None:
         return [QGate.from_tuple(("CNOT", (q0, q1), 0))]
 
     if (matrix == gates.CNOT1).all():  # CNOT (flipped)
-        return [QGate.from_tuple(("CNOT", (q1, q0), 0))]
+        return [QGate.from_tuple(("CNOT1", (q0, q1), 0))]
 
     if (matrix == gates.DCNOT).all():  # DCNOT (CNOT, then CNOT flipped)
         return common_decompositions("DCNOT", q0, q1)
@@ -547,11 +532,14 @@ def cnot_decomposition(U: NDArray[np.floating]) -> list[QGate]:
         ValueError: If the input matrix is not a 4 x 4 unitary matrix.
 
     Examples:
-        >>> # Use an arbitrary 4 x 4 unitary matrix
-        >>> from scipy.stats import unitary_group
-        >>> U = unitary_group.rvs(4)
-        >>> # Decompose the matrix into a circuit of CNOT and single-qubit gates
-        >>> circuit = cnot_decomposition(U)
+
+    .. code-block:: python
+
+        # Use an arbitrary 4 x 4 unitary matrix
+        from scipy.stats import unitary_group
+        U = unitary_group.rvs(4)
+        # Decompose the matrix into a circuit of CNOT and single-qubit gates
+        circuit = cnot_decomposition(U)
     """
     # Check the input matrix
     if isinstance(U, QGate):

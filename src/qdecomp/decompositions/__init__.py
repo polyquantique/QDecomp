@@ -12,6 +12,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+from qdecomp.decompositions.cnot import *
 from qdecomp.decompositions.zyz import *
 from qdecomp.decompositions.cnot import cnot_decomposition
 from qdecomp.decompositions.rz import rz_decomp

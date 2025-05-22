@@ -38,7 +38,7 @@ def dcnot_decomposition(q0: int, q1: int) -> list[QGate]:
     """
     dcnot_circuit = [
         QGate.from_tuple(("CNOT", (q0, q1), 0)),
-        QGate.from_tuple(("CNOT", (q1, q0), 0)),
+        QGate.from_tuple(("CNOT1", (q0, q1), 0)),
     ]
     return dcnot_circuit
 
@@ -57,7 +57,7 @@ def inv_dcnot_decomposition(q0: int, q1: int) -> list[QGate]:
         list[QGate]: List of QGate objects representing the decomposition of the inverted DCNOT gate.
     """
     inv_dcnot_circuit = [
-        QGate.from_tuple(("CNOT", (q1, q0), 0)),
+        QGate.from_tuple(("CNOT1", (q0, q1), 0)),
         QGate.from_tuple(("CNOT", (q0, q1), 0)),
     ]
     return inv_dcnot_circuit
@@ -80,7 +80,7 @@ def magic_decomposition(q0: int, q1: int) -> list[QGate]:
         QGate.from_tuple(("S", (q0,), 0)),
         QGate.from_tuple(("S", (q1,), 0)),
         QGate.from_tuple(("H", (q1,), 0)),
-        QGate.from_tuple(("CNOT", (q1, q0), 0)),
+        QGate.from_tuple(("CNOT1", (q0, q1), 0)),
     ]
     return magic_circuit
 
@@ -99,7 +99,7 @@ def magic_dag_decomposition(q0: int, q1: int) -> list[QGate]:
         list[QGate]: List of QGate objects representing the decomposition of the gate.
     """
     magic_dag_circuit = [
-        QGate.from_tuple(("CNOT", (q1, q0), 0)),
+        QGate.from_tuple(("CNOT1", (q0, q1), 0)),
         QGate.from_tuple(("H", (q1,), 0)),
         QGate.from_tuple(("SDAG", (q1,), 0)),
         QGate.from_tuple(("SDAG", (q0,), 0)),
@@ -122,7 +122,7 @@ def swap_decomposition(q0: int, q1: int) -> list[QGate]:
     """
     swap_circuit = [
         QGate.from_tuple(("CNOT", (q0, q1), 0)),
-        QGate.from_tuple(("CNOT", (q1, q0), 0)),
+        QGate.from_tuple(("CNOT1", (q0, q1), 0)),
         QGate.from_tuple(("CNOT", (q0, q1), 0)),
     ]
     return swap_circuit

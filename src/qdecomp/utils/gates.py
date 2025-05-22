@@ -76,6 +76,7 @@ T = np.array([[1, 0], [0, np.exp(1.0j * np.pi / 4)]])
 W = np.exp(1.0j * np.pi / 4)
 """Complex: W gate. W is the global omega phase gate"""
 
+
 # Two qubit gates
 CNOT = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
 """NDArray[float]: CNOT | CX gate. Controlled-Not with the control on the first qubit. Alias: 'CX'."""
