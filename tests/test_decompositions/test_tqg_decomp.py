@@ -37,13 +37,13 @@ def multiply_circuit(circuit: list[QGate]) -> np.ndarray:
     """
     M = np.eye(4)
     for gate in circuit:
-        if gate.matrix.shape == (2, 2):
-            if gate.matrix_target == (0,):
-                M = np.kron(gate.matrix, np.eye(2)) @ M
+        if gate.sequence_matrix.shape == (2, 2):
+            if gate.target == (0,):
+                M = np.kron(gate.sequence_matrix, np.eye(2)) @ M
             else:
-                M = np.kron(np.eye(2), gate.matrix) @ M
+                M = np.kron(np.eye(2), gate.sequence_matrix) @ M
         else:
-            M = gate.matrix @ M
+            M = gate.sequence_matrix @ M
     return M
 
 
@@ -58,8 +58,9 @@ def test_tqg_decomposition_random_unitary(trial, epsilon):
 
     # Assert the reconstructed matrix is equal to the original matrix
     if isinstance(U, QGate):
-        U = U.matrix
+        U = U.init_matrix
     phase = reconstructed[0, 0] / U[0, 0]
+    exact_reconstructed = reconstructed / phase
 
     # account for error propagation in the decomposition (10*epsilon)
-    assert np.allclose(reconstructed / phase, U, atol=10 * epsilon)
+    assert np.allclose(exact_reconstructed, U, atol=10 * epsilon)

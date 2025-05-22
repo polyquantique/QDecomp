@@ -36,12 +36,12 @@ def tqg_decomp(tqg: Union[np.array, QGate], epsilon: float = 0.01) -> list[QGate
 
     if type(tqg) is not QGate:
         tqg_matrix = tqg
-        tqg = QGate.from_matrix(matrix=tqg_matrix, matrix_target=(0, 1), epsilon=epsilon)
+        tqg = QGate.from_matrix(matrix=tqg_matrix, target=(0, 1), epsilon=epsilon)
 
-    if tqg.matrix.shape != (4, 4):
-        raise ValueError("Input gate must be a 4x4 matrix, got " + str(tqg.matrix.shape))
+    if tqg.init_matrix.shape != (4, 4):
+        raise ValueError("Input gate must be a 4x4 matrix, got " + str(tqg.init_matrix.shape))
 
-    cnot_decomp_lists = cnot_decomposition(tqg.matrix)
+    cnot_decomp_lists = cnot_decomposition(tqg.init_matrix)
 
     # Decompose each gate in the cnot decomposition list
     for cnot_decomp_qgate in cnot_decomp_lists:
@@ -51,7 +51,7 @@ def tqg_decomp(tqg: Union[np.array, QGate], epsilon: float = 0.01) -> list[QGate
 
         # Else, perform the sqg decomposition
         else:
-            cnot_qgate_seq, alpha = sqg_decomp(cnot_decomp_qgate.matrix, epsilon=epsilon)
+            cnot_qgate_seq, alpha = sqg_decomp(cnot_decomp_qgate.init_matrix, epsilon=epsilon)
             cnot_decomp_qgate.set_decomposition(cnot_qgate_seq, epsilon=epsilon)
 
         # Decomposition of all single qubit gates using zyz, rz_approx and exact synthesis
