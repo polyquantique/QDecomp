@@ -19,6 +19,7 @@ import pytest
 from sympy import factorint, primerange
 
 from qdecomp.utils.diophantine.diophantine_equation import *
+from qdecomp.utils.diophantine.tonelli_shanks import tonelli_shanks_algo
 from qdecomp.rings import *
 
 
@@ -166,6 +167,31 @@ def test_solve_usquare_eq_a_mod_p(p):
     u = solve_usquare_eq_a_mod_p(a, p)
 
     assert (u**2) % p == -a + p
+
+
+@pytest.mark.parametrize("a, p", itertools.product(range(-3, 4), primerange(3, 100)))
+def test_tonelli_shanks_algo(a, p):
+    """
+    Test the tonelli_shanks_algo() function.
+    """
+    try:
+        r = tonelli_shanks_algo(a, p)
+    except ValueError:
+        return
+
+    # If a solution is found, check that it is correct
+    assert (r**2) % p == a % p
+
+@pytest.mark.parametrize("a, p", [
+    (-1, 1),
+    (-2, 23),
+])
+def test_tonelli_shanks_algo_error(a, p):
+    """
+    Test the error raised by the tonelli_shanks_algo() function.
+    """
+    with pytest.raises(ValueError, match=f"a = {a} is not a quadratic residue modulo p = {p}."):
+        tonelli_shanks_algo(a, p)
 
 
 gcd_test_list = [
