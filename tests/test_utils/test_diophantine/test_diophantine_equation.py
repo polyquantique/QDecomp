@@ -16,11 +16,10 @@ import itertools
 
 import numpy as np
 import pytest
-from sympy import factorint, primerange
-
+from qdecomp.rings import *
 from qdecomp.utils.diophantine.diophantine_equation import *
 from qdecomp.utils.diophantine.tonelli_shanks import tonelli_shanks_algo
-from qdecomp.rings import *
+from sympy import factorint, primerange
 
 
 @pytest.mark.parametrize("n", range(2, 20))
@@ -134,13 +133,14 @@ def test_xi_fact_into_ti_error(xi, is_prime):
         xi_i_fact_into_ti(xi, check_prime=True)
         assert True  # The code has run without error
 
+
 @pytest.mark.parametrize("n", range(-100, 1000))
 def test_is_square(n):
     """Test the is_square() function."""
     if n == 0:
         assert is_square(n)
         return
-    
+
     assert is_square(n**2)
     assert not is_square(n**2 + 1)
     if n < 0:
@@ -182,10 +182,14 @@ def test_tonelli_shanks_algo(a, p):
     # If a solution is found, check that it is correct
     assert (r**2) % p == a % p
 
-@pytest.mark.parametrize("a, p", [
-    (-1, 1),
-    (-2, 23),
-])
+
+@pytest.mark.parametrize(
+    "a, p",
+    [
+        (-1, 1),
+        (-2, 23),
+    ],
+)
 def test_tonelli_shanks_algo_error(a, p):
     """
     Test the error raised by the tonelli_shanks_algo() function.

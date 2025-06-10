@@ -16,15 +16,16 @@
 
 """
 
+
 def legendre_symbol(a: int, p: int) -> int:
     """
     Compute the Legendre symbol :math:`(a/p)` using Euler's criterion.
-    
+
     The Legendre symbol is defined as follows:
     - :math:`(a/p)` = 0 if :math:`a` is divisible by :math:`p`
     - :math:`(a/p)` = 1 if :math:`a` is a quadratic residue modulo :math:`p` (i.e., there exists an integer :math:`x` such that :math:`x^2 \equiv a (mod p)`)
     - :math:`(a/p)` = -1 if :math:`a` is not a quadratic residue modulo :math:`p`
-    
+
     Args:
         a (int): The integer for which the Legendre symbol is computed.
         p (int): A prime number.
@@ -46,7 +47,7 @@ def tonelli_shanks_algo(a, p):
     Args:
         a (int): The integer for which the square root is computed.
         p (int): A prime number.
-    
+
     Returns:
         int: The smallest non-negative integer :math:`r` such that :math:`r^2 \equiv a (mod p)`.
 
@@ -55,11 +56,11 @@ def tonelli_shanks_algo(a, p):
     """
     if legendre_symbol(a, p) != 1:
         raise ValueError(f"a = {a} is not a quadratic residue modulo p = {p}.")
-    
+
     if p % 4 == 3:
         r = pow(a, (p + 1) // 4, p)
         return min(r, p - r)  # Return the smallest root
-    
+
     # Decomposition of p-1 = q * 2^s
     s, q = 0, p - 1
     while q % 2 == 0:
@@ -82,7 +83,7 @@ def tonelli_shanks_algo(a, p):
         while temp != 1:
             temp = pow(temp, 2, p)
             i += 1
-        
+
         b = pow(c, 2 ** (m - i - 1), p)
         r = (r * b) % p
         t = (t * pow(b, 2, p)) % p
