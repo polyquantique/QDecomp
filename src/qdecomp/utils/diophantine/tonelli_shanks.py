@@ -13,18 +13,19 @@
 #    limitations under the License.
 
 """
-
+This module implements the Tonelli-Shanks algorithm to find square roots modulo a prime number.
 """
 
 
 def legendre_symbol(a: int, p: int) -> int:
-    """
+    r"""
     Compute the Legendre symbol :math:`(a/p)` using Euler's criterion.
 
     The Legendre symbol is defined as follows:
-    - :math:`(a/p)` = 0 if :math:`a` is divisible by :math:`p`
-    - :math:`(a/p)` = 1 if :math:`a` is a quadratic residue modulo :math:`p` (i.e., there exists an integer :math:`x` such that :math:`x^2 \equiv a (mod p)`)
-    - :math:`(a/p)` = -1 if :math:`a` is not a quadratic residue modulo :math:`p`
+
+    | - :math:`(a/p)` = 0 if :math:`a` is divisible by :math:`p`
+    | - :math:`(a/p)` = 1 if :math:`a` is a quadratic residue modulo :math:`p` (i.e., there exists an integer :math:`x` such that :math:`x^2 \equiv a\ (\text{mod p})`)
+    | - :math:`(a/p)` = -1 if :math:`a` is not a quadratic residue modulo :math:`p`
 
     Args:
         a (int): The integer for which the Legendre symbol is computed.
@@ -37,19 +38,19 @@ def legendre_symbol(a: int, p: int) -> int:
 
 
 def tonelli_shanks_algo(a, p):
-    """
+    r"""
     Tonelli-Shanks algorithm to find the smallest square root of :math:`a` modulo :math:`p`.
 
     The problem solved by this function is stated as follows:
     Given a prime number :math:`p` and an integer :math:`a`, find an integer :math:`r` such that
-    :math:`r^2 \equiv a (mod p)`.
+    :math:`r^2 \equiv a\ (\text{mod p})`. If no solution exists, a `ValueError` is raised.
 
     Args:
         a (int): The integer for which the square root is computed.
         p (int): A prime number.
 
     Returns:
-        int: The smallest non-negative integer :math:`r` such that :math:`r^2 \equiv a (mod p)`.
+        int: The smallest non-negative integer :math:`r` such that :math:`r^2 \equiv a\ (\text{mod p})`.
 
     Raises:
         ValueError: If :math:`a` is not a quadratic residue modulo :math:`p`, i.e. no solution exists.
