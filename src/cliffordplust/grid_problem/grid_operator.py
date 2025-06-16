@@ -319,8 +319,17 @@ class GridOperator:
         Raises:
             TypeError: If the exponent is not an integer.
         """
+        # Accept exponent if it is close to an integer, otherwise raise
         if not isinstance(exponent, int):
-            raise TypeError("Exponent must be an integer.")
+            # Try to convert to float and check closeness to int
+            try:
+                exp_float = float(exponent)
+            except Exception:
+                raise ValueError("exponent must be an integer or close to an integer")
+            if not np.isclose(exp_float, round(exp_float), atol=1e-8):
+                raise ValueError("exponent must be an integer or close to an integer")
+            exponent = int(round(exp_float))
+
         if exponent < 0:
             base = self.inv()
         else:

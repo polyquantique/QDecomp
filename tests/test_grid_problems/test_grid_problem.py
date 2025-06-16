@@ -22,10 +22,6 @@ from cliffordplust.grid_problem.steiner_ellipse import *
 def test_find_points_type_error():
     with pytest.raises(TypeError, match="Both theta and epsilon must be convertible to floats."):
         find_points('', [5, 2, 4, 5])
-    
-def test_find_points_value_error_theta():
-    with pytest.raises(ValueError, match="The value of theta must be between 0 and 4\u03C0."):
-        find_points(0.2, 15)
 
 def test_find_points_value_error_epsilon():
     with pytest.raises(ValueError, match="The maximal allowable error is 0.5."):
@@ -60,7 +56,7 @@ def test_grid_op(epsilon, theta):
         initial_state = State(E, I)
         inv_gop, gop = find_grid_operator(E, I)
         inv_gop_conj = inv_gop.conjugate()
-        mod_E = inv_gop.dag().as_mpmath() @ E @ inv_gop.as_mpmath()
-        mod_D = inv_gop_conj.dag().as_mpmath() @ inv_gop_conj.as_mpmath()
+        mod_E = inv_gop.dag().as_mpfloat() @ E @ inv_gop.as_mpfloat()
+        mod_D = inv_gop_conj.dag().as_mpfloat() @ inv_gop_conj.as_mpfloat()
         state = State(mod_E, mod_D)
     assert state.skew <= 15

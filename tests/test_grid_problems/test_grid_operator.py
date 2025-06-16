@@ -257,7 +257,7 @@ def test_as_float(grid_op):
 @pytest.mark.parametrize("grid_op", grid_ops)
 def test_as_mpfloat(grid_op):
     # Convert the grid operator to a mpfloat array
-    float_array = grid_op.as_mpmath()
+    float_array = grid_op.as_mpfloat()
 
     # Verify that each element in the array is the mpfloat representation of the original element
     assert float_array[0, 0] == grid_op.a.mpfloat()

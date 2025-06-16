@@ -363,8 +363,16 @@ class State:
         Raises:
             ValueError: If `k` is not an integer.
         """
+        # Accept k if it is very close to an integer, otherwise raise
         if not isinstance(k, int):
-            raise ValueError("k must be an integer")
+            # Try to convert to float and check closeness to int
+            try:
+                k_float = float(k)
+            except Exception:
+                raise ValueError("k must be an integer or close to an integer")
+            if not np.isclose(k_float, round(k_float), atol=1e-8):
+                raise ValueError("k must be an integer or close to an integer")
+            k = int(round(k_float))
         
         if k >= 0:
             # kth power of sigma
