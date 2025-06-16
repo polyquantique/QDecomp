@@ -22,6 +22,17 @@ from qdecomp.utils.grid_problem.grid_operator import *
 from qdecomp.utils.grid_problem.state import *
 from qdecomp.utils.grid_problem.grid_problem import *
 
+"""
+This module provides functions to find the three points that define the slice :math:`\\mathcal{R}_\\varepsilon`
+as described in Section 7.2 of Ross et al. (2014). It also includes a function to find the grid operator that reduces
+the skew of a state to less than 15, as well as a function to find the special grid operator that reduces the skew
+by at least 10%. The functions utilize the `mpmath` library for high precision arithmetic and the `numpy` library
+for numerical operations.
+
+The procedure to reduce the skew of a state is based on the algorithm described in
+Annexes A and B of Ross et al. (2014).
+"""
+
 
 def find_points(epsilon: float, theta: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Find the three points which define the slice :math:`\\mathcal{R}_\\varepsilon` 
