@@ -43,7 +43,6 @@ from typing import Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
-
 from qdecomp.rings import INVERSE_LAMBDA, LAMBDA, Zsqrt2
 
 __all__ = ["solve_grid_problem_1d", "plot_grid_problem"]

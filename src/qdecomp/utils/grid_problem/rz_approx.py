@@ -22,25 +22,26 @@ of u, and then checking if there exists a valid associated value for t. When u a
 it returns the Clifford+T approximation of the z-rotation. 
 """
 
-import numpy as np
 import math
-import mpmath as mp
 
-from qdecomp.utils.grid_problem.grid_problem import find_points, find_grid_operator
-from qdecomp.utils.grid_problem.grid_algorithms import solve_grid_problem_2d
+import mpmath as mp
+import numpy as np
 from qdecomp.rings.rings import *
 from qdecomp.utils.diophantine import solve_xi_eq_ttdag_in_d
-from qdecomp.utils.steiner_ellipse import is_inside_ellipse, steiner_ellipse_def, ellipse_bbox
+from qdecomp.utils.grid_problem.grid_algorithms import solve_grid_problem_2d
+from qdecomp.utils.grid_problem.grid_problem import find_grid_operator, find_points
+from qdecomp.utils.steiner_ellipse import ellipse_bbox, is_inside_ellipse, steiner_ellipse_def
+
 # Define Identity
-I = np.array([[mp.mpf(1), mp.mpf(0)], 
-              [mp.mpf(0), mp.mpf(1)]], dtype=object)
+I = np.array([[mp.mpf(1), mp.mpf(0)], [mp.mpf(0), mp.mpf(1)]], dtype=object)
+
 
 def initialization(epsilon: float, theta: float) -> tuple[np.ndarray, np.ndarray]:
     """
     Initializes important parameters necessary to find the appropriate Rz approximation.
 
-    This function calculates points based on the angle and the error provided, finds the 
-    necessary ellipse, and determines grid operators and bounding boxes for further 
+    This function calculates points based on the angle and the error provided, finds the
+    necessary ellipse, and determines grid operators and bounding boxes for further
     computations.
 
     Args:
@@ -55,7 +56,7 @@ def initialization(epsilon: float, theta: float) -> tuple[np.ndarray, np.ndarray
     # Initializes the ellipses using the points
     p1, p2, p3 = find_points(epsilon, theta)
     E, p_p = steiner_ellipse_def(p1, p2, p3)
-    
+
     # Find the grid operator using the ellipses
     inv_gop, gop = find_grid_operator(E, I)
     inv_gop_conj = inv_gop.conjugate()
@@ -69,6 +70,7 @@ def initialization(epsilon: float, theta: float) -> tuple[np.ndarray, np.ndarray
     bbox_2 = ellipse_bbox(mod_D, np.array([mp.mpf(0), mp.mpf(0)]))
 
     return bbox_1, bbox_2
+
 
 def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
     """
@@ -89,30 +91,41 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
         ValueError: If :math:`\\theta` or :math:`\\varepsilon` cannot be converted to floats.
     """
 
-
     # Attempt to convert the input parameters to floats
     try:
         theta = float(theta)
         epsilon = float(epsilon)
     except (ValueError, TypeError):
         raise TypeError("Both theta and epsilon must be convertible to floats.")
-    
+
     # Normalize the value of theta
     theta = theta % 4 * math.pi
 
     # Verify the value of epsilon
     if epsilon >= 0.5:
         raise ValueError("The maximal allowable error is 0.5.")
-    
+
     # Checks if the angle is trivial
     exponent = round(2 * theta / math.pi)
     if np.isclose(0, theta):
-        return np.array([[Domega.from_ring(1), Domega.from_ring(0)], [Domega.from_ring(0), Domega.from_ring(1)]], dtype=object)
+        return np.array(
+            [
+                [Domega.from_ring(1), Domega.from_ring(0)],
+                [Domega.from_ring(0), Domega.from_ring(1)],
+            ],
+            dtype=object,
+        )
     elif np.isclose(2 * theta / math.pi, exponent):
-        T = np.array([[Domega(-D(1, 0), D(0, 0), D(0, 0), D(0, 0)), Domega.from_ring(0)], [Domega.from_ring(0), Domega(D(0, 0), D(0, 0), D(1, 0), D(0, 0))]], dtype=object)
-        M = T ** exponent
+        T = np.array(
+            [
+                [Domega(-D(1, 0), D(0, 0), D(0, 0), D(0, 0)), Domega.from_ring(0)],
+                [Domega.from_ring(0), Domega(D(0, 0), D(0, 0), D(1, 0), D(0, 0))],
+            ],
+            dtype=object,
+        )
+        M = T**exponent
         return M
-    
+
     # Run the initialization function
     bbox_1, bbox_2 = initialization(epsilon, theta)
 
@@ -131,15 +144,15 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
             const = Dsqrt2(D(0, 0), D(1, int((n + 1) / 2)))
         else:
             const = D(1, int(n / 2))
-        
+
         # Initialize the bounding boxes using n
-        A = mp.sqrt(2 ** n) * bbox_1
+        A = mp.sqrt(2**n) * bbox_1
         if odd:
             bbox_2_flip = np.flip(bbox_2, axis=1)
-            B = -mp.sqrt(2 ** n) * bbox_2_flip
-        else: 
-            B = mp.sqrt(2 ** n) * bbox_2
-        
+            B = -mp.sqrt(2**n) * bbox_2_flip
+        else:
+            B = mp.sqrt(2**n) * bbox_2
+
         # For every solution found
         for cand in solve_grid_problem_2d(A, B):
             # Ensure the solution was not already found previously
@@ -149,12 +162,17 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
                 u = Domega.from_ring(cand) * Domega.from_ring(const)
                 u_float = np.array([u.mp_real(), u.mp_imag()])
                 # Find the conjugate of u
-                u_conj = u.sqrt2_conjugate() 
+                u_conj = u.sqrt2_conjugate()
                 u_conj_float = np.array([u_conj.mp_real(), u_conj.mp_imag()])
                 # Compute the dot product and the lower bound
                 dot = np.dot(u_float, z)
                 # If the solution u is valid
-                if dot < 1 and dot > delta and u_float[0]**2 + u_float[1]**2 < 1 and is_inside_ellipse(u_conj_float, I, np.zeros(2)):
+                if (
+                    dot < 1
+                    and dot > delta
+                    and u_float[0] ** 2 + u_float[1] ** 2 < 1
+                    and is_inside_ellipse(u_conj_float, I, np.zeros(2))
+                ):
                     # Run the diophantine module
                     xi = 1 - u.complex_conjugate() * u
                     t = solve_xi_eq_ttdag_in_d(Dsqrt2.from_ring(xi))

@@ -24,20 +24,21 @@ the use of states in the context of the algorithm.
 from __future__ import annotations
 
 import mpmath as mp
-
 import numpy as np
-from qdecomp.utils.grid_problem.grid_operator import GridOperator
 from qdecomp.rings import *
+from qdecomp.utils.grid_problem.grid_operator import GridOperator
+
 SQRT2 = mp.sqrt(2)
 
 __all__ = ["State", "special_sigma", "inv_special_sigma", "special_tau", "inv_special_tau"]
+
 
 class State:
     """
     Class to initialize a state given a pair of 2×2 matrices.
 
-    A state is of the form :math:`(A, B)`, where both :math:`A` and :math:`B` are 
-    2×2 real matrices with determinant 1. These matrices correspond to ellipses, 
+    A state is of the form :math:`(A, B)`, where both :math:`A` and :math:`B` are
+    2×2 real matrices with determinant 1. These matrices correspond to ellipses,
     with the matrices encoding the dimensions and orientation of each ellipse.
 
     This class is based on Appendix A of `Ross et al. (2014) <https://arxiv.org/pdf/1403.2975>`_,
@@ -54,7 +55,6 @@ class State:
         b (float): Antidiagonal component of A.
         beta (float): Antidiagonal component of B.
     """
-
 
     def __init__(self, A: np.ndarray, B: np.ndarray) -> None:
         """Initialize the state class.
@@ -79,11 +79,11 @@ class State:
         # Check that both matrices are 2x2
         if A.shape != (2, 2) or B.shape != (2, 2):
             raise ValueError("Both A and B must be 2x2 matrices.")
-        
+
         # Ensure that A and B contain mp.mpf
         if not np.all(np.vectorize(lambda x: isinstance(x, mp.mpf))(A)):
             raise TypeError("The elements of A must be mp.mpf")
-        
+
         if not np.all(np.vectorize(lambda x: isinstance(x, mp.mpf))(B)):
             raise TypeError("The elements of B must be mp.mpf")
 
@@ -109,7 +109,7 @@ class State:
 
         if detA <= 0 or detB <= 0:
             raise ValueError("The determinant of A and B must be positive and non-zero")
-        
+
         if mp.almosteq(1, detA):
             pass
         else:
@@ -133,7 +133,6 @@ class State:
             float: The exponent :math:`z` computed from the diagonal entries of matrix :math:`A`.
         """
         return -0.5 * mp.log(self.A[0, 0] / self.A[1, 1]) / mp.log(1 + SQRT2)
-
 
     @property
     def zeta(self) -> float:
@@ -211,7 +210,6 @@ class State:
         """
         return self.zeta - self.z
 
-
     def transform(self, G: GridOperator) -> State:
         """
         Apply a grid operator to the state.
@@ -262,21 +260,21 @@ class State:
             if not np.isclose(k_float, round(k_float), atol=1e-8):
                 raise ValueError("k must be an integer or close to an integer")
             k = int(round(k_float))
-        
+
         if k >= 0:
             # kth power of sigma
             sigma_k = (special_sigma**k).as_mpfloat() * mp.sqrt((INVERSE_LAMBDA**k).mpfloat())
             # kth power of tau
             tau_k = (special_tau**k).as_mpfloat() * mp.sqrt((INVERSE_LAMBDA**k).mpfloat())
-        
+
         else:
             # Since k is negative, we have to take the inverse
-            sigma_k = (inv_special_sigma**-k).as_mpfloat() * mp.sqrt((LAMBDA ** -k).mpfloat())
-            tau_k = (inv_special_tau**-k).as_mpfloat() * mp.sqrt((LAMBDA ** -k).mpfloat())
-        
+            sigma_k = (inv_special_sigma**-k).as_mpfloat() * mp.sqrt((LAMBDA**-k).mpfloat())
+            tau_k = (inv_special_tau**-k).as_mpfloat() * mp.sqrt((LAMBDA**-k).mpfloat())
+
         shift_A = sigma_k @ self.A @ sigma_k
         shift_B = tau_k @ self.B @ tau_k
-        
+
         return State(shift_A, shift_B)
 
 

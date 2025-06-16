@@ -13,14 +13,13 @@
 #    limitations under the License.
 
 import math
+
 import mpmath as mp
-
 import numpy as np
-
 from qdecomp.rings import *
 from qdecomp.utils.grid_problem.grid_operator import *
-from qdecomp.utils.grid_problem.state import *
 from qdecomp.utils.grid_problem.grid_problem import *
+from qdecomp.utils.grid_problem.state import *
 
 """
 This module provides functions to find the three points that define the slice :math:`\\mathcal{R}_\\varepsilon`
@@ -35,11 +34,11 @@ Annexes A and B of Ross et al. (2014).
 
 
 def find_points(epsilon: float, theta: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Find the three points which define the slice :math:`\\mathcal{R}_\\varepsilon` 
+    """Find the three points which define the slice :math:`\\mathcal{R}_\\varepsilon`
     as shown in Section 7.2 of Ross et al. (2014).
 
     Args:
-        theta (float): The angle :math:`\\theta` such that :math:`0 \\leq \\theta < 4\\pi` 
+        theta (float): The angle :math:`\\theta` such that :math:`0 \\leq \\theta < 4\\pi`
                        corresponding to the :math:`R_z` gate.
         epsilon (float): The error :math:`\\varepsilon` of the approximation of :math:`R_z`.
 
@@ -68,7 +67,7 @@ def find_points(epsilon: float, theta: float) -> tuple[np.ndarray, np.ndarray, n
     # Verify the value of epsilon
     if epsilon >= 0.5:
         raise ValueError("The maximal allowable error is 0.5.")
-    
+
     theta = mp.mpf(theta)
     epsilon = mp.mpf(epsilon)
 
@@ -77,10 +76,10 @@ def find_points(epsilon: float, theta: float) -> tuple[np.ndarray, np.ndarray, n
     cosine = mp.cos(theta / 2)
     p1 = [mp.mpf(0), mp.mpf(0)]
 
-    # The calculations needed to find the points are the solving of a trivial quadratic equation which is not 
-    # solved in detail here. Refer to Section 7.2 of https://arxiv.org/pdf/1403.2975 to understand the problem 
-    # statement. Note that in order to have sufficient precision on the values of the points, the intersection 
-    # between the unit disk and the vector z is set to be the origin. 
+    # The calculations needed to find the points are the solving of a trivial quadratic equation which is not
+    # solved in detail here. Refer to Section 7.2 of https://arxiv.org/pdf/1403.2975 to understand the problem
+    # statement. Note that in order to have sufficient precision on the values of the points, the intersection
+    # between the unit disk and the vector z is set to be the origin.
 
     # Handle the special case where the sine is 0
     if sine == 0:
@@ -120,7 +119,7 @@ def find_grid_operator(A: np.ndarray, B: np.ndarray) -> tuple[GridOperator, Grid
 
     # Set the inverse grid operator to the identity
     inv_grid_op = I
-    
+
     while state.skew >= 15:
         # Adjust the bias
         if abs(state.bias) > 1:
@@ -140,7 +139,7 @@ def find_grid_operator(A: np.ndarray, B: np.ndarray) -> tuple[GridOperator, Grid
             G_i = (special_sigma**k) * G_i * (inv_special_sigma**k)
         inv_grid_op = inv_grid_op * G_i
         state = state.transform(G_i)
-        
+
     grid_op = inv_grid_op.inv()
     return inv_grid_op, grid_op
 
@@ -165,12 +164,12 @@ def find_special_grid_operator(state: State) -> GridOperator:
     if state.beta < 0:
         special_grid_operator = special_grid_operator * Z
         state = state.transform(Z)
-    
-    # Flip the signs of both z and zeta 
+
+    # Flip the signs of both z and zeta
     if state.zeta < -state.z:
-            special_grid_operator = special_grid_operator * X
-            state = state.transform(X)
-            
+        special_grid_operator = special_grid_operator * X
+        state = state.transform(X)
+
     # Refer to Figure 7 of Appendix A in https://arxiv.org/pdf/1403.2975 for this part (it really helps)
     if abs(state.z) <= 0.8 and abs(state.zeta) <= 0.8:
         special_grid_operator = special_grid_operator * R
@@ -189,7 +188,9 @@ def find_special_grid_operator(state: State) -> GridOperator:
 
         else:
             # The algorithm should never reach this line
-            raise ValueError("Encountered unaccounted-for values for the state parameters in Step-Lemma")
+            raise ValueError(
+                "Encountered unaccounted-for values for the state parameters in Step-Lemma"
+            )
     else:
         if state.z >= -0.2 and state.zeta >= -0.2:
             c = min(state.z, state.zeta)
@@ -198,6 +199,8 @@ def find_special_grid_operator(state: State) -> GridOperator:
 
         else:
             # The algorithm should never reach this line
-            raise ValueError("Encountered unaccounted-for values for the state parameters in Step-Lemma")
-        
+            raise ValueError(
+                "Encountered unaccounted-for values for the state parameters in Step-Lemma"
+            )
+
     return special_grid_operator

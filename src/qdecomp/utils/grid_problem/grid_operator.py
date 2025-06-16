@@ -16,8 +16,8 @@ from __future__ import annotations
 
 from typing import Union
 
-import numpy as np
 import mpmath as mp
+import numpy as np
 from qdecomp.rings import *
 
 __all__ = ["GridOperator", "I", "R", "K", "X", "Z", "A", "B"]
@@ -66,6 +66,7 @@ then there exists a special grid operator :math:`G`, such that:
 This class defines grid operators, which will be useful in the grid problem algorithm as a whole. 
 """
 
+
 class GridOperator:
     """
     Class to represent a grid operator used in solving grid problems over the complex plane.
@@ -103,10 +104,7 @@ class GridOperator:
             if len(G) == 4:
                 # Convert flat 4-element list to 2x2 ndarray
                 G = np.array(G, dtype=object).reshape((2, 2))
-            elif (
-                len(G) == 2
-                and all(len(row) == 2 for row in G)
-            ):
+            elif len(G) == 2 and all(len(row) == 2 for row in G):
                 # Convert 2x2 nested list to ndarray
                 G = np.array(G, dtype=object)
             else:
@@ -122,14 +120,16 @@ class GridOperator:
         if G.shape != (2, 2):
             raise ValueError(f"G must be of shape (2, 2). Got shape {G.shape}.")
 
-        # Validate each element  
-        for element in G.flatten():  
-            if not isinstance(element, (int, D, Zsqrt2, Dsqrt2)):  
-                raise TypeError(f"Element {element} must be an int, D, Zsqrt2, or Dsqrt2. Got type {type(element)}.")
-        
+        # Validate each element
+        for element in G.flatten():
+            if not isinstance(element, (int, D, Zsqrt2, Dsqrt2)):
+                raise TypeError(
+                    f"Element {element} must be an int, D, Zsqrt2, or Dsqrt2. Got type {type(element)}."
+                )
+
         # Convert to Dsqrt2
         G = np.vectorize(Dsqrt2.from_ring)(G)
-            
+
         self.G = G
         self.a = G[0, 0]
         self.b = G[0, 1]
@@ -174,7 +174,6 @@ class GridOperator:
             GridOperator: The transposed (dagger) grid operator.
         """
         return GridOperator([self.a, self.c, self.b, self.d])
-
 
     def conjugate(self):
         """
@@ -231,7 +230,7 @@ class GridOperator:
             np.ndarray: A 2x2 NumPy array with float entries corresponding to the grid operator.
         """
         return np.array(self.G, dtype=float)
-    
+
     def as_mpfloat(self) -> np.ndarray:
         """
         Return a high-precision float (mpmath) representation of the grid operator matrix.
@@ -343,6 +342,7 @@ class GridOperator:
             result = result * base  # Uses the __mul__ method already defined
 
         return result
+
 
 """
 This section is adapted from Appendix A in Ross et al. (2014).

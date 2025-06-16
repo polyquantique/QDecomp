@@ -36,8 +36,8 @@ from numbers import Real
 
 import mpmath as mp
 import numpy as np
-from qdecomp.rings.rings import INVERSE_LAMBDA, LAMBDA, Zomega, Zsqrt2
 from numpy.typing import NDArray
+from qdecomp.rings.rings import INVERSE_LAMBDA, LAMBDA, Zomega, Zsqrt2
 
 SQRT2 = mp.sqrt(2)
 
