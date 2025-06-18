@@ -12,8 +12,21 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-"""
+r"""
 This module implements the Tonelli-Shanks algorithm to find square roots modulo a prime number.
+
+The problem is stated as follows:
+Given a prime number :math:`p` and an integer :math:`a`, find an integer :math:`r` such that
+:math:`r^2 \equiv a\ (\text{mod p})`.
+The complexity of this algorithm is :math:`O(\log^2 p)`. Its efficiency is due to the fact that it
+exploits the decomposition of :math:`p-1` into the form :math:`p-1 = q \cdot 2^s`, where
+:math:`q` is odd and :math:`s` is a non-negative integer.
+
+More information on this algorithm and implementation can be found in [1]_.
+
+References:
+
+.. [1] https://rosettacode.org/wiki/Tonelli-Shanks_algorithm
 """
 
 
