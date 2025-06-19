@@ -387,7 +387,8 @@ def test_calculate_seq_matrix(sequence, matrix):
     """Test the QGate.calculate_matrix() and QGate.get_simple_matrix() methods"""
     if matrix.shape[0] == 2:
         gate = QGate.from_sequence(sequence=sequence, target=(0,))
-    elif matrix.shape[0] == 4:
+    else:
+        assert matrix.shape[0] == 4
         gate = QGate.from_sequence(sequence=sequence, target=(0, 1))
 
     assert np.allclose(gate.sequence_matrix, matrix)

@@ -66,9 +66,6 @@ def test_canonical_gate(tx, ty, tz):
     "name",
     [
         "I",
-        "_dag",
-        "dagger",
-        "_DAGdagger_dagger",
         "X",
         "Y",
         "Z",
@@ -91,6 +88,8 @@ def test_canonical_gate(tx, ty, tz):
         "MAGIC",
         "W",
         "WDAGGER",
+        "NoT",
+        "noT",
     ],
 )
 def test_get_matrix_from_name(name):
@@ -119,7 +118,7 @@ def test_get_matrix_from_name(name):
     assert np.allclose(gate_dag @ gate, np.eye(shape[0]))
 
 
-@pytest.mark.parametrize("name", ["NoT", "HADAMARD", "INVALID_GATE", "H_dag_"])
+@pytest.mark.parametrize("name", ["HADAMARD", "INVALID_GATE", "H_dag_", "dag", "DAG", "_dagger"])
 def test_get_matrix_from_name_error(name):
     """Test the error when the gate name is not recognized."""
     with pytest.raises(

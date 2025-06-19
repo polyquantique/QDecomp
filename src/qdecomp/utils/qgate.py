@@ -495,7 +495,7 @@ class QGate:
 
         # Check if epsilon is defined in the gate or specified as an argument, and set it if necessary
         if epsilon is None:
-            if self.epsilon is None:
+            if self.epsilon is None:  # pragma: no branch
                 raise ValueError("The epsilon must be initialized.")
         else:
             self._epsilon = epsilon
