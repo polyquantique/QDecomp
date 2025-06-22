@@ -11,5 +11,7 @@ Utils
 .. toctree::
     :maxdepth: 1
     
+    qgate
+    gates
     steiner_ellipse
     
