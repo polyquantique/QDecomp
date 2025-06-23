@@ -212,32 +212,31 @@ def o4_det_minus1_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
     if isinstance(U, QGate):
         matrix = U.matrix
         if (
-        matrix.shape != (4, 4)
-        or not is_orthogonal(matrix)
-        or not np.isclose(np.linalg.det(matrix), -1)
-    ):
+            matrix.shape != (4, 4)
+            or not is_orthogonal(matrix)
+            or not np.isclose(np.linalg.det(matrix), -1)
+        ):
             raise ValueError(
                 "The input matrix must be a 4 x 4 orthogonal matrix with a determinant of -1."
-        )
+            )
         q0, q1 = U.target
 
     elif isinstance(U, np.ndarray):
         matrix = U
         if (
-        matrix.shape != (4, 4)
-        or not is_orthogonal(matrix)
-        or not np.isclose(np.linalg.det(matrix), -1)
-    ):
+            matrix.shape != (4, 4)
+            or not is_orthogonal(matrix)
+            or not np.isclose(np.linalg.det(matrix), -1)
+        ):
             raise ValueError(
                 "The input matrix must be a 4 x 4 orthogonal matrix with a determinant of -1."
-        )
+            )
         q0, q1 = (0, 1)
 
     else:
         raise TypeError(
             f"The input matrix must be a numpy array or a QGate object, but received {type(U).__name__}."
         )
-
 
     # Decompose the matrix
     a_tensor_b = MAGIC @ matrix @ MAGIC_DAG @ gates.SWAP
