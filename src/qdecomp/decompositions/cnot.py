@@ -158,19 +158,20 @@ def so4_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
     # Check the input matrix
     if isinstance(U, QGate):
         matrix = U.matrix
+        if matrix.shape != (4, 4) or not is_orthogonal(matrix) or not is_special(matrix):
+            raise ValueError("The input matrix must be a 4 x 4 special orthogonal matrix.")
         q0, q1 = U.target
 
     elif isinstance(U, np.ndarray):
         matrix = U
+        if matrix.shape != (4, 4) or not is_orthogonal(matrix) or not is_special(matrix):
+            raise ValueError("The input matrix must be a 4 x 4 special orthogonal matrix.")
         q0, q1 = (0, 1)
 
     else:
         raise TypeError(
             f"The input matrix must be a numpy array or a QGate object, but received {type(U).__name__}."
         )
-
-    if matrix.shape != (4, 4) or not is_orthogonal(matrix) or not is_special(matrix):
-        raise ValueError("The input matrix must be a 4 x 4 special orthogonal matrix.")
 
     # Decompose the matrix
     a_tensor_b = MAGIC @ matrix @ MAGIC_DAG
@@ -210,10 +211,26 @@ def o4_det_minus1_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
     # Check the input matrix
     if isinstance(U, QGate):
         matrix = U.matrix
+        if (
+        matrix.shape != (4, 4)
+        or not is_orthogonal(matrix)
+        or not np.isclose(np.linalg.det(matrix), -1)
+    ):
+            raise ValueError(
+                "The input matrix must be a 4 x 4 orthogonal matrix with a determinant of -1."
+        )
         q0, q1 = U.target
 
     elif isinstance(U, np.ndarray):
         matrix = U
+        if (
+        matrix.shape != (4, 4)
+        or not is_orthogonal(matrix)
+        or not np.isclose(np.linalg.det(matrix), -1)
+    ):
+            raise ValueError(
+                "The input matrix must be a 4 x 4 orthogonal matrix with a determinant of -1."
+        )
         q0, q1 = (0, 1)
 
     else:
@@ -221,14 +238,6 @@ def o4_det_minus1_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
             f"The input matrix must be a numpy array or a QGate object, but received {type(U).__name__}."
         )
 
-    if (
-        matrix.shape != (4, 4)
-        or not is_orthogonal(matrix)
-        or not np.isclose(np.linalg.det(matrix), -1)
-    ):
-        raise ValueError(
-            "The input matrix must be a 4 x 4 orthogonal matrix with a determinant of -1."
-        )
 
     # Decompose the matrix
     a_tensor_b = MAGIC @ matrix @ MAGIC_DAG @ gates.SWAP
@@ -405,19 +414,20 @@ def u4_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
     # Check the input matrix
     if isinstance(U, QGate):
         matrix = U.matrix
+        if matrix.shape != (4, 4) or not is_unitary(matrix):
+            raise ValueError("The input matrix must be a 4 x 4 unitary matrix.")
         q0, q1 = U.target
 
     elif isinstance(U, np.ndarray):
         matrix = U
+        if matrix.shape != (4, 4) or not is_unitary(matrix):
+            raise ValueError("The input matrix must be a 4 x 4 unitary matrix.")
         q0, q1 = (0, 1)
 
     else:
         raise TypeError(
             f"The input matrix must be a numpy array or a QGate object, but received {type(U).__name__}."
         )
-
-    if matrix.shape != (4, 4) or not is_unitary(matrix):
-        raise ValueError("The input matrix must be a 4 x 4 unitary matrix.")
 
     # Decompose the matrix
     canonical_decomp = canonical_decomposition(matrix)
@@ -469,19 +479,20 @@ def known_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate] | None:
     # Check the input matrix
     if isinstance(U, QGate):
         matrix = U.matrix
+        if matrix.shape != (4, 4) or not is_unitary(matrix):
+            raise ValueError("The input matrix must be a 4 x 4 unitary matrix.")
         q0, q1 = U.target
 
     elif isinstance(U, np.ndarray):
         matrix = U
+        if matrix.shape != (4, 4) or not is_unitary(matrix):
+            raise ValueError("The input matrix must be a 4 x 4 unitary matrix.")
         q0, q1 = (0, 1)
 
     else:
         raise TypeError(
             f"The input matrix must be a numpy array or a QGate object, but received {type(U).__name__}."
         )
-
-    if matrix.shape != (4, 4) or not is_unitary(matrix):
-        raise ValueError("The input matrix must be a 4 x 4 unitary matrix.")
 
     # Check if the matrix is a known gate
     if (matrix == np.eye(4)).all():  # Identity
@@ -554,17 +565,18 @@ def cnot_decomposition(U: NDArray[np.floating]) -> list[QGate]:
     # Check the input matrix
     if isinstance(U, QGate):
         matrix = U.matrix
+        if matrix.shape != (4, 4) or not is_unitary(matrix):
+            raise ValueError("The input matrix must be a 4 x 4 unitary matrix.")
 
     elif isinstance(U, np.ndarray):
         matrix = U
+        if matrix.shape != (4, 4) or not is_unitary(matrix):
+            raise ValueError("The input matrix must be a 4 x 4 unitary matrix.")
 
     else:
         raise TypeError(
             f"The input matrix must be a numpy array or a QGate object, but received {type(U).__name__}."
         )
-
-    if matrix.shape != (4, 4) or not is_unitary(matrix):
-        raise ValueError("The input matrix must be a 4 x 4 unitary matrix.")
 
     # Check if the decomposition is known
     known_decomp = known_decomposition(U)
