@@ -25,8 +25,8 @@ The module contains the following functions:
 - :func:`known_decomposition`: Decompose a 4 x 4 matrix into a circuit of CNOT and single-qubit gates using predefined decompositions for common gates.
 - :func:`cnot_decomposition`: Decompose any two-qubits gate into a circuit of CNOT and single-qubit gates.
 
-The function ``cnot_decomposition`` is the main function of the module. It decomposes any 4 x 4 unitary matrix into a 
-circuit of CNOT and single-qubit gates. The function determines which decomposition to use based on the Lie group of 
+The function ``cnot_decomposition`` is the main function of the module. It decomposes any 4 x 4 unitary matrix into a
+circuit of CNOT and single-qubit gates. The function determines which decomposition to use based on the Lie group of
 the input matrix (SO(4), O(4), U(4)) or uses a predefined decomposition if the gate is common (SWAP, identity, CNOT).
 The function returns a list of ``QGate`` objects representing the circuit decomposition.
 
@@ -69,11 +69,10 @@ MAGIC_DAG = MAGIC.T.conj()
 def kronecker_decomposition(
     matrix: NDArray[np.floating],
 ) -> tuple[NDArray[np.floating], NDArray[np.floating]]:
-    """
-    Compute the Kronecker decomposition of a 4 x 4 matrix.
+    """Compute the Kronecker decomposition of a 4 x 4 matrix.
 
     Given a 4 x 4 matrix ``M``, find the two 2 x 2 matrix ``A`` and ``B`` such that their Kronecker
-    product is the closest to the matrix `M` in the Frobenius norm [#f1]_ [#f2]_.
+    product is the closest to the matrix ``M`` in the Frobenius norm [#f1]_ [#f2]_.
 
     Args:
         matrix (NDArray[float]): 4 x 4 matrix.
@@ -89,13 +88,13 @@ def kronecker_decomposition(
 
     .. code-block:: python
 
-        # Define two 2 x 2 matrices
-        A = np.array([[1, 2], [3, 4]])
-        B = np.array([[5, 6], [7, 8]])
+        >>> # Define two 2 x 2 matrices
+        >>> A = np.array([[1, 2], [3, 4]])
+        >>> B = np.array([[5, 6], [7, 8]])
 
-        # Compute the Kronecker decomposition
-        a, b = kronecker_decomposition(np.kron(A, B))
-        print(np.allclose(np.kron(A, B), np.kron(a, b)))
+        >>> # Compute the Kronecker decomposition
+        >>> a, b = kronecker_decomposition(np.kron(A, B))
+        >>> print(np.allclose(np.kron(A, B), np.kron(a, b)))
         True
     """
     if not isinstance(matrix, np.ndarray):
@@ -105,10 +104,16 @@ def kronecker_decomposition(
     elif matrix.shape != (4, 4):
         raise ValueError(f"The input matrix must be 4 x 4, but received {matrix.shape}.")
 
+    # Reshape the matrix to a 2 x 2 x 2 x 2 tensor
     matrix = matrix.reshape(2, 2, 2, 2)
+
+    # Transpose the tensor
     matrix = matrix.transpose(0, 2, 1, 3)
+
+    # Reshape the tensor to a 4 x 4 matrix
     matrix = matrix.reshape(4, 4)
 
+    # Compute the singular value decomposition
     u, sv, vh = np.linalg.svd(matrix)
 
     a_matrix = np.sqrt(sv[0]) * u[:, 0].reshape(2, 2)
@@ -117,8 +122,7 @@ def kronecker_decomposition(
 
 
 def so4_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
-    """
-    Circuit decomposition of SO(4) matrices.
+    """Circuit decomposition of SO(4) matrices.
 
     Decompose a 4 x 4 matrix in SO(4) (special orthogonal group) into a circuit of 2 CNOT gates
     and 8 single-qubit gates [#f1]_ [#f4]_. The output is a list of QGate objects.
@@ -151,6 +155,23 @@ def so4_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
             f"The input matrix must be a numpy array or a QGate object, but received {type(U).__name__}."
         )
 
+    # Check the input matrix
+    if isinstance(U, QGate):
+        matrix = U.matrix
+        q0, q1 = U.target
+
+    elif isinstance(U, np.ndarray):
+        matrix = U
+        q0, q1 = (0, 1)
+
+    else:
+        raise TypeError(
+            f"The input matrix must be a numpy array or a QGate object, but received {type(U).__name__}."
+        )
+
+    if matrix.shape != (4, 4) or not is_orthogonal(matrix) or not is_special(matrix):
+        raise ValueError("The input matrix must be a 4 x 4 special orthogonal matrix.")
+
     # Decompose the matrix
     a_tensor_b = MAGIC @ matrix @ MAGIC_DAG
 
@@ -171,8 +192,7 @@ def so4_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
 
 
 def o4_det_minus1_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
-    """
-    Circuit decomposition of O(4) matrices with a determinant of -1.
+    """Circuit decomposition of O(4) matrices with a determinant of -1.
 
     Decompose a 4 x 4 matrix in O(4) (orthogonal group) with a determinant of -1 into a circuit of
     3 CNOT and 8 single-qubit gates [#f1]_ [#f4]_. The output is a list of QGate objects.
@@ -190,27 +210,24 @@ def o4_det_minus1_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
     # Check the input matrix
     if isinstance(U, QGate):
         matrix = U.matrix
-        if (
-            matrix.shape != (4, 4)
-            or not is_orthogonal(matrix)
-            or not np.isclose(np.linalg.det(matrix), -1)
-        ):
-            raise ValueError(
-                "The input matrix must be a 4 x 4 orthogonal matrix with a determinant of -1."
-            )
         q0, q1 = U.target
 
     elif isinstance(U, np.ndarray):
-        if U.shape != (4, 4) or not is_orthogonal(U) or not np.isclose(np.linalg.det(U), -1):
-            raise ValueError(
-                "The input matrix must be a 4 x 4 orthogonal matrix with a determinant of -1."
-            )
         matrix = U
         q0, q1 = (0, 1)
 
     else:
         raise TypeError(
             f"The input matrix must be a numpy array or a QGate object, but received {type(U).__name__}."
+        )
+
+    if (
+        matrix.shape != (4, 4)
+        or not is_orthogonal(matrix)
+        or not np.isclose(np.linalg.det(matrix), -1)
+    ):
+        raise ValueError(
+            "The input matrix must be a 4 x 4 orthogonal matrix with a determinant of -1."
         )
 
     # Decompose the matrix
@@ -235,8 +252,7 @@ def o4_det_minus1_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
 
 
 class CanonicalDecomposition(NamedTuple):
-    """
-    Output of the `canonical_decomposition` function.
+    """Output of the `canonical_decomposition` function.
 
     Attributes:
         A (NDArray[float]): 4 x 4 matrix A of the decomposition. A is the Kronecker product of two 2 x 2 matrices.
@@ -259,8 +275,7 @@ class CanonicalDecomposition(NamedTuple):
 
 
 def canonical_decomposition(U: NDArray[np.floating]) -> CanonicalDecomposition:
-    """
-    Perform the canonical decomposition of a given 4 x 4 unitary matrix.
+    """Perform the canonical decomposition of a given 4 x 4 unitary matrix.
 
     Given a 4 x 4 unitary matrix ``U``, find the phase ``alpha``, the two 4 x 4 local unitaries ``A`` and ``B``, and
     the three parameters of the canonical gate to decompose the input matrix ``U`` like
@@ -292,16 +307,16 @@ def canonical_decomposition(U: NDArray[np.floating]) -> CanonicalDecomposition:
 
     .. code-block:: python
 
-        # Define a 4 x 4 unitary matrix
-        from scipy.stats import unitary_group
-        U = unitary_group.rvs(4)
+        >>> # Define a 4 x 4 unitary matrix
+        >>> from scipy.stats import unitary_group
+        >>> U = unitary_group.rvs(4)
 
-        # Perform the canonical decomposition and reconstruct the matrix
-        decomp = canonical_decomposition(U)
-        reconstructed_matrix = np.exp(1.j * decomp.phase) * decomp.B @ gates.canonical_gate(*decomp.t) @ decomp.A
+        >>> # Perform the canonical decomposition and reconstruct the matrix
+        >>> decomp = canonical_decomposition(U)
+        >>> reconstructed_matrix = np.exp(1.j * decomp.phase) * decomp.B @ gates.canonical_gate(*decomp.t) @ decomp.A
 
-        # Check if the decomposition is correct
-        print(np.allclose(U, reconstructed_matrix))
+        >>> # Check if the decomposition is correct
+        >>> print(np.allclose(U, reconstructed_matrix))
         True
     """
     if not isinstance(U, np.ndarray):
@@ -372,8 +387,7 @@ def canonical_decomposition(U: NDArray[np.floating]) -> CanonicalDecomposition:
 
 
 def u4_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
-    """
-    Circuit decomposition of U(4) matrices.
+    """Circuit decomposition of U(4) matrices.
 
     Decompose a 4 x 4 matrix in U(4) (unitary group) into a circuit of 3 CNOT a 7 single-ubit gates [#f1]_ [#f4]_.
     The output is a list of QGate objects.
@@ -391,13 +405,9 @@ def u4_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
     # Check the input matrix
     if isinstance(U, QGate):
         matrix = U.matrix
-        if matrix.shape != (4, 4) or not is_unitary(matrix):
-            raise ValueError("The input matrix must be a 4 x 4 unitary matrix.")
         q0, q1 = U.target
 
     elif isinstance(U, np.ndarray):
-        if U.shape != (4, 4) or not is_unitary(U):
-            raise ValueError("The input matrix must be a 4 x 4 unitary matrix.")
         matrix = U
         q0, q1 = (0, 1)
 
@@ -405,6 +415,9 @@ def u4_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
         raise TypeError(
             f"The input matrix must be a numpy array or a QGate object, but received {type(U).__name__}."
         )
+
+    if matrix.shape != (4, 4) or not is_unitary(matrix):
+        raise ValueError("The input matrix must be a 4 x 4 unitary matrix.")
 
     # Decompose the matrix
     canonical_decomp = canonical_decomposition(matrix)
@@ -436,8 +449,7 @@ def u4_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
 
 
 def known_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate] | None:
-    """
-    Circuit decompositions of common 4 x 4 matrices.
+    """Circuit decompositions of common 4 x 4 matrices.
 
     Decompose a 4 x 4 matrix into a circuit of CNOT and single-qubit gates using predefined
     decompositions for common gates (SWAP, identity, CNOT, etc.). The output is a list of QGate objects.
@@ -457,13 +469,9 @@ def known_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate] | None:
     # Check the input matrix
     if isinstance(U, QGate):
         matrix = U.matrix
-        if matrix.shape != (4, 4) or not is_unitary(matrix):
-            raise ValueError("The input matrix must be a 4 x 4 unitary matrix.")
         q0, q1 = U.target
 
     elif isinstance(U, np.ndarray):
-        if U.shape != (4, 4) or not is_unitary(U):
-            raise ValueError("The input matrix must be a 4 x 4 unitary matrix.")
         matrix = U
         q0, q1 = (0, 1)
 
@@ -471,6 +479,9 @@ def known_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate] | None:
         raise TypeError(
             f"The input matrix must be a numpy array or a QGate object, but received {type(U).__name__}."
         )
+
+    if matrix.shape != (4, 4) or not is_unitary(matrix):
+        raise ValueError("The input matrix must be a 4 x 4 unitary matrix.")
 
     # Check if the matrix is a known gate
     if (matrix == np.eye(4)).all():  # Identity
@@ -513,8 +524,7 @@ def known_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate] | None:
 
 
 def cnot_decomposition(U: NDArray[np.floating]) -> list[QGate]:
-    """
-    Circuit decomposition of 4 x 4 quantum gates.
+    """Circuit decomposition of 4 x 4 quantum gates.
 
     Decompose any two-qubits gate into a circuit of CNOT and single-qubit gates. The function
     determines which decomposition to use based on the Lie group of the input matrix (SO(4), O(4),
@@ -535,27 +545,26 @@ def cnot_decomposition(U: NDArray[np.floating]) -> list[QGate]:
 
     .. code-block:: python
 
-        # Use an arbitrary 4 x 4 unitary matrix
-        from scipy.stats import unitary_group
-        U = unitary_group.rvs(4)
-        # Decompose the matrix into a circuit of CNOT and single-qubit gates
-        circuit = cnot_decomposition(U)
+        >>> # Use an arbitrary 4 x 4 unitary matrix
+        >>> from scipy.stats import unitary_group
+        >>> U = unitary_group.rvs(4)
+        >>> # Decompose the matrix into a circuit of CNOT and single-qubit gates
+        >>> circuit = cnot_decomposition(U)
     """
     # Check the input matrix
     if isinstance(U, QGate):
         matrix = U.matrix
-        if matrix.shape != (4, 4) or not is_unitary(matrix):
-            raise ValueError("The input matrix must be a 4 x 4 unitary matrix.")
 
     elif isinstance(U, np.ndarray):
-        if U.shape != (4, 4) or not is_unitary(U):
-            raise ValueError("The input matrix must be a 4 x 4 unitary matrix.")
         matrix = U
 
     else:
         raise TypeError(
             f"The input matrix must be a numpy array or a QGate object, but received {type(U).__name__}."
         )
+
+    if matrix.shape != (4, 4) or not is_unitary(matrix):
+        raise ValueError("The input matrix must be a 4 x 4 unitary matrix.")
 
     # Check if the decomposition is known
     known_decomp = known_decomposition(U)

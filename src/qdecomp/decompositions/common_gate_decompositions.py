@@ -24,8 +24,7 @@ from qdecomp.utils import QGate
 
 
 def dcnot_decomposition(q0: int, q1: int) -> list[QGate]:
-    """
-    Circuit implementation of the double CNOT (DCNOT) gate (CNOT, then CNOT inverted).
+    """Circuit implementation of the double CNOT (DCNOT) gate (CNOT, then CNOT inverted).
 
     Decompose the DCNOT gate into a circuit of CNOT and inverted CNOT gates.
 
@@ -44,8 +43,7 @@ def dcnot_decomposition(q0: int, q1: int) -> list[QGate]:
 
 
 def inv_dcnot_decomposition(q0: int, q1: int) -> list[QGate]:
-    """
-    Circuit implementation of the inverted DCNOT gate (CNOT inverted, then CNOT).
+    """Circuit implementation of the inverted DCNOT gate (CNOT inverted, then CNOT).
 
     Decompose the inverted DCNOT gate into a circuit of inverted CNOT and CNOT gates.
 
@@ -64,8 +62,7 @@ def inv_dcnot_decomposition(q0: int, q1: int) -> list[QGate]:
 
 
 def magic_decomposition(q0: int, q1: int) -> list[QGate]:
-    """
-    Circuit implementation of the magic gate.
+    """Circuit implementation of the magic gate.
 
     Decompose the magic gate into a circuit of S, H, and CNOT gates.
 
@@ -86,8 +83,7 @@ def magic_decomposition(q0: int, q1: int) -> list[QGate]:
 
 
 def magic_dag_decomposition(q0: int, q1: int) -> list[QGate]:
-    """
-    Circuit implementation of the hermitian conjugate of the magic gate.
+    """Circuit implementation of the hermitian conjugate of the magic gate.
 
     Decompose the hermitian conjugate of the magic gate into a circuit of SDAG, H, and CNOT gates.
 
@@ -108,8 +104,7 @@ def magic_dag_decomposition(q0: int, q1: int) -> list[QGate]:
 
 
 def swap_decomposition(q0: int, q1: int) -> list[QGate]:
-    """
-    Circuit implementation of the SWAP gate.
+    """Circuit implementation of the SWAP gate.
 
     Decompose the SWAP gate into a circuit of CNOT gates.
 
@@ -129,8 +124,7 @@ def swap_decomposition(q0: int, q1: int) -> list[QGate]:
 
 
 def cy_decomposition(q0: int, q1: int) -> list[QGate]:
-    """
-    Circuit implementation of the controlled Y (CY) gate.
+    """Circuit implementation of the controlled Y (CY) gate.
 
     Decompose the CY gate into a circuit of SDAG, CNOT and S gates.
 
@@ -150,8 +144,7 @@ def cy_decomposition(q0: int, q1: int) -> list[QGate]:
 
 
 def cz_decomposition(q0: int, q1: int) -> list[QGate]:
-    """
-    Circuit implementation of the controlled Z (CZ) gate.
+    """Circuit implementation of the controlled Z (CZ) gate.
 
     Decompose the CZ gate into a circuit of H, CNOT, and H gates.
 
@@ -171,8 +164,7 @@ def cz_decomposition(q0: int, q1: int) -> list[QGate]:
 
 
 def ch_decomposition(q0: int, q1: int):
-    """
-    Circuit implementation of the controlled Hadamard (CH) gate.
+    """Circuit implementation of the controlled Hadamard (CH) gate.
 
     Decompose the CH gate into a circuit of Clifford+T gates.
 
@@ -196,8 +188,7 @@ def ch_decomposition(q0: int, q1: int):
 
 
 def iswap_decomposition(q0: int, q1: int) -> list[QGate]:
-    """
-    Circuit implementation of the iSWAP gate.
+    """Circuit implementation of the iSWAP gate.
 
     Decompose the iSWAP gate into a circuit of Clifford+T gates.
 
@@ -220,8 +211,7 @@ def iswap_decomposition(q0: int, q1: int) -> list[QGate]:
 
 
 def common_decompositions(name: str, q0: int, q1: int) -> list[QGate]:
-    """
-    Return the Clifford+T decomposition of a 4 x 4 quantum gate.
+    """Return the Clifford+T decomposition of a 4 x 4 quantum gate.
 
     Given the name of a 2 qubit quantum gate, return the Clifford+T decomposition of the gate.
     The decomposition is returned as a list of QGate objects.
