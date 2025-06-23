@@ -10,3 +10,10 @@ Diophantine Equation Module
     :members:
     :undoc-members:
     :show-inheritance:
+
+Tonelli-Shanks Module
+---------------------------
+.. automodule:: qdecomp.utils.diophantine.tonelli_shanks
+    :members:
+    :undoc-members:
+    :show-inheritance:

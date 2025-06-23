@@ -71,7 +71,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Import the Steiner function
-import qdecomp.grid_problem.steiner_ellipse as se
+import qdecomp.utils.steiner_ellipse as se
 from qdecomp.plot import plot_ellipse
 
 # -

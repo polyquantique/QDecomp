@@ -28,7 +28,6 @@ from __future__ import annotations
 from typing import Any, Callable
 
 import numpy as np
-
 from qdecomp.utils.gates import get_matrix_from_name
 
 __all__ = ["QGate"]
@@ -49,7 +48,7 @@ class QGate:
 
     Parameters:
         name (str | None): Name of the gate.
-        nb_qubits (int): Number of qubits on which the gate applies.
+        num_qubits (int): Number of qubits on which the gate applies.
 
         sequence (str | None): Sequence associated with the gate decomposition.
         target (tuple[int]): Qubits on which the gate acts.
@@ -69,55 +68,58 @@ class QGate:
 
     .. code-block:: python
 
-        # Import the necessary library and module
-        import numpy as np
-
-        from qdecomp.utils import QGate
+        >>> import numpy as np
+        >>> from qdecomp.utils import QGate
 
         # Create a gate from a sequence
-        g1 = QGate.from_sequence(sequence="CNOT", target=(1, 3))
-        print(g1)
-        # Sequence: CNOT
-        # Target: (1, 3)
+        >>> g1 = QGate.from_sequence(sequence="CNOT", target=(1, 3))
+        >>> print(g1)
+        Sequence: CNOT
+        Target: (1, 3)
 
         # Create a gate from a matrix
-        g2 = QGate.from_matrix(matrix=np.diag([1, -1]), name="My_Z_Gate")
-        print(g2)
-        # Gate: My_Z_Gate
-        # Target: (0,)
-        # Init. matrix:
-        # [[ 1  0]
-        #  [ 0 -1]]
+        >>> g2 = QGate.from_matrix(matrix=np.diag([1, -1]), name="My_Z_Gate")
+        >>> print(g2)
+        Gate: My_Z_Gate
+        Target: (0,)
+        Init. matrix:
+        [[ 1  0]
+         [ 0 -1]]
 
         # Create a gate from a tuple
-        g3 = QGate.from_tuple(("H", (0, ), 0))
-        print(g3)
-        # Sequence: H
-        # Target: (0,)
+        >>> g3 = QGate.from_tuple(("H", (0, ), 0))
+        >>> print(g3)
+        Sequence: H
+        Target: (0,)
 
         # Get the matrix of a from_sequence() gate
-        gate = QGate.from_sequence(sequence="X Z Y", name="my_gate")
-        print("Name:", gate.name)          # Name: my_gate
-        print("Sequence:", gate.sequence)  # Sequence: X Z Y
-        print("Target:", gate.target)      # Target: (0,)
-        print("Matrix:\n", gate.sequence_matrix, "\n")
-        # Matrix:
-        #  [[ 0.+1.j  0.+0.j]
-        #  [-0.+0.j  0.+1.j]]
+        >>> gate = QGate.from_sequence(sequence="X Z Y", name="my_gate")
+        >>> print("Name:", gate.name)
+        Name: my_gate
+        >>> print("Sequence:", gate.sequence)
+        Sequence: X Z Y
+        >>> print("Target:", gate.target)
+        Target: (0,)
+        >>> print("Matrix:\n", gate.sequence_matrix, "\n")
+        Matrix:
+         [[ 0.+1.j  0.+0.j]
+         [-0.+0.j  0.+1.j]]
 
         # Set the approximation sequence of a gate
-        approx_gate = QGate.from_matrix(matrix=np.diag([1-0.001j, 1.j+0.001]), name="approx_my_gate")
-        approx_gate.set_decomposition("S", epsilon=0.01)
-        print("Name:", approx_gate.name)          # Name: approx_my_gate
-        print("Sequence:", approx_gate.sequence)  # Sequence: S
-        print("Initial matrix:\n", approx_gate.init_matrix)
-        # Initial matrix:
-        #  [[1.   -0.001j 0.   +0.j   ]
-        #  [0.   +0.j    0.001+1.j   ]]
-        print("Matrix from sequence:\n", approx_gate.sequence_matrix)
-        # Matrix from sequence:
-        #  [[1.+0.j 0.+0.j]
-        #  [0.+0.j 0.+1.j]]
+        >>> approx_gate = QGate.from_matrix(matrix=np.diag([1-0.001j, 1.j+0.001]), name="approx_my_gate")
+        >>> approx_gate.set_decomposition("S", epsilon=0.01)
+        >>> print("Name:", approx_gate.name)
+        Name: approx_my_gate
+        >>> print("Sequence:", approx_gate.sequence)
+        Sequence: S
+        >>> print("Initial matrix:\n", approx_gate.init_matrix)
+        Initial matrix:
+         [[1.   -0.001j 0.   +0.j   ]
+         [0.   +0.j    0.001+1.j   ]]
+        >>> print("Matrix from sequence:\n", approx_gate.sequence_matrix)
+        Matrix from sequence:
+         [[1.+0.j 0.+0.j]
+         [0.+0.j 0.+1.j]]
     """
 
     def __init__(
@@ -182,22 +184,22 @@ class QGate:
 
         Raises:
             ValueError: If the matrix is not unitary.
-            ValueError: If the number of rows of the matrix is not 2^nb_of_qubits.
+            ValueError: If the number of rows of the matrix is not 2^num_of_qubits.
 
         **Example**
 
         .. code-block:: python
 
-            import numpy as np
-            from qdecomp.utils import QGate
+            >>> import numpy as np
+            >>> from qdecomp.utils import QGate
 
-            gate = QGate.from_matrix(np.diag([1, 1j]), name="my_S_gate", target=(1, ))
-            print(gate)
-            # Gate: my_S_gate
-            # Target: (1,)
-            # Init. matrix:
-            # [[1.+0.j 0.+0.j]
-            #  [0.+0.j 0.+1.j]]
+            >>> gate = QGate.from_matrix(np.diag([1, 1j]), name="my_S_gate", target=(1, ))
+            >>> print(gate)
+            Gate: my_S_gate
+            Target: (1,)
+            Init. matrix:
+            [[1.+0.j 0.+0.j]
+             [0.+0.j 0.+1.j]]
         """
         # Convert the matrix to a numpy array
         matrix = np.asarray(matrix)
@@ -217,7 +219,7 @@ class QGate:
         # Size of the matrix compared to the number of targets and control
         if matrix.shape[0] != 2 ** len(target):
             raise ValueError(
-                "The input matrix must have a size of 2^nb_of_qubit. Got shape "
+                "The input matrix must have a size of 2^num_of_qubit. Got shape "
                 + f"{matrix.shape} and {len(target)} qubit(s)."
             )
 
@@ -249,19 +251,19 @@ class QGate:
 
         .. code-block:: python
 
-            from qdecomp.utils import QGate
+            >>> from qdecomp.utils import QGate
 
-            h_gate = QGate.from_sequence("H", name="my_H_gate", target=(2, ))
-            print(h_gate)
-            # Gate: my_H_gate
-            # Sequence: H
-            # Target: (2,)
+            >>> h_gate = QGate.from_sequence("H", name="my_H_gate", target=(2, ))
+            >>> print(h_gate)
+            Gate: my_H_gate
+            Sequence: H
+            Target: (2,)
 
-            cx_gate = QGate.from_sequence("CNOT", name="my_CNOT_gate", target=(1, 3))
-            print(cx_gate)
-            # Gate: my_CNOT_gate
-            # Sequence: CNOT
-            # Target: (1, 3)
+            >>> cx_gate = QGate.from_sequence("CNOT", name="my_CNOT_gate", target=(1, 3))
+            >>> print(cx_gate)
+            Gate: my_CNOT_gate
+            Sequence: CNOT
+            Target: (1, 3)
         """
         # Create the gate
         gate = cls(name=name, target=target)
@@ -294,26 +296,25 @@ class QGate:
 
         .. code-block:: python
 
-            # Import the necessary module
-            from qdecomp.utils import QGate
+            >>> from qdecomp.utils import QGate
 
             # Create a QGate object from a sequence
-            init_gate = QGate.from_sequence("H", name="my_H_gate", target=(2, ))
-            print(init_gate)
-            # Gate: my_H_gate
-            # Sequence: H
-            # Target: (2,)
+            >>> init_gate = QGate.from_sequence("H", name="my_H_gate", target=(2, ))
+            >>> print(init_gate)
+            Gate: my_H_gate
+            Sequence: H
+            Target: (2,)
 
             # Get the tuple representation of the QGate object
-            tup = init_gate.to_tuple()
-            print(tup, "\n")
-            # ('H', (2,), 0)
+            >>> tup = init_gate.to_tuple()
+            >>> print(tup, "\n")
+            ('H', (2,), 0)
 
             # Reconstruct the QGate object from the tuple
-            tup_gate = QGate.from_tuple(tup)
-            print(tup_gate)
-            # Sequence: H
-            # Target: (2,)
+            >>> tup_gate = QGate.from_tuple(tup)
+            >>> print(tup_gate)
+            Sequence: H
+            Target: (2,)
         """
         if len(gate_tuple) != 3:
             raise ValueError("The tuple must contain three elements.")
@@ -407,7 +408,7 @@ class QGate:
             return self.init_matrix
 
     @property
-    def nb_qubits(self) -> int:
+    def num_qubits(self) -> int:
         """
         Get the number of qubits on which the gate applies.
 
@@ -473,18 +474,6 @@ class QGate:
 
         return (self.sequence, self.target, epsilon)
 
-    def convert(self, fun: Callable[["QGate"], Any]) -> Any:
-        """
-        Convert the gate by using a user-defined function.
-
-        Args:
-            fun (callable): The user-defined function.
-
-        Returns:
-            any: The result of the user-defined function.
-        """
-        return fun(self)
-
     def set_decomposition(self, sequence: str, epsilon: float | None = None) -> None:
         """
         Set the decomposition of the gate. This decomposition doesn't need to be exact. The error
@@ -506,7 +495,7 @@ class QGate:
 
         # Check if epsilon is defined in the gate or specified as an argument, and set it if necessary
         if epsilon is None:
-            if self.epsilon is None:
+            if self.epsilon is None:  # pragma: no branch
                 raise ValueError("The epsilon must be initialized.")
         else:
             self._epsilon = epsilon
@@ -533,11 +522,17 @@ class QGate:
             raise ValueError("The sequence must be initialized.")
 
         # Calculate the matrix
-        matrix_shape = 2**self.nb_qubits
+        matrix_shape = 2**self.num_qubits
         matrix = np.eye(matrix_shape, dtype=complex)
         for name in self.sequence.split(" "):
             simple_matrix = get_matrix_from_name(name)
 
+            # If the simple_matrix is a scalar (global phase)
+            if not isinstance(simple_matrix, np.ndarray):
+                matrix = simple_matrix * matrix
+                continue
+
+            # Check if the simple_matrix has the right shape
             if simple_matrix.shape[0] != matrix_shape:
                 raise ValueError(
                     f"The sequence contains a gate that applies on the wrong number of qubits: {name}."

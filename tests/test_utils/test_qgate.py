@@ -14,7 +14,6 @@
 
 import numpy as np
 import pytest
-
 from qdecomp.utils import QGate
 
 
@@ -202,14 +201,14 @@ def test__calculate_seq_matrix_error():
         (np.eye(4)[[0, 1, 3, 2]], (3, 4), "matrix", 2),
     ],
 )
-def test_nb_qubits(gate, target, initializer, expected):
-    """Test the QGate.nb_qubits property"""
+def test_num_qubits(gate, target, initializer, expected):
+    """Test the QGate.num_qubits property"""
     if initializer == "sequence":
         gate = QGate.from_sequence(sequence=gate, target=target)
     else:
         gate = QGate.from_matrix(matrix=gate, target=target)
 
-    assert gate.nb_qubits == expected
+    assert gate.num_qubits == expected
 
 
 def test_str():
@@ -322,39 +321,6 @@ def test_to_and_from_tuple_with_errors(tup):
 
 
 @pytest.mark.parametrize(
-    "gate",
-    [
-        QGate.from_sequence(sequence="H"),
-        QGate.from_sequence(sequence="CNOT", target=(0, 1)),
-        QGate.from_matrix(matrix=np.eye(2)),
-        QGate.from_matrix(matrix=np.eye(4)[[0, 1, 3, 2]], target=(3, 4)),
-    ],
-)
-def test_convert(gate):
-    """Test the QGate.convert() method"""
-
-    def to_dict(gate):
-        """Convert a gate to a dictionary"""
-        dic = dict()
-        for attr in ["name", "matrix", "target", "epsilon"]:
-            if attr == "matrix":
-                if gate.sequence is not None:
-                    dic[attr] = gate.sequence_matrix
-                else:
-                    dic[attr] = gate.init_matrix
-
-            else:
-                dic[attr] = getattr(gate, attr)
-
-        return dic
-
-    converted_gate = gate.convert(to_dict)
-
-    assert to_dict(gate) == converted_gate
-    assert converted_gate is not None and converted_gate != dict()
-
-
-@pytest.mark.parametrize(
     "gate, decomposition, epsilon",
     [
         (QGate.from_matrix(matrix=np.eye(2)), "I", 0),
@@ -413,13 +379,16 @@ def test_set_decomposition_errors():
         ("T S Z", np.diag([1, np.exp(-1.0j * np.pi / 4)])),
         ("X Y", np.diag([-1j, 1j])),
         ("SWAP SWAP", np.eye(4)),
+        ("W I", (1 + 1.0j) / np.sqrt(2) * np.eye(2)),
+        ("SWAP W_dag SWAP", (1 - 1.0j) / np.sqrt(2) * np.eye(4)),
     ],
 )
 def test_calculate_seq_matrix(sequence, matrix):
     """Test the QGate.calculate_matrix() and QGate.get_simple_matrix() methods"""
     if matrix.shape[0] == 2:
         gate = QGate.from_sequence(sequence=sequence, target=(0,))
-    elif matrix.shape[0] == 4:
+    else:
+        assert matrix.shape[0] == 4
         gate = QGate.from_sequence(sequence=sequence, target=(0, 1))
 
     assert np.allclose(gate.sequence_matrix, matrix)

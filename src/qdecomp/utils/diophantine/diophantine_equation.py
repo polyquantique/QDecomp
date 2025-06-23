@@ -57,6 +57,7 @@ module is an implementation of the algorithm presented in Section 6 and Appendix
 from math import log, sqrt
 
 from qdecomp.rings import *
+from qdecomp.utils.diophantine.tonelli_shanks import tonelli_shanks_algo
 
 
 # ----------------------------- #
@@ -204,7 +205,8 @@ def is_square(n: int) -> bool:
 def solve_usquare_eq_a_mod_p(a: int, p: int) -> int:
     r"""
     Solve the diophantine equation :math:`u^2 = -a\ (\text{mod p})` where :math:`a`, :math:`p` and :math:`u` are integers. This function
-    returns the first integer solution of the equation. :math:`p` is a prime.
+    returns the first integer solution of the equation. :math:`p` is a prime. This problem is solved
+    using the Tonelli-Shanks algorithm.
 
     Args:
         a (int): An integer
@@ -213,11 +215,11 @@ def solve_usquare_eq_a_mod_p(a: int, p: int) -> int:
     Returns:
         int: The first positive integer solution :math:`u` to the equation :math:`u^2 = -a\ (\text{mod p})`
     """
-    x = p - a
-    while not is_square(x):
-        x += p
+    if p == 1 and a == 1:  # Special case for p = 1
+        return 1
 
-    return int(sqrt(x))
+    # Use the Tonelli-Shanks algorithm to find the square root of -a modulo p
+    return tonelli_shanks_algo(-a, p)
 
 
 def integer_fact(p: int) -> list[tuple[int, int]]:

@@ -12,4 +12,5 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-from qdecomp.utils.diophantine.diophantine_equation import solve_xi_eq_ttdag_in_d
+from qdecomp.utils.diophantine.diophantine_equation import \
+    solve_xi_eq_ttdag_in_d
