@@ -1,68 +1,88 @@
-# Qdcomp
-``Qdcomp`` is a standalone software package to perform multiple decompositions of quantum circuit and quantum gates. The package primarly focuses on decomposing gates into the Clifford+T universal set by implementing the algorithm proposed by Ross and Selinger (2014): *Optimal ancilla-free Clifford+T approximation of z-rotations*. 
+# QDecomp
+`QDecomp` is a standalone software package to perform multiple decompositions of quantum circuits and quantum gates. The package primarily focuses on decomposing gates into the Clifford+T universal set by implementing the algorithm proposed by Ross and Selinger [[1]](#ref1). This package was made in collaboration with D-Wave and Polytechnique Montréal.
 
-In addition to full circuit decomposition, `Qdcomp` provides simpler decomposition tools, including: 
-* **CNOT** : decomposition of 2-qubits unitary into CNOT and single qubit gates.
-* **ZYZ** : decomposition of single qubit unitary into three rotations along the Z axis.
-* **Exact synthesis** : decomposition of an exact Clifford+T unitary into a series of H and T gates.
-* A **Quantum gate class** to easily access information on decomposition outputs.
+The package contains 4 main subpackages
+* **decompositions** : Proposes user-oriented functions for decomposing various quantum gates
+* **utils** : Contains the core algorithms and additional utility functions
+* **rings** : Implements classes for symbolic calculations in mathematical rings
+* **plot** : Offers visualization tools of core parts of the algorithm used mainly for debugging
 
-## Installation
+Below is a figure illustrating the subpackages (green) and their associated modules (yellow) and classes (orange). 
 
-To install `Qdcomp`, clone the repository and install the dependencies:
+![Package Structure](assets/package_structure.svg)
+
+## Documentation
+
+Complete API documentation is available and can be built locally using Sphinx:
 
 ```bash
-git clone https://github.com/yourusername/CliffordPlusT.git
+cd docs
+make html  # On Windows: make.bat html
+```
+
+The documentation will be generated in `docs/build/html/`. Open `docs/build/html/index.html` in your browser to view it.
+
+
+## Installation (update when on Pypi)
+
+To install `QDecomp`, clone the repository and install the dependencies:
+
+```bash
+git clone https://github.com/polyquantique/QDecomp.git
 pip install -r requirements.txt
 ```
 
 ## Example usage
 
-### Example #1
+### Example #1: Single-Qubit Gate Decomposition
 
-This example demonstrates the use of the `Qdcomp.decompositions.circuit_decomposition` function to decompose a circuit into gates from the Clifford+T universal subset. To construct the circuit, you must use a specific data structure (see function documentation for full details). Below is an example of decomposing 2-qubit circuit composed of an X gate on the first qubit with a desired error of 0.001 followed by a CNOT on the first two qubits.
-
-```python
-from Qdcomp.decompositions import circuit_decomposition
-
-# Initialize circuit
-circuit = [(np.array([[0,1],[1,0]]), (1,1), 1e-3), np.array([[1, 0, 0, 0],
-                 [0, 1, 0, 0],
-                 [0, 0, 0, 1],
-                 [0, 0, 1, 0]]), (1,2), 0]. 
-
-# Decompose circuit
-decomposed_circuit = circuit_decomposition(circuit)
-```
-Output of the decomposed circuit will be a list of `QGates` objects, which allows easy access to the properties of the output gates
+This example demonstrates the use of the `qdcomp.decompositions.sqg_decomp` function to decompose single-qubit gates (SQG) into the Clifford+T universal subset. The function requires two arguments: a 2x2 unitary matrix, represented as a `np.NDarray`, and a tolerance error $\varepsilon$. It will return the sequence of Clifford+T gates as a `str`. Note that the algorithm guarantees the specified error only for $R_z$ gates, meaning the total error for SQG may exceed the user-defined tolerance due to error propagation.   
 
 ```python
-first_gate = decomposed_circuit[0]
+from qdecomp.decompositions import sqg_decomp
 
-# Get Clifford+T sequence of first gate
-first_gate.sequence
+U = np.array([ # Unitary matrix
+    [0.5 + 0.5j, -0.5 - 0.5j],
+    [-0.498 + 0.502, -0.498 + 0.502]
+])
 
-# Get matrix representation of first gate
-first_gate.matrix
+sequence = sqg_decomp(U, epsilon=1e-2)
 
-# Get target qubits of first gate
-first_gate.target
+print(sequence)
+# Z H S H S T H T H S T H T H S T H T H S T H T H S T H T H S T H T H T H T H T H T H T H S T H S T H S T H T H T H T H S T H T H Z S H S T H Z
 ```
 
-### Example #2
-This example demonstrates the use of the `Qdcomp.decomposition.zyz_decomposition` function to perform a decomposition of a single qubit unitary into three angles and a global phase representing three rotationnal gate along the z axis. 
+### Example #2: Two-Qubit Gate Decomposition
+This example demonstrates the use of the `qdecomp.decompositions.tqg_decomp` function to decompose two-qubit gates (TQG) into the Clifford+T universal subset. The function takes two arguments similarly to the `sqg_decomp` function: a 4x4 unitary matrix, represented as a `np.NDarray`, and a tolerance error $\varepsilon$. The function will output a `list` of `QGate` objects representing the circuit. The target qubits and the corresponding sequence can be accessed through the `QGate.target` and `QGate.sequence` properties respectively.
 
 ```python
-from Qdcomp.decompositions import zyz_decomposition
+from qdecomp.decompositions import tqg_decomp
 
-intial_gate = np.array([[0,1],[1,0]])
+U = np.array([ # Unitary matrix
+    [ 0.250 + 0.604j , -0.104 - 0.250j , 0.250 + 0.604j , -0.104 - 0.250j ],
+    [ -0.104 - 0.250j , 0.250 + 0.604j , -0.104 - 0.250j , 0.250 + 0.604j ],
+    [ 0.104 + 0.250j , 0.250 + 0.604j , 0.104 + 0.250j , 0.250 + 0.604j ],
+    [ -0.104 - 0.250j , -0.250 - 0.604j , -0.104 - 0.250j , -0.250 - 0.604j ]
+])
 
-rotationnal_angles, phase = zyz_decomposition(initial_gate)
+circuit = tqg_decomp(U, epsilon=1e-2) # List of QGate objects
+for gate in circuit:
+    print(f"{gate.target} -> {gate.sequence}")
+
+# Output :
+# (0 ,) -> S
+# (1 ,) -> S H S H S H S S S H
+# (0 , 1) -> CNOT CNOT1
+# (0 ,) -> T
+# (1 ,) -> H S H
+# (0 , 1) -> CNOT1
+# (1 ,) -> H S H Z S H S S S H Z S
+# (0 ,) -> Z S
 ```
 
 ## Contributing
 
-Need to see whith Theodore
+Need to see with Theodore
 
 ## License
 
@@ -78,8 +98,8 @@ If you have any questions or feedback, please open an issue or contact us at
 
 ## References
 
-* N. J. Ross and P. Selinger, *Optimal ancilla-free Clifford+T approximation of z-rotations*, 2014. [https://arxiv.org/abs/1403.2975](https://arxiv.org/abs/1403.2975)
+* <a id="ref1"></a> [1] N. J. Ross and P. Selinger, *Optimal ancilla-free Clifford+T approximation of z-rotations*, 2014. [https://arxiv.org/abs/1403.2975](https://arxiv.org/abs/1403.2975)
 
-* V. Kliuchnikov, D. Maslov, and M. Mosca, *Fast and efficient exact synthesis of single qubit unitaries generated by Clifford and T gates*, 2012. [https://arxiv.org/abs/1206.5538](https://arxiv.org/abs/1206.5538)
+* [2] V. Kliuchnikov, D. Maslov, and M. Mosca, *Fast and efficient exact synthesis of single qubit unitaries generated by Clifford and T gates*, 2012. [https://arxiv.org/abs/1206.5538](https://arxiv.org/abs/1206.5538)
 
-* G. E. Crooks, *Quantum gates*, March 2024, version 0.11.0, [https://threeplusone.com/pubs/on_gates.pdf](https://threeplusone.com/pubs/on_gates.pdf)
+* [3] G. E. Crooks, *Quantum gates*, March 2024, version 0.11.0, [https://threeplusone.com/pubs/on_gates.pdf](https://threeplusone.com/pubs/on_gates.pdf)
