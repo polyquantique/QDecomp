@@ -28,6 +28,7 @@ from __future__ import annotations
 from typing import Any, Callable
 
 import numpy as np
+
 from qdecomp.utils.gates import get_matrix_from_name
 
 __all__ = ["QGate"]
