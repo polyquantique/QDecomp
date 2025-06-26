@@ -23,7 +23,7 @@ make html  # On Windows: make.bat html
 The documentation will be generated in `docs/build/html/`. Open `docs/build/html/index.html` in your browser to view it.
 
 
-## Installation (update when on Pypi)
+## Installation
 
 To install `QDecomp`, clone the repository and install the dependencies:
 
