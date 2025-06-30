@@ -151,8 +151,7 @@ class GridOperator:
         Returns:
             GridOperator: A new GridOperator instance with all elements negated.
         """
-        self.G = -self.G 
-        return self
+        return GridOperator(-self.G)
 
     def det(self) -> Union[int, D, Zsqrt2, Dsqrt2]:
         """
@@ -163,6 +162,16 @@ class GridOperator:
             depending on the types of its elements.
         """
         return self.a * self.d - self.b * self.c
+    
+    def dag(self) -> GridOperator:
+        """
+        Compute the hermitian conjugate of the grid operator.
+
+        Returns:
+            GridOperator: A new grid operator that is the hermitian conjugate of the current one.
+        """
+        # Since G is Real, the dag operation is the transpose operation
+        return GridOperator([self.a, self.c, self.b, self.d])
 
     def conjugate(self):
         """
@@ -182,7 +191,7 @@ class GridOperator:
                 if isinstance(element, (Zsqrt2, Dsqrt2)):  
                     G[i, j] = element.sqrt2_conjugate()  # Apply conjugation  
 
-        return self  # Return the conjugated grid
+        return GridOperator(G)  # Return the conjugated grid
 
     def inv(self) -> GridOperator:
         """
@@ -308,7 +317,7 @@ class GridOperator:
         """
         # Accept exponent if it is close to an integer, otherwise raise
         if not isinstance(exponent, int):  
-            raise ValueError("exponent must be an integer")
+            raise ValueError("Exponent must be an integer.")
 
         if exponent < 0:
             base = self.inv()

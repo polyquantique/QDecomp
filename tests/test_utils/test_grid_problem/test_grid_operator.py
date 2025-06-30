@@ -348,5 +348,5 @@ def test_pow(grid_op, exponent, expected):
 )
 def test_pow_invalid_exponent(grid_op, invalid_exponent):
     """Test that invalid exponents raise a TypeError."""
-    with pytest.raises(TypeError, match="Exponent must be an integer."):
+    with pytest.raises(ValueError, match="Exponent must be an integer."):
         _ = grid_op**invalid_exponent

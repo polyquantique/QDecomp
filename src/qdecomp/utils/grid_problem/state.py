@@ -245,9 +245,10 @@ class State:
         """
         if not isinstance(G, GridOperator):
             raise TypeError("G must be a grid operator")
+        print("Transform!, G=", G.as_mpfloat())
         G_conj = G.conjugate()
-        new_A = G.as_mpfloat().transpose() @ self.A @ G.as_mpfloat()
-        new_B = G_conj.as_mpfloat().transpose() @ self.B @ G_conj.as_mpfloat()
+        new_A = (G.dag()).as_mpfloat() @ self.A @ G.as_mpfloat()
+        new_B = (G_conj.dag()).as_mpfloat() @ self.B @ G_conj.as_mpfloat()
         return State(new_A, new_B)
 
     def shift(self, k: int) -> State:

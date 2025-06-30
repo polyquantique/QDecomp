@@ -62,7 +62,7 @@ def find_points(epsilon: float, theta: float) -> tuple[np.ndarray, np.ndarray, n
         raise TypeError("Both theta and epsilon must be convertible to floats.")
 
     # Normalize the value of theta
-    theta = theta % 4 * math.pi
+    theta = theta % (4 * math.pi)
 
     # Verify the value of epsilon
     if epsilon >= 0.5:

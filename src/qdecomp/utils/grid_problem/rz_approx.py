@@ -99,7 +99,7 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
         raise TypeError("Both theta and epsilon must be convertible to floats.")
 
     # Normalize the value of theta
-    theta = theta % 4 * math.pi
+    theta = theta % (4 * math.pi)
 
     # Verify the value of epsilon
     if epsilon >= 0.5:
@@ -188,3 +188,4 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
         if n > 1000000:
             raise ValueError("The algorithm did not find a solution after 1 million iterations. "
                              "Try increasing the error for the calculations.")
+        
