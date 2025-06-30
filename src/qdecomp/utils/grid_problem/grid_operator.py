@@ -12,16 +12,6 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-from __future__ import annotations
-
-from typing import Union
-
-import mpmath as mp
-import numpy as np
-from qdecomp.rings import *
-
-__all__ = ["GridOperator", "I", "R", "K", "X", "Z", "A", "B"]
-
 """
 This module defines the :class:`GridOperator`.
 
@@ -31,7 +21,7 @@ whose elements lie in the ring :math:`D[\sqrt{2}]`.
 
 To efficiently solve a general 2D grid problem, it is necessary to find the upright bounding box of the
 regions of interest, since grid problems can only be solved on upright rectangular domains. It is important
-to assess how closely this upright rectangle conforms to the shape inside it. The uprightness of an
+to asses how closely this upright rectangle conforms to the shape inside it. The uprightness of an
 arbitrary shape :math:`A` is defined as follows:
 
 .. math::
@@ -66,6 +56,15 @@ then there exists a special grid operator :math:`G`, such that:
 This class defines grid operators, which will be useful in the grid problem algorithm as a whole. 
 """
 
+from __future__ import annotations
+
+from typing import Union
+
+import mpmath as mp
+import numpy as np
+from qdecomp.rings import *
+
+__all__ = ["GridOperator", "I", "R", "K", "X", "Z", "A", "B"]
 
 class GridOperator:
     """
@@ -152,7 +151,8 @@ class GridOperator:
         Returns:
             GridOperator: A new GridOperator instance with all elements negated.
         """
-        return GridOperator(-self.G)
+        self.G = -self.G 
+        return self
 
     def det(self) -> Union[int, D, Zsqrt2, Dsqrt2]:
         """
@@ -164,17 +164,6 @@ class GridOperator:
         """
         return self.a * self.d - self.b * self.c
 
-    def dag(self) -> GridOperator:
-        """
-        Return the dagger (Hermitian transpose) of the grid operator.
-
-        Since the grid operator is real-valued, the dagger operation is equivalent to the transpose.
-
-        Returns:
-            GridOperator: The transposed (dagger) grid operator.
-        """
-        return GridOperator([self.a, self.c, self.b, self.d])
-
     def conjugate(self):
         """
         Return the :math:`\sqrt{2}`-conjugate of the grid operator.
@@ -185,18 +174,15 @@ class GridOperator:
         Returns:
             GridOperator: A new grid operator with conjugated elements.
         """
-        G = self.G
-        G_conj = np.zeros_like(G, dtype=object)
+        G = self.G  
 
-        for i in range(2):  # Iterate over rows
-            for j in range(2):  # Iterate over columns
-                element = G[i, j]
-                if isinstance(element, (Zsqrt2, Dsqrt2)):
-                    G_conj[i, j] = element.sqrt2_conjugate()  # Apply conjugation
-                else:
-                    G_conj[i, j] = element  # No change for int or D types
+        for i in range(2):  # Iterate over rows  
+            for j in range(2):  # Iterate over columns  
+                element = G[i, j]  
+                if isinstance(element, (Zsqrt2, Dsqrt2)):  
+                    G[i, j] = element.sqrt2_conjugate()  # Apply conjugation  
 
-        return GridOperator(G_conj)  # Return the conjugated grid
+        return self  # Return the conjugated grid
 
     def inv(self) -> GridOperator:
         """
@@ -285,7 +271,7 @@ class GridOperator:
             G_p = other.G
             return GridOperator(G @ G_p)
         else:
-            raise TypeError("Product must be with a valid type")
+            raise TypeError("Product must be with a valid type (int, D, Zsqrt2, Dsqrt2) or GridOperator. Got {type(other)}.")
 
     def __rmul__(self, other: int | D | Zsqrt2 | Dsqrt2 | GridOperator) -> GridOperator:
         """
@@ -321,15 +307,8 @@ class GridOperator:
             TypeError: If the exponent is not an integer.
         """
         # Accept exponent if it is close to an integer, otherwise raise
-        if not isinstance(exponent, int):
-            # Try to convert to float and check closeness to int
-            try:
-                exp_float = float(exponent)
-            except Exception:
-                raise ValueError("exponent must be an integer or close to an integer")
-            if not np.isclose(exp_float, round(exp_float), atol=1e-8):
-                raise ValueError("exponent must be an integer or close to an integer")
-            exponent = int(round(exp_float))
+        if not isinstance(exponent, int):  
+            raise ValueError("exponent must be an integer")
 
         if exponent < 0:
             base = self.inv()

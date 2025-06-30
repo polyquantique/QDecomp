@@ -186,4 +186,5 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
                         return M
         n += 1
         if n > 1000000:
-            break
+            raise ValueError("The algorithm did not find a solution after 1 million iterations. "
+                             "Try increasing the error for the calculations.")

@@ -17,7 +17,7 @@ This file defines the `State` class, which is a key component in solving the gri
 Specifically, it is used to ensure that the uprightness of the ellipse pair is augmented to 
 at least 1/6. 
 
-This is adapted from the mathematical framework in Ross et al. (2014). The following outlines 
+This is adapted from the mathematical framework in Ross and Sellinger (2014). The following outlines 
 the use of states in the context of the algorithm.
 """
 
@@ -32,6 +32,22 @@ SQRT2 = mp.sqrt(2)
 
 __all__ = ["State", "special_sigma", "inv_special_sigma", "special_tau", "inv_special_tau"]
 
+"""
+.. note::
+
+    In the definitions of :math:`\\sigma` and :math:`\\tau`, matrix exponentiation is involved.
+    When applying the shift, these matrices are often raised to an integer power. To ensure
+    numerical precision, it is preferable to compute the matrix exponentiation exactly,
+    rather than relying on approximations.
+
+    After exponentiating, the result should be multiplied by the square root of
+    :math:`\\lambda` raised to the corresponding integer power.
+"""
+
+special_sigma: GridOperator = GridOperator([LAMBDA, 0, 0, 1])
+inv_special_sigma: GridOperator = GridOperator([INVERSE_LAMBDA, 0, 0, 1])
+special_tau: GridOperator = GridOperator([1, 0, 0, -LAMBDA])
+inv_special_tau: GridOperator = GridOperator([1, 0, 0, -INVERSE_LAMBDA])
 
 class State:
     """
@@ -89,8 +105,10 @@ class State:
 
         # Check if A and B are symmetric
         if not np.isclose(float(A[0, 1]), float(A[1, 0])):
+            print(A)
             raise ValueError("Matrix A must be symmetric.")
         if not np.isclose(float(B[0, 1]), float(B[1, 0])):
+            print(B)
             raise ValueError("Matrix B must be symmetric.")
 
         # Assign the matrices to attributes
@@ -228,8 +246,8 @@ class State:
         if not isinstance(G, GridOperator):
             raise TypeError("G must be a grid operator")
         G_conj = G.conjugate()
-        new_A = G.dag().as_mpfloat() @ self.A @ G.as_mpfloat()
-        new_B = G_conj.dag().as_mpfloat() @ self.B @ G_conj.as_mpfloat()
+        new_A = G.as_mpfloat().transpose() @ self.A @ G.as_mpfloat()
+        new_B = G_conj.as_mpfloat().transpose() @ self.B @ G_conj.as_mpfloat()
         return State(new_A, new_B)
 
     def shift(self, k: int) -> State:
@@ -250,16 +268,10 @@ class State:
         Raises:
             ValueError: If `k` is not an integer.
         """
+
         # Accept k if it is very close to an integer, otherwise raise
-        if not isinstance(k, int):
-            # Try to convert to float and check closeness to int
-            try:
-                k_float = float(k)
-            except Exception:
-                raise ValueError("k must be an integer or close to an integer")
-            if not np.isclose(k_float, round(k_float), atol=1e-8):
-                raise ValueError("k must be an integer or close to an integer")
-            k = int(round(k_float))
+        if not isinstance(k, int): 
+            raise ValueError("exponent must be an integer")
 
         if k >= 0:
             # kth power of sigma
@@ -276,21 +288,3 @@ class State:
         shift_B = tau_k @ self.B @ tau_k
 
         return State(shift_A, shift_B)
-
-
-"""
-.. note::
-
-    In the definitions of :math:`\\sigma` and :math:`\\tau`, matrix exponentiation is involved.
-    When applying the shift, these matrices are often raised to an integer power. To ensure
-    numerical precision, it is preferable to compute the matrix exponentiation exactly,
-    rather than relying on approximations.
-
-    After exponentiating, the result should be multiplied by the square root of
-    :math:`\\lambda` raised to the corresponding integer power.
-"""
-
-special_sigma: GridOperator = GridOperator([LAMBDA, 0, 0, 1])
-inv_special_sigma: GridOperator = GridOperator([INVERSE_LAMBDA, 0, 0, 1])
-special_tau: GridOperator = GridOperator([1, 0, 0, -LAMBDA])
-inv_special_tau: GridOperator = GridOperator([1, 0, 0, -INVERSE_LAMBDA])

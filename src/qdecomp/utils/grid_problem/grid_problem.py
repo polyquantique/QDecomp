@@ -12,15 +12,6 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-import math
-
-import mpmath as mp
-import numpy as np
-from qdecomp.rings import *
-from qdecomp.utils.grid_problem.grid_operator import *
-from qdecomp.utils.grid_problem.grid_problem import *
-from qdecomp.utils.grid_problem.state import *
-
 """
 This module provides functions to find the three points that define the slice :math:`\\mathcal{R}_\\varepsilon`
 as described in Section 7.2 of Ross et al. (2014). It also includes a function to find the grid operator that reduces
@@ -31,6 +22,15 @@ for numerical operations.
 The procedure to reduce the skew of a state is based on the algorithm described in
 Annexes A and B of Ross et al. (2014).
 """
+
+import math
+
+import mpmath as mp
+import numpy as np
+from qdecomp.rings import *
+from qdecomp.utils.grid_problem.grid_operator import *
+from qdecomp.utils.grid_problem.grid_problem import *
+from qdecomp.utils.grid_problem.state import *
 
 
 def find_points(epsilon: float, theta: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -125,7 +125,7 @@ def find_grid_operator(A: np.ndarray, B: np.ndarray) -> tuple[GridOperator, Grid
         if abs(state.bias) > 1:
             # Find the value of k and apply the shift
             k_upper = (1 - state.bias) / 2
-            k = mp.floor(k_upper)
+            k = int(mp.floor(k_upper))
             temp_state = state.shift(k)
         else:
             temp_state = state
