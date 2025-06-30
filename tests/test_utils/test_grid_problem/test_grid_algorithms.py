@@ -32,7 +32,8 @@ def test_1d_grid_algorithm_type_error_bounds(A):
     with pytest.raises(TypeError, match="Input intervals must have two bounds"):
         list(solve_grid_problem_1d((-1, 1), A))
 
-@pytest.mark.parametrize("A", [("1", "2"),  (1.0j, 2), [mp.mpc(1, 1), mp.mpc(2, 2)]])
+
+@pytest.mark.parametrize("A", [("1", "2"), (1.0j, 2), [mp.mpc(1, 1), mp.mpc(2, 2)]])
 def test_1d_grid_algorithm_type_error_real(A):
     """Test the raise of a TypeError when solving the 1D grid problem if the input intervals are not real numbers."""
     with pytest.raises(TypeError, match="The bounds of the interval must be real numbers"):
@@ -85,12 +86,7 @@ def test_grid_algorithm_1D_solutions(A, B):
 
 @pytest.mark.parametrize(
     "A",
-    [
-        ((1, 2, 3), (1, 2)),
-        [[1, 2], [1, 2, 3]],
-        [[1, 1], [mp.mpc(1, 1)]],
-        (1, 2, 3, 4)
-    ],
+    [((1, 2, 3), (1, 2)), [[1, 2], [1, 2, 3]], [[1, 1], [mp.mpc(1, 1)]], (1, 2, 3, 4)],
 )
 def test_2d_grid_algorithm_type_error_bounds(A):
     """Test the raise of a TypeError when solving the 2D grid problem if the input intervals don't have two bounds."""
@@ -98,6 +94,7 @@ def test_2d_grid_algorithm_type_error_bounds(A):
         list(solve_grid_problem_2d(A, ((-1, 1), (-1, 1))))
     with pytest.raises(TypeError, match="Input intervals must have two bounds"):
         list(solve_grid_problem_2d(((-1, 1), (-1, 1)), A))
+
 
 @pytest.mark.parametrize(
     "A",

@@ -17,7 +17,7 @@ The ``grid_algorithms`` module contains functions to solve 1D and 2D grid proble
 
 The module provides two main functions:
 
-- :func:`solve_grid_problem_1d`: Given two real closed intervals `A` and `B`, :func:`solve_grid_problem_1d` finds all the solutions ``x`` in the ring of quadratic integers with radicand 2, :math:`\\mathbb{Z}[\\sqrt{2}]`, such that ``x`` is in A and the :math:`\\sqrt{2}`-conjugate of ``x`` is in B. This function is a sub-algorithm to solve 2D grid problems for upright rectangles. 
+- :func:`solve_grid_problem_1d`: Given two real closed intervals `A` and `B`, :func:`solve_grid_problem_1d` finds all the solutions ``x`` in the ring of quadratic integers with radicand 2, :math:`\\mathbb{Z}[\\sqrt{2}]`, such that ``x`` is in A and the :math:`\\sqrt{2}`-conjugate of ``x`` is in B. This function is a sub-algorithm to solve 2D grid problems for upright rectangles.
 
 - :func:`solve_grid_problem_2d`: Given two upright rectangles `A` and `B` in the complex plane, :func:`solve_grid_problem_2d` finds all the solutions ``x`` in the ring of cyclotomic integers with radicand 2, :math:`\\mathbb{Z}[\\omega]`, such that ``x`` is in A and the :math:`\\sqrt{2}`-conjugate of ``x`` is in B. The solutions are used as candidates for unitary matrix entries in the Clifford+T approximation of z-rotation gates.
 
