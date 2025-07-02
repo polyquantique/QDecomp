@@ -1,11 +1,19 @@
 #ifndef RINGS_HPP
 #define RINGS_HPP
 
+template <typename T>
 class D;
+
+template <typename T>
 class Domega;
+
+template <typename T>
 class Dsqrt2;
+
 template <typename T>
 class Zomega;
+
+template <typename T>
 class Zsqrt2;
 
 #include "D.hpp"

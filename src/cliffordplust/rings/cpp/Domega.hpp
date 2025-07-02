@@ -17,6 +17,7 @@
 #define DOMEGA_HPP
 
 #include <string>
+#include <boost/multiprecision/cpp_int.hpp> // Include the Boost Multiprecision library header
 
 #include "Rings.hpp"
 
@@ -28,13 +29,16 @@
  * This class represents D[\u03C9] elements with 4 elements from the D ring, the four powers of \u039C.
  * 
  * The class provides basic arithmetic operations, comparison operators, and a method to raise the number to a power.
+ * 
+ * \tparam T The type of the coefficients. Default is long long int.
  */
+template <typename T = long long int>
 class Domega {
     private:
-        D _a;  ///< \u03C9^3 coefficient of the ring element
-        D _b;  ///< \u03C9^2 coefficient of the ring element
-        D _c;  ///< \u03C9^1 coefficient of the ring element
-        D _d;  ///< \u03C9^0 coefficient of the ring element
+        D<T> _a;  ///< \u03C9^3 coefficient of the ring element
+        D<T> _b;  ///< \u03C9^2 coefficient of the ring element
+        D<T> _c;  ///< \u03C9^1 coefficient of the ring element
+        D<T> _d;  ///< \u03C9^0 coefficient of the ring element
 
     public:
         /**
@@ -50,10 +54,10 @@ class Domega {
          * @param ld The denominator's power of 2 of the \u03C9^0 coefficient.
          */
         Domega(
-            long long int a, unsigned short la,
-            long long int b, unsigned short lb,
-            long long int c, unsigned short lc,
-            long long int d, unsigned short ld
+            T a, unsigned int la,
+            T b, unsigned int lb,
+            T c, unsigned int lc,
+            T d, unsigned int ld
         );
 
         /**
@@ -64,7 +68,7 @@ class Domega {
          * @param c The \u03C9^1 coefficient.
          * @param d The \u03C9^0 coefficient.
          */
-        Domega(D a, D b, D c, D d);
+        Domega(D<T> a, D<T> b, D<T> c, D<T> d);
 
 
         /**
@@ -72,28 +76,28 @@ class Domega {
          * 
          * @return const D& The \u03C9^3 coefficient.
          */
-        const D& a() const;
+        const D<T>& a() const;
 
         /**
          * @brief Get the \u03C9^2 coefficient of the ring element.
          * 
          * @return const D& The \u03C9^2 coefficient.
          */
-        const D& b() const;
+        const D<T>& b() const;
 
         /**
          * @brief Get the \u03C9^1 coefficient of the ring element.
          * 
          * @return const D& The \u03C9^1 coefficient.
          */
-        const D& c() const;
+        const D<T>& c() const;
 
         /**
          * @brief Get the \u03C9^0 coefficient of the ring element.
          * 
          * @return const D& The \u03C9^0 coefficient.
          */
-        const D& d() const;
+        const D<T>& d() const;
         
         /**
          * @brief Get the coefficient of the ring element.
@@ -105,7 +109,7 @@ class Domega {
          * @return const D& The coefficient.
          * @throw std::invalid_argument if the index is not between 0 and 3.
          */
-        const D& operator[](unsigned short i) const;
+        const D<T>& operator[](unsigned int i) const;
 
 
         /**
@@ -113,14 +117,14 @@ class Domega {
          * 
          * @return Dsqrt2 The real part of the number.
          */
-        Dsqrt2 real() const;
+        Dsqrt2<T> real() const;
 
         /**
          * @brief Get the imaginary part of the number.
          * 
          * @return Dsqrt2 The imaginary part of the number.
          */
-        Dsqrt2 imag() const;
+        Dsqrt2<T> imag() const;
 
 
         /**
@@ -128,14 +132,14 @@ class Domega {
          * 
          * @return Domega The \u221A2 conjugate of the number.
          */
-        Domega sqrt2_conjugate() const;
+        Domega<T> sqrt2_conjugate() const;
 
         /**
          * @brief Get the complex conjugate of the number.
          * 
          * @return Domega The complex conjugate of the number.
          */
-        Domega complex_conjugate() const;
+        Domega<T> complex_conjugate() const;
 
 
         /**
@@ -145,7 +149,7 @@ class Domega {
          * 
          * @return int The smallest denominator exponent.
          */
-        unsigned short sde() const;
+        unsigned int sde() const;
 
 
         /**
@@ -190,7 +194,6 @@ class Domega {
          * @return Zomega The number in the ring Z[\u03C9].
          * @throw std::runtime_error if the number is not in Z[\u03C9].
          */
-        template <typename T = long long int>
         Zomega<T> to_Zomega() const;
 
         /**
@@ -199,7 +202,7 @@ class Domega {
          * @return Dsqrt2 The number in the ring D[\u221A2].
          * @throw std::runtime_error if the number is not in D[\u221A2].
          */
-        Dsqrt2 to_Dsqrt2() const;
+        Dsqrt2<T> to_Dsqrt2() const;
 
         /**
          * @brief Convert the number in the ring Z[\u221A2].
@@ -207,7 +210,7 @@ class Domega {
          * @return Zsqrt2 The number in the ring Z[\u221A2].
          * @throw std::runtime_error if the number is not in Z[\u221A2].
          */
-        Zsqrt2 to_Zsqrt2() const;
+        Zsqrt2<T> to_Zsqrt2() const;
 
         /**
          * @brief Convert the number in the ring D.
@@ -215,7 +218,7 @@ class Domega {
          * @return D The number in the ring D.
          * @throw std::runtime_error if the number is not in D.
          */
-        D to_D() const;
+        D<T> to_D() const;
 
         /**
          * @brief Convert the number to an integer.
@@ -223,7 +226,7 @@ class Domega {
          * @return int The integer.
          * @throw std::runtime_error if the number is not an integer.
          */
-        long long int to_int() const;
+        T to_int() const;
 
 
         /**
@@ -233,7 +236,7 @@ class Domega {
          * @return true If the numbers are equal.
          * @return false If the numbers are not equal.
          */
-        bool operator==(const Domega& other) const;
+        bool operator==(const Domega<T>& other) const;
 
         /**
          * @brief Check if the number is equal to an integer.
@@ -242,7 +245,7 @@ class Domega {
          * @return true If the numbers are equal.
          * @return false If the numbers are not equal.
          */
-        bool operator==(const long long int& other) const;
+        bool operator==(const T& other) const;
 
         /**
          * @brief Check if the number is not equal to another D[\u03C9] object.
@@ -251,7 +254,7 @@ class Domega {
          * @return true If the numbers are not equal.
          * @return false If the numbers are equal.
          */
-        bool operator!=(const Domega& other) const;
+        bool operator!=(const Domega<T>& other) const;
 
         /**
          * @brief Check if the number is not equal to an integer.
@@ -260,7 +263,7 @@ class Domega {
          * @return true If the numbers are not equal.
          * @return false If the numbers are equal.
          */
-        bool operator!=(const long long int& other) const;
+        bool operator!=(const T& other) const;
 
 
         /**
@@ -269,7 +272,7 @@ class Domega {
          * @param other The other D[\u03C9] object.
          * @return Domega The result of the addition.
          */
-        Domega operator+(const Domega& other) const;
+        Domega<T> operator+(const Domega<T>& other) const;
 
         /**
          * @brief Add an integer to the number.
@@ -277,14 +280,14 @@ class Domega {
          * @param other The integer.
          * @return Domega The result of the addition.
          */
-        Domega operator+(const long long int& other) const;
+        Domega<T> operator+(const T& other) const;
 
         /**
          * @brief Negate the number.
          * 
          * @return Domega The negated number.
          */
-        Domega operator-() const;
+        Domega<T> operator-() const;
 
         /**
          * @brief Subtract another D[\u03C9] object from the number.
@@ -292,7 +295,7 @@ class Domega {
          * @param other The other D[\u03C9] object.
          * @return Domega The result of the subtraction.
          */
-        Domega operator-(const Domega& other) const;
+        Domega<T> operator-(const Domega<T>& other) const;
 
         /**
          * @brief Subtract an integer from the number.
@@ -300,7 +303,7 @@ class Domega {
          * @param other The integer.
          * @return Domega The result of the subtraction.
          */
-        Domega operator-(const long long int& other) const;
+        Domega<T> operator-(const T& other) const;
 
         /**
          * @brief Multiply the number by another D[\u03C9] object.
@@ -308,7 +311,7 @@ class Domega {
          * @param other The other D[\u03C9] object.
          * @return Domega The result of the multiplication.
          */
-        Domega operator*(const Domega& other) const;
+        Domega<T> operator*(const Domega<T>& other) const;
 
         /**
          * @brief Multiply the number by an integer.
@@ -316,7 +319,7 @@ class Domega {
          * @param other The integer.
          * @return Domega The result of the multiplication.
          */
-        Domega operator*(const long long int& other) const;
+        Domega<T> operator*(const T& other) const;
 
 
         /**
@@ -325,7 +328,7 @@ class Domega {
          * @param n The power.
          * @return Domega The result of the power.
          */
-        Domega pow(unsigned short n) const;
+        Domega<T> pow(unsigned int n) const;
 
 
         /**

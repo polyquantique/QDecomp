@@ -17,6 +17,7 @@
 #define DSQRT2_HPP
 
 #include <string>
+#include <boost/multiprecision/cpp_int.hpp> // Include the Boost Multiprecision library header
 
 #include "Rings.hpp"
 
@@ -28,11 +29,13 @@
  * This class represents D[\u221A2] elements with 2 elements from the D ring, the 1 and \u221A2 coefficients.
  * 
  * The class provides basic arithmetic operations, comparison operators, and a method to raise the number to a power.
+ * 
+ * \tparam T The type of the coefficients. Default is long long int.
  */
 class Dsqrt2 {
     private:
-        D _p;  ///< The integer coefficient of the ring element
-        D _q;  ///< The \u221A2 coefficient of the ring element
+        D<T> _p;  ///< The integer coefficient of the ring element
+        D<T> _q;  ///< The \u221A2 coefficient of the ring element
 
     public:
         /**
@@ -43,7 +46,7 @@ class Dsqrt2 {
          * @param q The numerator of the \u221A2 coefficient.
          * @param lq The denominator's power of 2 of the \u221A2 coefficient.
          */
-        Dsqrt2(long long int p, unsigned short lp, long long int q, unsigned short lq);
+        Dsqrt2(T p, unsigned int lp, T q, unsigned int lq);
 
         /**
          * @brief Construct a new D[\u221A] object.
@@ -59,14 +62,14 @@ class Dsqrt2 {
          * 
          * @return const D& The integer coefficient.
          */
-        const D& p() const;
+        const D<T>& p() const;
 
         /**
          * @brief Get the \u221A2 coefficient of the ring element.
          * 
          * @return const D& The \u221A2 coefficient.
          */
-        const D& q() const;
+        const D<T>& q() const;
 
 
         /**
@@ -112,7 +115,6 @@ class Dsqrt2 {
          * @return Zomega The number in the ring Z[\u03C9].
          * @throw std::runtime_error if the number is not in Z[\u03C9].
          */
-        template <typename T = long long int>
         Zomega<T> to_Zomega() const;
 
         /**
@@ -137,7 +139,7 @@ class Dsqrt2 {
          * @return int The integer.
          * @throw std::runtime_error if the number is not an integer.
          */
-        long long int to_int() const;
+        T to_int() const;
 
         /**
          * @brief Convert the number to a float.
@@ -161,7 +163,7 @@ class Dsqrt2 {
          * @return true If the numbers are equal.
          * @return false If the numbers are not equal.
          */
-        bool operator==(const Dsqrt2& other) const;
+        bool operator==(const Dsqrt2<T>& other) const;
 
         /**
          * @brief Check if the number is equal to an integer.
@@ -170,7 +172,7 @@ class Dsqrt2 {
          * @return true If the numbers are equal.
          * @return false If the numbers are not equal.
          */
-        bool operator==(const long long int& other) const;
+        bool operator==(const T& other) const;
 
         /**
          * @brief Check if the number is not equal to another D[\u221A2] object.
@@ -179,7 +181,7 @@ class Dsqrt2 {
          * @return true If the numbers are not equal.
          * @return false If the numbers are equal.
          */
-        bool operator!=(const Dsqrt2& other) const;
+        bool operator!=(const Dsqrt2<T>& other) const;
 
         /**
          * @brief Check if the number is not equal to an integer.
@@ -188,7 +190,7 @@ class Dsqrt2 {
          * @return true If the numbers are not equal.
          * @return false If the numbers are equal.
          */
-        bool operator!=(const long long int& other) const;
+        bool operator!=(const T& other) const;
 
 
         /**
@@ -197,7 +199,7 @@ class Dsqrt2 {
          * @param other The other D[\u221A2] object.
          * @return Dsqrt2 The result of the addition.
          */
-        Dsqrt2 operator+(const Dsqrt2& other) const;
+        Dsqrt2 operator+(const Dsqrt2<T>& other) const;
         
         /**
          * @brief Negate the number.
@@ -212,7 +214,7 @@ class Dsqrt2 {
          * @param other The other D[\u221A2] object.
          * @return Dsqrt2 The result of the subtraction.
          */
-        Dsqrt2 operator-(const Dsqrt2& other) const;
+        Dsqrt2 operator-(const Dsqrt2<T>& other) const;
 
         /**
          * @brief Multiply the number by another D[\u221A2] object.
@@ -220,7 +222,7 @@ class Dsqrt2 {
          * @param other The other D[\u221A2] object.
          * @return Dsqrt2 The result of the multiplication.
          */
-        Dsqrt2 operator*(const Dsqrt2& other) const;
+        Dsqrt2 operator*(const Dsqrt2<T>& other) const;
 
 
         /**
@@ -229,7 +231,7 @@ class Dsqrt2 {
          * @param n The power of sqrt(2).
          * @return Dsqrt2 The result of the multiplication.
          */
-        Dsqrt2 sqrt2_multiply(const unsigned short n) const;
+        Dsqrt2 sqrt2_multiply(const unsigned int n) const;
 
         /**
          * @brief Raise the number to a power.
@@ -237,7 +239,7 @@ class Dsqrt2 {
          * @param n The exponent.
          * @return Dsqrt2 The result of the exponentiation.
          */
-        Dsqrt2 pow(unsigned short n) const;
+        Dsqrt2 pow(unsigned int n) const;
 
 
         /**

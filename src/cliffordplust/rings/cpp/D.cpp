@@ -17,13 +17,18 @@
 #include <stdexcept>
 #include <cmath>
 #include <iostream>
+#include <boost/multiprecision/cpp_int.hpp> // Include the Boost Multiprecision library header
 
 #include "D.hpp"
 
+using namespace boost::multiprecision; // Use the Boost Multiprecision namespace
 
-D::D(long long int num, unsigned short denom) : _num(num), _denom(denom) {_reduce();}
 
-void D::_reduce() {
+template <typename T>
+D<T>::D(T num, unsigned int denom) : _num(num), _denom(denom) {_reduce();}
+
+template <typename T>
+void D<T>::_reduce() {
     while (!(_num & 1) and (_denom > 0)) {
         _num >>= 1;
         _denom--;
@@ -31,60 +36,100 @@ void D::_reduce() {
 }
 
 
-long long int D::num() const {return _num;}
-unsigned short D::denom() const {return _denom;}
+template <typename T>
+T D<T>::num() const {return _num;}
+
+template <typename T>
+unsigned int D<T>::denom() const {return _denom;}
 
 
-bool D::is_int() const {return _denom == 0;}
+template <typename T>
+bool D<T>::is_int() const {return _denom == 0;}
 
 
-bool D::operator==(const D& other) const {return (_num == other._num) and (_denom == other._denom);}
-bool D::operator==(const long long int& other) const {return (_num == other) and (_denom == 0);}
+template <typename T>
+bool D<T>::operator==(const D& other) const {return (_num == other._num) and (_denom == other._denom);}
 
-bool D::operator!=(const D& other) const {return !(*this == other);}
-bool D::operator!=(const long long int& other) const {return !(*this == other);}
+template <typename T>
+bool D<T>::operator==(const T& other) const {return (_num == other) and (_denom == 0);}
 
-bool D::operator<(const D& other) const {return (_num * (1 << other._denom)) < (other._num * (1 << _denom));}
-bool D::operator<(const long long int& other) const {return _num < (other << _denom);}
+template <typename T>
+bool D<T>::operator!=(const D& other) const {return !(*this == other);}
 
-bool D::operator<=(const D& other) const {return (*this < other) or (*this == other);}
-bool D::operator<=(const long long int& other) const {return (*this < other) or (*this == other);}
+template <typename T>
+bool D<T>::operator!=(const T& other) const {return !(*this == other);}
 
-bool D::operator>(const D& other) const {return !(*this <= other);}
-bool D::operator>(const long long int& other) const {return !(*this <= other);}
+template <typename T>
+bool D<T>::operator<(const D& other) const {return (_num * (1 << other._denom)) < (other._num * (1 << _denom));}
 
-bool D::operator>=(const D& other) const {return !(*this < other);}
-bool D::operator>=(const long long int& other) const {return !(*this < other);}
+template <typename T>
+bool D<T>::operator<(const T& other) const {return _num < (other << _denom);}
+
+template <typename T>
+bool D<T>::operator<=(const D& other) const {return (*this < other) or (*this == other);}
+
+template <typename T>
+bool D<T>::operator<=(const T& other) const {return (*this < other) or (*this == other);}
+
+template <typename T>
+bool D<T>::operator>(const D& other) const {return !(*this <= other);}
+
+template <typename T>
+bool D<T>::operator>(const T& other) const {return !(*this <= other);}
+
+template <typename T>
+bool D<T>::operator>=(const D& other) const {return !(*this < other);}
+
+template <typename T>
+bool D<T>::operator>=(const T& other) const {return !(*this < other);}
 
 
-D D::operator+(const D& other) const {
+template <typename T>
+D<T> D<T>::operator+(const D& other) const {
     if (_denom >= other._denom) {
-        long long int new_num = _num + (other._num << (_denom - other._denom));
+        T new_num = _num + (other._num << (_denom - other._denom));
         return D(new_num, _denom);
     } else {
-        long long int new_num = other._num + (_num << (other._denom - _denom));
+        T new_num = other._num + (_num << (other._denom - _denom));
         return D(new_num, other._denom);
     }
 }
 
-D D::operator+(const long long int& other) const {return D(_num + (other << _denom), _denom);}
-D D::operator-() const {return D(-_num, _denom);}
-D D::operator-(const D& other) const {return *this + (-other);}
-D D::operator-(const long long int& other) const {return *this + (-other);}
-D D::operator*(const D& other) const {return D(_num * other._num, _denom + other._denom);}
-D D::operator*(const long long int& other) const {return D(_num * other, _denom);}
+template <typename T>
+D<T> D<T>::operator+(const T& other) const {return D(_num + (other << _denom), _denom);}
 
-D D::pow(unsigned short n) const {
-    return D(static_cast<long long int>(std::pow(_num, n)), _denom * n);
+template <typename T>
+D<T> D<T>::operator-() const {return D(-_num, _denom);}
+
+template <typename T>
+D<T> D<T>::operator-(const D& other) const {return *this + (-other);}
+
+template <typename T>
+D<T> D<T>::operator-(const T& other) const {return *this + (-other);}
+
+template <typename T>
+D<T> D<T>::operator*(const D& other) const {return D(_num * other._num, _denom + other._denom);}
+
+template <typename T>
+D<T> D<T>::operator*(const T& other) const {return D(_num * other, _denom);}
+
+
+template <typename T>
+D<T> D<T>::pow(unsigned int n) const {
+    return D(static_cast<T>(std::pow(_num, n)), _denom * n);
 }
 
 
-std::string D::to_string() const {return std::to_string(_num) + "/2^" + std::to_string(_denom);}
+template <typename T>
+std::string D<T>::to_string() const {return std::to_string(_num) + "/2^" + std::to_string(_denom);}
 
-void D::print() const {std::cout << to_string() << std::endl;}
+template <typename T>
+void D<T>::print() const {std::cout << to_string() << std::endl;}
 
-float D::to_float() const {return static_cast<float>(_num) / (1 << _denom);}
+template <typename T>
+float D<T>::to_float() const {return static_cast<float>(_num) / (1 << _denom);}
 
-long double D::to_long_double() const {
-    return static_cast<long double>(_num) / ((unsigned long long int) 1 << _denom);
+template <typename T>
+long double D<T>::to_long_double() const {
+    return static_cast<long double>(_num) / ((unsigned T) 1 << _denom);
 }
