@@ -14,8 +14,9 @@
 
 import numpy as np
 import pytest
-from qdecomp.decompositions import zyz_decomposition
 from scipy.stats import unitary_group
+
+from qdecomp.decompositions import zyz_decomposition
 
 
 # Rotation and phase matrices

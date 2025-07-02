@@ -345,9 +345,9 @@ class Zsqrt2:
     def __repr__(self) -> str:
         """Define the string representation of the ring element."""
         if self.b < 0:
-            return str(self.a) + str(self.b) + "\u221A2"
+            return str(self.a) + str(self.b) + "\u221a2"
 
-        return str(self.a) + "+" + str(self.b) + "\u221A2"
+        return str(self.a) + "+" + str(self.b) + "\u221a2"
 
     def __eq__(self, nb: Any) -> bool:
         """Define the equality of Zsqrt2 classes."""
@@ -612,9 +612,9 @@ class Dsqrt2:
     def __repr__(self) -> str:
         """Define the string representation of the ring element."""
         if self.b < 0:
-            return str(self.a) + str(self.b) + "\u221A2"
+            return str(self.a) + str(self.b) + "\u221a2"
 
-        return str(self.a) + "+" + str(self.b) + "\u221A2"
+        return str(self.a) + "+" + str(self.b) + "\u221a2"
 
     def __eq__(self, nb: Any) -> bool:
         """Define the equality of Dsqrt2 classes."""
@@ -916,13 +916,13 @@ class Zomega:
         value: Callable[[int], str] = lambda coeff: str(coeff) if coeff >= 0 else str(-coeff)
         return (
             str(self.a)
-            + "\u03C93"
+            + "\u03c93"
             + sign(self.b)
             + value(self.b)
-            + "\u03C92"
+            + "\u03c92"
             + sign(self.c)
             + value(self.c)
-            + "\u03C91"
+            + "\u03c91"
             + sign(self.d)
             + value(self.d)
         )
@@ -1292,13 +1292,13 @@ class Domega:
 
         return (
             str(self.a)
-            + "\u03C93"
+            + "\u03c93"
             + sign(self.b)
             + value(self.b)
-            + "\u03C92"
+            + "\u03c92"
             + sign(self.c)
             + value(self.c)
-            + "\u03C9"
+            + "\u03c9"
             + sign(self.d)
             + value(self.d)
         )
