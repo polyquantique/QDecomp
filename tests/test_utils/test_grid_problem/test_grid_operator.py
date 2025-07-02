@@ -43,7 +43,7 @@ invalid_entries = [1.0, 3.5, 5.111, "invalid", "not_valid"]
     ],
 )
 def test_grid_operator_list_1(grid_op_list):
-    # Test GridOperator initialization
+    """Test GridOperator initialization"""
     grid_op = GridOperator(grid_op_list)
     assert grid_op is not None  # Ensuring the object was initialized correctly
 
@@ -60,7 +60,7 @@ def test_grid_operator_list_1(grid_op_list):
     ],
 )
 def test_grid_operator_list2(grid_op_list):
-    # Test GridOperator initialization
+    """Test GridOperator initialization"""
     grid_op = GridOperator(grid_op_list)
     assert grid_op is not None, "GridOperator initialization failed."  # Ensuring the object was initialized correctly
 
@@ -77,6 +77,7 @@ invalid_lists = [
 
 @pytest.mark.parametrize("invalid_list", invalid_lists)
 def test_grid_operator_list_error(invalid_list):
+    """Test GridOperator initialization with invalid inputs."""
     with pytest.raises(
         ValueError,
         match="G must be a 4-element flat list or a 2x2 nested list with valid elements.",
@@ -99,7 +100,7 @@ def test_grid_operator_list_error(invalid_list):
     ],
 )
 def test_grid_operator_array(grid_op_array):
-    # Test GridOperator initialization
+    """Test GridOperator initialization"""
     grid_op = GridOperator(grid_op_array)
     assert grid_op is not None  # Ensuring the object was initialized correctly
 
@@ -119,6 +120,7 @@ def test_grid_operator_array(grid_op_array):
     ],
 )
 def test_grid_operator_array_error(grid_op_array):
+    """Test GridOperator initialization with invalid inputs."""
     element = grid_op_array[0, 0]
     with pytest.raises(TypeError, match=f"Element {element} must be an int, D, Zsqrt2, or Dsqrt2."):
         GridOperator(grid_op_array)
@@ -129,6 +131,7 @@ grid_ops = [I, R, K, X, Z, A, B]
 
 @pytest.mark.parametrize("grid_op", [G for G in grid_ops])
 def test_repr(grid_op):
+    """Test the string representation of the grid operator."""
     # Expected representation as a single-line string
     expected_repr = f"[[{grid_op.a} {grid_op.b}] [{grid_op.c} {grid_op.d}]]"
 
@@ -141,6 +144,7 @@ def test_repr(grid_op):
 
 @pytest.mark.parametrize("grid_op", grid_ops)
 def test_neg(grid_op):
+    """Test negation of grid operators."""
     # Negate the grid operator
     neg_op = -grid_op
 
@@ -155,6 +159,7 @@ def test_neg(grid_op):
     "grid_op, expected_det", [(I, 1), (R, 1), (K, 1), (X, -1), (Z, -1), (A, 1), (B, 1)]
 )
 def test_det(grid_op, expected_det):
+    """Test the determinant of grid operators."""
     # Compute the determinant
     det = grid_op.det()
 
@@ -164,6 +169,7 @@ def test_det(grid_op, expected_det):
 
 @pytest.mark.parametrize("grid_op", grid_ops)
 def test_dag(grid_op):
+    """Test the complex transpose (dag) of grid operators."""
     # Compute the dag (transpose)
     dag_op = grid_op.dag()
 
@@ -179,6 +185,7 @@ def test_dag(grid_op):
 
 @pytest.mark.parametrize("grid_op", grid_ops)
 def test_conjugate(grid_op):
+    """Test the conjugation of grid operators."""
     # Apply conjugation to the grid operator
     conjugated_op = grid_op.conjugate()
 
@@ -197,6 +204,7 @@ def test_conjugate(grid_op):
 
 @pytest.mark.parametrize("grid_op", grid_ops)
 def test_inv_valid(grid_op):
+    """Test the inversion of grid operators."""
     # Compute the inverse
     inv_op = grid_op.inv()
 
@@ -224,6 +232,7 @@ def test_inv_valid(grid_op):
     ],
 )
 def test_inv_invalid(grid_op):
+    """Test that invalid inversions raise ValueError."""
     # Verify that invalid cases raise ValueError
     with pytest.raises(
         ValueError, match="The inversion is not defined|Determinant must be non-zero"
@@ -233,6 +242,7 @@ def test_inv_invalid(grid_op):
 
 @pytest.mark.parametrize("grid_op", grid_ops)
 def test_as_float(grid_op):
+    """Test conversion of grid operators to float arrays."""
     # Convert the grid operator to a float array
     float_array = grid_op.as_float()
 
@@ -245,6 +255,7 @@ def test_as_float(grid_op):
 
 @pytest.mark.parametrize("grid_op", grid_ops)
 def test_as_mpfloat(grid_op):
+    """Test conversion of grid operators to mpfloat arrays."""
     # Convert the grid operator to a mpfloat array
     float_array = grid_op.as_mpfloat()
 

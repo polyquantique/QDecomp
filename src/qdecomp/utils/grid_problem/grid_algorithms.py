@@ -119,7 +119,7 @@ def solve_grid_problem_1d(
             if math.isclose(bound, mp.nint(bound), rel_tol=mp.mpf("1e-10")):
                 a_interval_scaled[index] = mp.nint(bound)
 
-        # If there is an integer if this interval, compute the scaled solution for ai and bi
+        # If there is an integer in this interval, compute the scaled solution for ai and bi
         if mp.ceil(a_interval_scaled[0]) == mp.floor(a_interval_scaled[1]):
             ai = int(mp.ceil(a_interval_scaled[0]))
             alpha_i_scaled = Zsqrt2(a=ai, b=bi)
@@ -133,10 +133,8 @@ def solve_grid_problem_1d(
 
             # See if the solution is a solution to the unscaled grid problem for A and B
             if (
-                fl_alpha_i >= A_interval[0]
-                and fl_alpha_i <= A_interval[1]
-                and fl_alpha_i_conjugate >= B_interval[0]
-                and fl_alpha_i_conjugate <= B_interval[1]
+                A[0] <= fl_alpha_i <= A[1]
+                and B[0] <= fl_alpha_i_conjugate <= B[1]
             ):
                 # Yield the solution
                 yield alpha_i

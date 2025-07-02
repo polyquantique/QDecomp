@@ -49,8 +49,8 @@ def valid_state(valid_matrices):
 
 # --- Initialization Tests ---
 
-
 def test_state_initialization():
+    """Test the initialization of the State class with valid matrices."""
     A = np.array([[mp.mpf(2), mp.mpf(1)], [mp.mpf(1), mp.mpf(2)]])
     B = np.array([[mp.mpf(3), mp.mpf(0.5)], [mp.mpf(0.5), mp.mpf(3)]])
     state = State(A, B)
@@ -60,6 +60,7 @@ def test_state_initialization():
 
 
 def test_invalid_initialization():
+    """Test that initializing State with invalid matrices raises ValueError."""
     with pytest.raises(ValueError):
         State(
             np.array([[mp.mpf(1), mp.mpf(2)], [mp.mpf(2), mp.mpf(1)]]),
@@ -120,6 +121,7 @@ def test_properties(valid_state):
 
 @pytest.mark.parametrize("G", [I, K, X, A, B, R])
 def test_transform(G):
+    """Test the transform method with various grid operators."""
     A = np.array([[mp.mpf(7.5), mp.mpf(1)], [mp.mpf(1), mp.mpf(2)]])
     B = np.array([[mp.mpf(3), mp.mpf(0.5)], [mp.mpf(0.5), mp.mpf(21.33)]])
     state = State(A, B)

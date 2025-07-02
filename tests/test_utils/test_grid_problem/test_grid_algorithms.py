@@ -144,27 +144,26 @@ def test_grid_algorithm_2d_solutions(A, B):
     """Test the validity of the solutions found for the 2D grid problem for A and B."""
     solutions = solve_grid_problem_2d(A, B)
     for solution in solutions:
-        assert (
-            solution.real() >= A[0][0]
-            and solution.real() <= A[0][1]
-            and solution.imag() >= A[1][0]
-            and solution.imag() <= A[1][1]
-            and solution.sqrt2_conjugate().real() >= B[0][0]
-            and solution.sqrt2_conjugate().real() <= B[0][1]
-            and solution.sqrt2_conjugate().imag() >= B[1][0]
-            and solution.sqrt2_conjugate().imag() <= B[1][1]
-        )
+        assert solution.real() >= A[0][0]
+        assert solution.real() <= A[0][1]
+        assert solution.imag() >= A[1][0]
+        assert solution.imag() <= A[1][1]
+        assert solution.sqrt2_conjugate().real() >= B[0][0]
+        assert solution.sqrt2_conjugate().real() <= B[0][1]
+        assert solution.sqrt2_conjugate().imag() >= B[1][0]
+        assert solution.sqrt2_conjugate().imag() <= B[1][1]
 
 
-def test_plot_solutions_1d_type_errors_intervals():
+@pytest.mark.parametrize("seq1, seq2", [
+    ((1, 2, 3), (-1, 1)),
+    ((1, 2), (1.0j, 0)),
+    ((1, 2), {1, 2}),
+])
+def test_plot_solutions_1d_type_errors_intervals(seq1, seq2):
     """Test the raise of a TypeError when plotting the solutions of the 1D grid problem if the input intervals are not of the correct form."""
-    fig, ax = plt.subplots()
+    _, ax = plt.subplots()
     with pytest.raises(TypeError, match="Input intervals must be real sequences of length 2"):
-        plot_grid_problem_1d(ax, (1, 2, 3), (-1, 1), [])
-    with pytest.raises(TypeError, match="Input intervals must be real sequences of length 2"):
-        plot_grid_problem_1d(ax, (1, 2), (1.0j, 0), [])
-    with pytest.raises(TypeError, match="Input intervals must be real sequences of length 2"):
-        plot_grid_problem_1d(ax, (1, 2), {1, 2}, [])
+        plot_grid_problem_1d(ax, seq1, seq2, [])
 
 
 def test_plot_solutions_1d_type_errors_solutions():
