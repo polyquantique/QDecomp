@@ -17,6 +17,7 @@ import numpy as np
 import pytest
 from qdecomp.rings.rings import D, Dsqrt2, Zsqrt2
 from qdecomp.utils.grid_problem.grid_operator import A, B, GridOperator, I, K, R, X, Z
+import itertools
 
 # Valid entries for testing
 valid_entries = [
@@ -37,22 +38,14 @@ invalid_entries = [1.0, 3.5, 5.111, "invalid", "not_valid"]
 @pytest.mark.parametrize(
     "grid_op_list",
     [
-        [
-            np.random.choice(valid_entries),
-            np.random.choice(valid_entries),
-            np.random.choice(valid_entries),
-            np.random.choice(valid_entries),
-        ]
-        for _ in range(20)
+        list(combo)
+        for combo in itertools.product(valid_entries, repeat=4)
     ],
 )
 def test_grid_operator_list_1(grid_op_list):
     # Test GridOperator initialization
-    try:
-        grid_op = GridOperator(grid_op_list)
-        assert grid_op is not None  # Ensuring the object was initialized correctly
-    except Exception as e:
-        pytest.fail(f"GridOperator initialization failed: {e}")
+    grid_op = GridOperator(grid_op_list)
+    assert grid_op is not None  # Ensuring the object was initialized correctly
 
 
 # Parametrize the test to run 20 times
@@ -68,11 +61,8 @@ def test_grid_operator_list_1(grid_op_list):
 )
 def test_grid_operator_list2(grid_op_list):
     # Test GridOperator initialization
-    try:
-        grid_op = GridOperator(grid_op_list)
-        assert grid_op is not None  # Ensuring the object was initialized correctly
-    except Exception as e:
-        pytest.fail(f"GridOperator initialization failed: {e}")
+    grid_op = GridOperator(grid_op_list)
+    assert grid_op is not None, "GridOperator initialization failed."  # Ensuring the object was initialized correctly
 
 
 # Invalid inputs that should raise a ValueError
@@ -110,11 +100,8 @@ def test_grid_operator_list_error(invalid_list):
 )
 def test_grid_operator_array(grid_op_array):
     # Test GridOperator initialization
-    try:
-        grid_op = GridOperator(grid_op_array)
-        assert grid_op is not None  # Ensuring the object was initialized correctly
-    except Exception as e:
-        pytest.fail(f"GridOperator initialization failed: {e}")
+    grid_op = GridOperator(grid_op_array)
+    assert grid_op is not None  # Ensuring the object was initialized correctly
 
 
 # Parametrize the test to run 20 times

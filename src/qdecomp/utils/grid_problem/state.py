@@ -105,10 +105,8 @@ class State:
 
         # Check if A and B are symmetric
         if not np.isclose(float(A[0, 1]), float(A[1, 0])):
-            print(A)
             raise ValueError("Matrix A must be symmetric.")
         if not np.isclose(float(B[0, 1]), float(B[1, 0])):
-            print(B)
             raise ValueError("Matrix B must be symmetric.")
 
         # Assign the matrices to attributes
@@ -245,7 +243,6 @@ class State:
         """
         if not isinstance(G, GridOperator):
             raise TypeError("G must be a grid operator")
-        print("Transform!, G=", G.as_mpfloat())
         G_conj = G.conjugate()
         new_A = (G.dag()).as_mpfloat() @ self.A @ G.as_mpfloat()
         new_B = (G_conj.dag()).as_mpfloat() @ self.B @ G_conj.as_mpfloat()

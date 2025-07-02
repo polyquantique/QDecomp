@@ -174,24 +174,19 @@ class GridOperator:
         return GridOperator([self.a, self.c, self.b, self.d])
 
     def conjugate(self):
-        """
-        Return the :math:`\sqrt{2}`-conjugate of the grid operator.
+        """Define the conjugation of the grid operator"""
+        G = self.G
+        G_conj = np.zeros_like(G, dtype=object)
 
-        This applies the :math:`\sqrt{2}` conjugation to each element of the operator matrix.
-        Elements of type ``Zsqrt2`` or ``Dsqrt2`` are conjugated; other types are left unchanged.
+        for i in range(2):  # Iterate over rows
+            for j in range(2):  # Iterate over columns
+                element = G[i, j]
+                if isinstance(element, (Zsqrt2, Dsqrt2)):
+                    G_conj[i, j] = element.sqrt2_conjugate()  # Apply conjugation
+                else:
+                    G_conj[i, j] = element  # No change for int or D types
 
-        Returns:
-            GridOperator: A new grid operator with conjugated elements.
-        """
-        G = self.G  
-
-        for i in range(2):  # Iterate over rows  
-            for j in range(2):  # Iterate over columns  
-                element = G[i, j]  
-                if isinstance(element, (Zsqrt2, Dsqrt2)):  
-                    G[i, j] = element.sqrt2_conjugate()  # Apply conjugation  
-
-        return GridOperator(G)  # Return the conjugated grid
+        return GridOperator(G_conj)  # Return the conjugated grid
 
     def inv(self) -> GridOperator:
         """
@@ -321,13 +316,20 @@ class GridOperator:
 
         if exponent < 0:
             base = self.inv()
+            exp = -exponent
         else:
             base = self
+            exp = exponent
 
-        result = GridOperator([1, 0, 0, 1])  # Start with identity
+        # Compute the power
+        nth_power = base
+        result = GridOperator([1, 0, 0, 1])  # Identity operator
 
-        for _ in range(abs(exponent)):
-            result = result * base  # Uses the __mul__ method already defined
+        while exp:
+            if exp & 1:
+                result *= nth_power
+            nth_power *= nth_power
+            exp >>= 1
 
         return result
 

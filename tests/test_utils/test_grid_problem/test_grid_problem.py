@@ -59,7 +59,6 @@ def test_grid_op(epsilon, theta):
         p1, p2, p3 = find_points(epsilon, theta)
         E, p_p = steiner_ellipse_def(p1, p2, p3)
         I = np.array([[mp.mpf(1), mp.mpf(0)], [mp.mpf(0), mp.mpf(1)]], dtype=object)
-        initial_state = State(E, I)
         inv_gop, gop = find_grid_operator(E, I)
         inv_gop_conj = inv_gop.conjugate()
         mod_E = inv_gop.dag().as_mpfloat() @ E @ inv_gop.as_mpfloat()

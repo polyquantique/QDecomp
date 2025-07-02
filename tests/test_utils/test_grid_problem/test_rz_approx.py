@@ -26,18 +26,23 @@ angles = [2 * math.pi / 3, math.pi / 16, 6, 0, 3 * math.pi / 2, 2 * math.pi]
 @pytest.mark.parametrize("theta", angles)
 @pytest.mark.parametrize("epsilon", errors)
 def test_rz_approx(epsilon, theta):
+    # Set the decimal places for mpmath based on epsilon
     dps = int(-math.log10(epsilon**2)) + 8
+    # Run the main function with the specified precision
     with mp.workdps(dps):
         U = z_rotational_approximation(epsilon, theta)
     U_complex = np.array(U, dtype=complex)
+    # Calculate the expected Rz gate matrix
     rz = np.array(
         [
             [math.cos(theta / 2) - 1.0j * math.sin(theta / 2), 0],
             [0, math.cos(theta / 2) + 1.0j * math.sin(theta / 2)],
         ]
     )
-    Error = op_norm = max(np.linalg.svd(U_complex - rz, compute_uv=False))
-    assert Error <= epsilon
+    # Calculate the maximum error using SVD
+    error = max(np.linalg.svd(U_complex - rz, compute_uv=False))
+    # Assert that the error is within the specified epsilon
+    assert error <= epsilon
 
 
 def test_invalid_theta_type():

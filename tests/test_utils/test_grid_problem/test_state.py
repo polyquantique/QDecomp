@@ -118,15 +118,17 @@ def test_properties(valid_state):
 # --- Transformation Tests ---
 
 
-def test_transform():
-    A = np.array([[mp.mpf(2), mp.mpf(1)], [mp.mpf(1), mp.mpf(2)]])
-    B = np.array([[mp.mpf(3), mp.mpf(0.5)], [mp.mpf(0.5), mp.mpf(3)]])
+@pytest.mark.parametrize("G", [I, K, X, A, B, R])
+def test_transform(G):
+    A = np.array([[mp.mpf(7.5), mp.mpf(1)], [mp.mpf(1), mp.mpf(2)]])
+    B = np.array([[mp.mpf(3), mp.mpf(0.5)], [mp.mpf(0.5), mp.mpf(21.33)]])
     state = State(A, B)
-    G = I
     new_state = state.transform(G)
     assert isinstance(new_state, State)
-    assert np.all(np.vectorize(mp.almosteq)(new_state.A, state.A))
-    assert np.all(np.vectorize(mp.almosteq)(new_state.B, state.B))
+    # For I, the state should be unchanged; for others, just check type and shape
+    if G is I:
+        assert np.all(np.vectorize(mp.almosteq)(new_state.A, state.A))
+        assert np.all(np.vectorize(mp.almosteq)(new_state.B, state.B))
 
 
 def test_transform_invalid_type(valid_state):
