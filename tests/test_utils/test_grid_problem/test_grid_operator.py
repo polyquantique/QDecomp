@@ -84,6 +84,17 @@ def test_grid_operator_list_error(invalid_list):
     ):
         GridOperator(invalid_list)
 
+def test_grid_operator_init_with_invalid_type():
+    """Test GridOperator initialization with an invalid type (not list or np.ndarray)."""
+    invalid_input = 42  # int, not a list or ndarray
+    with pytest.raises(TypeError, match="G must be a numpy ndarray or convertible to one."):
+        GridOperator(invalid_input)
+
+def test_grid_operator_init_with_invalid_shape_array():
+    """Test GridOperator initialization with a numpy array that is not 2x2."""
+    arr = np.array([1, 2, 3, 4, 5], dtype=object)  # 1D array, not 2x2
+    with pytest.raises(ValueError, match=r"G must be of shape \(2, 2\)\. Got shape"):
+        GridOperator(arr)
 
 # Parametrize the test to run 20 times
 @pytest.mark.parametrize(
@@ -299,6 +310,25 @@ def test_add_sub(operation, expected):
     assert operation.c == expected.c, f"Expected c: {expected.c}, got: {operation.c}"
     assert operation.d == expected.d, f"Expected d: {expected.d}, got: {operation.d}"
 
+@pytest.mark.parametrize(
+    "invalid_operand",
+    [
+        42,  # int
+        3.14,  # float
+        "not a grid operator",  # string
+        np.array([[1.0, 2.0], [3.0, 4.0]]),  # numpy array of floats
+        [1, 2, 3, 4],  # list of ints
+        None,
+        object(),
+    ],
+)
+def test_add_invalid_operand(invalid_operand):
+        """Test that adding invalid types to a GridOperator raises TypeError."""
+        grid_op = I
+        with pytest.raises(TypeError):
+            _ = grid_op + invalid_operand
+        with pytest.raises(TypeError):
+            _ = invalid_operand + grid_op
 
 @pytest.mark.parametrize(
     "scalar, grid_op", list(zip(valid_entries, grid_ops))  # Pairing elements from both lists
@@ -306,6 +336,7 @@ def test_add_sub(operation, expected):
 def test_mul_scal(scalar, grid_op):
     """Test multiplication of grid operators with a scalar."""
     result = grid_op * scalar
+    other = GridOperator.__rmul__(grid_op, scalar)
     assert result.a == Dsqrt2.from_ring(scalar) * grid_op.a
     assert result.b == Dsqrt2.from_ring(scalar) * grid_op.b
     assert result.c == Dsqrt2.from_ring(scalar) * grid_op.c
@@ -314,6 +345,24 @@ def test_mul_scal(scalar, grid_op):
 
 G = np.random.choice(grid_ops)
 
+@pytest.mark.parametrize(
+    "invalid_operand",
+    [
+        3.14,  # float
+        "not a grid operator",  # string
+        np.array([[1.0, 2.0], [3.0, 4.0]]),  # numpy array of floats
+        [1, 2, 3, 4],  # list of ints
+        None,
+        object(),
+    ],
+)
+def test_mul_invalid_operand(invalid_operand):
+    """Test that multiplying invalid types with a GridOperator raises TypeError."""
+    grid_op = I
+    with pytest.raises(TypeError):
+        _ = grid_op * invalid_operand
+    with pytest.raises(TypeError):
+        _ = invalid_operand * grid_op
 
 @pytest.mark.parametrize(
     "grid_op, exponent, expected",

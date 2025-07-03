@@ -29,8 +29,10 @@ import numpy as np
 from qdecomp.rings.rings import *
 from qdecomp.utils.diophantine import solve_xi_eq_ttdag_in_d
 from qdecomp.utils.grid_problem.grid_algorithms import solve_grid_problem_2d
-from qdecomp.utils.grid_problem.grid_problem import find_grid_operator, find_points
-from qdecomp.utils.steiner_ellipse import ellipse_bbox, is_inside_ellipse, steiner_ellipse_def
+from qdecomp.utils.grid_problem.grid_problem import (find_grid_operator,
+                                                     find_points)
+from qdecomp.utils.steiner_ellipse import (ellipse_bbox, is_inside_ellipse,
+                                           steiner_ellipse_def)
 
 # Define Identity
 I = np.array([[mp.mpf(1), mp.mpf(0)], [mp.mpf(0), mp.mpf(1)]], dtype=object)
@@ -182,10 +184,13 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
                     else:
                         # The solution is found and returned!
                         solution = True
-                        M = np.array([[u, -t.complex_conjugate()], [t, u.complex_conjugate()]])
+                        M = np.array(
+                            [[u, -t.complex_conjugate()], [t, u.complex_conjugate()]]
+                        )
                         return M
         n += 1
         if n > 1000000:
-            raise ValueError("The algorithm did not find a solution after 1 million iterations. "
-                             "Try increasing the error for the calculations.")
-        
+            raise ValueError(
+                "The algorithm did not find a solution after 1 million iterations. "
+                "Try increasing the error for the calculations."
+            )

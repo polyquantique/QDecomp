@@ -66,6 +66,7 @@ from qdecomp.rings import *
 
 __all__ = ["GridOperator", "I", "R", "K", "X", "Z", "A", "B"]
 
+
 class GridOperator:
     """
     Class to represent a grid operator used in solving grid problems over the complex plane.
@@ -162,7 +163,7 @@ class GridOperator:
             depending on the types of its elements.
         """
         return self.a * self.d - self.b * self.c
-    
+
     def dag(self) -> GridOperator:
         """
         Compute the hermitian conjugate of the grid operator.
@@ -181,10 +182,7 @@ class GridOperator:
         for i in range(2):  # Iterate over rows
             for j in range(2):  # Iterate over columns
                 element = G[i, j]
-                if isinstance(element, (Zsqrt2, Dsqrt2)):
-                    G_conj[i, j] = element.sqrt2_conjugate()  # Apply conjugation
-                else:
-                    G_conj[i, j] = element  # No change for int or D types
+                G_conj[i, j] = element.sqrt2_conjugate()  # Apply conjugation
 
         return GridOperator(G_conj)  # Return the conjugated grid
 
@@ -269,13 +267,17 @@ class GridOperator:
         """
         if isinstance(other, (int, D, Zsqrt2, Dsqrt2)):
             num = Dsqrt2.from_ring(other)
-            return GridOperator([num * self.a, num * self.b, num * self.c, num * self.d])
+            return GridOperator(
+                [num * self.a, num * self.b, num * self.c, num * self.d]
+            )
         elif isinstance(other, GridOperator):
             G = self.G
             G_p = other.G
             return GridOperator(G @ G_p)
         else:
-            raise TypeError("Product must be with a valid type (int, D, Zsqrt2, Dsqrt2) or GridOperator. Got {type(other)}.")
+            raise TypeError(
+                "Product must be with a valid type (int, D, Zsqrt2, Dsqrt2) or GridOperator. Got {type(other)}."
+            )
 
     def __rmul__(self, other: int | D | Zsqrt2 | Dsqrt2 | GridOperator) -> GridOperator:
         """
@@ -291,10 +293,6 @@ class GridOperator:
         """
         if isinstance(other, (int, D, Zsqrt2, Dsqrt2)):
             return self.__mul__(other)
-        elif isinstance(other, GridOperator):
-            G = self.G
-            G_p = other.G
-            return GridOperator(G_p @ G)
         else:
             raise TypeError("Product must be with a valid type")
 
@@ -311,7 +309,7 @@ class GridOperator:
             TypeError: If the exponent is not an integer.
         """
         # Accept exponent if it is close to an integer, otherwise raise
-        if not isinstance(exponent, int):  
+        if not isinstance(exponent, int):
             raise ValueError("Exponent must be an integer.")
 
         if exponent < 0:

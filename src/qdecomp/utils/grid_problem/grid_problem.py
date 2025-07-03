@@ -14,13 +14,13 @@
 
 """
 This module provides functions to find the three points that define the slice :math:`\\mathcal{R}_\\varepsilon`
-as described in Section 7.2 of Ross et al. (2014). It also includes a function to find the grid operator that reduces
+as described in Section 7.2 of Ross and Sellinger (2014). It also includes a function to find the grid operator that reduces
 the skew of a state to less than 15, as well as a function to find the special grid operator that reduces the skew
 by at least 10%. The functions utilize the `mpmath` library for high precision arithmetic and the `numpy` library
 for numerical operations.
 
 The procedure to reduce the skew of a state is based on the algorithm described in
-Annexes A and B of Ross et al. (2014).
+Annexes A and B of Ross and Sellinger (2014).
 """
 
 import math
@@ -33,7 +33,9 @@ from qdecomp.utils.grid_problem.grid_problem import *
 from qdecomp.utils.grid_problem.state import *
 
 
-def find_points(epsilon: float, theta: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+def find_points(
+    epsilon: float, theta: float
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Find the three points which define the slice :math:`\\mathcal{R}_\\varepsilon`
     as shown in Section 7.2 of Ross et al. (2014).
 
@@ -78,13 +80,15 @@ def find_points(epsilon: float, theta: float) -> tuple[np.ndarray, np.ndarray, n
 
     # The calculations needed to find the points are the solving of a trivial quadratic equation which is not
     # solved in detail here. Refer to Section 7.2 of https://arxiv.org/pdf/1403.2975 to understand the problem
-    # statement. Note that in order to have sufficient precision on the values of the points, the intersection
-    # between the unit disk and the vector z is set to be the origin.
+    # statement.
 
     # Handle the special case where the sine is 0
     if sine == 0:
         p2 = [-(cosine * epsilon**2) / 2, epsilon * mp.sqrt(mp.mpf(1) - epsilon**2 / 4)]
-        p3 = [-(cosine * epsilon**2) / 2, -epsilon * mp.sqrt(mp.mpf(1) - epsilon**2 / 4)]
+        p3 = [
+            -(cosine * epsilon**2) / 2,
+            -epsilon * mp.sqrt(mp.mpf(1) - epsilon**2 / 4),
+        ]
     else:
         # Set the proper values for x2 and x3 in order to find the points p2 and p3
         delta = epsilon * mp.sqrt(4 / (sine**2) - epsilon**2 / (sine**2))
@@ -100,7 +104,9 @@ def find_points(epsilon: float, theta: float) -> tuple[np.ndarray, np.ndarray, n
     return np.array(p1) + r, np.array(p2) + r, np.array(p3) + r
 
 
-def find_grid_operator(A: np.ndarray, B: np.ndarray) -> tuple[GridOperator, GridOperator]:
+def find_grid_operator(
+    A: np.ndarray, B: np.ndarray
+) -> tuple[GridOperator, GridOperator]:
     """Find the grid operator which reduces the skew of a state to less than 15.
 
     Args:
@@ -186,21 +192,10 @@ def find_special_grid_operator(state: State) -> GridOperator:
         elif state.z >= 0.8 and state.zeta <= 0.3:
             special_grid_operator = special_grid_operator * K.conjugate()
 
-        else:
-            # The algorithm should never reach this line
-            raise ValueError(
-                "Encountered unaccounted-for values for the state parameters in Step-Lemma"
-            )
     else:
         if state.z >= -0.2 and state.zeta >= -0.2:
             c = min(state.z, state.zeta)
             n = max(1, math.floor(float(LAMBDA) ** c / math.sqrt(2)))
             special_grid_operator = special_grid_operator * B**n
-
-        else:
-            # The algorithm should never reach this line
-            raise ValueError(
-                "Encountered unaccounted-for values for the state parameters in Step-Lemma"
-            )
 
     return special_grid_operator

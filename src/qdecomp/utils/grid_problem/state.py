@@ -30,7 +30,13 @@ from qdecomp.utils.grid_problem.grid_operator import GridOperator
 
 SQRT2 = mp.sqrt(2)
 
-__all__ = ["State", "special_sigma", "inv_special_sigma", "special_tau", "inv_special_tau"]
+__all__ = [
+    "State",
+    "special_sigma",
+    "inv_special_sigma",
+    "special_tau",
+    "inv_special_tau",
+]
 
 """
 .. note::
@@ -48,6 +54,7 @@ special_sigma: GridOperator = GridOperator([LAMBDA, 0, 0, 1])
 inv_special_sigma: GridOperator = GridOperator([INVERSE_LAMBDA, 0, 0, 1])
 special_tau: GridOperator = GridOperator([1, 0, 0, -LAMBDA])
 inv_special_tau: GridOperator = GridOperator([1, 0, 0, -INVERSE_LAMBDA])
+
 
 class State:
     """
@@ -86,11 +93,8 @@ class State:
             ValueError: If A or B are not symmetric matrices.
         """
         # Ensure A and B are numpy arrays
-        try:
-            A = np.array(A, dtype=object)
-            B = np.array(B, dtype=object)
-        except Exception:
-            raise TypeError("A and B must be convertible to numpy arrays.")
+        A = np.array(A, dtype=object)
+        B = np.array(B, dtype=object)
 
         # Check that both matrices are 2x2
         if A.shape != (2, 2) or B.shape != (2, 2):
@@ -268,18 +272,24 @@ class State:
         """
 
         # Accept k if it is very close to an integer, otherwise raise
-        if not isinstance(k, int): 
+        if not isinstance(k, int):
             raise ValueError("exponent must be an integer")
 
         if k >= 0:
             # kth power of sigma
-            sigma_k = (special_sigma**k).as_mpfloat() * mp.sqrt((INVERSE_LAMBDA**k).mpfloat())
+            sigma_k = (special_sigma**k).as_mpfloat() * mp.sqrt(
+                (INVERSE_LAMBDA**k).mpfloat()
+            )
             # kth power of tau
-            tau_k = (special_tau**k).as_mpfloat() * mp.sqrt((INVERSE_LAMBDA**k).mpfloat())
+            tau_k = (special_tau**k).as_mpfloat() * mp.sqrt(
+                (INVERSE_LAMBDA**k).mpfloat()
+            )
 
         else:
             # Since k is negative, we have to take the inverse
-            sigma_k = (inv_special_sigma**-k).as_mpfloat() * mp.sqrt((LAMBDA**-k).mpfloat())
+            sigma_k = (inv_special_sigma**-k).as_mpfloat() * mp.sqrt(
+                (LAMBDA**-k).mpfloat()
+            )
             tau_k = (inv_special_tau**-k).as_mpfloat() * mp.sqrt((LAMBDA**-k).mpfloat())
 
         shift_A = sigma_k @ self.A @ sigma_k

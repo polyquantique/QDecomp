@@ -27,6 +27,12 @@ def valid_matrices():
     B = np.array([[mp.mpf(3), mp.mpf(1)], [mp.mpf(1), mp.mpf(3)]]) / mp.sqrt(mp.mpf(8))
     return A, B
 
+@pytest.fixture
+def valid_lists():
+    """Returns valid symmetric 2x2 matrices with determinant 1."""
+    A = [[mp.mpf(2), mp.mpf(1)], [mp.mpf(1), mp.mpf(2)]] / mp.sqrt(mp.mpf(3))
+    B = [[mp.mpf(3), mp.mpf(1)], [mp.mpf(1), mp.mpf(3)]] / mp.sqrt(mp.mpf(8))
+    return A, B
 
 @pytest.fixture
 def invalid_matrix():
@@ -80,6 +86,8 @@ def test_invalid_matrix_elements():
     """Test that a matrix with non-mp.mpf elements raises a TypeError."""
     with pytest.raises(TypeError):
         State(np.array([[1, 2], [3, 4]]), np.array([[5, 6], [7, 8]]))
+    with pytest.raises(TypeError):
+        State(np.array([[mp.mpf(1), mp.mpf(2)], [mp.mpf(3), mp.mpf(4)]]), np.array([["invalid", mp.mpf(6)], ["invalid", mp.mpf(8)]]))
 
 
 def test_invalid_matrix_size(invalid_size_matrix, valid_matrices):
@@ -101,7 +109,14 @@ def test_non_symmetric_matrix(invalid_matrix, valid_matrices):
 
 
 # --- Property Tests ---
-
+def test_state_repr(valid_state):
+    """Test the __repr__ method of the State class."""
+    state = valid_state
+    rep = repr(state)
+    assert isinstance(rep, str)
+    # Should contain both matrix representations
+    assert "(" in rep and "," in rep and ")" in rep
+    assert "array" in rep or "[" in rep  # numpy array string or list
 
 def test_properties(valid_state):
     """Test the computed properties of the state."""
@@ -142,12 +157,13 @@ def test_transform_invalid_type(valid_state):
 
 # --- Shift Tests ---
 
-
 def test_shift(valid_state):
     """Test the shift method with a valid integer."""
-    state = valid_state
-    shifted_state = state.shift(2)
-    assert isinstance(shifted_state, State)
+    state1, state2 = valid_state, valid_state
+    shifted_state1 = state1.shift(2)
+    shifted_state2 = state2.shift(-3)
+    assert isinstance(shifted_state1, State)
+    assert isinstance(shifted_state2, State)
 
 
 def test_shift_invalid_type(valid_state):
