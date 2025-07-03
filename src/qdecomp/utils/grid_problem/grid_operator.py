@@ -65,6 +65,7 @@ from typing import Union
 
 import mpmath as mp
 import numpy as np
+
 from qdecomp.rings import *
 
 __all__ = ["GridOperator", "I", "R", "K", "X", "Z", "A", "B"]
@@ -270,9 +271,7 @@ class GridOperator:
         """
         if isinstance(other, (int, D, Zsqrt2, Dsqrt2)):
             num = Dsqrt2.from_ring(other)
-            return GridOperator(
-                [num * self.a, num * self.b, num * self.c, num * self.d]
-            )
+            return GridOperator([num * self.a, num * self.b, num * self.c, num * self.d])
         elif isinstance(other, GridOperator):
             G = self.G
             G_p = other.G

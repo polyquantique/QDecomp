@@ -18,10 +18,10 @@ from itertools import combinations_with_replacement
 import matplotlib.pyplot as plt
 import mpmath as mp
 import pytest
-
 from qdecomp.plot import plot_grid_problem_1d, plot_grid_problem_2d
 from qdecomp.rings import Zomega, Zsqrt2
-from qdecomp.utils.grid_problem import solve_grid_problem_1d, solve_grid_problem_2d
+from qdecomp.utils.grid_problem import (solve_grid_problem_1d,
+                                        solve_grid_problem_2d)
 
 
 @pytest.mark.parametrize("A", [(1, 2, 3), "1, 2", [mp.mpf(1.5)], [[1, 2]]])
@@ -154,11 +154,14 @@ def test_grid_algorithm_2d_solutions(A, B):
         assert solution.sqrt2_conjugate().imag() <= B[1][1]
 
 
-@pytest.mark.parametrize("seq1, seq2", [
-    ((1, 2, 3), (-1, 1)),
-    ((1, 2), (1.0j, 0)),
-    ((1, 2), {1, 2}),
-])
+@pytest.mark.parametrize(
+    "seq1, seq2",
+    [
+        ((1, 2, 3), (-1, 1)),
+        ((1, 2), (1.0j, 0)),
+        ((1, 2), {1, 2}),
+    ],
+)
 def test_plot_solutions_1d_type_errors_intervals(seq1, seq2):
     """Test the raise of a TypeError when plotting the solutions of the 1D grid problem if the input intervals are not of the correct form."""
     _, ax = plt.subplots()

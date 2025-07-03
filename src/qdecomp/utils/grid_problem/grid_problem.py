@@ -31,15 +31,14 @@ import math
 
 import mpmath as mp
 import numpy as np
+
 from qdecomp.rings import *
 from qdecomp.utils.grid_problem.grid_operator import *
 from qdecomp.utils.grid_problem.grid_problem import *
 from qdecomp.utils.grid_problem.state import *
 
 
-def find_points(
-    epsilon: float, theta: float
-) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+def find_points(epsilon: float, theta: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Find the three points which define the slice :math:`\\mathcal{R}_\\varepsilon`
     as shown in Section 7.2 of Ross et al. (2014).
 
@@ -108,9 +107,7 @@ def find_points(
     return np.array(p1) + r, np.array(p2) + r, np.array(p3) + r
 
 
-def find_grid_operator(
-    A: np.ndarray, B: np.ndarray
-) -> tuple[GridOperator, GridOperator]:
+def find_grid_operator(A: np.ndarray, B: np.ndarray) -> tuple[GridOperator, GridOperator]:
     """Find the grid operator which reduces the skew of a state to less than 15.
 
     Args:

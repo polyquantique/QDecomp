@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import mpmath as mp
 import numpy as np
+
 from qdecomp.rings import *
 from qdecomp.utils.grid_problem.grid_operator import GridOperator
 
@@ -278,19 +279,13 @@ class State:
 
         if k >= 0:
             # kth power of sigma
-            sigma_k = (special_sigma**k).as_mpfloat() * mp.sqrt(
-                (INVERSE_LAMBDA**k).mpfloat()
-            )
+            sigma_k = (special_sigma**k).as_mpfloat() * mp.sqrt((INVERSE_LAMBDA**k).mpfloat())
             # kth power of tau
-            tau_k = (special_tau**k).as_mpfloat() * mp.sqrt(
-                (INVERSE_LAMBDA**k).mpfloat()
-            )
+            tau_k = (special_tau**k).as_mpfloat() * mp.sqrt((INVERSE_LAMBDA**k).mpfloat())
 
         else:
             # Since k is negative, we have to take the inverse
-            sigma_k = (inv_special_sigma**-k).as_mpfloat() * mp.sqrt(
-                (LAMBDA**-k).mpfloat()
-            )
+            sigma_k = (inv_special_sigma**-k).as_mpfloat() * mp.sqrt((LAMBDA**-k).mpfloat())
             tau_k = (inv_special_tau**-k).as_mpfloat() * mp.sqrt((LAMBDA**-k).mpfloat())
 
         shift_A = sigma_k @ self.A @ sigma_k

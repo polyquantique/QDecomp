@@ -26,6 +26,7 @@ import math
 
 import mpmath as mp
 import numpy as np
+
 from qdecomp.rings.rings import *
 from qdecomp.utils.diophantine import solve_xi_eq_ttdag_in_d
 from qdecomp.utils.grid_problem.grid_algorithms import solve_grid_problem_2d
@@ -182,14 +183,12 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
                         pass
                     else:
                         # The solution is found and returned!
-                        M = np.array(
-                            [[u, -t.complex_conjugate()], [t, u.complex_conjugate()]]
-                        )
+                        M = np.array([[u, -t.complex_conjugate()], [t, u.complex_conjugate()]])
                         return M
 
         n += 1
         if n > 1000000:
             raise ValueError(  # pragma: no cover
-                "The algorithm did not find a solution after 1 million iterations. " 
+                "The algorithm did not find a solution after 1 million iterations. "
                 "Try increasing the error for the calculations."
             )

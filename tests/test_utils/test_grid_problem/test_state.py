@@ -49,6 +49,7 @@ def valid_state(valid_matrices):
 
 # --- Initialization Tests ---
 
+
 def test_state_initialization():
     """Test the initialization of the State class with valid matrices."""
     A = np.array([[mp.mpf(2), mp.mpf(1)], [mp.mpf(1), mp.mpf(2)]])
@@ -81,7 +82,10 @@ def test_invalid_matrix_elements():
     with pytest.raises(TypeError):
         State(np.array([[1, 2], [3, 4]]), np.array([[5, 6], [7, 8]]))
     with pytest.raises(TypeError):
-        State(np.array([[mp.mpf(1), mp.mpf(2)], [mp.mpf(3), mp.mpf(4)]]), np.array([["invalid", mp.mpf(6)], ["invalid", mp.mpf(8)]]))
+        State(
+            np.array([[mp.mpf(1), mp.mpf(2)], [mp.mpf(3), mp.mpf(4)]]),
+            np.array([["invalid", mp.mpf(6)], ["invalid", mp.mpf(8)]]),
+        )
 
 
 def test_invalid_matrix_size(invalid_size_matrix, valid_matrices):
@@ -111,6 +115,7 @@ def test_state_repr(valid_state):
     # Should contain both matrix representations
     assert "(" in rep and "," in rep and ")" in rep
     assert "array" in rep or "[" in rep  # numpy array string or list
+
 
 def test_properties(valid_state):
     """Test the computed properties of the state."""
@@ -150,6 +155,7 @@ def test_transform_invalid_type(valid_state):
 
 
 # --- Shift Tests ---
+
 
 def test_shift(valid_state):
     """Test the shift method with a valid integer."""

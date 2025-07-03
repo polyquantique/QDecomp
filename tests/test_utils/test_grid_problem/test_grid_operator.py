@@ -12,12 +12,14 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+import itertools
+
 import mpmath as mp
 import numpy as np
 import pytest
 from qdecomp.rings.rings import D, Dsqrt2, Zsqrt2
-from qdecomp.utils.grid_problem.grid_operator import A, B, GridOperator, I, K, R, X, Z
-import itertools
+from qdecomp.utils.grid_problem.grid_operator import (A, B, GridOperator, I, K,
+                                                      R, X, Z)
 
 # Valid entries for testing
 valid_entries = [
@@ -37,10 +39,7 @@ invalid_entries = [1.0, 3.5, 5.111, "invalid", "not_valid"]
 # Parametrize the test to run 20 times
 @pytest.mark.parametrize(
     "grid_op_list",
-    [
-        list(combo)
-        for combo in itertools.product(valid_entries, repeat=4)
-    ],
+    [list(combo) for combo in itertools.product(valid_entries, repeat=4)],
 )
 def test_grid_operator_list_1(grid_op_list):
     """Test GridOperator initialization"""
@@ -62,7 +61,9 @@ def test_grid_operator_list_1(grid_op_list):
 def test_grid_operator_list2(grid_op_list):
     """Test GridOperator initialization"""
     grid_op = GridOperator(grid_op_list)
-    assert grid_op is not None, "GridOperator initialization failed."  # Ensuring the object was initialized correctly
+    assert (
+        grid_op is not None
+    ), "GridOperator initialization failed."  # Ensuring the object was initialized correctly
 
 
 # Invalid inputs that should raise a ValueError
@@ -84,17 +85,20 @@ def test_grid_operator_list_error(invalid_list):
     ):
         GridOperator(invalid_list)
 
+
 def test_grid_operator_init_with_invalid_type():
     """Test GridOperator initialization with an invalid type (not list or np.ndarray)."""
     invalid_input = 42  # int, not a list or ndarray
     with pytest.raises(TypeError, match="G must be a numpy ndarray or convertible to one."):
         GridOperator(invalid_input)
 
+
 def test_grid_operator_init_with_invalid_shape_array():
     """Test GridOperator initialization with a numpy array that is not 2x2."""
     arr = np.array([1, 2, 3, 4, 5], dtype=object)  # 1D array, not 2x2
     with pytest.raises(ValueError, match=r"G must be of shape \(2, 2\)\. Got shape"):
         GridOperator(arr)
+
 
 # Parametrize the test to run 20 times
 @pytest.mark.parametrize(
@@ -311,6 +315,7 @@ def test_add_sub(operation, expected):
     assert operation.c == expected.c, f"Expected c: {expected.c}, got: {operation.c}"
     assert operation.d == expected.d, f"Expected d: {expected.d}, got: {operation.d}"
 
+
 @pytest.mark.parametrize(
     "invalid_operand",
     [
@@ -324,12 +329,13 @@ def test_add_sub(operation, expected):
     ],
 )
 def test_add_invalid_operand(invalid_operand):
-        """Test that adding invalid types to a GridOperator raises TypeError."""
-        grid_op = I
-        with pytest.raises(TypeError):
-            _ = grid_op + invalid_operand
-        with pytest.raises(TypeError):
-            _ = invalid_operand + grid_op
+    """Test that adding invalid types to a GridOperator raises TypeError."""
+    grid_op = I
+    with pytest.raises(TypeError):
+        _ = grid_op + invalid_operand
+    with pytest.raises(TypeError):
+        _ = invalid_operand + grid_op
+
 
 @pytest.mark.parametrize(
     "scalar, grid_op", list(zip(valid_entries, grid_ops))  # Pairing elements from both lists
@@ -345,6 +351,7 @@ def test_mul_scal(scalar, grid_op):
 
 
 G = np.random.choice(grid_ops)
+
 
 @pytest.mark.parametrize(
     "invalid_operand",
@@ -364,6 +371,7 @@ def test_mul_invalid_operand(invalid_operand):
         _ = grid_op * invalid_operand
     with pytest.raises(TypeError):
         _ = invalid_operand * grid_op
+
 
 @pytest.mark.parametrize(
     "grid_op, exponent, expected",

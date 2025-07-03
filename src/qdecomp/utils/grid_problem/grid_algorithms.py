@@ -132,10 +132,7 @@ def solve_grid_problem_1d(
             fl_alpha_i_conjugate = alpha_i.sqrt2_conjugate().mpfloat()
 
             # See if the solution is a solution to the unscaled grid problem for A and B
-            if (
-                A[0] <= fl_alpha_i <= A[1]
-                and B[0] <= fl_alpha_i_conjugate <= B[1]
-            ):
+            if A[0] <= fl_alpha_i <= A[1] and B[0] <= fl_alpha_i_conjugate <= B[1]:
                 # Yield the solution
                 yield alpha_i
 
