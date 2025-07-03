@@ -15,10 +15,10 @@
 """
 This file runs the entire z-rotational approximation algorithm to find the associated sequence. 
 
-It contains the initialization function, which is only to visualy lighten the code and the 
-z_rotational_approximation function which is the main function of this file. Given an angle and
+It contains the :func:`initialization` function, which is only to visualy lighten the code and the 
+:func:`z_rotational_approximation` function which is the main function of this file. Given an angle and
 an error, it finds an approximation of the associated z-rotation by solving for potential values
-of u, and then checking if there exists a valid associated value for t. When u and t are found, 
+of u, and then checking if there exists a valid associated value for t using the ``Diophantine equation`` module. When u and t are found, 
 it returns the Clifford+T approximation of the z-rotation. 
 """
 
@@ -26,6 +26,7 @@ import math
 
 import mpmath as mp
 import numpy as np
+
 from qdecomp.rings.rings import *
 from qdecomp.utils.diophantine import solve_xi_eq_ttdag_in_d
 from qdecomp.utils.grid_problem.grid_algorithms import solve_grid_problem_2d
@@ -136,8 +137,7 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
     delta = mp.mpf(1) - mp.mpf(0.5 * epsilon**2)
 
     n = 0
-    solution = False
-    while solution == False:
+    while True:
         # Varies if odd or even
         odd = n % 2
         if odd:
@@ -181,11 +181,12 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
                         pass
                     else:
                         # The solution is found and returned!
-                        solution = True
                         M = np.array([[u, -t.complex_conjugate()], [t, u.complex_conjugate()]])
                         return M
+
         n += 1
         if n > 1000000:
-            raise ValueError("The algorithm did not find a solution after 1 million iterations. "
-                             "Try increasing the error for the calculations.")
-        
+            raise ValueError(  # pragma: no cover
+                "The algorithm did not find a solution after 1 million iterations. "
+                "Try increasing the error for the calculations."
+            )

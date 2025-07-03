@@ -13,24 +13,32 @@
 #    limitations under the License.
 
 """
-This file defines the `State` class, which is a key component in solving the grid problem. 
+This file defines the :class:`State` class, which is a key component in solving the grid problem. 
 Specifically, it is used to ensure that the uprightness of the ellipse pair is augmented to 
 at least 1/6. 
 
-This is adapted from the mathematical framework in Ross and Sellinger (2014). The following outlines 
-the use of states in the context of the algorithm.
+For more information on the use of states, see Annex A of [1]_.
+
+.. [1] Neil J. Ross and Peter Selinger, Optimal ancilla-free Clifford+T approximation of z-rotations, https://arxiv.org/pdf/1403.2975.
 """
 
 from __future__ import annotations
 
 import mpmath as mp
 import numpy as np
+
 from qdecomp.rings import *
 from qdecomp.utils.grid_problem.grid_operator import GridOperator
 
 SQRT2 = mp.sqrt(2)
 
-__all__ = ["State", "special_sigma", "inv_special_sigma", "special_tau", "inv_special_tau"]
+__all__ = [
+    "State",
+    "special_sigma",
+    "inv_special_sigma",
+    "special_tau",
+    "inv_special_tau",
+]
 
 """
 .. note::
@@ -48,6 +56,7 @@ special_sigma: GridOperator = GridOperator([LAMBDA, 0, 0, 1])
 inv_special_sigma: GridOperator = GridOperator([INVERSE_LAMBDA, 0, 0, 1])
 special_tau: GridOperator = GridOperator([1, 0, 0, -LAMBDA])
 inv_special_tau: GridOperator = GridOperator([1, 0, 0, -INVERSE_LAMBDA])
+
 
 class State:
     """
@@ -86,11 +95,8 @@ class State:
             ValueError: If A or B are not symmetric matrices.
         """
         # Ensure A and B are numpy arrays
-        try:
-            A = np.array(A, dtype=object)
-            B = np.array(B, dtype=object)
-        except Exception:
-            raise TypeError("A and B must be convertible to numpy arrays.")
+        A = np.array(A, dtype=object)
+        B = np.array(B, dtype=object)
 
         # Check that both matrices are 2x2
         if A.shape != (2, 2) or B.shape != (2, 2):
@@ -268,7 +274,7 @@ class State:
         """
 
         # Accept k if it is very close to an integer, otherwise raise
-        if not isinstance(k, int): 
+        if not isinstance(k, int):
             raise ValueError("exponent must be an integer")
 
         if k >= 0:

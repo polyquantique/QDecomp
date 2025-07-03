@@ -14,7 +14,6 @@
 
 import numpy as np
 import pytest
-
 from qdecomp.utils.gates import *
 
 

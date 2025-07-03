@@ -12,12 +12,13 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+import itertools
+
 import mpmath as mp
 import numpy as np
 import pytest
 from qdecomp.rings.rings import D, Dsqrt2, Zsqrt2
 from qdecomp.utils.grid_problem.grid_operator import A, B, GridOperator, I, K, R, X, Z
-import itertools
 
 # Valid entries for testing
 valid_entries = [
@@ -37,13 +38,10 @@ invalid_entries = [1.0, 3.5, 5.111, "invalid", "not_valid"]
 # Parametrize the test to run 20 times
 @pytest.mark.parametrize(
     "grid_op_list",
-    [
-        list(combo)
-        for combo in itertools.product(valid_entries, repeat=4)
-    ],
+    [list(combo) for combo in itertools.product(valid_entries, repeat=4)],
 )
 def test_grid_operator_list_1(grid_op_list):
-    # Test GridOperator initialization
+    """Test GridOperator initialization"""
     grid_op = GridOperator(grid_op_list)
     assert grid_op is not None  # Ensuring the object was initialized correctly
 
@@ -60,9 +58,11 @@ def test_grid_operator_list_1(grid_op_list):
     ],
 )
 def test_grid_operator_list2(grid_op_list):
-    # Test GridOperator initialization
+    """Test GridOperator initialization"""
     grid_op = GridOperator(grid_op_list)
-    assert grid_op is not None, "GridOperator initialization failed."  # Ensuring the object was initialized correctly
+    assert (
+        grid_op is not None
+    ), "GridOperator initialization failed."  # Ensuring the object was initialized correctly
 
 
 # Invalid inputs that should raise a ValueError
@@ -77,11 +77,26 @@ invalid_lists = [
 
 @pytest.mark.parametrize("invalid_list", invalid_lists)
 def test_grid_operator_list_error(invalid_list):
+    """Test GridOperator initialization with invalid inputs."""
     with pytest.raises(
         ValueError,
         match="G must be a 4-element flat list or a 2x2 nested list with valid elements.",
     ):
         GridOperator(invalid_list)
+
+
+def test_grid_operator_init_with_invalid_type():
+    """Test GridOperator initialization with an invalid type (not list or np.ndarray)."""
+    invalid_input = 42  # int, not a list or ndarray
+    with pytest.raises(TypeError, match="G must be a numpy ndarray or convertible to one."):
+        GridOperator(invalid_input)
+
+
+def test_grid_operator_init_with_invalid_shape_array():
+    """Test GridOperator initialization with a numpy array that is not 2x2."""
+    arr = np.array([1, 2, 3, 4, 5], dtype=object)  # 1D array, not 2x2
+    with pytest.raises(ValueError, match=r"G must be of shape \(2, 2\)\. Got shape"):
+        GridOperator(arr)
 
 
 # Parametrize the test to run 20 times
@@ -99,7 +114,7 @@ def test_grid_operator_list_error(invalid_list):
     ],
 )
 def test_grid_operator_array(grid_op_array):
-    # Test GridOperator initialization
+    """Test GridOperator initialization"""
     grid_op = GridOperator(grid_op_array)
     assert grid_op is not None  # Ensuring the object was initialized correctly
 
@@ -119,6 +134,7 @@ def test_grid_operator_array(grid_op_array):
     ],
 )
 def test_grid_operator_array_error(grid_op_array):
+    """Test GridOperator initialization with invalid inputs."""
     element = grid_op_array[0, 0]
     with pytest.raises(TypeError, match=f"Element {element} must be an int, D, Zsqrt2, or Dsqrt2."):
         GridOperator(grid_op_array)
@@ -129,6 +145,7 @@ grid_ops = [I, R, K, X, Z, A, B]
 
 @pytest.mark.parametrize("grid_op", [G for G in grid_ops])
 def test_repr(grid_op):
+    """Test the string representation of the grid operator."""
     # Expected representation as a single-line string
     expected_repr = f"[[{grid_op.a} {grid_op.b}] [{grid_op.c} {grid_op.d}]]"
 
@@ -141,6 +158,7 @@ def test_repr(grid_op):
 
 @pytest.mark.parametrize("grid_op", grid_ops)
 def test_neg(grid_op):
+    """Test negation of grid operators."""
     # Negate the grid operator
     neg_op = -grid_op
 
@@ -155,6 +173,7 @@ def test_neg(grid_op):
     "grid_op, expected_det", [(I, 1), (R, 1), (K, 1), (X, -1), (Z, -1), (A, 1), (B, 1)]
 )
 def test_det(grid_op, expected_det):
+    """Test the determinant of grid operators."""
     # Compute the determinant
     det = grid_op.det()
 
@@ -164,6 +183,7 @@ def test_det(grid_op, expected_det):
 
 @pytest.mark.parametrize("grid_op", grid_ops)
 def test_dag(grid_op):
+    """Test the complex transpose (dag) of grid operators."""
     # Compute the dag (transpose)
     dag_op = grid_op.dag()
 
@@ -179,6 +199,7 @@ def test_dag(grid_op):
 
 @pytest.mark.parametrize("grid_op", grid_ops)
 def test_conjugate(grid_op):
+    """Test the conjugation of grid operators."""
     # Apply conjugation to the grid operator
     conjugated_op = grid_op.conjugate()
 
@@ -186,7 +207,8 @@ def test_conjugate(grid_op):
     def compute_conjugated(element):
         if isinstance(element, (Zsqrt2, Dsqrt2)):
             return element.sqrt2_conjugate()
-        return element  # No change for int or D
+        # No change for int or D
+        return element  # pragma: no cover
 
     # Verify that each element in the conjugated grid is correct
     assert conjugated_op.a == compute_conjugated(grid_op.a)
@@ -197,6 +219,7 @@ def test_conjugate(grid_op):
 
 @pytest.mark.parametrize("grid_op", grid_ops)
 def test_inv_valid(grid_op):
+    """Test the inversion of grid operators."""
     # Compute the inverse
     inv_op = grid_op.inv()
 
@@ -224,6 +247,7 @@ def test_inv_valid(grid_op):
     ],
 )
 def test_inv_invalid(grid_op):
+    """Test that invalid inversions raise ValueError."""
     # Verify that invalid cases raise ValueError
     with pytest.raises(
         ValueError, match="The inversion is not defined|Determinant must be non-zero"
@@ -233,6 +257,7 @@ def test_inv_invalid(grid_op):
 
 @pytest.mark.parametrize("grid_op", grid_ops)
 def test_as_float(grid_op):
+    """Test conversion of grid operators to float arrays."""
     # Convert the grid operator to a float array
     float_array = grid_op.as_float()
 
@@ -245,6 +270,7 @@ def test_as_float(grid_op):
 
 @pytest.mark.parametrize("grid_op", grid_ops)
 def test_as_mpfloat(grid_op):
+    """Test conversion of grid operators to mpfloat arrays."""
     # Convert the grid operator to a mpfloat array
     float_array = grid_op.as_mpfloat()
 
@@ -290,11 +316,33 @@ def test_add_sub(operation, expected):
 
 
 @pytest.mark.parametrize(
+    "invalid_operand",
+    [
+        42,  # int
+        3.14,  # float
+        "not a grid operator",  # string
+        np.array([[1.0, 2.0], [3.0, 4.0]]),  # numpy array of floats
+        [1, 2, 3, 4],  # list of ints
+        None,
+        object(),
+    ],
+)
+def test_add_invalid_operand(invalid_operand):
+    """Test that adding invalid types to a GridOperator raises TypeError."""
+    grid_op = I
+    with pytest.raises(TypeError):
+        _ = grid_op + invalid_operand
+    with pytest.raises(TypeError):
+        _ = invalid_operand + grid_op
+
+
+@pytest.mark.parametrize(
     "scalar, grid_op", list(zip(valid_entries, grid_ops))  # Pairing elements from both lists
 )
 def test_mul_scal(scalar, grid_op):
     """Test multiplication of grid operators with a scalar."""
     result = grid_op * scalar
+    other = GridOperator.__rmul__(grid_op, scalar)
     assert result.a == Dsqrt2.from_ring(scalar) * grid_op.a
     assert result.b == Dsqrt2.from_ring(scalar) * grid_op.b
     assert result.c == Dsqrt2.from_ring(scalar) * grid_op.c
@@ -302,6 +350,26 @@ def test_mul_scal(scalar, grid_op):
 
 
 G = np.random.choice(grid_ops)
+
+
+@pytest.mark.parametrize(
+    "invalid_operand",
+    [
+        3.14,  # float
+        "not a grid operator",  # string
+        np.array([[1.0, 2.0], [3.0, 4.0]]),  # numpy array of floats
+        [1, 2, 3, 4],  # list of ints
+        None,
+        object(),
+    ],
+)
+def test_mul_invalid_operand(invalid_operand):
+    """Test that multiplying invalid types with a GridOperator raises TypeError."""
+    grid_op = I
+    with pytest.raises(TypeError):
+        _ = grid_op * invalid_operand
+    with pytest.raises(TypeError):
+        _ = invalid_operand * grid_op
 
 
 @pytest.mark.parametrize(

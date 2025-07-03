@@ -15,8 +15,7 @@
 """
 This module defines the :class:`GridOperator`.
 
-Grid operators are a central concept introduced in Section 5.3 of the following paper:
-https://arxiv.org/pdf/1403.2975. However, this class is generalized to work with any matrix
+Grid operators are a central concept introduced in Section 5.3 of [1]_. However, this class is generalized to work with any matrix
 whose elements lie in the ring :math:`D[\sqrt{2}]`.
 
 To efficiently solve a general 2D grid problem, it is necessary to find the upright bounding box of the
@@ -54,6 +53,10 @@ then there exists a special grid operator :math:`G`, such that:
     Up(G(E)) \\geq \\frac{1}{6}, \\quad Up(G^\\bullet (\\bar{\\mathcal{D}})) \\geq \\frac{1}{6}.
 
 This class defines grid operators, which will be useful in the grid problem algorithm as a whole. 
+
+For more information on the use of states, see Section 5.3 of [1]_.
+
+.. [1] Neil J. Ross and Peter Selinger, Optimal ancilla-free Clifford+T approximation of z-rotations, https://arxiv.org/pdf/1403.2975.
 """
 
 from __future__ import annotations
@@ -62,9 +65,11 @@ from typing import Union
 
 import mpmath as mp
 import numpy as np
+
 from qdecomp.rings import *
 
 __all__ = ["GridOperator", "I", "R", "K", "X", "Z", "A", "B"]
+
 
 class GridOperator:
     """
@@ -162,7 +167,7 @@ class GridOperator:
             depending on the types of its elements.
         """
         return self.a * self.d - self.b * self.c
-    
+
     def dag(self) -> GridOperator:
         """
         Compute the hermitian conjugate of the grid operator.
@@ -181,10 +186,7 @@ class GridOperator:
         for i in range(2):  # Iterate over rows
             for j in range(2):  # Iterate over columns
                 element = G[i, j]
-                if isinstance(element, (Zsqrt2, Dsqrt2)):
-                    G_conj[i, j] = element.sqrt2_conjugate()  # Apply conjugation
-                else:
-                    G_conj[i, j] = element  # No change for int or D types
+                G_conj[i, j] = element.sqrt2_conjugate()  # Apply conjugation
 
         return GridOperator(G_conj)  # Return the conjugated grid
 
@@ -275,7 +277,9 @@ class GridOperator:
             G_p = other.G
             return GridOperator(G @ G_p)
         else:
-            raise TypeError("Product must be with a valid type (int, D, Zsqrt2, Dsqrt2) or GridOperator. Got {type(other)}.")
+            raise TypeError(
+                "Product must be with a valid type (int, D, Zsqrt2, Dsqrt2) or GridOperator. Got {type(other)}."
+            )
 
     def __rmul__(self, other: int | D | Zsqrt2 | Dsqrt2 | GridOperator) -> GridOperator:
         """
@@ -291,10 +295,6 @@ class GridOperator:
         """
         if isinstance(other, (int, D, Zsqrt2, Dsqrt2)):
             return self.__mul__(other)
-        elif isinstance(other, GridOperator):
-            G = self.G
-            G_p = other.G
-            return GridOperator(G_p @ G)
         else:
             raise TypeError("Product must be with a valid type")
 
@@ -311,7 +311,7 @@ class GridOperator:
             TypeError: If the exponent is not an integer.
         """
         # Accept exponent if it is close to an integer, otherwise raise
-        if not isinstance(exponent, int):  
+        if not isinstance(exponent, int):
             raise ValueError("Exponent must be an integer.")
 
         if exponent < 0:
