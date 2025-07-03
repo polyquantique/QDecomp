@@ -154,7 +154,7 @@ Dsqrt2<T> Domega<T>::to_Dsqrt2() const {
 }
 
 template <typename T>
-Zsqrt2 Domega<T>::to_Zsqrt2() const {
+Zsqrt2<T> Domega<T>::to_Zsqrt2() const {
     if (! is_Zsqrt2()) {
         throw std::runtime_error("The number to convert is not in Zsqrt2. Got " + to_string());
     }

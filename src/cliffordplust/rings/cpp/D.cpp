@@ -131,5 +131,5 @@ float D<T>::to_float() const {return static_cast<float>(_num) / (1 << _denom);}
 
 template <typename T>
 long double D<T>::to_long_double() const {
-    return static_cast<long double>(_num) / ((unsigned T) 1 << _denom);
+    return static_cast<long double>(_num) / ((unsigned int) 1 << _denom);
 }

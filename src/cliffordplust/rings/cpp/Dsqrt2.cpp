@@ -34,10 +34,10 @@ Dsqrt2<T>::Dsqrt2(D<T> p, D<T> q) : _p(p), _q(q) {}
 
 
 template <typename T>
-const D& Dsqrt2<T>::p() const {return _p;}
+const D<T>& Dsqrt2<T>::p() const {return _p;}
 
 template <typename T>
-const D& Dsqrt2<T>::q() const {return _q;}
+const D<T>& Dsqrt2<T>::q() const {return _q;}
 
 
 template <typename T>
@@ -55,7 +55,7 @@ bool Dsqrt2<T>::is_int() const {return _p.is_int() and _q == 0;}
 
 
 template <typename T>
-Domega<T> Dsqrt2<T>::to_Domega() const {return Domega<T>(-_q, D(0, 0), _q, _p);}
+Domega<T> Dsqrt2<T>::to_Domega() const {return Domega<T>(-_q, D<T>(0, 0), _q, _p);}
 
 template <typename T>
 Zomega<T> Dsqrt2<T>::to_Zomega() const {
