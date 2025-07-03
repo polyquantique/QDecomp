@@ -196,7 +196,7 @@ def find_special_grid_operator(state: State) -> GridOperator:
         elif state.z >= 0.8 and state.zeta <= 0.3:
             special_grid_operator = special_grid_operator * K.conjugate()
         else:
-            raise ValueError( # pragma: no cover
+            raise ValueError(  # pragma: no cover
                 "The algorithm encountered unaccounted-for values of z and zeta. "
                 "Please check the input state or the algorithm implementation."
             )
@@ -207,7 +207,7 @@ def find_special_grid_operator(state: State) -> GridOperator:
             n = max(1, math.floor(float(LAMBDA) ** c / math.sqrt(2)))
             special_grid_operator = special_grid_operator * B**n
         else:
-            raise ValueError( # pragma: no cover
+            raise ValueError(  # pragma: no cover
                 "The algorithm encountered unaccounted-for values of z and zeta. "
                 "Please check the input state or the algorithm implementation."
             )

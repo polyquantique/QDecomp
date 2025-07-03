@@ -204,7 +204,8 @@ def test_conjugate(grid_op):
     def compute_conjugated(element):
         if isinstance(element, (Zsqrt2, Dsqrt2)):
             return element.sqrt2_conjugate()
-        return element  # No change for int or D
+        # No change for int or D
+        return element  # pragma: no cover
 
     # Verify that each element in the conjugated grid is correct
     assert conjugated_op.a == compute_conjugated(grid_op.a)

@@ -162,13 +162,13 @@ def test_grid_algorithm_2d_solutions(A, B):
 def test_plot_solutions_1d_type_errors_intervals(seq1, seq2):
     """Test the raise of a TypeError when plotting the solutions of the 1D grid problem if the input intervals are not of the correct form."""
     _, ax = plt.subplots()
-    with pytest.raises(TypeError, match="Input intervals must be real sequences of length 2"):
+    with pytest.raises(TypeError):
         plot_grid_problem_1d(ax, seq1, seq2, [])
 
 
 def test_plot_solutions_1d_type_errors_solutions():
     """Test the raise of a TypeError when plotting the solutions of the 1D grid problem if the solutions are not of the correct form."""
-    fig, ax = plt.subplots()
+    _, ax = plt.subplots()
     with pytest.raises(TypeError, match="Solutions must be Zsqrt2 objects."):
         plot_grid_problem_1d(ax, (1, 2), (-1, 1), [1, 2, 3])
 

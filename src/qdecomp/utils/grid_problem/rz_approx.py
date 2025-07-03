@@ -138,8 +138,7 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
     delta = mp.mpf(1) - mp.mpf(0.5 * epsilon**2)
 
     n = 0
-    solution = False
-    while solution == False:
+    while True:
         # Varies if odd or even
         odd = n % 2
         if odd:
@@ -183,14 +182,14 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
                         pass
                     else:
                         # The solution is found and returned!
-                        solution = True
                         M = np.array(
                             [[u, -t.complex_conjugate()], [t, u.complex_conjugate()]]
                         )
                         return M
+
         n += 1
         if n > 1000000:
-            raise ValueError( #pragma: no cover
+            raise ValueError(  # pragma: no cover
                 "The algorithm did not find a solution after 1 million iterations. " 
                 "Try increasing the error for the calculations."
             )
