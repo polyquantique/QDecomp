@@ -13,12 +13,13 @@
 #    limitations under the License.
 
 """
-This file defines the `State` class, which is a key component in solving the grid problem. 
+This file defines the :class:`State` class, which is a key component in solving the grid problem. 
 Specifically, it is used to ensure that the uprightness of the ellipse pair is augmented to 
 at least 1/6. 
 
-This is adapted from the mathematical framework in Ross and Sellinger (2014). The following outlines 
-the use of states in the context of the algorithm.
+For more information on the use of states, see Annex A of [1]_.
+
+.. [1] Neil J. Ross and Peter Selinger, Optimal ancilla-free Clifford+T approximation of z-rotations, https://arxiv.org/pdf/1403.2975.
 """
 
 from __future__ import annotations

@@ -15,8 +15,7 @@
 """
 This module defines the :class:`GridOperator`.
 
-Grid operators are a central concept introduced in Section 5.3 of the following paper:
-https://arxiv.org/pdf/1403.2975. However, this class is generalized to work with any matrix
+Grid operators are a central concept introduced in Section 5.3 of [1]_. However, this class is generalized to work with any matrix
 whose elements lie in the ring :math:`D[\sqrt{2}]`.
 
 To efficiently solve a general 2D grid problem, it is necessary to find the upright bounding box of the
@@ -54,6 +53,10 @@ then there exists a special grid operator :math:`G`, such that:
     Up(G(E)) \\geq \\frac{1}{6}, \\quad Up(G^\\bullet (\\bar{\\mathcal{D}})) \\geq \\frac{1}{6}.
 
 This class defines grid operators, which will be useful in the grid problem algorithm as a whole. 
+
+For more information on the use of states, see Section 5.3 of [1]_.
+
+.. [1] Neil J. Ross and Peter Selinger, Optimal ancilla-free Clifford+T approximation of z-rotations, https://arxiv.org/pdf/1403.2975.
 """
 
 from __future__ import annotations

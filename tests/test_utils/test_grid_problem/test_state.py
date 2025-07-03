@@ -29,9 +29,9 @@ def valid_matrices():
 
 @pytest.fixture
 def valid_lists():
-    """Returns valid symmetric 2x2 matrices with determinant 1."""
-    A = [[mp.mpf(2), mp.mpf(1)], [mp.mpf(1), mp.mpf(2)]] / mp.sqrt(mp.mpf(3))
-    B = [[mp.mpf(3), mp.mpf(1)], [mp.mpf(1), mp.mpf(3)]] / mp.sqrt(mp.mpf(8))
+    """Returns valid symmetric 2x2 matrices."""
+    A = [[mp.mpf(2), mp.mpf(1)], [mp.mpf(1), mp.mpf(2)]]
+    B = [[mp.mpf(3), mp.mpf(1)], [mp.mpf(1), mp.mpf(3)]]
     return A, B
 
 @pytest.fixture
