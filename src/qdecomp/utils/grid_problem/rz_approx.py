@@ -30,10 +30,8 @@ import numpy as np
 from qdecomp.rings.rings import *
 from qdecomp.utils.diophantine import solve_xi_eq_ttdag_in_d
 from qdecomp.utils.grid_problem.grid_algorithms import solve_grid_problem_2d
-from qdecomp.utils.grid_problem.grid_problem import (find_grid_operator,
-                                                     find_points)
-from qdecomp.utils.steiner_ellipse import (ellipse_bbox, is_inside_ellipse,
-                                           steiner_ellipse_def)
+from qdecomp.utils.grid_problem.grid_problem import find_grid_operator, find_points
+from qdecomp.utils.steiner_ellipse import ellipse_bbox, is_inside_ellipse, steiner_ellipse_def
 
 # Define Identity
 I = np.array([[mp.mpf(1), mp.mpf(0)], [mp.mpf(0), mp.mpf(1)]], dtype=object)

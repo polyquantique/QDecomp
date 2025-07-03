@@ -18,8 +18,7 @@ import mpmath as mp
 import numpy as np
 import pytest
 from qdecomp.rings.rings import D, Dsqrt2, Zsqrt2
-from qdecomp.utils.grid_problem.grid_operator import (A, B, GridOperator, I, K,
-                                                      R, X, Z)
+from qdecomp.utils.grid_problem.grid_operator import A, B, GridOperator, I, K, R, X, Z
 
 # Valid entries for testing
 valid_entries = [
