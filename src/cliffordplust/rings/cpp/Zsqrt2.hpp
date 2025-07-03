@@ -17,6 +17,7 @@
 #define ZSQRT2_HPP
 
 #include <string>
+#include <boost/multiprecision/cpp_int.hpp> // Include the Boost Multiprecision library header
 
 #include "Rings.hpp"
 
@@ -28,11 +29,14 @@
  * This class represents Z[\u221A2] elements with 2 elements from the D ring, the 1 and \u221A2 coefficients.
  * 
  * The class provides basic arithmetic operations, comparison operators, and a method to raise the number to a power.
+ * 
+ * \tparam T The type of the coefficients. Default is long long int.
  */
+template <typename T = long long int>
 class Zsqrt2 {
     private:
-        long long int _p;  ///< The integer coefficient of the ring element
-        long long int _q;  ///< The \u221A2 coefficient of the ring element
+        T _p;  ///< The integer coefficient of the ring element
+        T _q;  ///< The \u221A2 coefficient of the ring element
 
     public:
         /**
@@ -41,7 +45,7 @@ class Zsqrt2 {
          * @param p The numerator of the integer coefficient.
          * @param q The numerator of the \u221A2 coefficient.
          */
-        Zsqrt2(long long int p, long long int q);
+        Zsqrt2(T p, T q);
 
 
         /**
@@ -49,14 +53,14 @@ class Zsqrt2 {
          * 
          * @return int The integer coefficient.
          */
-        long long int p() const;
+        T p() const;
 
         /**
          * @brief Get the \u221A2 coefficient of the ring element.
          * 
          * @return int The \u221A2 coefficient.
          */
-        long long int q() const;
+        T q() const;
 
 
         /**
@@ -64,7 +68,7 @@ class Zsqrt2 {
          * 
          * @return Zsqrt2 The \u221A2 conjugate of the number.
          */
-        Zsqrt2 sqrt2_conjugate() const;
+        Zsqrt2<T> sqrt2_conjugate() const;
 
 
         /**
@@ -80,14 +84,13 @@ class Zsqrt2 {
          * 
          * @return Domega The number in the ring D[\u03C9].
          */
-        Domega to_Domega() const;
+        Domega<T> to_Domega() const;
 
         /**
          * @brief Convert the number in the ring Z[\u03C9].
          * 
          * @return Zomega The number in the ring Z[\u03C9].
          */
-        template <typename T = long long int>
         Zomega<T> to_Zomega() const;
 
         /**
@@ -95,7 +98,7 @@ class Zsqrt2 {
          * 
          * @return Dsqrt2 The number in the ring D[\u221A2].
          */
-        Dsqrt2 to_Dsqrt2() const;
+        Dsqrt2<T> to_Dsqrt2() const;
 
         /**
          * @brief Convert the number in the ring D.
@@ -103,7 +106,7 @@ class Zsqrt2 {
          * @return D The number in the ring D.
          * @throw std::runtime_error if the number is not in D.
          */
-        D to_D() const;
+        D<T> to_D() const;
 
         /**
          * @brief Convert the number to an integer.
@@ -111,7 +114,7 @@ class Zsqrt2 {
          * @return int The integer.
          * @throw std::runtime_error if the number is not an integer.
          */
-        long long int to_int() const;
+        T to_int() const;
 
         /**
          * @brief Convert the number to a float.
@@ -134,7 +137,7 @@ class Zsqrt2 {
          * @return true If the numbers are equal.
          * @return false If the numbers are not equal.
          */
-        bool operator==(const Zsqrt2& other) const;
+        bool operator==(const Zsqrt2<T>& other) const;
 
         /**
          * @brief Check if the number is equal to an integer.
@@ -143,7 +146,7 @@ class Zsqrt2 {
          * @return true If the numbers are equal.
          * @return false If the numbers are not equal.
          */
-        bool operator==(const long long int& other) const;
+        bool operator==(const T& other) const;
 
         /**
          * @brief Check if the number is not equal to another Z[\u221A2] object.
@@ -152,7 +155,7 @@ class Zsqrt2 {
          * @return true If the numbers are not equal.
          * @return false If the numbers are equal.
          */
-        bool operator!=(const Zsqrt2& other) const;
+        bool operator!=(const Zsqrt2<T>& other) const;
 
         /**
          * @brief Check if the number is not equal to an integer.
@@ -161,7 +164,7 @@ class Zsqrt2 {
          * @return true If the numbers are not equal.
          * @return false If the numbers are equal.
          */
-        bool operator!=(const long long int& other) const;
+        bool operator!=(const T& other) const;
 
         /**
          * @brief Check if the number is similar to another Z[\u221A2] object.
@@ -172,7 +175,7 @@ class Zsqrt2 {
          * @return true If the number is similar to the other number.
          * @return false If the number is not similar to the other number.
          */
-        bool operator||(const Zsqrt2& other) const;
+        bool operator||(const Zsqrt2<T>& other) const;
 
 
         /**
@@ -181,14 +184,14 @@ class Zsqrt2 {
          * @param other The other Z[\u221A2] object.
          * @return Zsqrt2 The result of the addition.
          */
-        Zsqrt2 operator+(const Zsqrt2& other) const;
+        Zsqrt2<T> operator+(const Zsqrt2<T>& other) const;
 
         /**
          * @brief Negate the number.
          * 
          * @return Zsqrt2 The negated number.
          */
-        Zsqrt2 operator-() const;
+        Zsqrt2<T> operator-() const;
 
         /**
          * @brief Subtract another Z[\u221A2] object from the number.
@@ -196,7 +199,7 @@ class Zsqrt2 {
          * @param other The other Z[\u221A2] object.
          * @return Zsqrt2 The result of the subtraction.
          */
-        Zsqrt2 operator-(const Zsqrt2& other) const;
+        Zsqrt2<T> operator-(const Zsqrt2<T>& other) const;
 
         /**
          * @brief Multiply the number by another Z[\u221A2] object.
@@ -204,7 +207,7 @@ class Zsqrt2 {
          * @param other The other Z[\u221A2] object.
          * @return Zsqrt2 The result of the multiplication.
          */
-        Zsqrt2 operator*(const Zsqrt2& other) const;
+        Zsqrt2<T> operator*(const Zsqrt2<T>& other) const;
 
 
         /**
@@ -213,7 +216,7 @@ class Zsqrt2 {
          * @param n The exponent.
          * @return Zsqrt2 The result of the exponentiation.
          */
-        Zsqrt2 pow(unsigned short n) const;
+        Zsqrt2<T> pow(unsigned int n) const;
 
 
         /**
@@ -245,7 +248,8 @@ class Zsqrt2 {
  * @param div The denominator.
  * @return std::tuple<Zsqrt2, Zsqrt2> The quotient and the remainder.
  */
-std::tuple<Zsqrt2, Zsqrt2> euclidean_div(const Zsqrt2& num, const Zsqrt2& div);
+template <typename T = long long int>
+std::tuple<Zsqrt2<T>, Zsqrt2<T>> euclidean_div(const Zsqrt2<T>& num, const Zsqrt2<T>& div);
 
 
 #endif  // ZSQRT2_HPP

@@ -77,7 +77,7 @@ class Dsqrt2 {
          * 
          * @return Dsqrt2 The \u221A2 conjugate of the number.
          */
-        Dsqrt2 sqrt2_conjugate() const;
+        Dsqrt<T> sqrt2_conjugate() const;
 
 
         /**
@@ -199,14 +199,14 @@ class Dsqrt2 {
          * @param other The other D[\u221A2] object.
          * @return Dsqrt2 The result of the addition.
          */
-        Dsqrt2 operator+(const Dsqrt2<T>& other) const;
+        Dsqrt<T> operator+(const Dsqrt2<T>& other) const;
         
         /**
          * @brief Negate the number.
          * 
          * @return Dsqrt2 The negated number.
          */
-        Dsqrt2 operator-() const;
+        Dsqrt<T> operator-() const;
 
         /**
          * @brief Subtract another D[\u221A2] object from the number.
@@ -214,7 +214,7 @@ class Dsqrt2 {
          * @param other The other D[\u221A2] object.
          * @return Dsqrt2 The result of the subtraction.
          */
-        Dsqrt2 operator-(const Dsqrt2<T>& other) const;
+        Dsqrt<T> operator-(const Dsqrt2<T>& other) const;
 
         /**
          * @brief Multiply the number by another D[\u221A2] object.
@@ -222,7 +222,7 @@ class Dsqrt2 {
          * @param other The other D[\u221A2] object.
          * @return Dsqrt2 The result of the multiplication.
          */
-        Dsqrt2 operator*(const Dsqrt2<T>& other) const;
+        Dsqrt<T> operator*(const Dsqrt2<T>& other) const;
 
 
         /**
@@ -231,7 +231,7 @@ class Dsqrt2 {
          * @param n The power of sqrt(2).
          * @return Dsqrt2 The result of the multiplication.
          */
-        Dsqrt2 sqrt2_multiply(const unsigned int n) const;
+        Dsqrt<T> sqrt2_multiply(const unsigned int n) const;
 
         /**
          * @brief Raise the number to a power.
@@ -239,7 +239,7 @@ class Dsqrt2 {
          * @param n The exponent.
          * @return Dsqrt2 The result of the exponentiation.
          */
-        Dsqrt2 pow(unsigned int n) const;
+        Dsqrt<T> pow(unsigned int n) const;
 
 
         /**

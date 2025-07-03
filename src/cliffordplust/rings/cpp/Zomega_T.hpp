@@ -99,14 +99,14 @@ class Zomega {
          * 
          * @return Zsqrt2 The real part of the number.
          */
-        Zsqrt2 real() const;
+        Zsqrt2<T> real() const;
 
         /**
          * @brief Get the imaginary part of the number.
          * 
          * @return Zsqrt2 The imaginary part of the number.
          */
-        Zsqrt2 imag() const;
+        Zsqrt2<T> imag() const;
 
 
         /**
@@ -151,7 +151,7 @@ class Zomega {
          * 
          * @return Domega The number in the ring D[\u03C9].
          */
-        Domega to_Domega() const;
+        Domega<T> to_Domega() const;
 
         /**
          * @brief Convert the number in the ring D[\u221A2].
@@ -159,7 +159,7 @@ class Zomega {
          * @return Dsqrt2 The number in the ring D[\u221A2].
          * @throw std::runtime_error if the number is not in D[\u221A2].
          */
-        Dsqrt2 to_Dsqrt2() const;
+        Dsqrt2<T> to_Dsqrt2() const;
 
         /**
          * @brief Convert the number in the ring Z[\u221A2].
@@ -167,7 +167,7 @@ class Zomega {
          * @return Zsqrt2 The number in the ring Z[\u221A2].
          * @throw std::runtime_error if the number is not in Z[\u221A2].
          */
-        Zsqrt2 to_Zsqrt2() const;
+        Zsqrt2<T> to_Zsqrt2() const;
 
         /**
          * @brief Convert the number in the ring D.
@@ -175,7 +175,7 @@ class Zomega {
          * @return D The number in the ring D.
          * @throw std::runtime_error if the number is not in D.
          */
-        D to_D() const;
+        D<T> to_D() const;
 
         /**
          * @brief Convert the number to an integer.
@@ -335,7 +335,7 @@ std::tuple<Zomega<T>, Zomega<T>> euclidean_div(const Zomega<T>& num, const Zomeg
  * @param b The second Z[\u03C9] number.
  * @return Zomega The greatest common divisor of the two numbers.
  */
- template <typename T = long long int>
+template <typename T = long long int>
 Zomega<T> gcd(const Zomega<T>& x, const Zomega<T>& y);
 
 #endif  // ZOMEGA_HPP

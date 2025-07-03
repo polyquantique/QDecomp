@@ -55,22 +55,22 @@ T Zomega<T>::operator[](unsigned short i) const {
 
 
 template <typename T>
-Zsqrt2 Zomega<T>::real() const {
+Zsqrt2<T> Zomega<T>::real() const {
     T sqrt2_part = _c - _a;
     if (sqrt2_part & 1) {
         throw std::runtime_error("The real part of " + to_string() + " is not in Zsqrt2.");
     }
 
-    return Zsqrt2(_d, sqrt2_part >> 1);
+    return Zsqrt2<T>(_d, sqrt2_part >> 1);
 }
 
 template <typename T>
-Zsqrt2 Zomega<T>::imag() const {
+Zsqrt2<T> Zomega<T>::imag() const {
     T sqrt2_part = _c + _a;
     if (sqrt2_part & 1) {
         throw std::runtime_error("The imaginary part of " + to_string() + " is not in Zsqrt2.");
     }
-    return Zsqrt2(_b, sqrt2_part >> 1);
+    return Zsqrt2<T>(_b, sqrt2_part >> 1);
 }
 
 
@@ -92,33 +92,33 @@ bool Zomega<T>::is_real() const {return _b == 0 and _a == -_c;}
 
 
 template <typename T>
-Domega Zomega<T>::to_Domega() const {return Domega(_a, 0, _b, 0, _c, 0, _d, 0);}
+Domega<T> Zomega<T>::to_Domega() const {return Domega<T>(_a, 0, _b, 0, _c, 0, _d, 0);}
 
 template <typename T>
-Dsqrt2 Zomega<T>::to_Dsqrt2() const {
+Dsqrt2<T> Zomega<T>::to_Dsqrt2() const {
     if (! is_Zsqrt2()) {
         throw std::runtime_error("The number to convert is not in Dsqrt2. Got " + to_string());
     }
 
-    return Dsqrt2(_d, 0, _c, 0);
+    return Dsqrt2<T>(_d, 0, _c, 0);
 }
 
 template <typename T>
-Zsqrt2 Zomega<T>::to_Zsqrt2() const {
+Zsqrt2<T> Zomega<T>::to_Zsqrt2() const {
     if (! is_Zsqrt2()) {
         throw std::runtime_error("The number to convert is not in Zsqrt2. Got " + to_string());
     }
     
-    return Zsqrt2(_d, _c);
+    return Zsqrt2<T>(_d, _c);
 }
 
 template <typename T>
-D Zomega<T>::to_D() const {
+D<T> Zomega<T>::to_D() const {
     if (! is_int()) {
         throw std::runtime_error("The number to convert is not in D. Got " + to_string());
     }
 
-    return D(_d, 0);
+    return D<T>(_d, 0);
 }
 
 template <typename T>

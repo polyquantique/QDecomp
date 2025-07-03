@@ -50,15 +50,15 @@ template <typename T>
 Zomega<T> Zsqrt2<T>::to_Zomega() const {return Zomega<T>(-_q, 0, _q, _p);}
 
 template <typename T>
-Dsqrt2 Zsqrt2<T>::to_Dsqrt2() const {return Dsqrt2(_p, 0, _q, 0);}
+Dsqrt2<T> Zsqrt2<T>::to_Dsqrt2() const {return Dsqrt2<T>(_p, 0, _q, 0);}
 
 template <typename T>
-D Zsqrt2<T>::to_D() const {
+D<T> Zsqrt2<T>::to_D() const {
     if (! is_int()) {
         throw std::runtime_error("The number to convert is not an integer. Got " + to_string());
     }
 
-    return D(_p, 0);
+    return D<T>(_p, 0);
 }
 
 template <typename T>
@@ -88,13 +88,13 @@ template <typename T>
 bool Zsqrt2<T>::operator==(const T& other) const {return (_p == other) and (_q == 0);}
 
 template <typename T>
-bool Zsqrt2<T>::operator!=(const Zsqrt2& other) const {return !(*this == other);}
+bool Zsqrt2<T>::operator!=(const Zsqrt2<T>& other) const {return !(*this == other);}
 
 template <typename T>
 bool Zsqrt2<T>::operator!=(const T& other) const {return !(*this == other);}
 
 template <typename T>
-bool Zsqrt2<T>::operator||(const Zsqrt2& other) const {
+bool Zsqrt2<T>::operator||(const Zsqrt2<T>& other) const {
     Zsqrt2<T> r1(0, 0);
     Zsqrt2<T> r2(0, 0);
     std::tie(std::ignore, r1) = euclidean_div(*this, other);
@@ -103,16 +103,16 @@ bool Zsqrt2<T>::operator||(const Zsqrt2& other) const {
 }
 
 template <typename T>
-Zsqrt2<T> Zsqrt2<T>::operator+(const Zsqrt2& other) const {return Zsqrt2<T>(_p + other._p, _q + other._q);}
+Zsqrt2<T> Zsqrt2<T>::operator+(const Zsqrt2<T>& other) const {return Zsqrt2<T>(_p + other._p, _q + other._q);}
 
 template <typename T>
 Zsqrt2<T> Zsqrt2<T>::operator-() const {return Zsqrt2<T>(-_p, -_q);}
 
 template <typename T>
-Zsqrt2<T> Zsqrt2<T>::operator-(const Zsqrt2& other) const {return *this + (-other);}
+Zsqrt2<T> Zsqrt2<T>::operator-(const Zsqrt2<T>& other) const {return *this + (-other);}
 
 template <typename T>
-Zsqrt2<T> Zsqrt2<T>::operator*(const Zsqrt2& other) const {
+Zsqrt2<T> Zsqrt2<T>::operator*(const Zsqrt2<T>& other) const {
     return Zsqrt2<T>(
         (_p * other._p) + (2 * _q * other._q),
         (_p * other._q) + (_q * other._p)
@@ -181,7 +181,7 @@ void Zsqrt2<T>::print() const {std::cout << to_string() << std::endl;}
 
 /// Functions in the Z[\u221A2] ring
 template <typename T>
-std::tuple<Zsqrt2, Zsqrt2> euclidean_div(const Zsqrt2& num, const Zsqrt2& div) {
+std::tuple<Zsqrt2<T>, Zsqrt2<T>> euclidean_div(const Zsqrt2<T>& num, const Zsqrt2<T>& div) {
     Zsqrt2<T> num_ = num * div.sqrt2_conjugate();
     T den_ = (div * div.sqrt2_conjugate()).p();
 
