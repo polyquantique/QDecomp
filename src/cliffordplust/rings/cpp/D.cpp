@@ -17,6 +17,7 @@
 #include <stdexcept>
 #include <cmath>
 #include <iostream>
+#include <sstream>
 #include <boost/multiprecision/cpp_int.hpp> // Include the Boost Multiprecision library header
 
 #include "D.hpp"
@@ -121,7 +122,11 @@ D<T> D<T>::pow(unsigned int n) const {
 
 
 template <typename T>
-std::string D<T>::to_string() const {return std::to_string(_num) + "/2^" + std::to_string(_denom);}
+std::string D<T>::to_string() const {
+    std::ostringstream oss;
+    oss << _num << "/2^" << _denom;
+    return oss.str();
+}
 
 template <typename T>
 void D<T>::print() const {std::cout << to_string() << std::endl;}

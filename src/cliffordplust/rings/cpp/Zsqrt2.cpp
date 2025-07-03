@@ -16,6 +16,7 @@
 #include <string>
 #include <stdexcept>
 #include <iostream>
+#include <sstream>
 #include <cmath>
 #include <boost/multiprecision/cpp_int.hpp> // Include the Boost Multiprecision library header
 
@@ -172,7 +173,9 @@ void Zsqrt2<T>::unit_reduce() {
 
 template <typename T>
 std::string Zsqrt2<T>::to_string() const {
-    return std::to_string(_p) + " + " + std::to_string(_q) + "\u221A2";
+    std::ostringstream oss;
+    oss << _p << " + " << _q << "\u221A2";
+    return oss.str();
 }
 
 template <typename T>

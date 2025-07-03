@@ -23,12 +23,25 @@
 
 
 /**
+ * @brief Compute the integer part of the square root of a number.
+ * 
+ * This function computes the integer part of the square root of a number, extended to support
+ * arbitrary precision numbers.
+ * 
+ * @param x The number to compute the square root of.
+ * @return The integer part of the square root of x.
+ */
+template <typename T>
+T sqrt_generic(const T& x);
+
+/**
  * @brief Determine wether a number is a square or not.
  * 
  * @param n The number to check.
  * @return true if n is a square, false otherwise.
  */
-bool is_square(long long int n);
+template <typename T = long long int>
+bool is_square(T n);
 
 /**
  * @brief Solve the Diophantine equation u^2 = -a (mod p).
@@ -40,7 +53,8 @@ bool is_square(long long int n);
  * @param p The value of p.
  * @return The solution u.
  */
-long long int solve_usquare_eq_a_mod_p(long long int a, long long int p);
+template <typename T = long long int>
+T solve_usquare_eq_a_mod_p(T a, T p);
 
 
 /**
@@ -50,7 +64,8 @@ long long int solve_usquare_eq_a_mod_p(long long int a, long long int p);
  * @return The factorization of n as a vector of tuples (p, m) where p is a prime number and m is
  *  the exponent of p in the factorization of n.
  */
-std::vector<std::tuple<long long int, unsigned short>> int_fact(long long int n);
+template <typename T = long long int>
+std::vector<std::tuple<T, unsigned int>> int_fact(T n);
 
 /**
  * @brief Find the factorization, up to a prime, of a number in Z[\u221A2].
@@ -60,7 +75,8 @@ std::vector<std::tuple<long long int, unsigned short>> int_fact(long long int n)
  *  number associated to xi_i, xi_i is a prime of xi in Z[\u221A2], and m is the exponent of xi_i in
  *  the factorization of n.
  */
-std::vector<std::tuple<long long int, Zsqrt2, unsigned short>> xi_fact(Zsqrt2 xi);
+template <typename T = long long int>
+std::vector<std::tuple<T, Zsqrt2<T>, unsigned int>> xi_fact(Zsqrt2<T> xi);
 
 /**
  * @brief Find the factorization of a prime integer in Z[\u221A2].
@@ -68,7 +84,8 @@ std::vector<std::tuple<long long int, Zsqrt2, unsigned short>> xi_fact(Zsqrt2 xi
  * @param pi The prime number to factorize in Z[\u221A2].
  * @return A prime factor of pi in Z[\u221A2]. The \u221A2 conjugate is also a prime factor of pi.
  */
-Zsqrt2 pi_fact_into_xi(long long int pi);
+template <typename T = long long int>
+Zsqrt2<T> pi_fact_into_xi(T pi);
 
 /**
  * @brief Find the factorization of a prime element of Z[\u221A2] in Z[\u03C9].
@@ -78,7 +95,8 @@ Zsqrt2 pi_fact_into_xi(long long int pi);
  * @param xi_i A prime number in Z[\u221A2] to factorize.
  * @return A prime factor of xi_i in Z[\u03C9]. The complex conjugate is also a prime factor of xi_i.
  */
-Zomega<long long int> xi_i_fact_into_ti(long long int pi, Zsqrt2 xi_i);
+template <typename T = long long int>
+Zomega<T> xi_i_fact_into_ti(T pi, Zsqrt2<T> xi_i);
 
 
 /**
@@ -91,7 +109,8 @@ Zomega<long long int> xi_i_fact_into_ti(long long int pi, Zsqrt2 xi_i);
  * @param xi The value of xi.
  * @return The solution t, or Zomega(0, 0, 0, 0) if no solution exists.
  */
-Zomega<long long int> solve_xi_sim_ttdag_in_z(Zsqrt2 xi);
+template <typename T = long long int>
+Zomega<T> solve_xi_sim_ttdag_in_z(Zsqrt2<T> xi);
 
 /**
  * @brief Solve the Diophantine equation xi = t * t^\u2020.
@@ -104,7 +123,8 @@ Zomega<long long int> solve_xi_sim_ttdag_in_z(Zsqrt2 xi);
  * @param xi The value of xi.
  * @return The solution t, or Domega(0, 0, 0, 0, 0, 0, 0, 0) if no solution exists.
  */
-Domega solve_xi_eq_ttdag_in_d(Dsqrt2 xi);
+template <typename T = long long int>
+Domega<T> solve_xi_eq_ttdag_in_d(Dsqrt2<T> xi);
 
 
 #endif // DIOPHANTINE_HPP

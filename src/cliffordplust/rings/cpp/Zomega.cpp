@@ -195,9 +195,6 @@ Zomega<T> Zomega<T>::pow(unsigned short n) const {
 
 
 template <typename T>
-// std::string Zomega<T>::to_string() const {
-//     return std::to_string(_a) + " \u03C9^3 + " + std::to_string(_b) + " \u03C9^2 + " + std::to_string(_c) + " \u03C9 + " + std::to_string(_d);
-// }
 std::string Zomega<T>::to_string() const {
     std::ostringstream oss;
     oss << _a << " \u03C9^3 + " << _b << " \u03C9^2 + " << _c << " \u03C9 + " << _d;
