@@ -1,7 +1,11 @@
 # QDecomp
-`QDecomp` is a standalone software package to perform multiple decompositions of quantum circuits and quantum gates. The package primarily focuses on decomposing gates into the Clifford+T universal set by implementing the algorithm proposed by Ross and Selinger [[1]](#ref1). This package was made in collaboration with D-Wave and Polytechnique Montréal.
+`QDecomp` is a standalone software package to perform multiple decompositions of single qubit and two-qubit quantum gates.
 
-The package contains 4 main subpackages
+The package primarily focuses on decomposing gates into the Clifford+T universal subset by implementing the algorithm proposed by Ross and Selinger [[1]](#ref1).
+
+This package was made in collaboration with D-Wave and Polytechnique Montréal.
+
+The package contains 4 main subpackages:
 * **decompositions** : Proposes user-oriented functions for decomposing various quantum gates
 * **utils** : Contains the core algorithms and additional utility functions
 * **rings** : Implements classes for symbolic calculations in mathematical rings
@@ -20,7 +24,7 @@ cd docs
 make html  # On Windows: make.bat html
 ```
 
-The documentation will be generated in `docs/build/html/`. Open `docs/build/html/index.html` in your browser to view it.
+The documentation is generated in `docs/build/html/`. Open `docs/build/html/index.html` in a browser to view it.
 
 
 ## Installation
@@ -32,69 +36,79 @@ git clone https://github.com/polyquantique/QDecomp.git
 pip install -r requirements.txt
 ```
 
-## Example usage
+## Usage Examples
 
 ### Example #1: Single-Qubit Gate Decomposition
 
-This example demonstrates the use of the `qdcomp.decompositions.sqg_decomp` function to decompose single-qubit gates (SQG) into the Clifford+T universal subset. The function requires two arguments: a 2x2 unitary matrix, represented as a `np.NDarray`, and a tolerance error $\varepsilon$. It will return the sequence of Clifford+T gates as a `str`. Note that the algorithm guarantees the specified error only for $R_z$ gates, meaning the total error for SQG may exceed the user-defined tolerance due to error propagation.   
+This example demonstrates the use of the `qdcomp.decompositions.sqg_decomp` function to decompose single-qubit gates (SQG) into the Clifford+T universal subset up to a tolerance error $\varepsilon$. Note that the algorithm guarantees the specified error only for $R_z$ gates, meaning the total error for SQG may exceed the user-defined tolerance due to error propagation.   
 
-```python
-from qdecomp.decompositions import sqg_decomp
-
-U = np.array([ # Unitary matrix
-    [0.5 + 0.5j, -0.5 - 0.5j],
-    [-0.498 + 0.502, -0.498 + 0.502]
-])
-
-sequence = sqg_decomp(U, epsilon=1e-2)
-
-print(sequence)
-# Z H S H S T H T H S T H T H S T H T H S T H T H S T H T H S T H T H T H T H T H T H T H S T H S T H S T H T H T H T H S T H T H Z S H S T H Z
+```pycon
+>>> from qdecomp.decompositions import sqg_decomp
+>>> import numpy as np
+>>> U = np.array([ # Unitary matrix
+...     [0.5 + 0.5j, -0.5 - 0.5j],
+...     [-0.498 + 0.502, -0.498 + 0.502]
+... ])
+>>> sequence = sqg_decomp(U, epsilon=1e-2)
+>>> print(sequence)
+Z H S H S T H T H S T H T H S T H T H S T H T H S T H T H S T H T H T H T H T H T H T H S T H S T H S T H T H T H T H S T H T H Z S H S T H Z
 ```
 
 ### Example #2: Two-Qubit Gate Decomposition
-This example demonstrates the use of the `qdecomp.decompositions.tqg_decomp` function to decompose two-qubit gates (TQG) into the Clifford+T universal subset. The function takes two arguments similarly to the `sqg_decomp` function: a 4x4 unitary matrix, represented as a `np.NDarray`, and a tolerance error $\varepsilon$. The function will output a `list` of `QGate` objects representing the circuit. The target qubits and the corresponding sequence can be accessed through the `QGate.target` and `QGate.sequence` properties respectively.
+This example demonstrates the use of the `qdecomp.decompositions.tqg_decomp` function to decompose two-qubit gates (TQG) into the Clifford+T universal subset up to a tolerance error $\varepsilon$. The function outputs a `list` of `QGate` objects representing the circuit. The target qubits and the corresponding sequence can be accessed through the `QGate.target` and `QGate.sequence` properties respectively.
 
-```python
-from qdecomp.decompositions import tqg_decomp
-
-U = np.array([ # Unitary matrix
-    [ 0.250 + 0.604j , -0.104 - 0.250j , 0.250 + 0.604j , -0.104 - 0.250j ],
-    [ -0.104 - 0.250j , 0.250 + 0.604j , -0.104 - 0.250j , 0.250 + 0.604j ],
-    [ 0.104 + 0.250j , 0.250 + 0.604j , 0.104 + 0.250j , 0.250 + 0.604j ],
-    [ -0.104 - 0.250j , -0.250 - 0.604j , -0.104 - 0.250j , -0.250 - 0.604j ]
-])
-
-circuit = tqg_decomp(U, epsilon=1e-2) # List of QGate objects
-for gate in circuit:
-    print(f"{gate.target} -> {gate.sequence}")
-
-# Output :
-# (0 ,) -> S
-# (1 ,) -> S H S H S H S S S H
-# (0 , 1) -> CNOT CNOT1
-# (0 ,) -> T
-# (1 ,) -> H S H
-# (0 , 1) -> CNOT1
-# (1 ,) -> H S H Z S H S S S H Z S
-# (0 ,) -> Z S
+```pycon
+>>> from qdecomp.decompositions import tqg_decomp
+>>> import numpy as np
+>>> U = np.array([ # Unitary matrix
+...     [ 0.250 + 0.604j , -0.104 - 0.250j , 0.250 + 0.604j , -0.104 - 0.250j ],
+...     [ -0.104 - 0.250j , 0.250 + 0.604j , -0.104 - 0.250j , 0.250 + 0.604j ],
+...     [ 0.104 + 0.250j , 0.250 + 0.604j , 0.104 + 0.250j , 0.250 + 0.604j ],
+...     [ -0.104 - 0.250j , -0.250 - 0.604j , -0.104 - 0.250j , -0.250 - 0.604j ]
+... ])
+>>> circuit = tqg_decomp(U, epsilon=1e-2) # List of QGate objects
+>>> for gate in circuit:
+...     print(f"{gate.target} -> {gate.sequence}")
+...
+(0 ,) -> S
+(1 ,) -> S H S H S H S S S H
+(0 , 1) -> CNOT CNOT1
+(0 ,) -> T
+(1 ,) -> H S H
+(0 , 1) -> CNOT1
+(1 ,) -> H S H Z S H S S S H Z S
+(0 ,) -> Z S
 ```
-
-## Contributing
-
-Need to see with Theodore
 
 ## License
 
-Released under the Apache License 2.0. See LICENSE file.
+Released under the Apache License 2.0. See [LICENSE](LICENSE) file.
 
-## Contact
+## Contributors
 
-If you have any questions or feedback, please open an issue or contact us at
-* [francis.blais@polymtl.ca](francis.blais@polymtl.ca). 
-* [marius.trudeau@polymtl.ca](marius.trudeau@polymtl.ca). 
-* [olivier.romain@polymtl.ca](olivier.romain@polymtl.ca). 
-* [vincent-2.girouard@polymtl.ca](vincent-2.girouard@polymtl.ca). 
+This project was made possible by:
+
+- Olivier Romain
+- Vincent Girouard
+- Marius Trudeau
+- Francis Blais
+
+Special thanks to the two supervisors of the project:
+- Theodor Isacsson
+- Nicolás Quesada
+
+## Citing this package
+
+If you use `QDecomp` in your research or projects, please cite it using the following BibTeX entry:
+
+```bibtex
+@software{qdecomp,
+  author = {Romain, Olivier and Girouard, Vincent and Trudeau, Marius and Blais, Francis},
+  title = {QDecomp},
+  year = {2025},
+  url = {https://github.com/polyquantique/QDecomp}
+}
+```
 
 ## References
 
