@@ -61,7 +61,7 @@ def is_orthogonal(matrix: NDArray[np.floating]) -> bool:
     Returns:
         bool: True if the matrix is orthogonal, False otherwise.
     """
-    return np.allclose(matrix @ matrix.T, np.identity(matrix.shape[0]))
+    return np.allclose(matrix @ matrix.T, np.identity(matrix.shape[0])) and matrix.shape[0] == matrix.shape[1]
 
 
 def is_unitary(matrix: NDArray[np.floating]) -> bool:
@@ -76,7 +76,7 @@ def is_unitary(matrix: NDArray[np.floating]) -> bool:
     Returns:
         bool: True if the matrix is unitary, False otherwise.
     """
-    return np.allclose(matrix @ matrix.T.conj(), np.identity(matrix.shape[0]))
+    return np.allclose(matrix @ matrix.T.conj(), np.identity(matrix.shape[0])) and matrix.shape[0] == matrix.shape[1]
 
 
 def is_hermitian(matrix: NDArray[np.floating]) -> bool:
