@@ -10,6 +10,7 @@
 
 #include "..\..\rings\cpp\Rings.hpp"
 #include "diophantine_equation.hpp"
+#include "tonelli_shanks.hpp"
 
 
 template <typename T>
@@ -47,7 +48,6 @@ bool is_square(T n) {
     if (mod != 0 and mod != 1 and mod != 4 and mod != 9) {return false;}
 
     // Check if n is a square
-    // T sqrt_n = static_cast<T>(std::sqrt(n));
     T sqrt_n = sqrt_generic(n);
     return sqrt_n * sqrt_n == n;
 }
@@ -55,12 +55,12 @@ bool is_square(T n) {
 template <typename T>
 T solve_usquare_eq_a_mod_p(T a, T p) {
     // Solve the equation u^2 = a (mod p) <=> u^2 = q * p - a
-    T x = p - a;
-    while (not is_square(x)) {
-        x += p;
+    if (p == 1 and a == 1) {
+        return (T)1;  // Special case for p = 1
     }
-    // return static_cast<T>(std::sqrt(x));
-    return sqrt_generic(x);
+
+    // Use the Tonelli-Shanks algorithm to find the square root of -a modulo p
+    return tonelli_shanks_algo<T>(-a, p);
 }
 
 
