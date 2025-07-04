@@ -18,6 +18,7 @@ import math
 
 import mpmath as mp
 import pytest
+
 from qdecomp.rings import D
 
 # Set a high precision for mpmath

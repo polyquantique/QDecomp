@@ -18,6 +18,7 @@ import math
 
 import mpmath as mp
 import pytest
+
 import qdecomp.rings as r
 from qdecomp.rings import D, Dsqrt2
 

@@ -52,7 +52,7 @@ then there exists a special grid operator :math:`G`, such that:
 
     Up(G(E)) \\geq \\frac{1}{6}, \\quad Up(G^\\bullet (\\bar{\\mathcal{D}})) \\geq \\frac{1}{6}.
 
-This class defines grid operators, which will be useful in the grid problem algorithm as a whole. 
+This class defines grid operators, which will be useful in the grid problem algorithm as a whole.
 
 For more information on the use of states, see Section 5.3 of [1]_.
 

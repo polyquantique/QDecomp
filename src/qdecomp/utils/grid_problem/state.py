@@ -13,9 +13,9 @@
 #    limitations under the License.
 
 """
-This file defines the :class:`State` class, which is a key component in solving the grid problem. 
-Specifically, it is used to ensure that the uprightness of the ellipse pair is augmented to 
-at least 1/6. 
+This file defines the :class:`State` class, which is a key component in solving the grid problem.
+Specifically, it is used to ensure that the uprightness of the ellipse pair is augmented to
+at least 1/6.
 
 For more information on the use of states, see Annex A of [1]_.
 
