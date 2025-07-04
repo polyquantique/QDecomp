@@ -24,18 +24,22 @@ The module also contains functions to generate parametric gates:
     - :func:`get_matrix_from_name`: Return the matrix of a gate from its name.
 """
 
+import sys
+
 import numpy as np
 from numpy.typing import NDArray
 from scipy.linalg import expm
 
 SQRT2 = np.sqrt(2)
 
+
 # Single qubit gates
 I = np.array([[1, 0], [0, 1]])
 """NDArray[float]: Identity gate."""
 
 X = np.array([[0, 1], [1, 0]])
-"""NDArray[float]: Pauli X gate."""
+"""NDArray[float]: Pauli X gate. Alias: 'NOT'."""
+NOT = X
 
 Y = np.array([[0, -1j], [1j, 0]])
 """NDArray[float]: Pauli Y gate."""
@@ -55,22 +59,25 @@ V = 1 / 2 * np.array([[1 + 1j, 1 - 1j], [1 - 1j, 1 + 1j]])
 T = np.array([[1, 0], [0, np.exp(1.0j * np.pi / 4)]])
 """NDArray[float]: T gate. T is the fourth root of the Pauli Z gate."""
 
-W = np.exp(1.0j * np.pi / 4) * np.eye(2)
-"""NDArray[float]: W gate. W is the global omega phase gate"""
-
+W = np.exp(1.0j * np.pi / 4)
+"""Complex: W gate. W is the global omega phase gate"""
 
 # Two qubit gates
 CNOT = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
-"""NDArray[float]: CNOT | CX gate. Controlled-Not with the control on the first qubit."""
+"""NDArray[float]: CNOT | CX gate. Controlled-Not with the control on the first qubit. Alias: 'CX'."""
+CX = CNOT
 
 CNOT1 = np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0], [0, 1, 0, 0]])
-"""NDArray[float]: CNOT gate with the control on the second qubit."""
+"""NDArray[float]: CNOT gate with the control on the second qubit. Alias: 'CX1'."""
+CX1 = CNOT1
 
 DCNOT = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1], [0, 1, 0, 0]])
-"""NDArray[float]: DCNOT (Double CNOT) gate. CNOT gate followed by an inverted CNOT gate."""
+"""NDArray[float]: DCNOT (Double CNOT) gate. CNOT gate followed by an inverted CNOT gate. Alias: 'DCX'."""
+DCX = DCNOT
 
 INV_DCNOT = np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 1, 0, 0], [0, 0, 1, 0]])
-"""NDArray[float]: Inverted DCNOT gate. Inverted CNOT gate followed by a CNOT gate."""
+"""NDArray[float]: Inverted DCNOT gate. Inverted CNOT gate followed by a CNOT gate. Alias: 'INV_DCX'."""
+INV_DCX = INV_DCNOT
 
 SWAP = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 0, 0, 1]])
 """NDArray[float]: SWAP gate."""
@@ -160,8 +167,8 @@ def canonical_gate(tx: float, ty: float, tz: float) -> NDArray[np.floating]:
 
 def get_matrix_from_name(name: str) -> NDArray[np.floating]:
     """
-    Get the matrix of a gate by its name. If the name ends with "dag" or "DAG", the dagger of the
-    gate is returned.
+    Get the matrix of a gate by its name. If the name ends with "dag", "dagger", "_dag" or
+    "_dagger", the dagger of the gate is returned.
 
     Args:
         name (str): Name of the gate.
@@ -172,64 +179,32 @@ def get_matrix_from_name(name: str) -> NDArray[np.floating]:
     Raises:
         ValueError: If the gate name is not recognized.
     """
+    # Error message for unrecognized gate names
+    error_msg = f"The gate {name} is not recognized. Please check the name."
+
     # Dagger of the gate
     dag_suffix = ["dag", "dagger"]
     for suffix in dag_suffix:
         n_char = len(suffix)  # Number of characters in the suffix
-        if name[-n_char:].lower() == suffix:
-            if len(suffix) == len(name):  # The gate "_{suffix}" is the identity gate
-                return I
 
+        # Check if the name doesn't start with "{suffix}" of "_{suffix}".
+        if name.lower().startswith(suffix) or name.lower().startswith(f"_{suffix}"):
+            raise ValueError(error_msg)
+
+        if name[-n_char:].lower() == suffix:
             if name[-n_char - 1] == "_":  # Handle the case where the name ends with "_{suffix}"
                 n_char += 1
 
             matrix = get_matrix_from_name(name[:-n_char])
             return matrix.T.conj()
 
-    # Single qubit gates
-    if name in ["", "I"]:
+    # Check if the name is empty (alias for identity gate)
+    if name == "":
         return I
-    if name in ["X", "NOT"]:
-        return X
-    if name == "Y":
-        return Y
-    if name == "Z":
-        return Z
-    if name == "H":
-        return H
-    if name == "S":
-        return S
-    if name == "V":
-        return V
-    if name == "T":
-        return T
 
-    # Two qubit gates
-    if name in ["CNOT", "CX"]:
-        return CNOT
-    if name in ["CNOT1", "CX1"]:
-        return CNOT1
-    if name in ["DCNOT", "DCX"]:
-        return DCNOT
-    if name in ["INV_DCNOT", "INV_DCX"]:
-        return INV_DCNOT
-    if name == "SWAP":
-        return SWAP
-    if name == "ISWAP":
-        return ISWAP
-    if name == "CY":
-        return CY
-    if name == "CY1":
-        return CY1
-    if name == "CZ":
-        return CZ
-    if name == "CZ1":
-        return CZ1
-    if name == "CH":
-        return CH
-    if name == "CH1":
-        return CH1
-    if name == "MAGIC":
-        return MAGIC
+    # Get the gate from its string name
+    gate = getattr(sys.modules[__name__], name.upper(), None)
+    if gate is not None:  # Check if the gate is a matrix
+        return gate
 
-    raise ValueError(f"The gate {name} is not recognized. Please check the name.")
+    raise ValueError(error_msg)

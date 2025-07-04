@@ -67,9 +67,6 @@ def test_canonical_gate(tx, ty, tz):
     "name",
     [
         "I",
-        "_dag",
-        "dagger",
-        "_DAGdagger_dagger",
         "X",
         "Y",
         "Z",
@@ -90,6 +87,10 @@ def test_canonical_gate(tx, ty, tz):
         "CH",
         "CH1",
         "MAGIC",
+        "W",
+        "WDAGGER",
+        "NoT",
+        "noT",
     ],
 )
 def test_get_matrix_from_name(name):
@@ -102,6 +103,12 @@ def test_get_matrix_from_name(name):
     ]  # Randomly choose a suffix
     gate_dag = get_matrix_from_name(name + dag_choice)
 
+    phase_gate = name.startswith("W")
+    if phase_gate:
+        assert not isinstance(gate, np.ndarray)  # Phase gate is a scalar
+        assert np.isclose(gate * gate_dag, 1.0)
+        return
+
     tqg = "C" in name or "SWAP" in name  # True if the gate is a two-qubit gate
     if tqg:
         shape = (4, 4)
@@ -112,7 +119,7 @@ def test_get_matrix_from_name(name):
     assert np.allclose(gate_dag @ gate, np.eye(shape[0]))
 
 
-@pytest.mark.parametrize("name", ["NoT", "HADAMARD", "INVALID_GATE", "H_dag_"])
+@pytest.mark.parametrize("name", ["HADAMARD", "INVALID_GATE", "H_dag_", "dag", "DAG", "_dagger"])
 def test_get_matrix_from_name_error(name):
     """Test the error when the gate name is not recognized."""
     with pytest.raises(

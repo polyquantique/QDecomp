@@ -13,11 +13,14 @@
 #    limitations under the License.
 
 """
-This module allows to find the smallest ellipse englobing three points using the `Steiner algorithm <https://en.wikipedia.org/wiki/Steiner_ellipse>`_.
+This module allows to find the smallest ellipse englobing three points using the Steiner algorithm [1]_.
 The module also contains useful functions allowing to find the bounding box (BBOX) of an ellipse and
-determine wether points are inside an ellipse using its matrix definition.
+determine whether points are inside an ellipse using its matrix definition.
+
+.. [1] Wikipedia, Steiner ellipse, https://en.wikipedia.org/wiki/Steiner_ellipse.
 """
 
+import mpmath as mp
 import numpy as np
 
 __all__ = [
@@ -32,7 +35,7 @@ def assert_steiner_ellipse(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> No
     """
     Check if the three given points can be used to define a Steiner ellipse. The three points must
     be distinct and non-collinear to define a valid ellipse. If the points are not valid, a
-    ValueError is raised.
+    ``ValueError`` is raised.
 
     Args:
         p1 (list[float]): First point
@@ -69,8 +72,8 @@ def steiner_ellipse_def(
 ) -> tuple[np.ndarray, np.ndarray]:
     """
     Calculates the smallest ellipse that passes through the three given points using the Steiner
-    method. The ellipse is represented by the equation (u − p)† D (u − p) <= 1, where p is the
-    center of the ellipse and D is a matrix that defines its shape and orientation. p1, p2, p3 can
+    method. The ellipse is represented by the equation :math:`(u − p)^\dagger D (u − p) \leq 1`, where :math:`p` is the
+    center of the ellipse and :math:`D` is a matrix that defines its shape and orientation. :math:`p1`, :math:`p2`, :math:`p3` can
     be any iterable containing real numbers.
 
     Args:
@@ -79,8 +82,11 @@ def steiner_ellipse_def(
         p3 (list[float]): Third point
 
     Returns:
-        typle[np.ndarray, np.ndarray]: D matrix (defines the shape and orientation of the ellipse), p (center of the ellipse)
+        tuple[np.ndarray, np.ndarray]: :math:`(D, p)`: the matrix defining the shape and orientation of the ellipse, and the center of the ellipse
     """
+    # Determine whether to use high precision or not
+    high_precision = isinstance(p1[0], mp.mpf)
+
     # Convert the points to numpy arrays
     p1_, p2_, p3_ = np.array(p1), np.array(p2), np.array(p3)
 
@@ -95,10 +101,16 @@ def steiner_ellipse_def(
     f2 = (p3_ - p2_) / np.sqrt(3)
 
     # Define a parametric function for tracing the contour of the ellipse
-    contour = lambda t: p + f1 * np.cos(t) + f2 * np.sin(t)
+    if high_precision:
+        contour = lambda t: p + f1 * mp.cos(t) + f2 * mp.sin(t)
+    else:
+        contour = lambda t: p + f1 * np.cos(t) + f2 * np.sin(t)
 
     # Calculate t0 according to the Steiner method
-    t0 = np.arctan(2 * f1 @ f2 / (f1 @ f1 - f2 @ f2)) / 2
+    if high_precision:
+        t0 = mp.atan(2 * f1 @ f2 / (f1 @ f1 - f2 @ f2)) / 2
+    else:
+        t0 = np.arctan(2 * f1 @ f2 / (f1 @ f1 - f2 @ f2)) / 2
 
     # Compute the two main axes of the ellipse
     axis1 = contour(t0) - contour(t0 + np.pi)
@@ -110,13 +122,22 @@ def steiner_ellipse_def(
     D_ = np.diag([(2 / np.linalg.norm(axis1)) ** 2, (2 / np.linalg.norm(axis2)) ** 2])
 
     # Calculate the rotation matrix based on the orientation of the ellipse
-    theta = np.arctan2(*axis2)
-    rotation_matrix = np.array(
-        [
-            [np.cos(theta), -np.sin(theta)],
-            [np.sin(theta), np.cos(theta)],
-        ]
-    )
+    if high_precision:
+        theta = mp.atan2(*axis2)
+        rotation_matrix = np.array(
+            [
+                [mp.cos(theta), -mp.sin(theta)],
+                [mp.sin(theta), mp.cos(theta)],
+            ]
+        )
+    else:
+        theta = np.arctan2(*axis2)
+        rotation_matrix = np.array(
+            [
+                [np.cos(theta), -np.sin(theta)],
+                [np.sin(theta), np.cos(theta)],
+            ]
+        )
 
     # Calculate the final D matrix that defines the oriented ellipse
     D = rotation_matrix.T @ D_ @ rotation_matrix
@@ -173,10 +194,10 @@ def is_inside_ellipse(u: NestedList, D: np.ndarray, p: np.ndarray) -> np.ndarray
 
 def ellipse_bbox(D: np.ndarray, p: np.ndarray) -> np.ndarray:
     """
-    Find the axis-aligned bounding box (BBOX) of an ellipse.
+    Find the axis-aligned bounding box (BBOX) of an ellipse. Refer to the comment made by Rodrigo de
+    Azevedo on November 30th, 2020 in [2]_.
 
-    See this link for the algorithm (comment from Rodrigo de Azevedo on November 30th, 2020):
-    https://math.stackexchange.com/questions/3926884/smallest-axis-aligned-bounding-box-of-hyper-ellipsoid
+    .. [2] Rodrigo de Azevedo, Smallest axis-aligned bounding box of hyper-ellipsoid, Stack Exchange, https://math.stackexchange.com/questions/3926884/smallest-axis-aligned-bounding-box-of-hyper-ellipsoid
 
     Args:
         D (np.ndarray): Matrix defining the ellipse's shape and orientation
@@ -187,7 +208,15 @@ def ellipse_bbox(D: np.ndarray, p: np.ndarray) -> np.ndarray:
         corresponds to each spatial dimension (e.g., x, y, ...), and the second index contains the
         minimum and maximum bounds along that dimension.
     """
-    D_inv = np.linalg.inv(D)  # Inverse of D
+    # Determine whether to use high precision or not
+    high_precision = isinstance(p[0], mp.mpf)
+
+    if high_precision:
+        D_inv = mp.matrix(D) ** -1
+        D_inv = np.array(D_inv.tolist())
+    else:
+        D_inv = np.linalg.inv(D)
+
     diag = np.diagonal(D_inv)  # Vector with the diagonal values of D_inv
 
     n_dim = len(p)  # Number of dimensions

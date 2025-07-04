@@ -18,13 +18,13 @@ The ``grid_algorithm_1D`` module contains functions to solve the 1D grid problem
 The module provides two main functions:
 
 1) :func:`solve_grid_problem_1d`:
-Given two real closed intervals A and B, :func:`solve_grid_problem_1d` finds all the solutions ``alpha`` in 
-the ring of quadratic integers with radicand 2, :math:`\\mathbb{Z}[\\sqrt{2}]`, such that ``alpha`` is in A and the :math:`\\sqrt{2}`-conjugate 
+Given two real closed intervals A and B, :func:`solve_grid_problem_1d` finds all the solutions ``alpha`` in
+the ring of quadratic integers with radicand 2, :math:`\\mathbb{Z}[\\sqrt{2}]`, such that ``alpha`` is in A and the :math:`\\sqrt{2}`-conjugate
 of ``alpha`` is in B. This function is a sub-algorithm to solve 2D grid problems for upright
-rectangles. 
+rectangles.
 
 2) :func:`plot_grid_problem`:
-The function :func:`plot_grid_problem` plots the solutions of the grid problem for the intervals A and B and their 
+The function :func:`plot_grid_problem` plots the solutions of the grid problem for the intervals A and B and their
 conjugate on the real axis. The plot also contains the intervals A and B.
 
 For more information on solving 1D grid problems, see [1]_.
@@ -156,7 +156,7 @@ def plot_grid_problem(
     Args:
         A (Sequence[float | int]): Bounds of the first interval.
         B (Sequence[float | int]): Bounds of the second interval.
-        solutions (Sequence[Zsqrt2]): Solutions of the 1D grid problem for A and B in \u2124[\u221A2].
+        solutions (Sequence[Zsqrt2]): Solutions of the 1D grid problem for A and B in \u2124[\u221a2].
         show (bool, optional): If set to True, show the plot in a window. Default = False.
 
     Raises:
