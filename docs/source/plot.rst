@@ -8,3 +8,11 @@ Plot Steiner
     :members:
     :undoc-members:
     :show-inheritance:
+
+Plot Grid Problems
+------------------
+
+.. automodule:: qdecomp.plot.plot_grid_problem
+    :members:
+    :undoc-members:
+    :show-inheritance:
