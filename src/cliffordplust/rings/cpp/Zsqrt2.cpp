@@ -142,10 +142,10 @@ void Zsqrt2<T>::unit_reduce() {
     Zsqrt2<T> n2(0, 0);
 
     // If the sign of p and q is different, reduce the number by multiplying by lambda = 1 + sqrt(2)
-    if (std::signbit(n1.p()) xor std::signbit(n1.q())) {
+    if ((n1.p() < 0) xor (n1.q() < 0)) {
         do {
             n1 = n1 * Zsqrt2<T>(1, 1);
-        } while (std::signbit(n1.p()) xor std::signbit(n1.q()));
+        } while ((n1.p() < 0) xor (n1.q() < 0));
 
         // Recover the number with the opposite sign
         n2 = n1 * Zsqrt2<T>(-1, 1);
@@ -154,15 +154,23 @@ void Zsqrt2<T>::unit_reduce() {
     } else {
         do {
             n1 = n1 * Zsqrt2<T>(-1, 1);
-        } while (std::signbit(n1.p()) == std::signbit(n1.q()));
+        } while ((n1.p() < 0) == (n1.q() < 0));
         
         // Recover the number with the opposite sign
         n2 = n1 * Zsqrt2<T>(1, 1);
     }
 
     // Return the best number, the one with the smallest coefficients p and q
-    T merit1 = std::llabs(n1.p()) + std::llabs(n1.q());
-    T merit2 = std::llabs(n2.p()) + std::llabs(n2.q());
+    T merit1 = 0;
+    T merit2 = 0;
+    if constexpr (std::is_integral_v<T>) {
+        merit1 = std::llabs(n1.p()) + std::llabs(n1.q());
+        merit2 = std::llabs(n2.p()) + std::llabs(n2.q());
+    } else {
+        merit1 = boost::multiprecision::abs(n1.p()) + boost::multiprecision::abs(n1.q());
+        merit2 = boost::multiprecision::abs(n2.p()) + boost::multiprecision::abs(n2.q());
+    }
+
     if (merit1 < merit2) {
         *this = n1;
     } else {

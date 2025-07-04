@@ -28,11 +28,11 @@
  * This function computes the integer part of the square root of a number, extended to support
  * arbitrary precision numbers.
  * 
- * @param x The number to compute the square root of.
- * @return The integer part of the square root of x.
+ * @param n The number to compute the square root of.
+ * @return The integer part of the square root of n.
  */
 template <typename T>
-T sqrt_generic(const T& x);
+T sqrt_generic(T const n);
 
 /**
  * @brief Determine wether a number is a square or not.

@@ -7,6 +7,7 @@
 #include <iostream>
 #include <sstream>
 #include <type_traits>
+#include <boost/multiprecision/cpp_int.hpp>
 
 #include "..\..\rings\cpp\Rings.hpp"
 #include "diophantine_equation.hpp"
@@ -14,12 +15,11 @@
 
 
 template <typename T>
-T sqrt_generic(const T& n) {
+T sqrt_generic(T const n) {
     if constexpr (std::is_integral_v<T>) {
         return static_cast<T>(std::sqrt(n));
     } else {  // Newton method for arbitrary precision numbers
-        if (n == 0 || n == 1)
-            return n;
+        if (n == 0 || n == 1) { return n; }
 
         T x = n / 2;
         T last_x = 0;
@@ -48,7 +48,7 @@ bool is_square(T n) {
     if (mod != 0 and mod != 1 and mod != 4 and mod != 9) {return false;}
 
     // Check if n is a square
-    T sqrt_n = sqrt_generic(n);
+    T sqrt_n = sqrt_generic<T>(n);
     return sqrt_n * sqrt_n == n;
 }
 
@@ -123,7 +123,7 @@ std::vector<std::tuple<T, Zsqrt2<T>, unsigned int>> xi_fact(Zsqrt2<T> xi) {
         // If p_i = 1 or -1, xi_i is a unit and we can ignore it.
         if ((p_i == 1) or (p_i == -1)) {continue;}
 
-        switch (p_i % 8) {
+        switch (static_cast<int>(p_i % 8)) {
             // If p_i = 2, xi_i = sqrt(2)
             case 2:
                 factors.push_back({2, Zsqrt2<T>(0, 1), m_i});
@@ -133,7 +133,7 @@ std::vector<std::tuple<T, Zsqrt2<T>, unsigned int>> xi_fact(Zsqrt2<T> xi) {
             case 1:
             case 7:
             {
-                Zsqrt2<T> xi_i = pi_fact_into_xi(p_i);
+                Zsqrt2<T> xi_i = pi_fact_into_xi<T>(p_i);
                 xi_i.unit_reduce();
 
                 // Determine wether we need to add ξ_i or its conjugate to the factorization and how
@@ -172,7 +172,7 @@ std::vector<std::tuple<T, Zsqrt2<T>, unsigned int>> xi_fact(Zsqrt2<T> xi) {
 template <typename T>
 Zsqrt2<T> pi_fact_into_xi(T pi) {
     // Factorize an integer prime pi into a Zsqrt2 xi factor
-    switch (pi % 8) {
+    switch (static_cast<int>(pi % 8)) {
         case 2:
             return Zsqrt2<T>(0, 1);
 
@@ -184,13 +184,19 @@ Zsqrt2<T> pi_fact_into_xi(T pi) {
         case 7:
         {
             T b = 1;
-            while ( not is_square(pi + 2 * static_cast<T>(std::pow(b, 2))) ) {b++;}
-
-            return Zsqrt2<T>(sqrt_generic(pi + 2 * static_cast<T>(std::pow(b, 2))), b);
+            if constexpr (std::is_integral_v<T>) {
+                while ( not is_square<T>(pi + 2 * static_cast<T>(std::pow(b, 2))) ) {b++;}
+                return Zsqrt2<T>(sqrt_generic<T>(pi + 2 * static_cast<T>(std::pow(b, 2))), b);
+            } else {
+                while ( not is_square<T>(pi + 2 * boost::multiprecision::pow(b, 2))) {b++;}
+                return Zsqrt2<T>(sqrt_generic<T>(pi + 2 * boost::multiprecision::pow(b, 2)), b);
+            }
         }
 
         default:
-            throw std::invalid_argument("pi must be a prime number. Got " + std::to_string(pi));
+            std::ostringstream oss;
+            oss << pi;
+            throw std::invalid_argument("pi must be a prime number. Got " + oss.str());
     }
     return Zsqrt2<T>(0, 0);
 }
@@ -228,7 +234,7 @@ Zomega<T> xi_i_fact_into_ti(T pi, Zsqrt2<T> xi_i) {
 
 template <typename T>
 Zomega<T> solve_xi_sim_ttdag_in_z(Zsqrt2<T> xi) {
-    auto xi_fact_list = xi_fact(xi);
+    auto xi_fact_list = xi_fact<T>(xi);
     
     for (auto [pi, xi_i, m_i] : xi_fact_list) {
         if ((m_i & 1) and (pi % 8 == 7)) {return Zomega<T>(0, 0, 0, 0);}  // No solution possible
@@ -237,7 +243,7 @@ Zomega<T> solve_xi_sim_ttdag_in_z(Zsqrt2<T> xi) {
     std::vector<std::future<Zomega<T>>> threads;
     for (auto [pi, xi_i, m_i] : xi_fact_list) {
         if (m_i & 1 and pi != -1) {
-            threads.push_back(std::async(std::launch::async, xi_i_fact_into_ti, pi, xi_i));
+            threads.push_back(std::async(std::launch::async, xi_i_fact_into_ti<T>, pi, xi_i));
         }
     }
 
@@ -265,7 +271,7 @@ Domega<T> solve_xi_eq_ttdag_in_d(Dsqrt2<T> xi) {
     unsigned int l = (xi * xi.sqrt2_conjugate()).p().denom();
     Zsqrt2 xi_prime = (xi.sqrt2_multiply(l)).to_Zsqrt2();
 
-    Zomega<T> s = solve_xi_sim_ttdag_in_z(xi_prime);
+    Zomega<T> s = solve_xi_sim_ttdag_in_z<T>(xi_prime);
     if (s == 0) {return Domega<T>(0, 0, 0, 0, 0, 0, 0, 0);}
 
     Domega<T> delta(0, 0, 0, 0, 1, 0, 1, 0);  // delta = 1 + omega
