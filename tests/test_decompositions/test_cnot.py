@@ -34,9 +34,8 @@ from qdecomp.utils import QGate, gates
 
 
 def multiply_circuit(circuit: list[QGate]) -> np.ndarray:
-    """
-    Multiply a list of QGates objects to get the matrix representation of the circuit. 
-    
+    """Multiply a list of QGates objects to get the matrix representation of the circuit.
+
     The function returns a 4 x 4 matrix that represents the circuit formed by the gates in the list.
 
     Args:
