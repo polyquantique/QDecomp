@@ -18,6 +18,7 @@ from itertools import combinations_with_replacement
 import matplotlib.pyplot as plt
 import mpmath as mp
 import pytest
+
 from qdecomp.plot import plot_grid_problem_1d, plot_grid_problem_2d
 from qdecomp.rings import Zomega, Zsqrt2
 from qdecomp.utils.grid_problem import solve_grid_problem_1d, solve_grid_problem_2d

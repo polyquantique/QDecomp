@@ -15,4 +15,8 @@ ZYZ Module
 CNOT Module
 -----------
 
+.. automodule:: qdecomp.decompositions.cnot
+    :members:
+    :undoc-members:
+    :show-inheritance:
 

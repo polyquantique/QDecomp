@@ -18,6 +18,7 @@ import math
 
 import mpmath as mp
 import pytest
+
 from qdecomp import rings as r
 from qdecomp.rings import Zsqrt2
 

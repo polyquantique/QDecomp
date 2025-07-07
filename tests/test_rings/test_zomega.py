@@ -17,6 +17,7 @@ import math
 import mpmath as mp
 import numpy as np
 import pytest
+
 import qdecomp.rings as r
 from qdecomp.rings import Zomega
 
