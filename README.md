@@ -106,6 +106,7 @@ If you use `QDecomp` in your research or projects, please cite it using the foll
   author = {Romain, Olivier and Girouard, Vincent and Trudeau, Marius and Blais, Francis},
   title = {QDecomp},
   year = {2025},
+  version = {0.1.0},
   url = {https://github.com/polyquantique/QDecomp}
 }
 ```
