@@ -35,7 +35,7 @@ def assert_steiner_ellipse(p1: np.ndarray, p2: np.ndarray, p3: np.ndarray) -> No
     """
     Check if the three given points can be used to define a Steiner ellipse. The three points must
     be distinct and non-collinear to define a valid ellipse. If the points are not valid, a
-    `ValueError` is raised.
+    ``ValueError`` is raised.
 
     Args:
         p1 (list[float]): First point

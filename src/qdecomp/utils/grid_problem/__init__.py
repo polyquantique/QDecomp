@@ -12,8 +12,8 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-from qdecomp.utils.grid_problem.grid_operator import *
-from qdecomp.utils.grid_problem.state import *
-from qdecomp.utils.grid_problem.grid_problem import *
 from qdecomp.utils.grid_problem.grid_algorithms import *
+from qdecomp.utils.grid_problem.grid_operator import *
+from qdecomp.utils.grid_problem.grid_problem import *
 from qdecomp.utils.grid_problem.rz_approx import *
+from qdecomp.utils.grid_problem.state import *

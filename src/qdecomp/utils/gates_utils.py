@@ -18,13 +18,13 @@ This module contains utility functions to check if a matrix is special, orthogon
 These functions are used to check the Lie group of a matrix and to select the appropriate decomposition to perform.
 
 The module contains the following functions:
-    
+
     :func:`is_special`: Check if a matrix is special.
 
     :func:`is_orthogonal`: Check if a matrix is orthogonal.
 
     :func:`is_unitary`: Check if a matrix is unitary.
-    
+
     :func:`is_hermitian`: Check if a matrix is Hermitian.
 """
 
@@ -61,7 +61,10 @@ def is_orthogonal(matrix: NDArray[np.floating]) -> bool:
     Returns:
         bool: True if the matrix is orthogonal, False otherwise.
     """
-    return np.allclose(matrix @ matrix.T, np.identity(matrix.shape[0]))
+    return (
+        np.allclose(matrix @ matrix.T, np.identity(matrix.shape[0]))
+        and matrix.shape[0] == matrix.shape[1]
+    )
 
 
 def is_unitary(matrix: NDArray[np.floating]) -> bool:
@@ -76,7 +79,10 @@ def is_unitary(matrix: NDArray[np.floating]) -> bool:
     Returns:
         bool: True if the matrix is unitary, False otherwise.
     """
-    return np.allclose(matrix @ matrix.T.conj(), np.identity(matrix.shape[0]))
+    return (
+        np.allclose(matrix @ matrix.T.conj(), np.identity(matrix.shape[0]))
+        and matrix.shape[0] == matrix.shape[1]
+    )
 
 
 def is_hermitian(matrix: NDArray[np.floating]) -> bool:

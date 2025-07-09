@@ -30,21 +30,7 @@ import numpy as np
 from numpy.typing import NDArray
 from scipy.linalg import expm
 
-from qdecomp.utils import gates as gates_module
-
 SQRT2 = np.sqrt(2)
-
-
-def create_alias(variable: any, *alias_name: str) -> None:
-    """
-    This function creates an alias for a variable in the module namespace.
-
-    :param variable: The variable to create an alias for.
-    :param *alias_name: The name(s) of the alias to create.
-    """
-    module = sys.modules[__name__]
-    for name in alias_name:
-        setattr(module, name, variable)  # Create the alias in the module namespace
 
 
 # Single qubit gates
@@ -53,7 +39,7 @@ I = np.array([[1, 0], [0, 1]])
 
 X = np.array([[0, 1], [1, 0]])
 """NDArray[float]: Pauli X gate. Alias: 'NOT'."""
-create_alias(X, "NOT")
+NOT = X
 
 Y = np.array([[0, -1j], [1j, 0]])
 """NDArray[float]: Pauli Y gate."""
@@ -76,23 +62,22 @@ T = np.array([[1, 0], [0, np.exp(1.0j * np.pi / 4)]])
 W = np.exp(1.0j * np.pi / 4)
 """Complex: W gate. W is the global omega phase gate"""
 
-
 # Two qubit gates
 CNOT = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
 """NDArray[float]: CNOT | CX gate. Controlled-Not with the control on the first qubit. Alias: 'CX'."""
-create_alias(CNOT, "CX")
+CX = CNOT
 
 CNOT1 = np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0], [0, 1, 0, 0]])
 """NDArray[float]: CNOT gate with the control on the second qubit. Alias: 'CX1'."""
-create_alias(CNOT1, "CX1")
+CX1 = CNOT1
 
 DCNOT = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1], [0, 1, 0, 0]])
 """NDArray[float]: DCNOT (Double CNOT) gate. CNOT gate followed by an inverted CNOT gate. Alias: 'DCX'."""
-create_alias(DCNOT, "DCX")
+DCX = DCNOT
 
 INV_DCNOT = np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 1, 0, 0], [0, 0, 1, 0]])
 """NDArray[float]: Inverted DCNOT gate. Inverted CNOT gate followed by a CNOT gate. Alias: 'INV_DCX'."""
-create_alias(INV_DCNOT, "INV_DCX")
+INV_DCX = INV_DCNOT
 
 SWAP = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 0, 0, 1]])
 """NDArray[float]: SWAP gate."""
@@ -182,8 +167,8 @@ def canonical_gate(tx: float, ty: float, tz: float) -> NDArray[np.floating]:
 
 def get_matrix_from_name(name: str) -> NDArray[np.floating]:
     """
-    Get the matrix of a gate by its name. If the name ends with "dag" or "DAG", the dagger of the
-    gate is returned.
+    Get the matrix of a gate by its name. If the name ends with "dag", "dagger", "_dag" or
+    "_dagger", the dagger of the gate is returned.
 
     Args:
         name (str): Name of the gate.
@@ -194,14 +179,19 @@ def get_matrix_from_name(name: str) -> NDArray[np.floating]:
     Raises:
         ValueError: If the gate name is not recognized.
     """
+    # Error message for unrecognized gate names
+    error_msg = f"The gate {name} is not recognized. Please check the name."
+
     # Dagger of the gate
     dag_suffix = ["dag", "dagger"]
     for suffix in dag_suffix:
         n_char = len(suffix)  # Number of characters in the suffix
-        if name[-n_char:].lower() == suffix:
-            if len(suffix) == len(name):  # The gate "_{suffix}" is the identity gate
-                return I
 
+        # Check if the name doesn't start with "{suffix}" of "_{suffix}".
+        if name.lower().startswith(suffix) or name.lower().startswith(f"_{suffix}"):
+            raise ValueError(error_msg)
+
+        if name[-n_char:].lower() == suffix:
             if name[-n_char - 1] == "_":  # Handle the case where the name ends with "_{suffix}"
                 n_char += 1
 
@@ -213,8 +203,8 @@ def get_matrix_from_name(name: str) -> NDArray[np.floating]:
         return I
 
     # Get the gate from its string name
-    gate = getattr(gates_module, name, None)
+    gate = getattr(sys.modules[__name__], name.upper(), None)
     if gate is not None:  # Check if the gate is a matrix
         return gate
 
-    raise ValueError(f"The gate {name} is not recognized. Please check the name.")
+    raise ValueError(error_msg)

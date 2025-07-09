@@ -34,8 +34,9 @@ from qdecomp.utils import QGate, gates
 
 
 def multiply_circuit(circuit: list[QGate]) -> np.ndarray:
-    """
-    Multiply a list of QGates objects to get the matrix representation of the circuit.
+    """Multiply a list of QGates objects to get the matrix representation of the circuit.
+
+    The function returns a 4 x 4 matrix that represents the circuit formed by the gates in the list.
 
     Args:
         circuit (list[QGate]): The list of gates in the circuit.
@@ -107,134 +108,130 @@ def test_kronecker_decomposition_errors():
             kronecker_decomposition(M)
 
 
-def test_so4_decomposition():
+@pytest.mark.parametrize(
+    "U",
+    [
+        np.eye(4),
+        np.array([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]]),
+        np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 1, 0, 0], [0, 0, 1, 0]]),
+        QGate.from_matrix(
+            np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0], [0, -1, 0, 0]]),
+            target=(0, 1),
+        ),
+    ]
+    + list(special_ortho_group(dim=4, seed=137).rvs(10)),
+)
+def test_so4_decomposition(U):
     """Test the decomposition of SO(4) matrices using the so4_decomposition function."""
-    for i in range(10):
-        # Use a predefined or randomly generated 4x4 matrix
-        match i:
-            case 0:
-                U = np.eye(4)
-            case 1:
-                U = np.array([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
-            case 2:
-                U = np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 1, 0, 0], [0, 0, 1, 0]])
-            case 3:
-                U = QGate.from_matrix(
-                    np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0], [0, -1, 0, 0]]),
-                    target=(0, 1),
-                )
-            case _:
-                U = special_ortho_group(dim=4, seed=i).rvs()
+    # Decompose the matrix
+    decomposition = so4_decomposition(U)
+    reconstructed = multiply_circuit(decomposition)
 
-        # Decompose the matrix
-        decomposition = so4_decomposition(U)
-        reconstructed = multiply_circuit(decomposition)
-
-        # Assert the reconstructed matrix is equal to the original matrix
-        if isinstance(U, QGate):
-            U = U.matrix
-        assert np.allclose(reconstructed, U, rtol=1e-8)
+    # Assert the reconstructed matrix is equal to the original matrix
+    if isinstance(U, QGate):
+        U = U.matrix
+    assert np.allclose(reconstructed, U, rtol=1e-8)
 
 
-def test_so4_decomposition_errors():
-    """Test the raise of errors when calling the so4_decomposition function with wrong arguments."""
-    # ValueError: The input matrix is not 4 x 4.
-    for U in (np.eye(3), QGate.from_matrix(np.eye(2), target=(0,))):
-        with pytest.raises(
-            ValueError, match="The input matrix must be a 4 x 4 special orthogonal matrix."
-        ):
-            so4_decomposition(U)
-
-    # ValueError: The input matrix is not orthogonal.
-    U = np.eye(4) * 1.1
-    with pytest.raises(
-        ValueError, match="The input matrix must be a 4 x 4 special orthogonal matrix."
-    ):
-        so4_decomposition(U)
-
-    # ValueError: The input matrix is not special.
-    U = np.diag([1, 1, 1, -1])
-    with pytest.raises(
-        ValueError, match="The input matrix must be a 4 x 4 special orthogonal matrix."
-    ):
-        so4_decomposition(U)
-
-    # TypeError: The input matrix is not a numpy object or a QGate object.
-    U = [[1, 2, 3, 4], [1, 2, 3, 4], [1, 2, 3, 4], [1, 2, 3, 4]]
-    with pytest.raises(
-        TypeError, match="The input matrix must be a numpy array or a QGate object, but received"
-    ):
-        so4_decomposition(U)
-
-
-def test_o4_det_minus1_decomposition():
-    """Test the decomposition of O(4) matrices with a determinant of -1 using the o4_det_minus1_decomposition function."""
-    for i in range(20):
-        # Use a predefined or randomly generated 4x4 matrix
-        match i:
-            case 0:
-                U = np.diag([1, 1, 1, -1])
-            case 1:
-                U = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
-            case 2:
-                U = np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 1, 0, 0], [0, 0, -1, 0]])
-            case 3:
-                U = QGate.from_matrix(
-                    np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0], [0, 1, 0, 0]]),
-                    target=(0, 1),
-                )
-            case 4:
-                U = gates.CNOT
-            case 5:
-                U = gates.CZ
-            case 6:
-                U = gates.SWAP
-            case _:
-                U = ortho_group(dim=4, seed=i).rvs()
-                if np.isclose(np.linalg.det(U), 1):
-                    U[:, -1] = -U[:, -1]  # To have a determinant of -1
-
-        # Test the decomposition
-        decomposition = o4_det_minus1_decomposition(U)
-        reconstructed = multiply_circuit(decomposition)
-
-        # Assert the reconstructed matrix is equal to the original matrix
-        if isinstance(U, QGate):
-            U = U.matrix
-        assert np.allclose(reconstructed, U, rtol=1e-8)
-
-
-def test_o4_det_minus1_decomposition_errors():
-    """Test the raise of errors when calling the o4_det_minus1_decomposition function with wrong arguments."""
-    # ValueError: The input matrix is not 4 x 4.
-    for U in (np.eye(3), QGate.from_matrix(np.eye(2), target=(0,))):
-        with pytest.raises(
+@pytest.mark.parametrize(
+    "error",
+    [
+        (np.eye(3), ValueError, "The input matrix must be a 4 x 4 special orthogonal matrix."),
+        (
+            QGate.from_matrix(np.eye(2), target=(0,)),
             ValueError,
-            match="The input matrix must be a 4 x 4 orthogonal matrix with a determinant of -1.",
-        ):
-            o4_det_minus1_decomposition(U)
+            "The input matrix must be a 4 x 4 special orthogonal matrix.",
+        ),
+        (
+            np.eye(4) * 1.1,
+            ValueError,
+            "The input matrix must be a 4 x 4 special orthogonal matrix.",
+        ),
+        (
+            np.diag([1, 1, 1, -1]),
+            ValueError,
+            "The input matrix must be a 4 x 4 special orthogonal matrix.",
+        ),
+        (
+            [[1, 2, 3, 4], [1, 2, 3, 4], [1, 2, 3, 4], [1, 2, 3, 4]],
+            TypeError,
+            "The input matrix must be a numpy array or a QGate object, but received",
+        ),
+    ],
+)
+def test_so4_decomposition_errors(error):
+    """Test the raise of errors when calling the so4_decomposition function with wrong arguments."""
+    U, exc_type, exc_msg = error
+    with pytest.raises(exc_type, match=exc_msg):
+        so4_decomposition(U)
 
-    # ValueError: The input matrix is not orthogonal.
-    U = np.eye(4) * 1.1
-    with pytest.raises(
-        ValueError,
-        match="The input matrix must be a 4 x 4 orthogonal matrix with a determinant of -1.",
-    ):
-        o4_det_minus1_decomposition(U)
 
-    # ValueError: The input matrix does not have a determinant of -1.
-    U = np.diag([1, 1, 1, 1])
-    with pytest.raises(
-        ValueError,
-        match="The input matrix must be a 4 x 4 orthogonal matrix with a determinant of -1.",
-    ):
-        o4_det_minus1_decomposition(U)
+@pytest.mark.parametrize(
+    "U",
+    [
+        np.diag([1, 1, 1, -1]),
+        np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]]),
+        np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 1, 0, 0], [0, 0, -1, 0]]),
+        QGate.from_matrix(
+            np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0], [0, 1, 0, 0]]),
+            target=(0, 1),
+        ),
+        gates.CNOT,
+        gates.CZ,
+        gates.SWAP,
+    ]
+    + list(ortho_group(dim=4, seed=42).rvs(10)),
+)
+def test_o4_det_minus1_decomposition(U):
+    """Test the decomposition of O(4) matrices with a determinant of -1 using the o4_det_minus1_decomposition function."""
+    if isinstance(U, np.ndarray):
+        if np.isclose(np.linalg.det(U), 1):
+            U[:, -1] = -U[:, -1]  # To have a determinant of -1
 
-    # TypeError: The input matrix is not a numpy object or a QGate object.
-    U = [[1, 2, 3, 4], [1, 2, 3, 4], [1, 2, 3, 4], [1, 2, 3, 4]]
-    with pytest.raises(
-        TypeError, match="The input matrix must be a numpy array or a QGate object, but received"
-    ):
+    # Test the decomposition
+    decomposition = o4_det_minus1_decomposition(U)
+    reconstructed = multiply_circuit(decomposition)
+
+    # Assert the reconstructed matrix is equal to the original matrix
+    if isinstance(U, QGate):
+        U = U.matrix
+    assert np.allclose(reconstructed, U, rtol=1e-8)
+
+
+@pytest.mark.parametrize(
+    "errors",
+    [
+        (
+            np.eye(3),
+            ValueError,
+            "The input matrix must be a 4 x 4 orthogonal matrix with a determinant of -1.",
+        ),
+        (
+            QGate.from_matrix(np.eye(2), target=(0,)),
+            ValueError,
+            "The input matrix must be a 4 x 4 orthogonal matrix with a determinant of -1.",
+        ),
+        (
+            np.eye(4) * 1.1,
+            ValueError,
+            "The input matrix must be a 4 x 4 orthogonal matrix with a determinant of -1.",
+        ),
+        (
+            np.diag([1, 1, 1, 1]),
+            ValueError,
+            "The input matrix must be a 4 x 4 orthogonal matrix with a determinant of -1.",
+        ),
+        (
+            [[1, 2, 3, 4], [1, 2, 3, 4], [1, 2, 3, 4], [1, 2, 3, 4]],
+            TypeError,
+            "The input matrix must be a numpy array or a QGate object, but received",
+        ),
+    ],
+)
+def test_o4_det_minus1_decomposition_errors(errors):
+    """Test the raise of errors when calling the o4_det_minus1_decomposition function with wrong arguments."""
+    U, exc_type, exc_msg = errors
+    with pytest.raises(exc_type, match=exc_msg):
         o4_det_minus1_decomposition(U)
 
 
@@ -273,82 +270,74 @@ def test_canonical_decomposition(U):
     assert np.allclose(A, np.kron(a, b)) and np.allclose(B, np.kron(alpha, beta))
 
 
-def test_canonical_decomposition_errors():
+@pytest.mark.parametrize(
+    "errors",
+    [
+        (((1, 2), (3, 4)), TypeError, "Matrix U must be a numpy object"),
+        ([[1, 2], [3, 4]], TypeError, "Matrix U must be a numpy object"),
+        (np.ones((2, 2)), ValueError, "U must be a 4 x 4 matrix but has shape"),
+        (np.ones((3, 3)), ValueError, "U must be a 4 x 4 matrix but has shape"),
+        (np.ones((3, 4)), ValueError, "U must be a 4 x 4 matrix but has shape"),
+        (np.ones((4, 3)), ValueError, "U must be a 4 x 4 matrix but has shape"),
+        (np.eye(4) * 1.1, ValueError, "U must be a unitary matrix."),
+    ],
+)
+def test_canonical_decomposition_errors(errors):
     """Test the raise of errors when calling canonical_decomposition function with wrong arguments."""
 
-    # TypeError: The input matrix must be a numpy object
-    for U in [((1, 2), (3, 4)), [[1, 2], [3, 4]]]:
-        with pytest.raises(TypeError, match="Matrix U must be a numpy object"):
-            canonical_decomposition(U)
-
-    # ValueError: The input matrix must be a 4 x 4 unitary matrix
-    for U in [
-        np.ones((2, 2)),
-        np.ones((3, 3)),
-        np.ones((3, 4)),
-        np.ones((4, 3)),
-    ]:
-        with pytest.raises(ValueError, match="U must be a 4 x 4 matrix but has shape"):
-            canonical_decomposition(U)
-
-    # ValueError: The input matrix must be a unitary matrix
-    with pytest.raises(ValueError, match="U must be a unitary matrix."):
-        canonical_decomposition(np.eye(4) * 1.1)
+    U, exc_type, exc_msg = errors
+    with pytest.raises(exc_type, match=exc_msg):
+        canonical_decomposition(U)
 
 
-def test_u4_decomposition():
+@pytest.mark.parametrize(
+    "U",
+    [
+        np.diag([1, 1, 1, -1]),
+        np.eye(4),
+        gates.CNOT,
+        gates.INV_DCNOT,
+        gates.ISWAP,
+        QGate.from_matrix(gates.MAGIC, target=(0, 1)),
+        np.kron(gates.T, gates.power_pauli_y(0.39451)),
+        gates.canonical_gate(0.1, 0.2, 0.3),
+    ]
+    + list(unitary_group(dim=4, seed=137).rvs(10)),
+)
+def test_u4_decomposition(U):
     """Test the decomposition of U(4) matrices using the u4_decomposition function."""
-    for i in range(20):
-        # Use a predefined or randomly generated 4 x 4 matrix
-        match i:
-            case 0:
-                U = np.diag([1, 1, 1, -1])
-            case 1:
-                U = np.eye(4)
-            case 2:
-                U = gates.CNOT
-            case 3:
-                U = gates.INV_DCNOT
-            case 4:
-                U = gates.ISWAP
-            case 5:
-                U = QGate.from_matrix(gates.MAGIC, target=(0, 1))
-            case 6:
-                U = np.kron(gates.T, gates.power_pauli_y(0.39451))
-            case 7:
-                U = gates.canonical_gate(0.1, 0.2, 0.3)
-            case _:  # Randomly generated unitary matrix
-                U = unitary_group(dim=4, seed=i).rvs()
+    # Test the decomposition
+    decomposition = u4_decomposition(U)
+    reconstructed = multiply_circuit(decomposition)
 
-        # Test the decomposition
-        decomposition = u4_decomposition(U)
-        reconstructed = multiply_circuit(decomposition)
-
-        # Assert the reconstructed matrix is equal to the original matrix
-        if isinstance(U, QGate):
-            U = U.matrix
-        phase = reconstructed[0, 0] / U[0, 0]
-        assert np.allclose(reconstructed / phase, U, rtol=1e-8)
+    # Assert the reconstructed matrix is equal to the original matrix
+    if isinstance(U, QGate):
+        U = U.matrix
+    phase = reconstructed[0, 0] / U[0, 0]
+    assert np.allclose(reconstructed / phase, U, rtol=1e-8)
 
 
-def test_u4_decomposition_errors():
+@pytest.mark.parametrize(
+    "errors",
+    [
+        (np.eye(3), ValueError, "The input matrix must be a 4 x 4 unitary matrix."),
+        (
+            QGate.from_matrix(np.eye(2), target=(0,)),
+            ValueError,
+            "The input matrix must be a 4 x 4 unitary matrix.",
+        ),
+        (np.eye(4) * 1.1, ValueError, "The input matrix must be a 4 x 4 unitary matrix."),
+        (
+            [[1, 2, 3, 4], [1, 2, 3, 4], [1, 2, 3, 4], [1, 2, 3, 4]],
+            TypeError,
+            "The input matrix must be a numpy array or a QGate object, but received",
+        ),
+    ],
+)
+def test_u4_decomposition_errors(errors):
     """Test the raise of errors when calling the u4_decomposition function with wrong arguments."""
-
-    # ValueError: The input matrix is not 4 x 4.
-    for U in (np.eye(3), QGate.from_matrix(np.eye(2), target=(0,))):
-        with pytest.raises(ValueError, match="The input matrix must be a 4 x 4 unitary matrix."):
-            u4_decomposition(U)
-
-    # ValueError: The input matrix is not unitary.
-    U = np.eye(4) * 1.1
-    with pytest.raises(ValueError, match="The input matrix must be a 4 x 4 unitary matrix."):
-        u4_decomposition(U)
-
-    # TypeError: The input matrix is not a numpy object or a QGate object.
-    U = [[1, 2, 3, 4], [1, 2, 3, 4], [1, 2, 3, 4], [1, 2, 3, 4]]
-    with pytest.raises(
-        TypeError, match="The input matrix must be a numpy array or a QGate object, but received"
-    ):
+    U, exc_type, exc_msg = errors
+    with pytest.raises(exc_type, match=exc_msg):
         u4_decomposition(U)
 
 
@@ -391,83 +380,81 @@ def test_known_decomposition(matrix, expected):
         assert known_decomposition(matrix) is None
 
 
-def test_known_decomposition_errors():
+@pytest.mark.parametrize(
+    "errors",
+    [
+        (np.eye(3), ValueError, "The input matrix must be a 4 x 4 unitary matrix."),
+        (
+            QGate.from_matrix(np.eye(2), target=(0,)),
+            ValueError,
+            "The input matrix must be a 4 x 4 unitary matrix.",
+        ),
+        (np.eye(4) * 1.1, ValueError, "The input matrix must be a 4 x 4 unitary matrix."),
+        (
+            [[1, 2, 3, 4], [1, 2, 3, 4], [1, 2, 3, 4], [1, 2, 3, 4]],
+            TypeError,
+            "The input matrix must be a numpy array or a QGate object, but received",
+        ),
+    ],
+)
+def test_known_decomposition_errors(errors):
     """Test the raise of errors when calling the known_decomposition function with wrong arguments."""
 
-    # ValueError: The input matrix is not 4 x 4.
-    for U in (np.eye(3), QGate.from_matrix(np.eye(2), target=(0,))):
-        with pytest.raises(ValueError, match="The input matrix must be a 4 x 4 unitary matrix."):
-            known_decomposition(U)
-
-    # ValueError: The input matrix is not unitary.
-    U = np.eye(4) * 1.1
-    with pytest.raises(ValueError, match="The input matrix must be a 4 x 4 unitary matrix."):
-        known_decomposition(U)
-
-    # TypeError: The input matrix is not a numpy object or a QGate object.
-    U = [[1, 2, 3, 4], [1, 2, 3, 4], [1, 2, 3, 4], [1, 2, 3, 4]]
-    with pytest.raises(
-        TypeError, match="The input matrix must be a numpy array or a QGate object, but received"
-    ):
+    U, exc_type, exc_msg = errors
+    with pytest.raises(exc_type, match=exc_msg):
         known_decomposition(U)
 
 
-def test_cnot_decomposition():
+@pytest.mark.parametrize(
+    "U",
+    [
+        gates.CZ,
+        gates.CNOT,
+        gates.CNOT1,
+        gates.CH,
+        gates.canonical_gate(2.1, 1.2, 0.3),
+        np.kron(gates.T, gates.power_pauli_y(0.39451)),
+        np.eye(4),
+        np.array([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]]),
+        QGate.from_matrix(gates.INV_DCNOT, target=(0, 1)),
+        *list(unitary_group(dim=4, seed=42).rvs(10)),
+        *list(ortho_group(dim=4, seed=42).rvs(10)),
+        *list(special_ortho_group(dim=4, seed=42).rvs(10)),
+    ],
+)
+def test_cnot_decomposition(U):
     """Test the two-qubits gate decomposition using the cnot_decomposition function."""
-    for i in range(30):
-        # Use a predefined or randomly generated 4 x 4 matrix
-        match i:
-            case 0:
-                U = gates.CZ
-            case 1:
-                U = gates.CNOT
-            case 2:
-                U = gates.CNOT1
-            case 3:
-                U = gates.CH
-            case 5:
-                U = gates.canonical_gate(2.1, 1.2, 0.3)
-            case 6:
-                U = np.kron(gates.T, gates.power_pauli_y(0.39451))
-            case 7:
-                U = np.eye(4)
-            case 8:
-                U = np.array([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
-            case 9:
-                U = QGate.from_matrix(gates.INV_DCNOT, target=(0, 1))
-            case j if 10 <= j < 20:
-                U = unitary_group(dim=4, seed=i).rvs()
-            case j if 20 <= j < 25:
-                U = ortho_group(dim=4, seed=i).rvs()
-            case _:
-                U = special_ortho_group(dim=4, seed=i).rvs()
 
-        # Test the decomposition
-        decomposition = cnot_decomposition(U)
-        reconstructed = multiply_circuit(decomposition)
+    # Test the decomposition
+    decomposition = cnot_decomposition(U)
+    reconstructed = multiply_circuit(decomposition)
 
-        # Assert the reconstructed matrix is equal to the original matrix
-        if isinstance(U, QGate):
-            U = U.matrix
-        phase = reconstructed[0, 0] / U[0, 0]
-        assert np.allclose(reconstructed / phase, U, rtol=1e-8)
+    # Assert the reconstructed matrix is equal to the original matrix
+    if isinstance(U, QGate):
+        U = U.matrix
+    phase = reconstructed[0, 0] / U[0, 0]
+    assert np.allclose(reconstructed / phase, U, rtol=1e-8)
 
 
-def test_cnot_decomposition_errors():
+@pytest.mark.parametrize(
+    "errors",
+    [
+        (np.eye(3), ValueError, "The input matrix must be a 4 x 4 unitary matrix."),
+        (
+            QGate.from_matrix(np.eye(2), target=(0,)),
+            ValueError,
+            "The input matrix must be a 4 x 4 unitary matrix.",
+        ),
+        (np.eye(4) * 1.1, ValueError, "The input matrix must be a 4 x 4 unitary matrix."),
+        (
+            [[1, 2, 3, 4], [1, 2, 3, 4], [1, 2, 3, 4], [1, 2, 3, 4]],
+            TypeError,
+            "The input matrix must be a numpy array or a QGate object, but received",
+        ),
+    ],
+)
+def test_cnot_decomposition_errors(errors):
     """Test the raise of errors when calling the cnot_decomposition function with wrong arguments."""
-    # ValueError: The input matrix is not 4 x 4.
-    for U in (np.eye(3), QGate.from_matrix(np.eye(2), target=(0,))):
-        with pytest.raises(ValueError, match="The input matrix must be a 4 x 4 unitary matrix."):
-            cnot_decomposition(U)
-
-    # ValueError: The input matrix is not unitary.
-    U = np.eye(4) * 1.1
-    with pytest.raises(ValueError, match="The input matrix must be a 4 x 4 unitary matrix."):
-        cnot_decomposition(U)
-
-    # TypeError: The input matrix is not a numpy object or a QGate object.
-    U = [[1, 2, 3, 4], [1, 2, 3, 4], [1, 2, 3, 4], [1, 2, 3, 4]]
-    with pytest.raises(
-        TypeError, match="The input matrix must be a numpy array or a QGate object, but received"
-    ):
+    U, exc_type, exc_msg = errors
+    with pytest.raises(exc_type, match=exc_msg):
         cnot_decomposition(U)

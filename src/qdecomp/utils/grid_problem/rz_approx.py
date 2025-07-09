@@ -15,24 +15,29 @@
 """
 This file runs the entire z-rotational approximation algorithm to find the associated sequence.
 
-It contains the initialization function, which is only to visualy lighten the code and the
-z_rotational_approximation function which is the main function of this file. Given an angle and
+It contains the :func:`initialization` function, which is only to visualy lighten the code and the
+:func:`z_rotational_approximation` function which is the main function of this file. Given an angle and
 an error, it finds an approximation of the associated z-rotation by solving for potential values
-of u, and then checking if there exists a valid associated value for t. When u and t are found,
+of u, and then checking if there exists a valid associated value for t using the ``Diophantine equation`` module. When u and t are found,
 it returns the Clifford+T approximation of the z-rotation.
 """
 
-import numpy as np
 import math
+
 import mpmath as mp
+import numpy as np
 
-from qdecomp.utils.grid_problem import find_points, find_grid_operator, solve_grid_problem_2d
-from qdecomp.rings import *
-from qdecomp.utils.diophantine import *
-from qdecomp.utils import ellipse_bbox, is_inside_ellipse, steiner_ellipse_def
+from qdecomp.rings.rings import *
+from qdecomp.utils.diophantine import solve_xi_eq_ttdag_in_d
+from qdecomp.utils.grid_problem.grid_algorithms import solve_grid_problem_2d
+from qdecomp.utils.grid_problem.grid_problem import find_grid_operator, find_points
+from qdecomp.utils.steiner_ellipse import ellipse_bbox, is_inside_ellipse, steiner_ellipse_def
+
+# Define Identity
+I = np.array([[mp.mpf(1), mp.mpf(0)], [mp.mpf(0), mp.mpf(1)]], dtype=object)
 
 
-def initialization(epsilon: float, theta: float):
+def initialization(epsilon: float, theta: float) -> tuple[np.ndarray, np.ndarray]:
     """
     Initializes important parameters necessary to find the appropriate Rz approximation.
 
@@ -46,49 +51,45 @@ def initialization(epsilon: float, theta: float):
 
     Returns:
         tuple: A tuple containing:
-            - E (mp.matrix): The matrix representation of the bounding ellipse.
-            - p_p (list): A list of points defining the center of the ellipse.
             - bbox_1 (tuple): Bounding box coordinates for the transformed ellipse.
             - bbox_2 (tuple): Bounding box coordinates for the transformed unit disk.
     """
     # Initializes the ellipses using the points
     p1, p2, p3 = find_points(epsilon, theta)
     E, p_p = steiner_ellipse_def(p1, p2, p3)
-    I = np.array([[mp.mpf(1), mp.mpf(0)], [mp.mpf(0), mp.mpf(1)]], dtype=object)
 
     # Find the grid operator using the ellipses
     inv_gop, gop = find_grid_operator(E, I)
     inv_gop_conj = inv_gop.conjugate()
 
     # Transform the ellipse using the grid operator
-    mod_E = (inv_gop.dag()).as_mpmath() @ E @ inv_gop.as_mpmath()
-    mod_D = (inv_gop_conj.dag()).as_mpmath() @ I @ inv_gop_conj.as_mpmath()
+    mod_E = (inv_gop.dag()).as_mpfloat() @ E @ inv_gop.as_mpfloat()
+    mod_D = (inv_gop_conj.dag()).as_mpfloat() @ I @ inv_gop_conj.as_mpfloat()
 
     # Finds the bounding boxes
     bbox_1 = ellipse_bbox(mod_E, p_p)
-    bbox_2 = ellipse_bbox(mod_D, [mp.mpf(0), mp.mpf(0)])
+    bbox_2 = ellipse_bbox(mod_D, np.array([mp.mpf(0), mp.mpf(0)]))
 
-    return E, p_p, I, bbox_1, bbox_2
+    return bbox_1, bbox_2
 
 
 def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
     """
-    Finds the z-rotational approximation up to an error \u03b5.
+    Finds the z-rotational approximation up to an error :math:`\\varepsilon`.
 
-    This function finds an approximation of a z-rotational inside the Clifford+T subset.
+    This function finds an approximation of a z-rotational inside the Clifford+T group.
 
     Args:
-        epsilon (float): Maximum allowable error.
-        theta (float): Angle of the z-rotational gate.
+        epsilon (float): Maximum allowable error :math:`\\varepsilon`.
+        theta (float): Angle :math:`\\theta` of the z-rotational gate.
 
     Returns:
-        M (np.ndarray): Approximation of a z-rotational inside the Clifford+T subset
+        np.ndarray: Approximation :math:`M` of a z-rotational inside the Clifford+T subset.
 
     Raises:
-        ValueError: If theta is not in the range [0, 4\u03c0].
-        ValueError: If epsilon is not less than 0.5.
-        ValueError: If theta or epsilon cannot be converted to floats.
-
+        ValueError: If :math:`\\theta` is not in the range :math:`[0, 4\\pi]`.
+        ValueError: If :math:`\\varepsilon \\geq 0.5`.
+        ValueError: If :math:`\\theta` or :math:`\\varepsilon` cannot be converted to floats.
     """
 
     # Attempt to convert the input parameters to floats
@@ -98,9 +99,8 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
     except (ValueError, TypeError):
         raise TypeError("Both theta and epsilon must be convertible to floats.")
 
-    # Verify the value of theta
-    if theta > 4 * math.pi or theta < 0:
-        raise ValueError("The value of theta must be between 0 and 4\u03c0.")
+    # Normalize the value of theta
+    theta = theta % (4 * math.pi)
 
     # Verify the value of epsilon
     if epsilon >= 0.5:
@@ -128,13 +128,16 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
         return M
 
     # Run the initialization function
-    E, p_p, I, bbox_1, bbox_2 = initialization(epsilon, theta)
+    bbox_1, bbox_2 = initialization(epsilon, theta)
 
     # Initialize the exact solution vector in order to evaluate the error later
     z = np.array([mp.cos(theta / 2), -mp.sin(theta / 2)])
+
+    # Define this important value
+    delta = mp.mpf(1) - mp.mpf(0.5 * epsilon**2)
+
     n = 0
-    solution = False
-    while solution == False:
+    while True:
         # Varies if odd or even
         odd = n % 2
         if odd:
@@ -145,40 +148,45 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
         # Initialize the bounding boxes using n
         A = mp.sqrt(2**n) * bbox_1
         if odd:
-            bbox_2_flip = np.array([[bbox_2[0, 1], bbox_2[0, 0]], [bbox_2[1, 1], bbox_2[1, 0]]])
+            bbox_2_flip = np.flip(bbox_2, axis=1)
             B = -mp.sqrt(2**n) * bbox_2_flip
         else:
             B = mp.sqrt(2**n) * bbox_2
 
         # For every solution found
-        for cand in solve_grid_problem_2d(A.tolist(), B.tolist()):
+        for cand in solve_grid_problem_2d(A, B):
             # Ensure the solution was not already found previously
             is_double = abs(cand.a - cand.c) % 2 == 1 or abs(cand.b - cand.d) % 2 == 1
             if n == 0 or is_double:
                 # Find u as Domega and as mpfloat
                 u = Domega.from_ring(cand) * Domega.from_ring(const)
-                u_conj = u.sqrt2_conjugate()
                 u_float = np.array([u.mp_real(), u.mp_imag()])
+                # Find the conjugate of u
+                u_conj = u.sqrt2_conjugate()
                 u_conj_float = np.array([u_conj.mp_real(), u_conj.mp_imag()])
-
                 # Compute the dot product and the lower bound
                 dot = np.dot(u_float, z)
-                delta = mp.mpf(1) - mp.mpf(0.5 * epsilon**2)
-
                 # If the solution u is valid
-                if dot < 1 and dot > delta and is_inside_ellipse(u_conj_float, I, np.zeros(2)):
-                    print("Found candidate")
-
+                if (
+                    dot < 1
+                    and dot > delta
+                    and u_float[0] ** 2 + u_float[1] ** 2 < 1
+                    and is_inside_ellipse(u_conj_float, I, np.zeros(2))
+                ):
                     # Run the diophantine module
                     xi = 1 - u.complex_conjugate() * u
                     t = solve_xi_eq_ttdag_in_d(Dsqrt2.from_ring(xi))
                     if t is None:
                         # No associated t values exists
-                        print("Failed")
+                        pass
                     else:
                         # The solution is found and returned!
-                        solution = True
                         M = np.array([[u, -t.complex_conjugate()], [t, u.complex_conjugate()]])
                         return M
-        print("Denominator exponent: ", n)
+
         n += 1
+        if n > 1000000:
+            raise ValueError(  # pragma: no cover
+                "The algorithm did not find a solution after 1 million iterations. "
+                "Try increasing the error for the calculations."
+            )

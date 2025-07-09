@@ -18,17 +18,27 @@ from itertools import combinations_with_replacement
 import matplotlib.pyplot as plt
 import mpmath as mp
 import pytest
-from qdecomp.utils.grid_problem import solve_grid_problem_1d, solve_grid_problem_2d
+
 from qdecomp.plot import plot_grid_problem_1d, plot_grid_problem_2d
 from qdecomp.rings import Zomega, Zsqrt2
+from qdecomp.utils.grid_problem import solve_grid_problem_1d, solve_grid_problem_2d
 
 
-@pytest.mark.parametrize("A", [(1, 2, 3), "1, 2", (1.0j, 2), "12", 1, [mp.mpc(1, 1), mp.mpc(2, 2)]])
-def test_1d_grid_algorithm_type_error(A):
-    """Test the raise of a TypeError when solving the 1D grid problem if the input intervals are not of the correct form."""
-    with pytest.raises(TypeError, match="Input intervals must be real sequences of length 2"):
+@pytest.mark.parametrize("A", [(1, 2, 3), "1, 2", [mp.mpf(1.5)], [[1, 2]]])
+def test_1d_grid_algorithm_type_error_bounds(A):
+    """Test the raise of a TypeError when solving the 1D grid problem if the input intervals don't have two bounds."""
+    with pytest.raises(TypeError, match="Input intervals must have two bounds"):
         list(solve_grid_problem_1d(A, (-1, 1)))
-    with pytest.raises(TypeError, match="Input intervals must be real sequences of length 2"):
+    with pytest.raises(TypeError, match="Input intervals must have two bounds"):
+        list(solve_grid_problem_1d((-1, 1), A))
+
+
+@pytest.mark.parametrize("A", [("1", "2"), (1.0j, 2), [mp.mpc(1, 1), mp.mpc(2, 2)]])
+def test_1d_grid_algorithm_type_error_real(A):
+    """Test the raise of a TypeError when solving the 1D grid problem if the input intervals are not real numbers."""
+    with pytest.raises(TypeError, match="The bounds of the interval must be real numbers"):
+        list(solve_grid_problem_1d(A, (-1, 1)))
+    with pytest.raises(TypeError, match="The bounds of the interval must be real numbers"):
         list(solve_grid_problem_1d((-1, 1), A))
 
 
@@ -76,20 +86,29 @@ def test_grid_algorithm_1D_solutions(A, B):
 
 @pytest.mark.parametrize(
     "A",
+    [((1, 2, 3), (1, 2)), [[1, 2], [1, 2, 3]], [[1, 1], [mp.mpc(1, 1)]], (1, 2, 3, 4)],
+)
+def test_2d_grid_algorithm_type_error_bounds(A):
+    """Test the raise of a TypeError when solving the 2D grid problem if the input intervals don't have two bounds."""
+    with pytest.raises(TypeError, match="Input intervals must have two bounds"):
+        list(solve_grid_problem_2d(A, ((-1, 1), (-1, 1))))
+    with pytest.raises(TypeError, match="Input intervals must have two bounds"):
+        list(solve_grid_problem_2d(((-1, 1), (-1, 1)), A))
+
+
+@pytest.mark.parametrize(
+    "A",
     [
-        ((1, 2, 3), (1, 2)),
-        [[1, 2], [1, 2, 3]],
         ((0, 1j), (1, 2)),
         ((1, 2), ([1], 2)),
-        30,
         [[1, 1], [1, mp.mpc(1, 1)]],
     ],
 )
-def test_2d_grid_algorithm_type_error(A):
-    """Test the raise of a TypeError when solving the 2D grid problem if the input intervals are not of the correct form."""
-    with pytest.raises(TypeError, match="Input intervals must be real 2 x 2 sequences"):
+def test_2d_grid_algorithm_type_error_real(A):
+    """Test the raise of a TypeError when solving the 2D grid problem if the bounds are not real numbers."""
+    with pytest.raises(TypeError, match="The bounds of the interval must be real numbers"):
         list(solve_grid_problem_2d(A, ((-1, 1), (-1, 1))))
-    with pytest.raises(TypeError, match="Input intervals must be real 2 x 2 sequences"):
+    with pytest.raises(TypeError, match="The bounds of the interval must be real numbers"):
         list(solve_grid_problem_2d(((-1, 1), (-1, 1)), A))
 
 
@@ -125,32 +144,34 @@ def test_grid_algorithm_2d_solutions(A, B):
     """Test the validity of the solutions found for the 2D grid problem for A and B."""
     solutions = solve_grid_problem_2d(A, B)
     for solution in solutions:
-        assert (
-            solution.real() >= A[0][0]
-            and solution.real() <= A[0][1]
-            and solution.imag() >= A[1][0]
-            and solution.imag() <= A[1][1]
-            and solution.sqrt2_conjugate().real() >= B[0][0]
-            and solution.sqrt2_conjugate().real() <= B[0][1]
-            and solution.sqrt2_conjugate().imag() >= B[1][0]
-            and solution.sqrt2_conjugate().imag() <= B[1][1]
-        )
+        assert solution.real() >= A[0][0]
+        assert solution.real() <= A[0][1]
+        assert solution.imag() >= A[1][0]
+        assert solution.imag() <= A[1][1]
+        assert solution.sqrt2_conjugate().real() >= B[0][0]
+        assert solution.sqrt2_conjugate().real() <= B[0][1]
+        assert solution.sqrt2_conjugate().imag() >= B[1][0]
+        assert solution.sqrt2_conjugate().imag() <= B[1][1]
 
 
-def test_plot_solutions_1d_type_errors_intervals():
+@pytest.mark.parametrize(
+    "seq1, seq2",
+    [
+        ((1, 2, 3), (-1, 1)),
+        ((1, 2), (1.0j, 0)),
+        ((1, 2), {1, 2}),
+    ],
+)
+def test_plot_solutions_1d_type_errors_intervals(seq1, seq2):
     """Test the raise of a TypeError when plotting the solutions of the 1D grid problem if the input intervals are not of the correct form."""
-    fig, ax = plt.subplots()
-    with pytest.raises(TypeError, match="Input intervals must be real sequences of length 2"):
-        plot_grid_problem_1d(ax, (1, 2, 3), (-1, 1), [])
-    with pytest.raises(TypeError, match="Input intervals must be real sequences of length 2"):
-        plot_grid_problem_1d(ax, (1, 2), (1.0j, 0), [])
-    with pytest.raises(TypeError, match="Input intervals must be real sequences of length 2"):
-        plot_grid_problem_1d(ax, (1, 2), {1, 2}, [])
+    _, ax = plt.subplots()
+    with pytest.raises(TypeError):
+        plot_grid_problem_1d(ax, seq1, seq2, [])
 
 
 def test_plot_solutions_1d_type_errors_solutions():
     """Test the raise of a TypeError when plotting the solutions of the 1D grid problem if the solutions are not of the correct form."""
-    fig, ax = plt.subplots()
+    _, ax = plt.subplots()
     with pytest.raises(TypeError, match="Solutions must be Zsqrt2 objects."):
         plot_grid_problem_1d(ax, (1, 2), (-1, 1), [1, 2, 3])
 
@@ -158,9 +179,9 @@ def test_plot_solutions_1d_type_errors_solutions():
 def test_plot_solutions_2d_type_errors_intervals():
     """Test the raise of a TypeError when plotting the solutions of the 2D grid problem if the input intervals are not of the correct form."""
     fig, ax = plt.subplots()
-    with pytest.raises(TypeError, match="Input intervals must be real 2x2 matrices"):
+    with pytest.raises(TypeError, match="Input intervals must be real 2 x 2 matrices"):
         plot_grid_problem_2d(ax, ((1, 2, 3), (1, 2)), ((-1, 1), (-1, 1)), [])
-    with pytest.raises(TypeError, match="Input intervals must be real 2x2 matrices"):
+    with pytest.raises(TypeError, match="Input intervals must be real 2 x 2 matrices"):
         plot_grid_problem_2d(ax, ((1, 2), (1, 2)), ((1.0j, 0), (1, 2)), [])
 
 
