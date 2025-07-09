@@ -22,8 +22,8 @@ This module implements and combines the :mod:`qdecomp.decompositions.rz` and :mo
 
         >>> from scipy.stats import unitary_group
         >>> from qdecomp.decompositions import sqg_decomp
-        
-        # Decompose a radnom single qubit gate with tolerance 0.001 exactly
+
+        # Decompose a random single qubit gate with tolerance 0.001 exactly
         >>> sqg = unitary_group.rvs(2, random_state=42)
         >>> sequence, alpha = sqg_decomp(sqg, epsilon=0.001, add_global_phase=True)
         >>> print(sequence, alpha)
@@ -32,7 +32,7 @@ This module implements and combines the :mod:`qdecomp.decompositions.rz` and :mo
 
         # Decompose a random single qubit gate with tolerance 0.001 up to a global phase
         >>> sqg = unitary_group.rvs(2, random_state=42)
-        >>> sequence, _ = sqg_decomp(sqg, epsilon=0.001, add_global_phase=False) 
+        >>> sequence, _ = sqg_decomp(sqg, epsilon=0.001, add_global_phase=False)
         >>> print(sequence)
         T H S T H S T [...] Z T H Z S H S
 """
@@ -90,16 +90,12 @@ def sqg_decomp(
 
         # If it is second angle of angles, consider gate to be Y
         if np.allclose(angle, angles[1] + 4 * np.pi if angles[1] < 0 else angles[1]):
-            rz_sequence = rz_decomp(
-                epsilon=epsilon, angle=angle, add_global_phase=add_global_phase
-            )
+            rz_sequence = rz_decomp(epsilon=epsilon, angle=angle, add_global_phase=add_global_phase)
             sequence = sequence + " H S H " + rz_sequence + " H S S S H "
 
         # Else, consider gate to be Z
         else:
-            rz_sequence = rz_decomp(
-                epsilon=epsilon, angle=angle, add_global_phase=add_global_phase
-            )
+            rz_sequence = rz_decomp(epsilon=epsilon, angle=angle, add_global_phase=add_global_phase)
             sequence = sequence + rz_sequence
 
     return sequence, alpha

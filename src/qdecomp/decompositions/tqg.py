@@ -12,6 +12,30 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+"""
+This module contains the main function for the decomposition of two qubit gates (TQG) into a sequence of Clifford+T gates up to a given tolerance :math:`\\varepsilon`.
+This module implements and combines the :mod:`qdecomp.decompositions.sqg` and :mod:`qdecomp.decompositions.cnot` decomposition algorithms to achieve this goal.
+
+**Example**
+
+    .. code-block:: python
+
+        >>> from scipy.stats import unitary_group
+        >>> from qdecomp.decompositions import sqg_decomp
+
+        # Decompose a radnom single qubit gate with tolerance 0.001 exactly
+        >>> sqg = unitary_group.rvs(4, random_state=42)
+        >>> circuit = sqg_decomp(sqg, epsilon=0.001)
+        >>> for gates in circuit:
+        >>> print(f"{gate.target} -> {gate.sequence}")
+        (0,) -> S T H T [...] H Z S T
+        (1,) -> S T H T [...] S H S T
+        (0, 1) -> CNOT1
+        ...
+        (1,) -> H T H S [...] T H Z S
+
+"""
+
 from typing import Union
 import numpy as np
 
@@ -31,11 +55,13 @@ def tqg_decomp(tqg: Union[np.array, QGate], epsilon: float = 0.01) -> list[QGate
         list[QGate]: A list of QGate objects representing the decomposed gates with their sequences defined
     """
 
-    if type(tqg) is not np.ndarray and type(tqg) is not QGate:
+    if not isinstance(tqg, (np.ndarray, QGate)):
         raise ValueError("Input must be a numpy array or QGate object, got " + str(type(tqg)))
 
-    if type(tqg) is not QGate:
+    if not isinstance(tqg, QGate):
         tqg_matrix = tqg
+        if tqg_matrix.shape != (4, 4):
+            raise ValueError("Input gate must be a 4x4 matrix, got " + str(tqg.shape))
         tqg = QGate.from_matrix(matrix=tqg_matrix, target=(0, 1), epsilon=epsilon)
 
     if tqg.init_matrix.shape != (4, 4):
@@ -54,5 +80,4 @@ def tqg_decomp(tqg: Union[np.array, QGate], epsilon: float = 0.01) -> list[QGate
             cnot_qgate_seq, alpha = sqg_decomp(cnot_decomp_qgate.init_matrix, epsilon=epsilon)
             cnot_decomp_qgate.set_decomposition(cnot_qgate_seq, epsilon=epsilon)
 
-        # Decomposition of all single qubit gates using zyz, rz_approx and exact synthesis
     return cnot_decomp_lists

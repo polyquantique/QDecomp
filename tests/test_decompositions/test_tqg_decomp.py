@@ -64,3 +64,61 @@ def test_tqg_decomposition_random_unitary(trial, epsilon):
 
     # account for error propagation in the decomposition (10*epsilon)
     assert np.allclose(exact_reconstructed, U, atol=10 * epsilon)
+
+
+def test_tqg_decomposition_identity():
+    """Test the tqg_decomposition function with the identity matrix."""
+    # Test with numpy identity matrix
+    identity = np.eye(4)
+    decomposition = tqg_decomp(identity, epsilon=0.01)
+    reconstructed = multiply_circuit(decomposition)
+
+    phase = reconstructed[0, 0] / identity[0, 0]
+    exact_reconstructed = reconstructed / phase
+    assert np.allclose(exact_reconstructed, identity, atol=0.01)
+
+    # Test with QGate identity matrix
+    identity_qgate = QGate.from_matrix(np.eye(4), target=(0, 1))
+    decomposition_qgate = tqg_decomp(identity_qgate, epsilon=0.01)
+    reconstructed_qgate = multiply_circuit(decomposition_qgate)
+
+    phase_qgate = reconstructed_qgate[0, 0] / identity[0, 0]
+    exact_reconstructed_qgate = reconstructed_qgate / phase_qgate
+    assert np.allclose(exact_reconstructed_qgate, identity, atol=0.01)
+
+
+def test_tqg_decomposition_invalid_input_type():
+    """Test that tqg_decomp raises ValueError for invalid input types."""
+    # Test with string
+    with pytest.raises(ValueError, match="Input must be a numpy array or QGate object"):
+        tqg_decomp("invalid_input", epsilon=0.01)
+
+    # Test with list
+    with pytest.raises(ValueError, match="Input must be a numpy array or QGate object"):
+        tqg_decomp([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]], epsilon=0.01)
+
+    # Test with integer
+    with pytest.raises(ValueError, match="Input must be a numpy array or QGate object"):
+        tqg_decomp(42, epsilon=0.01)
+
+    # Test with None
+    with pytest.raises(ValueError, match="Input must be a numpy array or QGate object"):
+        tqg_decomp(None, epsilon=0.01)
+
+
+def test_tqg_decomposition_invalid_matrix_shape():
+    """Test that tqg_decomp raises ValueError for invalid matrix shapes."""
+    # Test with 2x2 matrix
+    matrix_2x2 = np.array([[1, 0], [0, 1]])
+    with pytest.raises(ValueError, match="Input gate must be a 4x4 matrix"):
+        tqg_decomp(matrix_2x2, epsilon=0.01)
+
+    # Test with non-square matrix
+    matrix_nonsquare = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1], [0, 0, 0]])
+    with pytest.raises(ValueError, match="Input gate must be a 4x4 matrix"):
+        tqg_decomp(matrix_nonsquare, epsilon=0.01)
+
+    # Test with QGate object
+    qgate_invalid = QGate.from_matrix(np.array([[1, 0], [0, 1]]), target=(0,))
+    with pytest.raises(ValueError, match="Input gate must be a 4x4 matrix"):
+        tqg_decomp(qgate_invalid, epsilon=0.01)

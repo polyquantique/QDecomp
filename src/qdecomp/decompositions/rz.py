@@ -58,6 +58,7 @@ def rz_decomp(epsilon: float, angle: float, add_global_phase=False) -> str:
     Args:
         epsilon (float): The tolerance for the approximation.
         angle (float): The angle of the RZ gate in radians.
+        add_global_phase (bool): If `True`, adds global phase gates W to the sequence (default: `False`).
 
     Returns:
         sequence (str): The sequence of Clifford+T gates that approximates the RZ gate.
