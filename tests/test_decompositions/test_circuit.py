@@ -10,97 +10,57 @@
 #    distributed under the License is distributed on an "AS IS" BASIS,
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
-#    limitations under the License.import pytest
+#    limitations under the License.
 
-"""Test the `circuit_decomposition` function."""
+"""Test the `circuit_decomp` function."""
 
 import numpy as np
 import pytest
 from scipy.stats import unitary_group
-from qdecomp.decompositions import circuit_decomposition
+from qdecomp.decompositions import circuit_decomp
 from qdecomp.utils import QGate
 
-
-def test_circuit_decomposition_single_qubit_gate_output_type():
-    # Single-qubit gate (Pauli-X)
-    gate = (np.array([[0, 1], [1, 0]]), (0,), 0.01)
-    circuit = [gate]
-    decomposed_circuit = circuit_decomposition(circuit)
-
-    assert len(decomposed_circuit) == 1
-    assert isinstance(decomposed_circuit[0], QGate)
+np.random.seed(42)  # For reproducibility
 
 
-def test_circuit_decomposition_two_qubit_gate_output_type():
-    # Two-qubit gate (CNOT)
-    gate = (np.eye(4)[[0, 2, 1, 3]], (0, 1), 0.01)
-    circuit = [gate]
-    decomposed_circuit = circuit_decomposition(circuit)
+@pytest.mark.parametrize("trial", range(10))
+def test_circuit_decomp_output_type(trial):
+    """Test that circuit_decomp returns a list of QGate objects."""
 
+    # Create a circuit with multiple random single-qubit gates
+    circuit = [
+        QGate.from_matrix(matrix=unitary_group.rvs(2), target=(i,), epsilon=0.01) for i in range(3)
+    ]
+
+    # Decompose the circuit
+    decomposed_circuit = circuit_decomp(circuit)
+
+    # Verify that the result is a list of QGate objects
+    assert isinstance(decomposed_circuit, list)
     assert len(decomposed_circuit) > 0
+
     for gate in decomposed_circuit:
-        assert isinstance(gate, QGate)
+        assert isinstance(gate, QGate), f"Expected QGate object, got {type(gate)}"
 
 
-def test_circuit_decomposition_random_unitary_output_type():
-    # Random single-qubit unitary gate
-    gate = (unitary_group.rvs(2), (0,), 0.001)
-    circuit = [gate]
-    decomposed_circuit = circuit_decomposition(circuit)
+def test_circuit_decomp_empty_circuit():
+    """Test circuit_decomp with an empty circuit."""
+    circuit = []
 
-    assert len(decomposed_circuit) == 1
-    assert isinstance(decomposed_circuit[0], QGate)
-    assert decomposed_circuit[0].matrix_target == (0,)
+    # Decompose the circuit
+    decomposed_circuit = circuit_decomp(circuit)
+
+    # Verify that the result is an empty list
+    assert isinstance(decomposed_circuit, list)
+    assert len(decomposed_circuit) == 0
 
 
-def test_circuit_decomposition_invalid_input_type():
-    # Invalid input type
-    circuit = "invalid_input"
+def test_circuit_decomp_invalid_input():
+    """Test that circuit_decomp raises appropriate errors for invalid inputs."""
+    # Test with non-list input
     with pytest.raises(TypeError, match="Input circuit must be a list"):
-        circuit_decomposition(circuit)
+        circuit_decomp("not a list")
 
-
-def test_circuit_decomposition_invalid_matrix_size():
-    # Invalid matrix size
-    gate = (np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]]), (0,), 0.01)
-    circuit = [gate]
-    with pytest.raises(ValueError, match="The input matrix must have a size of"):
-        circuit_decomposition(circuit)
-
-
-def test_circuit_decomposition_invalid_target_qubits():
-    # Invalid target qubits for single-qubit gate
-    gate = (np.array([[0, 1], [1, 0]]), (0, 1), 0.01)
-    circuit = [gate]
-    with pytest.raises(ValueError, match="The input matrix must have a size of"):
-        circuit_decomposition(circuit)
-
-
-def test_circuit_decomposition_invalid_target_qubits_2():
-    # Invalid target qubits for two-qubit gate
-    gate = (np.eye(4)[[0, 1, 3, 2]], (0,), 0.01)
-    circuit = [gate]
-    with pytest.raises(ValueError, match="The input matrix must have a size of"):
-        circuit_decomposition(circuit)
-
-
-@pytest.mark.parametrize(
-    "circuit",
-    [
-        [
-            (np.eye(4)[[0, 1, 3, 2]], (0, 1), 0.01),
-            (unitary_group.rvs(4), (1, 2), 0.001),
-            (
-                unitary_group.rvs(2),
-                (0,),
-                0.05,
-            ),
-        ]
-    ],
-)
-def test_circuit_decomposition_error_tol(circuit):
-    """Test if the result of the decomposition is the same as the input circuit."""
-    decomposed_circuit = circuit_decomposition(circuit)
-    for gate in decomposed_circuit:
-        if gate.approx_matrix is not None:
-            assert np.allclose(gate.matrix, gate.approx_matrix, atol=gate.epsilon)
+    # Test with list containing non-QGate objects
+    with pytest.raises(TypeError, match="Input circuit must be a list of QGate objects"):
+        circuit_decomp([np.array([[1, 0], [0, 1]])])

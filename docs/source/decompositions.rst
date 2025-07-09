@@ -43,3 +43,11 @@ TQG Module
     :members:
     :undoc-members:
     :show-inheritance:
+
+Circuit Module
+-----------
+
+.. automodule:: qdecomp.decompositions.circuit
+    :members:
+    :undoc-members:
+    :show-inheritance:
