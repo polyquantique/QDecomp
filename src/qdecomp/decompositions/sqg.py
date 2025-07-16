@@ -13,8 +13,8 @@
 #    limitations under the License.
 
 """
-This module contains the main function for the decomposition of single qubit gates (SQG) into a sequence of Clifford+T gates up to a given tolerance :math:`\\varepsilon`.
-This module implements and combines the :mod:`qdecomp.decompositions.rz` and :mod:`qdecomp.decompositions.zyz` decomposition algorithms to achieve this goal.
+This module contains the main function to decompose single qubit gates (SQG) into a sequence of Clifford+T gates up to a given tolerance :math:`\\varepsilon`.
+This module combines the functions from the :mod:`qdecomp.decompositions.rz` and :mod:`qdecomp.decompositions.zyz` modules to achieve this goal.
 
 **Example**
 
@@ -23,7 +23,7 @@ This module implements and combines the :mod:`qdecomp.decompositions.rz` and :mo
         >>> from scipy.stats import unitary_group
         >>> from qdecomp.decompositions import sqg_decomp
 
-        # Decompose a random single qubit gate with tolerance 0.001 exactly
+        # Decompose a random single qubit gate with tolerance 0.001
         >>> sqg = unitary_group.rvs(2, random_state=42)
         >>> sequence, alpha = sqg_decomp(sqg, epsilon=0.001, add_global_phase=True)
         >>> print(sequence, alpha)
@@ -47,18 +47,17 @@ def sqg_decomp(
     sqg: np.ndarray | QGate, epsilon: float, add_global_phase: bool = False
 ) -> tuple[str, float]:
     """
-    Decomposes any single qubit gate (SQG) into its sequence of Clifford+T gates up to a given error.
+    Decomposes any single qubit gate (SQG) into its optimal sequence of Clifford+T gates up to a given error.
 
     Args:
-        sqg (np.array || QGate]): The single qubit gate to decompose.
+        sqg (np.ndarray || QGate]): The single qubit gate to decompose.
         epsilon (float): The error tolerance for the decomposition
         add_global_phase (bool): If `True`, adds the global phase to the sequence and return statements (default: `False`).
 
     Returns:
-        tuple(str, float): Tuples containing the sequence of gates that approximates the input SQG and the global phase associated with the zyz decomposition of the gate (0 if add_global_phase is False).
+        tuple(str, float): A tuple containing the sequence of gates that approximates the input SQG and the global phase associated with the zyz decomposition of the gate (0 if add_global_phase is False).
 
     Raises:
-        ValueError: If the input is not a 2x2 matrix
         ValueError: If the input is a QGate object with no epsilon value set
         ValueError: If the input is not a QGate object or a 2x2 matrix
     """
@@ -76,20 +75,20 @@ def sqg_decomp(
         raise ValueError("The input must be a 2x2 matrix, got shape: " + str(sqg.shape))
 
     angles = zyz_decomposition(sqg)
-    alpha = angles[3]
-    angles = angles[:-1]
-    sequence = ""
+    zyz_result = zyz_decomposition(sqg)
+    alpha = zyz_result[3]
+    angles = zyz_result[:-1]
     for angle in angles:
         # Adjust angle to be in the range [0, 4*pi]
         if angle < 0:
             angle = angle + 4 * np.pi
 
-        # If angles is 0, sequence is identity and skip decomposition
-        if np.allclose(angle, 0):
+        # If angle is 0, sequence is identity and skip decomposition
+        if np.isclose(angle, 0):
             continue
 
         # If it is second angle of angles, consider gate to be Y
-        if np.allclose(angle, angles[1] + 4 * np.pi if angles[1] < 0 else angles[1]):
+        if np.isclose(angle, angles[1] + 4 * np.pi if angles[1] < 0 else angles[1]):
             rz_sequence = rz_decomp(epsilon=epsilon, angle=angle, add_global_phase=add_global_phase)
             sequence = sequence + " H S H " + rz_sequence + " H S S S H "
 
