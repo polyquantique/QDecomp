@@ -14,7 +14,7 @@
 
 """
 This module contains the main function for the decomposition of two qubit gates (TQG) into a sequence of Clifford+T gates up to a given tolerance :math:`\\varepsilon`.
-This module implements and combines the :mod:`qdecomp.decompositions.sqg` and :mod:`qdecomp.decompositions.cnot` decomposition algorithms to achieve this goal.
+This module uses and combines the :mod:`qdecomp.decompositions.sqg` and :mod:`qdecomp.decompositions.cnot` decomposition algorithms to achieve this goal.
 
 **Example**
 
@@ -23,7 +23,7 @@ This module implements and combines the :mod:`qdecomp.decompositions.sqg` and :m
         >>> from scipy.stats import unitary_group
         >>> from qdecomp.decompositions import sqg_decomp
 
-        # Decompose a radnom single qubit gate with tolerance 0.001 exactly
+        # Decompose a random two qubit gate with tolerance 0.001
         >>> sqg = unitary_group.rvs(4, random_state=42)
         >>> circuit = sqg_decomp(sqg, epsilon=0.001)
         >>> for gates in circuit:
@@ -43,9 +43,9 @@ from qdecomp.decompositions import sqg_decomp, cnot_decomposition
 from qdecomp.utils import QGate
 
 
-def tqg_decomp(tqg: Union[np.array, QGate], epsilon: float = 0.01) -> list[QGate]:
+def tqg_decomp(tqg: Union[np.ndarray, QGate], epsilon: float = 0.01) -> list[QGate]:
     """
-    Decomposes a two-qubit gate (TQG) into its sequence of CNOT and single qubit gates.
+    Decomposes a two-qubit gate (TQG) into its optimal sequence of CNOT and single qubit gates.
 
     Args:
         tqg (Union[np.array, QGate]): The two-qubit gate to decompose.
@@ -53,10 +53,14 @@ def tqg_decomp(tqg: Union[np.array, QGate], epsilon: float = 0.01) -> list[QGate
 
     Returns:
         list[QGate]: A list of QGate objects representing the decomposed gates with their sequences defined
+
+    Raises:
+        TypeError: If the input is not a numpy array or QGate object.
+        ValueError: If the input is not a 4x4 matrix or QGate object with a 4x4 matrix.
     """
 
     if not isinstance(tqg, (np.ndarray, QGate)):
-        raise ValueError("Input must be a numpy array or QGate object, got " + str(type(tqg)))
+        raise TypeError("Input must be a numpy array or QGate object, got " + str(type(tqg)))
 
     if not isinstance(tqg, QGate):
         tqg_matrix = tqg
