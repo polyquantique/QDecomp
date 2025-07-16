@@ -33,7 +33,7 @@ def generate_sequences() -> list[str]:
     """
     Generate all valid sequences of T and H gates.
 
-    The sequences are generated with the following constraints:
+    The sequences that are viable candidates in the S3 table are generated with the following constraints:
 
     - A maximum of 7 consecutive T gates.
     - A maximum of 3 H gates.
