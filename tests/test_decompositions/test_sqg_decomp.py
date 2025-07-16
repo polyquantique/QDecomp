@@ -62,10 +62,10 @@ def test_sqg_decomp_zyz_random(trial, epsilon):
     # Generate a random 2x2 unitary matrix (single qubit gate)
     U = unitary_group.rvs(2)
     sqg = QGate.from_matrix(U, (0,), epsilon=epsilon)
-    sequence, alpha = sqg_decomp(sqg, epsilon, add_global_phase=True)
+    sequence, _ = sqg_decomp(sqg, epsilon, add_global_phase=True)
     sqg.set_decomposition(sequence, epsilon=epsilon)
     # Evaluate de zyz decomposition matrix
-    t0, t1, t2, alpha = zyz_decomposition(U)
+    t0, t1, t2, _ = zyz_decomposition(U)
     zyz_matrix = rz(t2) @ ry(t1) @ rz(t0)
 
     # Account for error propagation in the decomposition (10*epsilon)
@@ -76,7 +76,7 @@ def test_sqg_decomp_zyz_random(trial, epsilon):
 def test_sqg_decomp_identity():
     """Test if sqg_decomp correctly handles the identity matrix."""
     identity = np.eye(2)
-    sequence, phase = sqg_decomp(identity, epsilon=0.01)
+    sequence, _ = sqg_decomp(identity, epsilon=0.01)
     assert sequence == ""
 
 

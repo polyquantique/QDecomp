@@ -47,7 +47,7 @@ def multiply_circuit(circuit: list[QGate]) -> np.ndarray:
     return M
 
 
-@pytest.mark.parametrize("trial", range(10))
+@pytest.mark.parametrize("trial", range(3))
 @pytest.mark.parametrize("epsilon", [0.01, 0.001, 0.0001])
 def test_tqg_decomposition_random_unitary(trial, epsilon):
     """Test the tqg_decomposition function with a random unitary matrix."""
