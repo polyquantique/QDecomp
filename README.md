@@ -22,10 +22,10 @@ Complete API documentation is available and can be built locally using Sphinx:
 ```bash
 cd docs
 make html  # On Windows: make.bat html
+docs/build/html/index.html
 ```
 
 The documentation is generated in `docs/build/html/`. Open `docs/build/html/index.html` in a browser to view it.
-
 
 ## Installation
 
@@ -43,59 +43,48 @@ pip install -r requirements.txt
 This example demonstrates the use of the `qdcomp.decompositions.sqg_decomp` function to decompose single-qubit gates (SQG) into the Clifford+T universal subset up to a tolerance error $\varepsilon$. Note that the algorithm guarantees the specified error only for $R_z$ gates, meaning the total error for SQG may exceed the user-defined tolerance due to error propagation.   
 
 ```pycon
+>>> from scipy.stats import unitary_group
 >>> from qdecomp.decompositions import sqg_decomp
->>> import numpy as np
->>> U = np.array([ # Unitary matrix
-...     [0.5 + 0.5j, -0.5 - 0.5j],
-...     [-0.498 + 0.502, -0.498 + 0.502]
-... ])
->>> sequence = sqg_decomp(U, epsilon=1e-2)
+
+>>> # Decompose a random single qubit gate with tolerance 0.001 exactly
+>>> sqg = unitary_group.rvs(2, random_state=42)
+>>> sequence, alpha = sqg_decomp(sqg, epsilon=0.0add_global_phase=True)
+>>> print(sequence, alpha)
+
+sequence : T H S T H S T [...] S H S W W W W
+alpha : 0.27
+
+>>> # Decompose a random single qubit gate with tolerance 0.001 up tglobal phase
+>>> sqg = unitary_group.rvs(2, random_state=42)
+>>> sequence, _ = sqg_decomp(sqg, epsilon=0.001, add_global_phase=False)
 >>> print(sequence)
-Z H S H S T H T H S T H T H S T H T H S T H T H S T H T H S T H T H T H T H T H T H T H S T H S T H S T H T H T H T H S T H T H Z S H S T H Z
+
+T H S T H S T [...] Z T H Z S H S
 ```
 
 ### Example #2: Two-Qubit Gate Decomposition
 This example demonstrates the use of the `qdecomp.decompositions.tqg_decomp` function to decompose two-qubit gates (TQG) into the Clifford+T universal subset up to a tolerance error $\varepsilon$. The function outputs a `list` of `QGate` objects representing the circuit. The target qubits and the corresponding sequence can be accessed through the `QGate.target` and `QGate.sequence` properties respectively.
 
 ```pycon
->>> from qdecomp.decompositions import tqg_decomp
->>> import numpy as np
->>> U = np.array([ # Unitary matrix
-...     [ 0.250 + 0.604j , -0.104 - 0.250j , 0.250 + 0.604j , -0.104 - 0.250j ],
-...     [ -0.104 - 0.250j , 0.250 + 0.604j , -0.104 - 0.250j , 0.250 + 0.604j ],
-...     [ 0.104 + 0.250j , 0.250 + 0.604j , 0.104 + 0.250j , 0.250 + 0.604j ],
-...     [ -0.104 - 0.250j , -0.250 - 0.604j , -0.104 - 0.250j , -0.250 - 0.604j ]
-... ])
->>> circuit = tqg_decomp(U, epsilon=1e-2) # List of QGate objects
->>> for gate in circuit:
-...     print(f"{gate.target} -> {gate.sequence}")
+>>> from scipy.stats import unitary_group
+>>> from qdecomp.decompositions import sqg_decomp
+
+>>> # Decompose a radnom single qubit gate with tolerance 0.001 exactly
+>>> sqg = unitary_group.rvs(4, random_state=42)
+>>> circuit = sqg_decomp(sqg, epsilon=0.001)
+>>> for gates in circuit:
+>>> print(f"{gate.target} -> {gate.sequence}")
+
+(0,) -> S T H T [...] H Z S T
+(1,) -> S T H T [...] S H S T
+(0, 1) -> CNOT1
 ...
-(0 ,) -> S
-(1 ,) -> S H S H S H S S S H
-(0 , 1) -> CNOT CNOT1
-(0 ,) -> T
-(1 ,) -> H S H
-(0 , 1) -> CNOT1
-(1 ,) -> H S H Z S H S S S H Z S
-(0 ,) -> Z S
+(1,) -> H T H S [...] T H Z S
 ```
 
 ## License
 
 Released under the Apache License 2.0. See [LICENSE](LICENSE) file.
-
-## Contributors
-
-This project was made possible by:
-
-- Olivier Romain
-- Vincent Girouard
-- Marius Trudeau
-- Francis Blais
-
-Special thanks to the two supervisors of the project:
-- Theodor Isacsson
-- Nicolás Quesada
 
 ## Citing this package
 
