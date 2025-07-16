@@ -21,7 +21,7 @@ CNOT Module
     :show-inheritance:
 
 RZ Module
------------
+---------
 
 .. automodule:: qdecomp.decompositions.rz
     :members:
@@ -29,7 +29,7 @@ RZ Module
     :show-inheritance:
 
 SQG Module
------------
+----------
 
 .. automodule:: qdecomp.decompositions.sqg
     :members:
@@ -37,7 +37,7 @@ SQG Module
     :show-inheritance:
 
 TQG Module
------------
+----------
 
 .. automodule:: qdecomp.decompositions.tqg
     :members:
@@ -45,7 +45,7 @@ TQG Module
     :show-inheritance:
 
 Circuit Module
------------
+--------------
 
 .. automodule:: qdecomp.decompositions.circuit
     :members:
