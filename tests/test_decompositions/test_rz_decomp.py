@@ -63,12 +63,6 @@ def test_rz_decomposition_identity():
     assert sequence == ""
 
 
-# def test_rz_decomposition_invalid_epsilon():
-#     """Test that an invalid (negative) epsilon raises a ValueError."""
-#     with pytest.raises(ValueError):
-#         rz_decomposition(-1e-5, 1.0)  # Negative epsilon should raise an error
-
-
 def test_rz_decomposition_invalid_angle():
     """Test that a non-numeric angle raises a TypeError."""
     with pytest.raises(TypeError):
@@ -76,9 +70,9 @@ def test_rz_decomposition_invalid_angle():
 
 
 @pytest.mark.parametrize(
-    "sequence", ["HTHTHTHTHT", "TTTTTT", "TTTTTTHTTHTTTT", "HTTTTHTTHTHTTTTTTT"]
+    "sequence", ["HTHTHTHTHT", "TTTTTT", "TTTTTTHTTHTTTT", "HTTTTHTTHTHTTTTTTT", "HZHHZH", "HZZH"]
 )
-def test_optimize_sequence_reptition(sequence):
+def test_optimize_sequence_repetition(sequence):
     """Test if optimize_sequence returns the correct optimized sequence."""
     optimized_sequence = optimize_sequence(sequence)
     assert "T" * 2 not in optimized_sequence
@@ -95,6 +89,7 @@ def test_optimize_sequence_reptition(sequence):
         ("TTTTTTHTTHTTTT", "ZSHSHZ"),
         ("HTTTTHTTHTHTTTTTTT", "HZHSHTHZST"),
         ("HTTTTTTTTHTTTTTTHTT", "ZSHS"),
+        ("HZHHZH", ""),
     ],
 )
 def test_optimize_sequence_validity(sequence, expected):
