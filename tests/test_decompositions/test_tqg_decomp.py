@@ -52,7 +52,7 @@ def multiply_circuit(circuit: list[QGate]) -> np.ndarray:
 def test_tqg_decomposition_random_unitary(trial, epsilon):
     """Test the tqg_decomposition function with a random unitary matrix."""
     # Test the decomposition
-    U = unitary_group.rvs(4)
+    U = unitary_group.rvs(4, random_state=trial)
     decomposition = tqg_decomp(U, epsilon=epsilon)
     reconstructed = multiply_circuit(decomposition)
 

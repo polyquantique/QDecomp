@@ -42,7 +42,7 @@ def phase(alpha):
 def test_sqg_decomp_random_unitary(trial, epsilon):
     """Test the validity of the output of the sqg_decomp function or an arbitrary gate"""
     # Generate a random 2x2 unitary matrix (single qubit gate)
-    U = unitary_group.rvs(2)
+    U = unitary_group.rvs(2, random_state=trial)
     sqg = QGate.from_matrix(matrix=U, target=(0,), epsilon=epsilon)
     # Decompose the single qubit gate
     sequence, alpha = sqg_decomp(sqg, epsilon, add_global_phase=True)
@@ -60,7 +60,7 @@ def test_sqg_decomp_random_unitary(trial, epsilon):
 def test_sqg_decomp_zyz_random(trial, epsilon):
     """Test if the sqg_decomp returns the correct matrix associated with the zyz decomposition."""
     # Generate a random 2x2 unitary matrix (single qubit gate)
-    U = unitary_group.rvs(2)
+    U = unitary_group.rvs(2, random_state=trial)
     sqg = QGate.from_matrix(U, (0,), epsilon=epsilon)
     sequence, _ = sqg_decomp(sqg, epsilon, add_global_phase=True)
     sqg.set_decomposition(sequence, epsilon=epsilon)
