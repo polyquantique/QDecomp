@@ -69,7 +69,7 @@ def rz_decomp(epsilon: float, angle: float, add_global_phase=False) -> str:
     domega_matrix = z_rotational_approximation(epsilon, angle)
 
     # Convert the Domega matrix to a string representation
-    sequence = exact_synthesis_alg(domega_matrix, print_global_phase=add_global_phase)
+    sequence = exact_synthesis_alg(domega_matrix, insert_global_phase=add_global_phase)
     optimized_sequence = optimize_sequence(sequence)
 
     # Test if TUTdag has less T than U
@@ -100,18 +100,15 @@ def optimize_sequence(sequence: str) -> str:
 
     if not isinstance(sequence, str):
         raise TypeError(f"Input sequence must be a string. Got {type(sequence)}.")
-
-    # Replace TTTT by Z
-    optimized_sequence = sequence.replace("TTTT", "Z")
-
-    # Replace TT by S
-    optimized_sequence = optimized_sequence.replace("TT", "S")
-
-    optimized_sequence = optimized_sequence.replace("ZZ", "")
-
-    optimized_sequence = optimized_sequence.replace("SSSS", "")
-
-    # Replace HH by identity
-    optimized_sequence = optimized_sequence.replace("HH", "")
-
+    
+    optimized_sequence = sequence  # Copy the sequence
+    last_length = -1
+    while len(optimized_sequence) != last_length:
+        last_length = len(optimized_sequence)
+        optimized_sequence = optimized_sequence.replace("TTTT", "Z")
+        optimized_sequence = optimized_sequence.replace("TT", "S")
+        optimized_sequence = optimized_sequence.replace("ZZ", "")
+        optimized_sequence = optimized_sequence.replace("SSSS", "")
+        optimized_sequence = optimized_sequence.replace("HH", "")
+    
     return optimized_sequence

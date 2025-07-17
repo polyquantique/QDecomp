@@ -79,23 +79,23 @@ def sqg_decomp(
     zyz_result = zyz_decomposition(sqg)
     alpha = zyz_result[3]
     angles = zyz_result[:-1]
-    for angle in angles:
+    sequence = ""
+    for i, angle in enumerate(angles):
         # Adjust angle to be in the range [0, 4*pi]
-        if angle < 0:
-            angle = angle + 4 * np.pi
+        angle = angle % (4 * np.pi)
 
         # If angle is 0, sequence is identity and skip decomposition
-        if np.isclose(angle, 0):
+        if angle == 0:
             continue
 
         # If it is second angle of angles, consider gate to be Y
-        if np.isclose(angle, angles[1] + 4 * np.pi if angles[1] < 0 else angles[1]):
+        if i == 1:
             rz_sequence = rz_decomp(epsilon=epsilon, angle=angle, add_global_phase=add_global_phase)
-            sequence = sequence + " H S H " + rz_sequence + " H S S S H "
+            sequence += " H S H " + rz_sequence + " H S S S H "
 
         # Else, consider gate to be Z
         else:
             rz_sequence = rz_decomp(epsilon=epsilon, angle=angle, add_global_phase=add_global_phase)
-            sequence = sequence + rz_sequence
+            sequence += rz_sequence
 
     return sequence, alpha
