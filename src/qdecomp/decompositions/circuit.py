@@ -16,7 +16,8 @@
 This module implements a helper function, simplifying the process of decomposing large circuits which contain SQG and TQG.
 It uses the :mod:`qdecomp.decompositions.tqg` module to decompose each gate in the circuit.
 """
-from qdecomp.decompositions import tqg_decomp
+from qdecomp.decompositions.sqg import sqg_decomp
+from qdecomp.decompositions.tqg import tqg_decomp
 from qdecomp.utils import QGate
 
 
@@ -31,6 +32,10 @@ def circuit_decomp(
 
     Returns:
         list[QGate]: A list of QGate objects representing the decomposed gates in the Clifford+T gate set.
+    
+    Raises:
+        TypeError: If the input circuit is not a list or contains non-QGate objects.
+        ValueError: If a gate in the circuit has an unsupported number of qubits (not 1 or 2).
     """
 
     # Test if input circuit is a list
@@ -45,7 +50,19 @@ def circuit_decomp(
                 f"Input circuit must be a list of QGate objects, got list index {circuit.index(gate)} of type: {type(gate)}"
             )
 
-        decomposed_gate = tqg_decomp(gate.init_matrix, epsilon=gate.epsilon)
+        if gate.num_qubits == 1:
+            sequence = sqg_decomp(gate.init_matrix, epsilon=gate.epsilon)[0]
+            decomposed_gate = [QGate.from_sequence(
+                sequence=sequence,
+                target=gate.target,
+            ), ]
+        elif gate.num_qubits == 2:
+            decomposed_gate = tqg_decomp(gate.init_matrix, epsilon=gate.epsilon)
+        else:
+            raise ValueError(
+                f"Unsupported gate size {gate.num_qubits}. Only single and two-qubit gates are supported."
+            )
+        
         decomposed_circuit.extend(decomposed_gate)
 
     return decomposed_circuit

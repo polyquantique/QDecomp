@@ -13,59 +13,81 @@
 #    limitations under the License.
 
 """
-This module provides two functions for generating all entries in the S3 table of the Clifford+T gate set.
-The first one generates a list of strings containing all the possible sequences of T and H gates with at
-most 7 consecutive T gates, at most 3 H gates and starting with an H gate. The second function generates
-the first column of the matrix given by each string of the sequence produced by the first function and
-stores it in a json file.
+This module generates the S3 table of all Clifford+T gates with sde :math:`\\leq 3` and provides a utility function
+to help generate the table.
+
+This module contains the following functions:
+
+- :func:`generate_sequences`: Generates all valid sequences of T and H gates with specific constraints (see function description).
+- :func:`generate_s3`: Generates the S3 table of Clifford+T gates with sde :math:`\\leq 3` and stores it in a JSON file.
 """
 
 import json
 import os
 
-
-from qdecomp.utils.exact_synthesis import apply_sequence, convert_to_tuple
 from qdecomp.rings import Domega
+from qdecomp.utils.exact_synthesis import domega_matrix_to_tuple, apply_sequence
 
 
 def generate_sequences() -> list[str]:
-    """Generate all valid sequences of T and H gates with a maximum of 7 consecutive T gates, 3 H gates, and
-    starting by an H gate.
+    """
+    Generate all valid sequences of T and H gates.
+
+    The sequences that are viable candidates in the S3 table are generated with the following constraints:
+
+    - A maximum of 7 consecutive T gates.
+    - A maximum of 3 H gates.
+    - The sequence starts with an H gate.
 
     Returns:
-        list[str]: List of strings containing the valid sequences of T and H gates
+        list[str]: A list of strings containing the valid sequences of T and H gates.
     """
     max_consecutive_t = 7
     valid_sequences = []
+
     for n_3 in range(0, max_consecutive_t + 1):
         if n_3 == 0:
             valid_sequences.append("H")
             valid_sequences.append("")
+
         else:
             for n_2 in range(0, max_consecutive_t + 1):
                 if n_2 == 0:
                     valid_sequences.append("T" * n_3 + "H")
                     valid_sequences.append("H" + "T" * n_3 + "H")
+
                 else:
                     for n_1 in range(0, max_consecutive_t + 1):
                         if n_1 == 0:
                             valid_sequences.append("T" * n_3 + "H" + "T" * n_2 + "H")
                             valid_sequences.append("H" + "T" * n_3 + "H" + "T" * n_2 + "H")
+
                         else:
                             valid_sequences.append(
                                 "T" * n_3 + "H" + "T" * n_2 + "H" + "T" * n_1 + "H"
                             )
+
     return valid_sequences
 
 
 def generate_s3() -> None:
-    """Generate the S3 table for the first column of Clifford+T gate set and write it to a json file."""
+    """
+    Generate the S3 table of all Clifford+T gates with sde :math:`\\leq 3` up to a global phase.
 
+    This function generates the first column of the matrix given by each string
+    of the sequence produced by the :func:`generate_sequences` function. Each element from the
+    matrix is stored as a tuple with eight integers required to initialize a Domega object.
+    It stores the result in a JSON file named `s3_table.json` in the same directory as
+    this script.
+
+    Returns:
+        None
+    """
     s3_sequences = generate_sequences()
-    s3_dict = {seq: convert_to_tuple(apply_sequence(seq)) for seq in s3_sequences}
+    s3_dict = {seq: domega_matrix_to_tuple(apply_sequence(seq)) for seq in s3_sequences}
 
     # Remove duplicate values in s3_dict
-    unique_values = {}
+    unique_values: dict = {}
     for key, value in s3_dict.items():
 
         # Check if the sde is greater than 3, if so do not add to table

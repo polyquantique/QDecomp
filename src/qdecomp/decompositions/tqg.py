@@ -39,7 +39,8 @@ This module uses and combines the :mod:`qdecomp.decompositions.sqg` and :mod:`qd
 from typing import Union
 import numpy as np
 
-from qdecomp.decompositions import sqg_decomp, cnot_decomposition
+from qdecomp.decompositions.sqg import sqg_decomp
+from qdecomp.decompositions.cnot import cnot_decomposition
 from qdecomp.utils import QGate
 
 
@@ -60,16 +61,16 @@ def tqg_decomp(tqg: Union[np.ndarray, QGate], epsilon: float = 0.01) -> list[QGa
     """
 
     if not isinstance(tqg, (np.ndarray, QGate)):
-        raise TypeError("Input must be a numpy array or QGate object, got " + str(type(tqg)))
+        raise TypeError(f"Input must be a numpy array or QGate object, got {type(tqg)}.")
 
     if not isinstance(tqg, QGate):
         tqg_matrix = tqg
         if tqg_matrix.shape != (4, 4):
-            raise ValueError("Input gate must be a 4x4 matrix, got " + str(tqg.shape))
+            raise ValueError(f"Input gate must be a 4x4 matrix, got {tqg.shape}." + str(tqg.shape))
         tqg = QGate.from_matrix(matrix=tqg_matrix, target=(0, 1), epsilon=epsilon)
 
     if tqg.init_matrix.shape != (4, 4):
-        raise ValueError("Input gate must be a 4x4 matrix, got " + str(tqg.init_matrix.shape))
+        raise ValueError(f"Input gate must be a 4x4 matrix, got {tqg.init_matrix.shape}.")
 
     cnot_decomp_lists = cnot_decomposition(tqg.init_matrix)
 

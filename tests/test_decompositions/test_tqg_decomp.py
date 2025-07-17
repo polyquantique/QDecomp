@@ -90,19 +90,19 @@ def test_tqg_decomposition_identity():
 def test_tqg_decomposition_invalid_input_type():
     """Test that tqg_decomp raises ValueError for invalid input types."""
     # Test with string
-    with pytest.raises(ValueError, match="Input must be a numpy array or QGate object"):
+    with pytest.raises(TypeError, match="Input must be a numpy array or QGate object"):
         tqg_decomp("invalid_input", epsilon=0.01)
 
     # Test with list
-    with pytest.raises(ValueError, match="Input must be a numpy array or QGate object"):
+    with pytest.raises(TypeError, match="Input must be a numpy array or QGate object"):
         tqg_decomp([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]], epsilon=0.01)
 
     # Test with integer
-    with pytest.raises(ValueError, match="Input must be a numpy array or QGate object"):
+    with pytest.raises(TypeError, match="Input must be a numpy array or QGate object"):
         tqg_decomp(42, epsilon=0.01)
 
     # Test with None
-    with pytest.raises(ValueError, match="Input must be a numpy array or QGate object"):
+    with pytest.raises(TypeError, match="Input must be a numpy array or QGate object"):
         tqg_decomp(None, epsilon=0.01)
 
 
