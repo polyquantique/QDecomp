@@ -52,7 +52,7 @@ from qdecomp.utils.exact_synthesis import exact_synthesis_alg
 from qdecomp.utils.grid_problem import z_rotational_approximation
 
 
-def rz_decomp(epsilon: float, angle: float, add_global_phase=False) -> str:
+def rz_decomp(angle: float, epsilon: float, add_global_phase=False) -> str:
     """
     Decomposes a single-qubit RZ gate its Clifford+T sequence
 
@@ -66,7 +66,7 @@ def rz_decomp(epsilon: float, angle: float, add_global_phase=False) -> str:
 
     """
     # Find the approximation of Rz gates in terms of Domega elements
-    domega_matrix = z_rotational_approximation(epsilon, angle)
+    domega_matrix = z_rotational_approximation(epsilon=epsilon, theta=angle)
 
     # Convert the Domega matrix to a string representation
     sequence = exact_synthesis_alg(domega_matrix, insert_global_phase=add_global_phase)
@@ -100,7 +100,7 @@ def optimize_sequence(sequence: str) -> str:
 
     if not isinstance(sequence, str):
         raise TypeError(f"Input sequence must be a string. Got {type(sequence)}.")
-    
+
     optimized_sequence = sequence  # Copy the sequence
     last_length = -1
     while len(optimized_sequence) != last_length:
@@ -110,5 +110,5 @@ def optimize_sequence(sequence: str) -> str:
         optimized_sequence = optimized_sequence.replace("ZZ", "")
         optimized_sequence = optimized_sequence.replace("SSSS", "")
         optimized_sequence = optimized_sequence.replace("HH", "")
-    
+
     return optimized_sequence

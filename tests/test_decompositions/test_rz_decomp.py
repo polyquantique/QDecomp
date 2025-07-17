@@ -28,7 +28,7 @@ np.random.seed(42)  # For reproducibility
 @pytest.mark.parametrize("angle", [np.pi / 2, np.pi / 4, np.pi / 6, np.pi, np.pi / 8, np.pi / 12])
 def test_rz_decomposition_precision(angle, epsilon):
     """Test if rz_decomposition returns a sequence within the desired error."""
-    sequence = rz_decomp(epsilon=epsilon, angle=angle, add_global_phase=True)
+    sequence = rz_decomp(angle=angle, epsilon=epsilon, add_global_phase=True)
     gate = QGate.from_matrix(
         np.array([[np.exp(-1j * angle / 2), 0], [0, np.exp(1j * angle / 2)]]),
         target=(0,),
@@ -43,7 +43,7 @@ def test_rz_decomposition_precision(angle, epsilon):
 @pytest.mark.parametrize("epsilon", [1e-2, 1e-3, 1e-4])
 def test_rz_decomposition_random_angle(angle, epsilon):
     """Test if the decomposition of a random angle is correct."""
-    sequence = rz_decomp(epsilon, angle, add_global_phase=True)
+    sequence = rz_decomp(angle=angle, epsilon=epsilon, add_global_phase=True)
     gate = QGate.from_matrix(
         np.array([[np.exp(-1j * angle / 2), 0], [0, np.exp(1j * angle / 2)]]),
         target=(0,),
@@ -59,7 +59,7 @@ def test_rz_decomposition_identity():
     """Test decomposition of an RZ gate with a zero angle."""
     epsilon = 1e-4
     angle = 0.0
-    sequence = rz_decomp(epsilon, angle)
+    sequence = rz_decomp(angle=angle, epsilon=epsilon)
     assert sequence == ""
 
 
