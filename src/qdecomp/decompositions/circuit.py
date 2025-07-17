@@ -16,7 +16,7 @@
 This module implements a helper function, simplifying the process of decomposing large circuits which contain SQG and TQG.
 It uses the :mod:`qdecomp.decompositions.tqg` module to decompose each gate in the circuit.
 """
-from qdecomp.decompositions import tqg_decomp
+from qdecomp.decompositions.tqg import tqg_decomp
 from qdecomp.utils import QGate
 
 

@@ -39,7 +39,8 @@ This module uses and combines the :mod:`qdecomp.decompositions.sqg` and :mod:`qd
 from typing import Union
 import numpy as np
 
-from qdecomp.decompositions import sqg_decomp, cnot_decomposition
+from qdecomp.decompositions.sqg import sqg_decomp
+from qdecomp.decompositions.cnot import cnot_decomposition
 from qdecomp.utils import QGate
 
 

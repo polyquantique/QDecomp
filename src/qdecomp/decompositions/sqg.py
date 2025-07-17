@@ -39,7 +39,8 @@ This module combines the functions from the :mod:`qdecomp.decompositions.rz` and
 
 import numpy as np
 
-from qdecomp.decompositions import rz_decomp, zyz_decomposition
+from qdecomp.decompositions.rz import rz_decomp
+from qdecomp.decompositions.zyz import zyz_decomposition
 from qdecomp.utils import QGate
 
 
