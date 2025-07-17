@@ -57,7 +57,7 @@ def rz_decomp(epsilon: float, angle: float, add_global_phase=False) -> str:
     Decomposes a single-qubit RZ gate its Clifford+T sequence
 
     Args:
-        epsilon (float): The tolerance for the approximation.
+        epsilon (float): The tolerance for the approximation based on the operator norm.
         angle (float): The angle of the RZ gate in radians.
         add_global_phase (bool): If `True`, adds global phase gates W to the sequence (default: `False`).
 
@@ -86,7 +86,7 @@ def rz_decomp(epsilon: float, angle: float, add_global_phase=False) -> str:
 
 def optimize_sequence(sequence: str) -> str:
     """
-    Optimize a sequence of gates by removing redundant gates and combining consecutive gates.
+    Performs a basic optimization of a sequence of gates by removing redundant gates and combining consecutive gates.
 
     Args:
         sequence (str): The input sequence of gates as a string.
