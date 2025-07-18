@@ -1,5 +1,5 @@
 # QDecomp
-`QDecomp` is a standalone software package to perform multiple decompositions of single qubit and two-qubit quantum gates.
+`QDecomp` is a standalone software package to perform multiple decompositions of single-qubit and two-qubit quantum gates.
 
 The package primarily focuses on decomposing gates into the Clifford+T universal subset by implementing the algorithm proposed by Ross and Selinger [[1]](#ref1).
 
@@ -22,7 +22,7 @@ Complete API documentation is available and can be built locally using Sphinx:
 ```bash
 cd docs
 make html
-docs/build/html/index.html
+./build/html/index.html
 ```
 
 The documentation is generated in `docs/build/html/`. Open `docs/build/html/index.html` in a browser to view it.
