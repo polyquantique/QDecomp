@@ -48,7 +48,7 @@ This module combines the :mod:`qdecomp.utils.exact_synthesis`, :mod:`qdecomp.uti
 .. [#Ross] Neil J. Ross and Peter Selinger, Optimal ancilla-free Clifford+T approximation of z-rotations, https://arxiv.org/pdf/1403.2975.
 """
 
-from qdecomp.utils.exact_synthesis import exact_synthesis_alg
+from qdecomp.utils.exact_synthesis import exact_synthesis_alg, optimize_sequence
 from qdecomp.utils.grid_problem import z_rotational_approximation
 
 
@@ -82,33 +82,3 @@ def rz_decomp(angle: float, epsilon: float, add_global_phase=False) -> str:
 
     sequence = " ".join(optimized_sequence)
     return sequence
-
-
-def optimize_sequence(sequence: str) -> str:
-    """
-    Performs a basic optimization of a sequence of gates by removing redundant gates and combining consecutive gates.
-
-    Args:
-        sequence (str): The input sequence of gates as a string.
-
-    Returns:
-        str: The optimized sequence of gates.
-
-    Raises:
-        TypeError: If the input sequence is not a string.
-    """
-
-    if not isinstance(sequence, str):
-        raise TypeError(f"Input sequence must be a string. Got {type(sequence)}.")
-
-    optimized_sequence = sequence  # Copy the sequence
-    last_length = -1
-    while len(optimized_sequence) != last_length:
-        last_length = len(optimized_sequence)
-        optimized_sequence = optimized_sequence.replace("TTTT", "Z")
-        optimized_sequence = optimized_sequence.replace("TT", "S")
-        optimized_sequence = optimized_sequence.replace("ZZ", "")
-        optimized_sequence = optimized_sequence.replace("SSSS", "")
-        optimized_sequence = optimized_sequence.replace("HH", "")
-
-    return optimized_sequence

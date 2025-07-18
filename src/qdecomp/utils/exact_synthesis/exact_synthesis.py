@@ -347,3 +347,33 @@ def get_omega_exponent(z_1: Domega, z_2: Domega) -> int:
     omega_exponent = int(np.round(angle / (np.pi / 4))) % 8
 
     return omega_exponent
+
+
+def optimize_sequence(sequence: str) -> str:
+    """
+    Performs a basic optimization of a sequence of gates by removing redundant gates and combining consecutive gates.
+
+    Args:
+        sequence (str): The input sequence of gates as a string.
+
+    Returns:
+        str: The optimized sequence of gates.
+
+    Raises:
+        TypeError: If the input sequence is not a string.
+    """
+
+    if not isinstance(sequence, str):
+        raise TypeError(f"Input sequence must be a string. Got {type(sequence)}.")
+
+    optimized_sequence = sequence  # Copy the sequence
+    last_length = -1
+    while len(optimized_sequence) != last_length:
+        last_length = len(optimized_sequence)
+        optimized_sequence = optimized_sequence.replace("TTTT", "Z")
+        optimized_sequence = optimized_sequence.replace("TT", "S")
+        optimized_sequence = optimized_sequence.replace("ZZ", "")
+        optimized_sequence = optimized_sequence.replace("SSSS", "")
+        optimized_sequence = optimized_sequence.replace("HH", "")
+
+    return optimized_sequence

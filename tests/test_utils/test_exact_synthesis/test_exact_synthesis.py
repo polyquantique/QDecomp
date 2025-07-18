@@ -358,3 +358,39 @@ def test_generate_s3_creates_file():
 
     # Check if the file was created
     assert os.path.exists(output_file)
+
+
+@pytest.mark.parametrize(
+    "sequence", ["HTHTHTHTHT", "TTTTTT", "TTTTTTHTTHTTTT", "HTTTTHTTHTHTTTTTTT", "HZHHZH", "HZZH"]
+)
+def test_optimize_sequence_repetition(sequence):
+    """Test if optimize_sequence returns the correct optimized sequence."""
+    optimized_sequence = optimize_sequence(sequence)
+    assert "T" * 2 not in optimized_sequence
+    assert "H" * 2 not in optimized_sequence
+    assert "Z" * 2 not in optimized_sequence
+    assert "S" * 2 not in optimized_sequence
+
+
+@pytest.mark.parametrize(
+    "sequence, expected",
+    [
+        ("HTHTHTHTHT", "HTHTHTHTHT"),
+        ("TTTTTT", "ZS"),
+        ("TTTTTTHTTHTTTT", "ZSHSHZ"),
+        ("HTTTTHTTHTHTTTTTTT", "HZHSHTHZST"),
+        ("HTTTTTTTTHTTTTTTHTT", "ZSHS"),
+        ("HZHHZH", ""),
+    ],
+)
+def test_optimize_sequence_validity(sequence, expected):
+    """Test if optimize_sequence returns the expected answer."""
+    optimized_sequence = optimize_sequence(sequence)
+    assert optimized_sequence == expected
+
+
+def test_optimize_sequence_str():
+    """Test if optimize_sequence raises a TypeError for not string input type."""
+    sequence = 3
+    with pytest.raises(TypeError, match="Input sequence must be a string"):
+        optimize_sequence(sequence)
