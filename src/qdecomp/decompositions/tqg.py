@@ -27,7 +27,7 @@ This module uses and combines the :mod:`qdecomp.decompositions.sqg` and :mod:`qd
         >>> tqg = unitary_group.rvs(4, random_state=42)
         >>> circuit = tqg_decomp(tqg, epsilon=0.001)
         >>> for gates in circuit:
-        >>>     print(f"{gates.target} -> {gates.sequence}")
+        ...     print(f"{gates.target} -> {gates.sequence}")
         (0,) -> S T H T [...] H Z S T
         (1,) -> S T H T [...] S H S T
         (0, 1) -> CNOT1
