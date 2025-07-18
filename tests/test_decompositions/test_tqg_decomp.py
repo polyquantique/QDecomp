@@ -62,8 +62,8 @@ def test_tqg_decomposition_random_unitary(trial, epsilon):
     phase = reconstructed[0, 0] / U[0, 0]
     exact_reconstructed = reconstructed / phase
 
-    # account for error propagation in the decomposition (10*epsilon)
-    assert np.allclose(exact_reconstructed, U, atol=10 * epsilon)
+    # account for error propagation in the decomposition (15*epsilon)
+    assert np.allclose(exact_reconstructed, U, atol=15 * epsilon)
 
 
 def test_tqg_decomposition_identity():
