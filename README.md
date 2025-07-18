@@ -46,7 +46,7 @@ This example demonstrates the use of the `qdcomp.decompositions.sqg_decomp` func
 >>> from scipy.stats import unitary_group
 >>> from qdecomp.decompositions import sqg_decomp
 
->>> # Decompose a random single qubit gate with tolerance 0.001 exactly
+>>> # Decompose a random single qubit gate with tolerance 0.001
 >>> sqg = unitary_group.rvs(2, random_state=42)
 >>> sequence, alpha = sqg_decomp(sqg, epsilon=0.001, add_global_phase=True)
 >>> print(sequence, alpha)
@@ -67,13 +67,13 @@ This example demonstrates the use of the `qdecomp.decompositions.tqg_decomp` fun
 
 ```pycon
 >>> from scipy.stats import unitary_group
->>> from qdecomp.decompositions import sqg_decomp
+>>> from qdecomp.decompositions import tqg_decomp
 
->>> # Decompose a radnom single qubit gate with tolerance 0.001 exactly
->>> sqg = unitary_group.rvs(4, random_state=42)
->>> circuit = sqg_decomp(sqg, epsilon=0.001)
+>>> # Decompose a radnom single qubit gate with tolerance 0.001
+>>> tqg = unitary_group.rvs(4, random_state=42)
+>>> circuit = tqg_decomp(tqg, epsilon=0.001)
 >>> for gates in circuit:
->>> print(f"{gate.target} -> {gate.sequence}")
+...     print(f"{gate.target} -> {gate.sequence}")
 
 (0,) -> S T H T [...] H Z S T
 (1,) -> S T H T [...] S H S T
