@@ -56,7 +56,8 @@ def sqg_decomp(
         add_global_phase (bool): If `True`, adds the global phase to the sequence and return statements (default: `False`).
 
     Returns:
-        tuple(str, float): A tuple containing the sequence of gates that approximates the input SQG and the global phase associated with the zyz decomposition of the gate (0 if add_global_phase is False).
+        tuple(str, float): A tuple containing the sequence of gates that approximates the input SQG and the global phase **alpha** associated with the zyz decomposition of the gate
+        (if add_global_phase is False, **alpha** is set to 0 and the sequence doesn't contain any global phase gate W).
 
     Raises:
         ValueError: If the input is a QGate object with no epsilon value set
