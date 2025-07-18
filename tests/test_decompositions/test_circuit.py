@@ -23,24 +23,57 @@ from qdecomp.utils import QGate
 np.random.seed(42)  # For reproducibility
 
 
-@pytest.mark.parametrize("trial", range(10))
+@pytest.mark.parametrize("trial", range(3))
 def test_circuit_decomp_output_type(trial):
     """Test that circuit_decomp returns a list of QGate objects."""
 
     # Create a circuit with multiple random single-qubit gates
-    circuit = [
-        QGate.from_matrix(matrix=unitary_group.rvs(2), target=(i,), epsilon=0.01) for i in range(3)
+    sqg_circuit = [
+        QGate.from_matrix(
+            matrix=unitary_group.rvs(2, random_state=trial), target=(i,), epsilon=0.01
+        )
+        for i in range(3)
     ]
 
-    # Decompose the circuit
-    decomposed_circuit = circuit_decomp(circuit)
+    # Create a circuit with multiple random two-qubit gates
+    tqg_circuit = [
+        QGate.from_matrix(
+            matrix=unitary_group.rvs(4, random_state=trial), target=(0, i + 1), epsilon=0.01
+        )
+        for i in range(3)
+    ]
+
+    # Combine the circuits to form a circuit with both single and two-qubit gates
+    mixed_circuit = sqg_circuit + tqg_circuit
+
+    # Decompose the circuits
+    decomposed_sqg_circuit = circuit_decomp(sqg_circuit)
+    decomposed_tqg_circuit = circuit_decomp(tqg_circuit)
+    decomposed_mixed_circuit = circuit_decomp(mixed_circuit)
 
     # Verify that the result is a list of QGate objects
-    assert isinstance(decomposed_circuit, list)
-    assert len(decomposed_circuit) > 0
+    # SQG only
+    assert isinstance(decomposed_sqg_circuit, list)
+    assert len(decomposed_sqg_circuit) > 0
 
-    for gate in decomposed_circuit:
+    # TQG only
+    assert isinstance(decomposed_tqg_circuit, list)
+    assert len(decomposed_tqg_circuit) > 0
+
+    # Mixed circuit
+    assert isinstance(decomposed_mixed_circuit, list)
+    assert len(decomposed_mixed_circuit) > 0
+
+    for gate in decomposed_sqg_circuit:
         assert isinstance(gate, QGate), f"Expected QGate object, got {type(gate)}"
+        assert gate.sequence_matrix.shape == (2, 2)
+    for gate in decomposed_tqg_circuit:
+        assert isinstance(gate, QGate), f"Expected QGate object, got {type(gate)}"
+        assert gate.sequence_matrix.shape in [(2, 2), (4, 4)]
+
+    for gate in decomposed_mixed_circuit:
+        assert isinstance(gate, QGate), f"Expected QGate object, got {type(gate)}"
+        assert gate.sequence_matrix.shape in [(2, 2), (4, 4)]
 
 
 def test_circuit_decomp_empty_circuit():
