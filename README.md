@@ -48,13 +48,13 @@ This example demonstrates the use of the `qdcomp.decompositions.sqg_decomp` func
 
 >>> # Decompose a random single qubit gate with tolerance 0.001 exactly
 >>> sqg = unitary_group.rvs(2, random_state=42)
->>> sequence, alpha = sqg_decomp(sqg, epsilon=0.0add_global_phase=True)
+>>> sequence, alpha = sqg_decomp(sqg, epsilon=0.001, add_global_phase=True)
 >>> print(sequence, alpha)
 
 sequence : T H S T H S T [...] S H S W W W W
 alpha : 0.27
 
->>> # Decompose a random single qubit gate with tolerance 0.001 up tglobal phase
+>>> # Decompose a random single qubit gate with tolerance 0.001 up to a global phase
 >>> sqg = unitary_group.rvs(2, random_state=42)
 >>> sequence, _ = sqg_decomp(sqg, epsilon=0.001, add_global_phase=False)
 >>> print(sequence)
