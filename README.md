@@ -21,7 +21,7 @@ Complete API documentation is available and can be built locally using Sphinx:
 
 ```bash
 cd docs
-make html  # On Windows: make.bat html
+make html
 docs/build/html/index.html
 ```
 
