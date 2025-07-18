@@ -12,6 +12,7 @@ Documentation for QDecomp, a Python package for quantum gate decompositions.
    installation
    usage
    examples
+   tutorial
    api_reference
 
 
