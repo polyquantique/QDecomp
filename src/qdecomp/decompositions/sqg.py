@@ -76,7 +76,6 @@ def sqg_decomp(
     if sqg.shape != (2, 2):
         raise ValueError("The input must be a 2x2 matrix, got shape: " + str(sqg.shape))
 
-    angles = zyz_decomposition(sqg)
     zyz_result = zyz_decomposition(sqg)
     alpha = zyz_result[3]
     angles = zyz_result[:-1]
