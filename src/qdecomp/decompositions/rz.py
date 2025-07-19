@@ -57,8 +57,8 @@ def rz_decomp(angle: float, epsilon: float, add_global_phase=False) -> str:
     Decomposes a single-qubit RZ gate its Clifford+T sequence
 
     Args:
-        epsilon (float): The tolerance for the approximation based on the operator norm.
         angle (float): The angle of the RZ gate in radians.
+        epsilon (float): The tolerance for the approximation based on the operator norm.
         add_global_phase (bool): If `True`, adds global phase gates W to the sequence (default: `False`).
 
     Returns:
