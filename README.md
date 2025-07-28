@@ -1,5 +1,5 @@
 # QDecomp
-`QDecomp` is a standalone software package to perform multiple decompositions of single qubit and two-qubit quantum gates.
+`QDecomp` is a standalone software package to perform multiple decompositions of single-qubit and two-qubit quantum gates.
 
 The package primarily focuses on decomposing gates into the Clifford+T universal subset by implementing the algorithm proposed by Ross and Selinger [[1]](#ref1).
 
@@ -21,8 +21,8 @@ Complete API documentation is available and can be built locally using Sphinx:
 
 ```bash
 cd docs
-make html  # On Windows: make.bat html
-docs/build/html/index.html
+make html
+./build/html/index.html
 ```
 
 The documentation is generated in `docs/build/html/`. Open `docs/build/html/index.html` in a browser to view it.
@@ -33,7 +33,7 @@ To install `QDecomp`, clone the repository and install the dependencies:
 
 ```bash
 git clone https://github.com/polyquantique/QDecomp.git
-pip install -r requirements.txt
+pip install -r requirements.txt -e ./QDecomp
 ```
 
 ## Usage Examples
@@ -46,15 +46,15 @@ This example demonstrates the use of the `qdcomp.decompositions.sqg_decomp` func
 >>> from scipy.stats import unitary_group
 >>> from qdecomp.decompositions import sqg_decomp
 
->>> # Decompose a random single qubit gate with tolerance 0.001 exactly
+>>> # Decompose a random single qubit gate with tolerance 0.001
 >>> sqg = unitary_group.rvs(2, random_state=42)
->>> sequence, alpha = sqg_decomp(sqg, epsilon=0.0add_global_phase=True)
+>>> sequence, alpha = sqg_decomp(sqg, epsilon=0.001, add_global_phase=True)
 >>> print(sequence, alpha)
 
 sequence : T H S T H S T [...] S H S W W W W
 alpha : 0.27
 
->>> # Decompose a random single qubit gate with tolerance 0.001 up tglobal phase
+>>> # Decompose a random single qubit gate with tolerance 0.001 up to a global phase
 >>> sqg = unitary_group.rvs(2, random_state=42)
 >>> sequence, _ = sqg_decomp(sqg, epsilon=0.001, add_global_phase=False)
 >>> print(sequence)
@@ -67,13 +67,13 @@ This example demonstrates the use of the `qdecomp.decompositions.tqg_decomp` fun
 
 ```pycon
 >>> from scipy.stats import unitary_group
->>> from qdecomp.decompositions import sqg_decomp
+>>> from qdecomp.decompositions import tqg_decomp
 
->>> # Decompose a radnom single qubit gate with tolerance 0.001 exactly
->>> sqg = unitary_group.rvs(4, random_state=42)
->>> circuit = sqg_decomp(sqg, epsilon=0.001)
+>>> # Decompose a radnom single qubit gate with tolerance 0.001
+>>> tqg = unitary_group.rvs(4, random_state=42)
+>>> circuit = tqg_decomp(tqg, epsilon=0.001)
 >>> for gates in circuit:
->>> print(f"{gate.target} -> {gate.sequence}")
+...     print(f"{gate.target} -> {gate.sequence}")
 
 (0,) -> S T H T [...] H Z S T
 (1,) -> S T H T [...] S H S T
