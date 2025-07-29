@@ -54,7 +54,7 @@ bool is_square(T n) {
 
 template <typename T>
 T solve_usquare_eq_a_mod_p(T a, T p) {
-    // Solve the equation u^2 = a (mod p) <=> u^2 = q * p - a
+    // Solve the equation u^2 = -a (mod p) <=> u^2 = q * p - a
     if (p == 1 and a == 1) {
         return (T)1;  // Special case for p = 1
     }

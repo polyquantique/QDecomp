@@ -59,7 +59,7 @@ T tonelli_shanks_algo(T const &a, T const &p) {
     T m = s;
 
     while (t != 1) {
-        T i = 0;
+        T i = 1;
         T temp = mod_pow(t, (T)2, p);
         while (temp != 1) {
             temp = mod_pow(temp, (T)2, p);

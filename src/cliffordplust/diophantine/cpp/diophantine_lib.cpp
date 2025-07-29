@@ -25,15 +25,15 @@
 extern "C" {
     struct Domega_struct {
         bool has_solution = false;
-        long long int a = 0; unsigned short la = 0;
-        long long int b = 0; unsigned short lb = 0;
-        long long int c = 0; unsigned short lc = 0;
-        long long int d = 0; unsigned short ld = 0;
+        long long int a = 0; unsigned int la = 0;
+        long long int b = 0; unsigned int lb = 0;
+        long long int c = 0; unsigned int lc = 0;
+        long long int d = 0; unsigned int ld = 0;
     };
 
     Domega_struct solve_xi_eq_ttdag_in_d_helper(
-        long long int a, unsigned short la,
-        long long int b, unsigned short lb
+        long long int a, unsigned int la,
+        long long int b, unsigned int lb
     ) {
         // Data structure to return the solution
         Domega_struct res;
