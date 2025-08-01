@@ -10,8 +10,6 @@ Documentation for QDecomp, a Python package for quantum gate decompositions.
 
    introduction
    installation
-   usage
-   examples
    tutorial
    api_reference
 
@@ -21,3 +19,6 @@ Indices and tables
 
 * :ref:`genindex`
 * :ref:`modindex`
+
+
+.. include:: introduction.rst

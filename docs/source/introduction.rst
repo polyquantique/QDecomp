@@ -8,8 +8,6 @@ Overview
 
 The package primarily focuses on decomposing gates into the Clifford+T universal subset by implementing the algorithm proposed by Ross and Selinger [#Ross]_.
 
-This package was made in collaboration with D-Wave and Polytechnique Montréal.
-
 The package contains 4 main subpackages:
 
 * :mod:`decompositions` : Proposes user-oriented functions for decomposing various quantum gates
@@ -43,6 +41,11 @@ License
 -------
 
 Released under the Apache License 2.0.
+
+Collaborations
+--------------
+
+This package was made in collaboration with D-Wave and Polytechnique Montréal.
 
 Citing This Package
 -------------------

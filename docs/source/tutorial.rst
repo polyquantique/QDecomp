@@ -57,7 +57,7 @@ It returns a tuple containing the three angles of the ZYZ decomposition and a gl
     alpha = zyz_result[3]
 
     # Print the angles and global phase factor
-    print("Angles:", angles)  # Angles: [-0.200, 2.519, 1.622]
+    print("Angles:", angles)  # Angles: (-0.200, 2.519, 1.622)
     print("Global phase factor:", alpha)  # Global phase factor: 0.271...
 
 
@@ -86,10 +86,12 @@ It returns a sequence of gates as a string.
 Two-Qubit Gate (TQG) Decompositions
 -----------------------------------
 
-The :mod:`QDecomp` package can also perform two-qubit gate (TQG) decompositions into a series of Clifford+T gates.
-The decomposition is carried out using the :func:`qdecomp.decompositions.tqg_decomp` function.
+The :mod:`QDecomp` package also supports two-qubit gate (TQG) decompositions into a series of Clifford+T gates.
+The decomposition is performed using the :func:`qdecomp.decompositions.tqg_decomp` function.
 It takes as inputs the matrix representation of the gate and the desired tolerance (epsilon) for the decomposition.
 It returns a list of :class:`QGate` objects, each one containing the Clifford+T decomposition sequence and the qubit(s) on which it applies.
+The gates are returned in the order they should be applied in a circuit (i.e., from left to right in time), not in the reverse matrix product order of the decomposition.
+For a detailed description of the gate names used in the decomposition, refer to the :doc:`Gates Module <utils/gates>` documentation.
 
 .. code-block:: python
 

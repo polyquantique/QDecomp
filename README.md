@@ -33,7 +33,8 @@ To install `QDecomp`, clone the repository and install the dependencies:
 
 ```bash
 git clone https://github.com/polyquantique/QDecomp.git
-pip install -r requirements.txt -e ./QDecomp
+cd QDecomp
+pip install -r requirements.txt -e .
 ```
 
 ## Usage Examples
