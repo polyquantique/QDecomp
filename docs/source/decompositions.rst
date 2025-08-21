@@ -4,19 +4,27 @@ Decompositions
 The ``qdecomp.decompositions`` subpackage contains various decomposition and approximation algorithms for single and two-qubits quantum gates. 
 The following sections provide an overview of the available decompositions.
 
-ZYZ Module
+
+SQG Module
 ----------
 
-.. automodule:: qdecomp.decompositions.zyz
+.. automodule:: qdecomp.decompositions.sqg
     :members:
     :undoc-members:
     :show-inheritance:
 
-CNOT Module
------------
+TQG Module
+----------
 
-.. automodule:: qdecomp.decompositions.cnot
+.. automodule:: qdecomp.decompositions.tqg
     :members:
     :undoc-members:
     :show-inheritance:
 
+Circuit Module
+--------------
+
+.. automodule:: qdecomp.decompositions.circuit
+    :members:
+    :undoc-members:
+    :show-inheritance:

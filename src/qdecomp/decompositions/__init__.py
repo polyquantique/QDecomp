@@ -12,5 +12,6 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-from qdecomp.decompositions.cnot import *
-from qdecomp.decompositions.zyz import *
+from qdecomp.decompositions.circuit import circuit_decomp
+from qdecomp.decompositions.sqg import *
+from qdecomp.decompositions.tqg import *
