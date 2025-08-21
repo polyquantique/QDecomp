@@ -26,7 +26,7 @@ import json
 import os
 
 from qdecomp.rings import Domega
-from qdecomp.utils.exact_synthesis import domega_matrix_to_tuple, apply_sequence
+from qdecomp.utils.exact_synthesis import apply_sequence, domega_matrix_to_tuple
 
 
 def generate_sequences() -> list[str]:
@@ -89,7 +89,6 @@ def generate_s3() -> None:
     # Remove duplicate values in s3_dict
     unique_values: dict = {}
     for key, value in s3_dict.items():
-
         # Check if the sde is greater than 3, if so do not add to table
         if (
             Domega(value[0][0], value[0][1], value[0][2], value[0][3])
