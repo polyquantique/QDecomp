@@ -554,11 +554,11 @@ def tqg_decomp(tqg: Union[np.ndarray, QGate], epsilon: float = 0.01) -> list[QGa
     It uses and combines the :mod:`qdecomp.decompositions.sqg` and :mod:`qdecomp.decompositions.cnot` decomposition algorithms to achieve this goal.
 
     Args:
-        tqg (Union[np.array, QGate]): The two-qubit gate to decompose.
+        tqg (Union[np.array, QGate]): The matrix representation of the two-qubit gate to decompose.
         epsilon (float): The tolerance for the decomposition (default: 0.01).
 
     Returns:
-        list[QGate]: A list of QGate objects representing the decomposed gates with their sequences defined
+        list[QGate]: A list of QGate objects representing the decomposed gates with their sequences defined.
 
     Raises:
         TypeError: If the input is not a numpy array or QGate object.
@@ -605,8 +605,7 @@ def tqg_decomp(tqg: Union[np.ndarray, QGate], epsilon: float = 0.01) -> list[QGa
             continue
 
         # Else, perform the sqg decomposition
-        else:
-            cnot_qgate_seq, alpha = sqg_decomp(cnot_decomp_qgate.init_matrix, epsilon=epsilon)
-            cnot_decomp_qgate.set_decomposition(cnot_qgate_seq, epsilon=epsilon)
+        cnot_qgate_seq, alpha = sqg_decomp(cnot_decomp_qgate.init_matrix, epsilon=epsilon)
+        cnot_decomp_qgate.set_decomposition(cnot_qgate_seq, epsilon=epsilon)
 
     return cnot_decomp_lists

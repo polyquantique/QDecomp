@@ -368,11 +368,13 @@ def optimize_sequence(sequence: str) -> str:
     last_length = -1
     while len(optimized_sequence) != last_length:
         last_length = len(optimized_sequence)
-        optimized_sequence = optimized_sequence.replace("TTTT", "Z")
         optimized_sequence = optimized_sequence.replace("TT", "S")
         optimized_sequence = optimized_sequence.replace("SS", "Z")
         optimized_sequence = optimized_sequence.replace("ZZ", "")
-        optimized_sequence = optimized_sequence.replace("SSSS", "")
         optimized_sequence = optimized_sequence.replace("HH", "")
+        optimized_sequence = optimized_sequence.replace("ZTZ", "T")
+        optimized_sequence = optimized_sequence.replace("ZSZ", "S")
+        optimized_sequence = optimized_sequence.replace("STS", "ZT")
+        optimized_sequence = optimized_sequence.replace("TST", "Z")
 
     return optimized_sequence

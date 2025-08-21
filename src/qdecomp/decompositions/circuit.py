@@ -16,19 +16,22 @@
 This module implements a helper function, simplifying the process of decomposing large circuits which contain SQG and TQG.
 It uses the :mod:`qdecomp.decompositions.tqg` module to decompose each gate in the circuit.
 """
+
+from typing import Iterable
+
 from qdecomp.decompositions.sqg import sqg_decomp
 from qdecomp.decompositions.tqg import tqg_decomp
 from qdecomp.utils import QGate
 
 
 def circuit_decomp(
-    circuit: list[QGate],
+    circuit: Iterable[QGate],
 ) -> list[QGate]:
     """
-    Decompose a quantum circuit into the Clifford+T gate set using QGate objects.
+    Decompose a quantum circuit into the Clifford+T gate set using :class:`QGate` objects.
 
     Args:
-        circuit (list[QGate]): A list of QGate objects representing the quantum circuit to decompose.
+        circuit (Iterable[QGate]): An iterable of QGate objects representing the quantum circuit to decompose.
 
     Returns:
         list[QGate]: A list of QGate objects representing the decomposed gates in the Clifford+T gate set.
@@ -38,9 +41,9 @@ def circuit_decomp(
         ValueError: If a gate in the circuit has an unsupported number of qubits (not 1 or 2).
     """
 
-    # Test if input circuit is a list
-    if not isinstance(circuit, list):
-        raise TypeError(f"Input circuit must be a list, got {type(circuit)}")
+    # Test if input circuit is an iterable
+    if not hasattr(circuit, '__iter__'):
+        raise TypeError(f"Input circuit must be an iterable, got {type(circuit)}")
 
     # Initialize the decomposed circuit
     decomposed_circuit = []

@@ -381,6 +381,10 @@ def test_optimize_sequence_repetition(sequence):
         ("HTTTTHTTHTHTTTTTTT", "HZHSHTHZST"),
         ("HTTTTTTTTHTTTTTTHTT", "ZSHS"),
         ("HZHHZH", ""),
+        ("ZTZ", "T"),
+        ("STS", "ZT"),
+        ("TST", "Z"),
+        ("ZSZ", "S")
     ],
 )
 def test_optimize_sequence_validity(sequence, expected):

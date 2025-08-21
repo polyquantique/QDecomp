@@ -199,7 +199,7 @@ def rz_decomp(angle: float, epsilon: float, add_global_phase=False) -> str:
     sequence = exact_synthesis_alg(domega_matrix, insert_global_phase=add_global_phase)
     optimized_sequence = optimize_sequence(sequence)
 
-    # Test if TUTdag has less T than U
+    # Test if TUTdag has less T than U (Optimization of T-count)
     tut_sequence = "T" + sequence + "TTTTTTT"
     tut_optimized_sequence = optimize_sequence(tut_sequence)
 
@@ -218,26 +218,25 @@ def sqg_decomp(
     Decomposes any single qubit gate (SQG) into its optimal sequence of Clifford+T gates up to a given error.
 
     Args:
-        sqg (np.ndarray || QGate]): The single qubit gate to decompose.
-        epsilon (float): The error tolerance for the decomposition
+        sqg (Union[np.ndarray, QGate]): The matrix representation of the single qubit gate to decompose.
+        epsilon (float): The error tolerance for the decomposition.
         add_global_phase (bool): If `True`, adds the global phase to the sequence and return statements (default: `False`).
 
     Returns:
-        tuple(str, float): A tuple containing the sequence of gates that approximates the input SQG and the global phase **alpha** associated with the zyz decomposition of the gate
+        tuple(str, float): A tuple containing the sequence of gates that approximates the input SQG and the global phase **alpha** associated with the zyz decomposition of the gate.
         (if add_global_phase is False, **alpha** is set to 0 and the sequence doesn't contain any global phase gate W).
 
     Raises:
-        ValueError: If the input is a QGate object with no epsilon value set
-        ValueError: If the input is not a QGate object or a 2x2 matrix
+        ValueError: If the input is a QGate object with no epsilon value set.
+        ValueError: If the input is not a QGate object or a 2x2 matrix.
     """
     # Check if the input is a QGate object, if yes, the matrix to the input
     if isinstance(sqg, QGate):
         if sqg.epsilon is None:
             raise ValueError("The QGate object has no epsilon value set.")
 
-        else:
-            epsilon = sqg.epsilon
-            sqg = sqg.matrix
+        epsilon = sqg.epsilon
+        sqg = sqg.matrix
 
     # Check if the input is a 2x2 matrix
     if sqg.shape != (2, 2):
