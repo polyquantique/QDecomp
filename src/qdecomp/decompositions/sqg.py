@@ -44,7 +44,6 @@ from qdecomp.utils import QGate
 from qdecomp.utils.exact_synthesis import exact_synthesis_alg, optimize_sequence
 from qdecomp.utils.grid_problem import z_rotational_approximation
 
-
 __all__ = [
     "zyz_decomposition",
     "rz_decomp",
@@ -56,11 +55,11 @@ def zyz_decomposition(U: NDArray) -> tuple[float, ...]:
     """
     Any single qubit gate can be decomposed into a series of three rotations around the Z, Y, and Z axis
     and a global phase factor:
-    
+
     .. math:: U = e^{i \\alpha} R_z(\\theta_2) R_y(\\theta_1) R_z(\\theta_0),
-    
+
     where :math:`R_z` and :math:`R_y` are the rotation gates around the Z and Y axes, respectively. This is known as the **ZYZ decomposition**.
-    
+
     This function performs this decomposition on a given unitary 2 x 2 matrix.
     It returns the three rotation angles :math:`\\theta_0,  \\theta_1, \\theta_2` and the phase :math:`\\alpha`.
     For more details, see [#Crooks]_.

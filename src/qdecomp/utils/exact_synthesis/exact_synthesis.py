@@ -155,7 +155,6 @@ def exact_synthesis_reduc(U: np.ndarray) -> tuple[str, np.ndarray]:
 
     # Reduce sde until sde <= 3
     while s > 3:
-
         # Look for the k that reduces the sde by 1
         for k in [0, 1, 2, 3]:
             U_prime = H @ np.linalg.matrix_power(T_INV, k) @ U
@@ -223,7 +222,6 @@ def s3_decomposition(U: np.ndarray, insert_global_phase: bool = False) -> str:
         for key, value in s3_dict.items():
             # If found, build the last column by multiplying by T^k'
             if domega_matrix_to_tuple(U_t) == value:
-
                 # Compute phase differences to find k'
                 U_w = apply_sequence(key + "W" * (8 - i))
 
