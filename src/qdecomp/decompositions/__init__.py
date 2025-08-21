@@ -13,8 +13,5 @@
 #    limitations under the License.
 
 from qdecomp.decompositions.circuit import circuit_decomp
-from qdecomp.decompositions.cnot import *
-from qdecomp.decompositions.rz import rz_decomp
-from qdecomp.decompositions.sqg import sqg_decomp
-from qdecomp.decompositions.tqg import tqg_decomp
-from qdecomp.decompositions.zyz import *
+from qdecomp.decompositions.tqg import *
+from qdecomp.decompositions.sqg import *

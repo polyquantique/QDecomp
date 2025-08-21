@@ -38,10 +38,178 @@ This module combines the functions from the :mod:`qdecomp.decompositions.rz` and
 """
 
 import numpy as np
+from numpy.typing import NDArray
 
-from qdecomp.decompositions.rz import rz_decomp
-from qdecomp.decompositions.zyz import zyz_decomposition
 from qdecomp.utils import QGate
+from qdecomp.utils.exact_synthesis import exact_synthesis_alg, optimize_sequence
+from qdecomp.utils.grid_problem import z_rotational_approximation
+
+
+__all__ = [
+    "zyz_decomposition",
+    "rz_decomp",
+    "sqg_decomp",
+]
+
+
+def zyz_decomposition(U: NDArray) -> tuple[float, ...]:
+    """
+    Any single qubit gate can be decomposed into a series of three rotations around the Z, Y, and Z axis
+    and a global phase factor:
+    
+    .. math:: U = e^{i \\alpha} R_z(\\theta_2) R_y(\\theta_1) R_z(\\theta_0),
+    
+    where :math:`R_z` and :math:`R_y` are the rotation gates around the Z and Y axes, respectively. This is known as the **ZYZ decomposition**.
+    
+    This function performs this decomposition on a given unitary 2 x 2 matrix.
+    It returns the three rotation angles :math:`\\theta_0,  \\theta_1, \\theta_2` and the phase :math:`\\alpha`.
+    For more details, see [#Crooks]_.
+
+    Args:
+        U (NDArray): A 2 x 2 unitary matrix.
+
+    Returns:
+        tuple[float, ...]: (t0, t1, t2, alpha), the three rotation angles (rad) and the global phase (rad)
+
+    Raises:
+        ValueError: If the input matrix is not 2 x 2.
+        ValueError: If the input matrix is not unitary.
+
+    Examples:
+
+    .. code-block:: python
+
+        # Define rotation and phase matrices
+        ry = lambda teta: np.array([[np.cos(teta / 2), -np.sin(teta / 2)], [np.sin(teta / 2), np.cos(teta / 2)]])
+        rz = lambda teta: np.array([[np.exp(-1.0j * teta / 2), 0], [0, np.exp(1.0j * teta / 2)]])
+        phase = lambda alpha: np.exp(1.0j * alpha)
+
+        # Create a unitary matrix U
+        a = complex(1, 1) / np.sqrt(3)
+        b = np.sqrt(complex(1, 0) - np.abs(a) ** 2)  # Ensure that U is unitary
+        alpha = np.pi/3
+        U = np.exp(1.0j * alpha) * np.array([[a, -b.conjugate()], [b, a.conjugate()]])
+
+        # Compute the decomposition of U
+        t0, t1, t2, alpha_ = zyz_decomposition(U)
+
+        # Recreate U from the decomposition
+        U_calculated = phase(alpha_) * Rz(t2) @ Ry(t1) @ Rz(t0)
+
+        # Print the results
+        print("U =")
+        print(U)
+        print("U_calculated =")
+        print(U_calculated)
+        print("Error =")
+        print(np.linalg.norm(U - U_calculated))
+
+    .. [#Crooks] Section 4.1 of "Quantum Gates" by Gavin E. Crooks at https://threeplusone.com/pubs/on_gates.pdf.
+    """
+    # Convert U to a np.ndarray if it is not already
+    U = np.asarray(U)
+
+    # Check the input matrix
+    if not U.shape == (2, 2):
+        raise ValueError(f"The input matrix must be 2x2. Got a matrix with shape {U.shape}.")
+
+    det = np.linalg.det(U)
+    if not np.isclose(abs(det), 1):
+        raise ValueError(f"The input matrix must be unitary. Got a matrix with determinant {det}.")
+
+    # Compute the global phase and the special unitary matrix V
+    alpha = np.atan2(det.imag, det.real) / 2  # det = exp(2 i alpha)
+    V = np.exp(-1.0j * alpha) * U  # V = exp(-i alpha)*U is a special unitary matrix
+
+    # Avoid divisions by zero if U is diagonal
+    if np.isclose(abs(V[0, 0]), 1, rtol=1e-14, atol=1e-14):
+        t2 = -2 * np.angle(V[0, 0])
+        return 0, 0, t2, alpha
+
+    # Compute the first rotation angle
+    if abs(V[0, 0]) >= abs(V[0, 1]):
+        t1 = 2 * np.acos(abs(V[0, 0]))
+    else:
+        t1 = 2 * np.asin(abs(V[0, 1]))
+
+    # Useful variables for the next steps
+    V11_ = V[1, 1] / np.cos(t1 / 2)
+    V10_ = V[1, 0] / np.sin(t1 / 2)
+
+    a = 2 * np.atan2(V11_.imag, V11_.real)
+    b = 2 * np.atan2(V10_.imag, V10_.real)
+
+    # The following system of equations is solved to find t0 and t2
+    # t0 - t2 = a
+    # t0 + t2 = b
+    t0 = (a - b) / 2
+    t2 = (a + b) / 2
+
+    return t0, t1, t2, alpha
+
+
+def rz_decomp(angle: float, epsilon: float, add_global_phase=False) -> str:
+    """
+    This function decomposes a :math:`R_z` gate of the form
+
+    .. math:: 
+
+        R_z = \\begin{pmatrix}
+        e^{-i\\theta / 2} & 0  \\\\
+        0 & e^{i\\theta / 2}
+        \\end{pmatrix},
+
+    into a sequence of Clifford+T gates where :math:`\\theta` is the rotation angle around the Z axis.
+    The decomposition is up to a given tolerance :math:`\\varepsilon`.
+    The algorithm implemented in this function is based on the one presented by Ross and Selinger in [#Ross]_.
+    Note: when the `add_global_phase` argument is set to `True`, the sequence includes global phase gates :math:`W = e^{i\\pi/4}`.
+
+    This function uses the :mod:`qdecomp.utils.exact_synthesis`, :mod:`qdecomp.utils.grid_problem` and :mod:`qdecomp.utils.diophantine` modules to achieve this goal.
+
+    Args:
+        angle (float): The angle of the RZ gate in radians.
+        epsilon (float): The tolerance for the approximation based on the operator norm.
+        add_global_phase (bool): If `True`, adds global phase gates W to the sequence (default: `False`).
+
+    Returns:
+        sequence (str): The sequence of Clifford+T gates that approximates the RZ gate.
+
+    **Example**
+    
+        .. code-block:: python
+    
+            >>> from qdecomp.decompositions import rz_decomp
+            >>> from math import pi
+            
+            # Decompose a RZ gate with angle pi/128 and tolerance 0.001 exactly
+            >>> sequence = rz_decomp(epsilon=0.001, angle=pi/128, add_global_phase=True)
+            >>> print(sequence)
+            H S T H S T H [...] Z S W W W W W W
+    
+            # Decompose a RZ gate with angle pi/128 and tolerance 0.001 up to a global phase
+            >>> sequence = rz_decomp(epsilon=0.001, angle=pi/128, add_global_phase=False)
+            >>> print(sequence)
+            H S T H S T H [...] Z S H S T H Z S
+    
+    .. [#Ross] Neil J. Ross and Peter Selinger, Optimal ancilla-free Clifford+T approximation of z-rotations, https://arxiv.org/pdf/1403.2975.
+    """
+    # Find the approximation of Rz gates in terms of Domega elements
+    domega_matrix = z_rotational_approximation(epsilon=epsilon, theta=angle)
+
+    # Convert the Domega matrix to a string representation
+    sequence = exact_synthesis_alg(domega_matrix, insert_global_phase=add_global_phase)
+    optimized_sequence = optimize_sequence(sequence)
+
+    # Test if TUTdag has less T than U
+    tut_sequence = "T" + sequence + "TTTTTTT"
+    tut_optimized_sequence = optimize_sequence(tut_sequence)
+
+    # Compare the number of T gates in the two sequences
+    if tut_optimized_sequence.count("T") < optimized_sequence.count("T"):
+        optimized_sequence = tut_optimized_sequence
+
+    sequence = " ".join(optimized_sequence)
+    return sequence
 
 
 def sqg_decomp(
