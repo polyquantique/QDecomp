@@ -45,13 +45,13 @@ from qdecomp.utils.exact_synthesis import exact_synthesis_alg, optimize_sequence
 from qdecomp.utils.grid_problem import z_rotational_approximation
 
 __all__ = [
-    "zyz_decomposition",
+    "zyz_decomp",
     "rz_decomp",
     "sqg_decomp",
 ]
 
 
-def zyz_decomposition(U: NDArray) -> tuple[float, ...]:
+def zyz_decomp(U: NDArray) -> tuple[float, ...]:
     """
     Any single qubit gate can be decomposed into a series of three rotations around the Z, Y, and Z axis
     and a global phase factor:
@@ -90,7 +90,7 @@ def zyz_decomposition(U: NDArray) -> tuple[float, ...]:
         U = np.exp(1.0j * alpha) * np.array([[a, -b.conjugate()], [b, a.conjugate()]])
 
         # Compute the decomposition of U
-        t0, t1, t2, alpha_ = zyz_decomposition(U)
+        t0, t1, t2, alpha_ = zyz_decomp(U)
 
         # Recreate U from the decomposition
         U_calculated = phase(alpha_) * Rz(t2) @ Ry(t1) @ Rz(t0)
@@ -238,7 +238,7 @@ def sqg_decomp(
     if sqg.shape != (2, 2):
         raise ValueError("The input must be a 2x2 matrix, got shape: " + str(sqg.shape))
 
-    zyz_result = zyz_decomposition(sqg)
+    zyz_result = zyz_decomp(sqg)
     alpha = zyz_result[3]
     angles = zyz_result[:-1]
     sequence = ""

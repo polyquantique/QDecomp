@@ -21,7 +21,7 @@ import pytest
 from scipy.stats import ortho_group, special_ortho_group, unitary_group
 
 from qdecomp.decompositions.tqg import *
-from qdecomp.decompositions.common_gate_decompositions import common_decompositions
+from qdecomp.decompositions.common_gate_decompositions import common_decomp
 from qdecomp.utils import QGate, gates
 
 np.random.seed(42)  # For reproducibility
@@ -75,20 +75,20 @@ def multiply_circuit(circuit: list[QGate]) -> np.ndarray:
         np.array([[1, 1], [1, -1]]) / math.sqrt(2),
     ],
 )
-def test_kronecker_decomposition(A, B):
-    """Test the kronecker_decomposition function."""
+def test_kronecker_decomp(A, B):
+    """Test the kronecker_decomp function."""
     M = np.kron(A, B)
-    a, b = kronecker_decomposition(M)
+    a, b = kronecker_decomp(M)
     assert np.allclose(M, np.kron(a, b))
 
 
-def test_kronecker_decomposition_errors():
+def test_kronecker_decomp_errors():
     """Test the raise of errors when calling kronecker decomposition with wrong arguments."""
 
     # TypeError: The input matrix must be a numpy object
     for M in [((1, 2), (3, 4)), [[1, 2], [3, 4]], 1, "1", 1.0]:
         with pytest.raises(TypeError, match="The input matrix must be a numpy object, but got"):
-            kronecker_decomposition(M)
+            kronecker_decomp(M)
 
     # ValueError: The input matrix must be 4 x 4
     for M in [
@@ -99,7 +99,7 @@ def test_kronecker_decomposition_errors():
         np.ones((5, 5)),
     ]:
         with pytest.raises(ValueError, match="The input matrix must be 4 x 4"):
-            kronecker_decomposition(M)
+            kronecker_decomp(M)
 
 
 @pytest.mark.parametrize(
@@ -115,10 +115,10 @@ def test_kronecker_decomposition_errors():
     ]
     + list(special_ortho_group(dim=4, seed=137).rvs(10)),
 )
-def test_so4_decomposition(U):
-    """Test the decomposition of SO(4) matrices using the so4_decomposition function."""
+def test_so4_decomp(U):
+    """Test the decomposition of SO(4) matrices using the so4_decomp function."""
     # Decompose the matrix
-    decomposition = so4_decomposition(U)
+    decomposition = so4_decomp(U)
     reconstructed = multiply_circuit(decomposition)
 
     # Assert the reconstructed matrix is equal to the original matrix
@@ -153,11 +153,11 @@ def test_so4_decomposition(U):
         ),
     ],
 )
-def test_so4_decomposition_errors(error):
-    """Test the raise of errors when calling the so4_decomposition function with wrong arguments."""
+def test_so4_decomp_errors(error):
+    """Test the raise of errors when calling the so4_decomp function with wrong arguments."""
     U, exc_type, exc_msg = error
     with pytest.raises(exc_type, match=exc_msg):
-        so4_decomposition(U)
+        so4_decomp(U)
 
 
 @pytest.mark.parametrize(
@@ -176,14 +176,14 @@ def test_so4_decomposition_errors(error):
     ]
     + list(ortho_group(dim=4, seed=42).rvs(10)),
 )
-def test_o4_det_minus1_decomposition(U):
-    """Test the decomposition of O(4) matrices with a determinant of -1 using the o4_det_minus1_decomposition function."""
+def test_o4_det_minus1_decomp(U):
+    """Test the decomposition of O(4) matrices with a determinant of -1 using the o4_det_minus1_decomp function."""
     if isinstance(U, np.ndarray):
         if np.isclose(np.linalg.det(U), 1):
             U[:, -1] = -U[:, -1]  # To have a determinant of -1
 
     # Test the decomposition
-    decomposition = o4_det_minus1_decomposition(U)
+    decomposition = o4_det_minus1_decomp(U)
     reconstructed = multiply_circuit(decomposition)
 
     # Assert the reconstructed matrix is equal to the original matrix
@@ -222,11 +222,11 @@ def test_o4_det_minus1_decomposition(U):
         ),
     ],
 )
-def test_o4_det_minus1_decomposition_errors(errors):
-    """Test the raise of errors when calling the o4_det_minus1_decomposition function with wrong arguments."""
+def test_o4_det_minus1_decomp_errors(errors):
+    """Test the raise of errors when calling the o4_det_minus1_decomp function with wrong arguments."""
     U, exc_type, exc_msg = errors
     with pytest.raises(exc_type, match=exc_msg):
-        o4_det_minus1_decomposition(U)
+        o4_det_minus1_decomp(U)
 
 
 @pytest.mark.parametrize(
@@ -247,11 +247,11 @@ def test_o4_det_minus1_decomposition_errors(errors):
         gates.canonical_gate(0.1, 0.2, 0.3),  # Canonical gate
     ],
 )
-def test_canonical_decomposition(U):
-    """Test the canonical decomposition of 4 x 4 unitary matrix using the canonical_decomposition function."""
+def test_canonical_decomp(U):
+    """Test the canonical decomposition of 4 x 4 unitary matrix using the canonical_decomp function."""
 
     # Perform the decomposition
-    A, B, t, alpha = canonical_decomposition(U)
+    A, B, t, alpha = canonical_decomp(U)
 
     # Assert the reconstructed matrix is equal to the original matrix
     assert np.allclose(
@@ -259,8 +259,8 @@ def test_canonical_decomposition(U):
     )
 
     # Assert that the matrices A and B have an exact Kroncker decomposition
-    a, b = kronecker_decomposition(A)
-    alpha, beta = kronecker_decomposition(B)
+    a, b = kronecker_decomp(A)
+    alpha, beta = kronecker_decomp(B)
     assert np.allclose(A, np.kron(a, b)) and np.allclose(B, np.kron(alpha, beta))
 
 
@@ -276,12 +276,12 @@ def test_canonical_decomposition(U):
         (np.eye(4) * 1.1, ValueError, "U must be a unitary matrix."),
     ],
 )
-def test_canonical_decomposition_errors(errors):
-    """Test the raise of errors when calling canonical_decomposition function with wrong arguments."""
+def test_canonical_decomp_errors(errors):
+    """Test the raise of errors when calling canonical_decomp function with wrong arguments."""
 
     U, exc_type, exc_msg = errors
     with pytest.raises(exc_type, match=exc_msg):
-        canonical_decomposition(U)
+        canonical_decomp(U)
 
 
 @pytest.mark.parametrize(
@@ -298,10 +298,10 @@ def test_canonical_decomposition_errors(errors):
     ]
     + list(unitary_group(dim=4, seed=137).rvs(10)),
 )
-def test_u4_decomposition(U):
-    """Test the decomposition of U(4) matrices using the u4_decomposition function."""
+def test_u4_decomp(U):
+    """Test the decomposition of U(4) matrices using the u4_decomp function."""
     # Test the decomposition
-    decomposition = u4_decomposition(U)
+    decomposition = u4_decomp(U)
     reconstructed = multiply_circuit(decomposition)
 
     # Assert the reconstructed matrix is equal to the original matrix
@@ -328,11 +328,11 @@ def test_u4_decomposition(U):
         ),
     ],
 )
-def test_u4_decomposition_errors(errors):
-    """Test the raise of errors when calling the u4_decomposition function with wrong arguments."""
+def test_u4_decomp_errors(errors):
+    """Test the raise of errors when calling the u4_decomp function with wrong arguments."""
     U, exc_type, exc_msg = errors
     with pytest.raises(exc_type, match=exc_msg):
-        u4_decomposition(U)
+        u4_decomp(U)
 
 
 @pytest.mark.parametrize(
@@ -341,29 +341,29 @@ def test_u4_decomposition_errors(errors):
         (np.eye(4), []),
         (gates.CNOT, [QGate.from_tuple(("CNOT", (0, 1), 0))]),
         (gates.CNOT1, [QGate.from_tuple(("CNOT1", (0, 1), 0))]),
-        (gates.DCNOT, common_decompositions("DCNOT", 0, 1)),
-        (gates.INV_DCNOT, common_decompositions("INV_DCNOT", 0, 1)),
+        (gates.DCNOT, common_decomp("DCNOT", 0, 1)),
+        (gates.INV_DCNOT, common_decomp("INV_DCNOT", 0, 1)),
         (
             QGate.from_matrix(gates.ISWAP, target=(0, 1)),
-            common_decompositions("ISWAP", 0, 1),
+            common_decomp("ISWAP", 0, 1),
         ),
-        (gates.MAGIC, common_decompositions("MAGIC", 0, 1)),
-        (gates.SWAP, common_decompositions("SWAP", 0, 1)),
-        (gates.CZ, common_decompositions("CZ", 0, 1)),
-        (gates.CY, common_decompositions("CY", 0, 1)),
-        (gates.CH, common_decompositions("CH", 0, 1)),
-        (gates.MAGIC.conj().T, common_decompositions("MAGIC_DAG", 0, 1)),
+        (gates.MAGIC, common_decomp("MAGIC", 0, 1)),
+        (gates.SWAP, common_decomp("SWAP", 0, 1)),
+        (gates.CZ, common_decomp("CZ", 0, 1)),
+        (gates.CY, common_decomp("CY", 0, 1)),
+        (gates.CH, common_decomp("CH", 0, 1)),
+        (gates.MAGIC.conj().T, common_decomp("MAGIC_DAG", 0, 1)),
         (np.diag([1, 1, -1, -1]), None),
     ],
 )
-def test_known_decomposition(matrix, expected):
-    """Test the known_decomposition function."""
+def test_known_decomp(matrix, expected):
+    """Test the known_decomp function."""
     if expected is not None:
         # Assert the function finds a decomposition
-        assert known_decomposition(matrix) is not None
+        assert known_decomp(matrix) is not None
 
         # Assert the decomposition is correct
-        decomposition = known_decomposition(matrix)
+        decomposition = known_decomp(matrix)
         reconstructed = multiply_circuit(decomposition)
         if isinstance(matrix, QGate):
             matrix = matrix.matrix
@@ -371,7 +371,7 @@ def test_known_decomposition(matrix, expected):
         assert np.allclose(reconstructed, multiply_circuit(expected))
 
     else:
-        assert known_decomposition(matrix) is None
+        assert known_decomp(matrix) is None
 
 
 @pytest.mark.parametrize(
@@ -391,12 +391,12 @@ def test_known_decomposition(matrix, expected):
         ),
     ],
 )
-def test_known_decomposition_errors(errors):
-    """Test the raise of errors when calling the known_decomposition function with wrong arguments."""
+def test_known_decomp_errors(errors):
+    """Test the raise of errors when calling the known_decomp function with wrong arguments."""
 
     U, exc_type, exc_msg = errors
     with pytest.raises(exc_type, match=exc_msg):
-        known_decomposition(U)
+        known_decomp(U)
 
 
 @pytest.mark.parametrize(
@@ -416,11 +416,11 @@ def test_known_decomposition_errors(errors):
         *list(special_ortho_group(dim=4, seed=42).rvs(10)),
     ],
 )
-def test_cnot_decomposition(U):
-    """Test the two-qubits gate decomposition using the cnot_decomposition function."""
+def test_cnot_decomp(U):
+    """Test the two-qubits gate decomposition using the cnot_decomp function."""
 
     # Test the decomposition
-    decomposition = cnot_decomposition(U)
+    decomposition = cnot_decomp(U)
     reconstructed = multiply_circuit(decomposition)
 
     # Assert the reconstructed matrix is equal to the original matrix
@@ -447,17 +447,17 @@ def test_cnot_decomposition(U):
         ),
     ],
 )
-def test_cnot_decomposition_errors(errors):
-    """Test the raise of errors when calling the cnot_decomposition function with wrong arguments."""
+def test_cnot_decomp_errors(errors):
+    """Test the raise of errors when calling the cnot_decomp function with wrong arguments."""
     U, exc_type, exc_msg = errors
     with pytest.raises(exc_type, match=exc_msg):
-        cnot_decomposition(U)
+        cnot_decomp(U)
 
 
 @pytest.mark.parametrize("trial", range(3))
 @pytest.mark.parametrize("epsilon", [0.01, 0.001, 0.0001])
-def test_tqg_decomposition_random_unitary(trial, epsilon):
-    """Test the tqg_decomposition function with a random unitary matrix."""
+def test_tqg_decomp_random_unitary(trial, epsilon):
+    """Test the tqg_decomp function with a random unitary matrix."""
     # Test the decomposition
     U = unitary_group.rvs(4, random_state=trial)
     decomposition = tqg_decomp(U, epsilon=epsilon)
@@ -473,8 +473,8 @@ def test_tqg_decomposition_random_unitary(trial, epsilon):
     assert np.allclose(exact_reconstructed, U, atol=15 * epsilon)
 
 
-def test_tqg_decomposition_identity():
-    """Test the tqg_decomposition function with the identity matrix."""
+def test_tqg_decomp_identity():
+    """Test the tqg_decomp function with the identity matrix."""
     # Test with numpy identity matrix
     identity = np.eye(4)
     decomposition = tqg_decomp(identity, epsilon=0.01)
@@ -494,7 +494,7 @@ def test_tqg_decomposition_identity():
     assert np.allclose(exact_reconstructed_qgate, identity, atol=0.01)
 
 
-def test_tqg_decomposition_invalid_input_type():
+def test_tqg_decomp_invalid_input_type():
     """Test that tqg_decomp raises ValueError for invalid input types."""
     # Test with string
     with pytest.raises(TypeError, match="Input must be a numpy array or QGate object"):
@@ -513,7 +513,7 @@ def test_tqg_decomposition_invalid_input_type():
         tqg_decomp(None, epsilon=0.01)
 
 
-def test_tqg_decomposition_invalid_matrix_shape():
+def test_tqg_decomp_invalid_matrix_shape():
     """Test that tqg_decomp raises ValueError for invalid matrix shapes."""
     # Test with 2x2 matrix
     matrix_2x2 = np.array([[1, 0], [0, 1]])
