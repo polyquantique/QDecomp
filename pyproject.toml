@@ -23,7 +23,6 @@ dependencies = [
 ]
 keywords = ["quantum", "decomposition", "python", "compiler", "clifford+t", "quantum-computing", "quantum-circuits"]
 classifiers = [
-    "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
@@ -43,6 +42,7 @@ dev = [
     "pytest-cov",
     "black",
     "isort",
+    "sympy",
 ]
 
 [project.urls]
