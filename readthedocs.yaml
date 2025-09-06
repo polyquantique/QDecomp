@@ -1,0 +1,19 @@
+# Required top-level key
+version: 2  
+
+# 1. Build environment
+build:
+  os: ubuntu-24.04      
+  tools:
+    python: "3.12"
+
+# 2. Documentation type
+sphinx:
+  configuration: docs/source/conf.py 
+
+# 3. Python dependencies
+python:
+  install:
+    - method: pip
+      path: .             
+    - requirements: docs/requirements.txt   # Install extra requirements for docs

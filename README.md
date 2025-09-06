@@ -1,3 +1,5 @@
+[![Documentation](https://img.shields.io/badge/docs-readthedocs-blue.svg)](https://qdecomp.readthedocs.io/en/latest/)
+
 # QDecomp
 `QDecomp` is a standalone software package to perform multiple decompositions of single-qubit and two-qubit quantum gates.
 
@@ -13,7 +15,7 @@ The package contains 4 main subpackages:
 
 Below is a figure illustrating the subpackages (green) and their associated modules (yellow) and classes (orange). 
 
-![Package Structure](assets/package_structure.svg)
+![Package Structure](https://github.com/polyquantique/QDecomp/raw/main/docs/source/_static/package_structure.svg)
 
 ## Documentation
 

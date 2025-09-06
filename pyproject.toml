@@ -13,22 +13,48 @@ authors = [
 ]
 description = "Clifford+T quantum gate compiler."
 readme = "README.md"
+license = "Apache-2.0"
 requires-python = ">=3.9"
 dependencies = [
     "numpy>=2.2.4",
     "mpmath>=1.3.0",
+    "scipy",
+    "matplotlib",
 ]
+keywords = ["quantum", "decomposition", "python", "compiler", "clifford+t", "quantum-computing", "quantum-circuits"]
 classifiers = [
+    "Programming Language :: Python",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Quantum Computing"
 ]
-license = {file = "LICENSE"}
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.3",
+    "pytest-cov",
+    "black",
+    "isort",
+    "sympy",
+]
 
 [project.urls]
 Homepage = "https://github.com/polyquantique/QDecomp"
+Documentation = "https://qdecomp.readthedocs.io/en/latest/"
+Issues = "https://github.com/polyquantique/QDecomp/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]   
+
+[tool.setuptools]
+include-package-data = true
 
 [tool.setuptools.dynamic]  
 version = {attr = "qdecomp.__version__"}

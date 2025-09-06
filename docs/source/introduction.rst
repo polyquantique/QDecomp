@@ -17,7 +17,7 @@ The package contains 4 main subpackages:
 
 Below is a figure illustrating the subpackages (green) and their associated modules (yellow) and classes (orange). 
 
-.. figure:: ../../../assets/package_structure.svg
+.. figure:: _static/package_structure.svg
    :alt: package_structure
    :width: 600px
    :align: center
