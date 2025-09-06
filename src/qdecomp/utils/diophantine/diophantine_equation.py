@@ -15,7 +15,7 @@
 r"""
 This module solves the Diophantine equation :math:`\xi = t \cdot t^\dagger` for :math:`t \in \mathbb{D}[\omega]` where :math:`\xi
 \in \mathbb{D}[\sqrt{2}]` is given. The solution :math:`t` is returned if it exists, or `None` otherwise. This
-module is an implementation of the algorithm presented in Section 6 and Appendix C of [1]_ by Ross and Selinger.
+module is an implementation of the algorithm presented in Section 6 and Appendix C of :cite:`diophantine_ross`.
 
 | **Input:** :math:`\xi \in \mathbb{D}[\sqrt{2}]`
 | **Output:** :math:`t \in \mathbb{D}[\omega]`, the solution to the equation :math:`\xi = t \cdot t^\dagger`, or `None` if no solution exists for the specified :math:`\xi`
@@ -50,8 +50,6 @@ module is an implementation of the algorithm presented in Section 6 and Appendix
 
     print(f"{xi = }")  # xi = 9/2^1+3/2^1√2
     print(f"{t = }")   # t = None
-
-.. [1] Neil J. Ross and Peter Selinger, Optimal ancilla-free Clifford+T approximation of z-rotations, https://arxiv.org/pdf/1403.2975.
 """
 
 from math import log, sqrt

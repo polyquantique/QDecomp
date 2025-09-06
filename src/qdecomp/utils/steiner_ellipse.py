@@ -13,11 +13,9 @@
 #    limitations under the License.
 
 """
-This module allows to find the smallest ellipse englobing three points using the Steiner algorithm [1]_.
+This module allows to find the smallest ellipse englobing three points using the Steiner algorithm :cite:`steiner_steiner_ellipse`.
 The module also contains useful functions allowing to find the bounding box (BBOX) of an ellipse and
 determine whether points are inside an ellipse using its matrix definition.
-
-.. [1] Wikipedia, Steiner ellipse, https://en.wikipedia.org/wiki/Steiner_ellipse.
 """
 
 import mpmath as mp
@@ -195,9 +193,7 @@ def is_inside_ellipse(u: NestedList, D: np.ndarray, p: np.ndarray) -> np.ndarray
 def ellipse_bbox(D: np.ndarray, p: np.ndarray) -> np.ndarray:
     """
     Find the axis-aligned bounding box (BBOX) of an ellipse. Refer to the comment made by Rodrigo de
-    Azevedo on November 30th, 2020 in [2]_.
-
-    .. [2] Rodrigo de Azevedo, Smallest axis-aligned bounding box of hyper-ellipsoid, Stack Exchange, https://math.stackexchange.com/questions/3926884/smallest-axis-aligned-bounding-box-of-hyper-ellipsoid
+    Azevedo on November 30th, 2020 in :cite:`steiner_ellipse_bbox`.
 
     Args:
         D (np.ndarray): Matrix defining the ellipse's shape and orientation

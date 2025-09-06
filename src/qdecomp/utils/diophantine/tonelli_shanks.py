@@ -22,11 +22,7 @@ The complexity of this algorithm is :math:`O(\log^2 p)`. Its efficiency is due t
 exploits the decomposition of :math:`p-1` into the form :math:`p-1 = q \cdot 2^s`, where
 :math:`q` is odd and :math:`s` is a non-negative integer.
 
-More information on this algorithm and implementation can be found in [1]_.
-
-References:
-
-.. [1] https://rosettacode.org/wiki/Tonelli-Shanks_algorithm
+More information on this algorithm and implementation can be found in :cite:`diophantine_tonelli_shanks`.
 """
 
 

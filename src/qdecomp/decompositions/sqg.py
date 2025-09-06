@@ -62,7 +62,7 @@ def zyz_decomposition(U: NDArray) -> tuple[float, ...]:
 
     This function performs this decomposition on a given unitary 2 x 2 matrix.
     It returns the three rotation angles :math:`\\theta_0,  \\theta_1, \\theta_2` and the phase :math:`\\alpha`.
-    For more details, see [#Crooks]_.
+    For more details, see :cite:`decomp_crooks`.
 
     Args:
         U (NDArray): A 2 x 2 unitary matrix.
@@ -102,8 +102,6 @@ def zyz_decomposition(U: NDArray) -> tuple[float, ...]:
         print(U_calculated)
         print("Error =")
         print(np.linalg.norm(U - U_calculated))
-
-    .. [#Crooks] Section 4.1 of "Quantum Gates" by Gavin E. Crooks at https://threeplusone.com/pubs/on_gates.pdf.
     """
     # Convert U to a np.ndarray if it is not already
     U = np.asarray(U)
@@ -160,7 +158,7 @@ def rz_decomp(angle: float, epsilon: float, add_global_phase=False) -> str:
 
     into a sequence of Clifford+T gates where :math:`\\theta` is the rotation angle around the Z axis.
     The decomposition is up to a given tolerance :math:`\\varepsilon`.
-    The algorithm implemented in this function is based on the one presented by Ross and Selinger in [#Ross]_.
+    The algorithm implemented in this function is based on the one presented by Ross and Selinger in :cite:`decomp_ross`.
     Note: when the `add_global_phase` argument is set to `True`, the sequence includes global phase gates :math:`W = e^{i\\pi/4}`.
 
     This function uses the :mod:`qdecomp.utils.exact_synthesis`, :mod:`qdecomp.utils.grid_problem` and :mod:`qdecomp.utils.diophantine` modules to achieve this goal.
@@ -189,8 +187,6 @@ def rz_decomp(angle: float, epsilon: float, add_global_phase=False) -> str:
             >>> sequence = rz_decomp(epsilon=0.001, angle=pi/128, add_global_phase=False)
             >>> print(sequence)
             H S T H S T H [...] Z S H S T H Z S
-    
-    .. [#Ross] Neil J. Ross and Peter Selinger, Optimal ancilla-free Clifford+T approximation of z-rotations, https://arxiv.org/pdf/1403.2975.
     """
     # Find the approximation of Rz gates in terms of Domega elements
     domega_matrix = z_rotational_approximation(epsilon=epsilon, theta=angle)

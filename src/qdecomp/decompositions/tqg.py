@@ -34,12 +34,7 @@ It decomposes any 4 x 4 unitary matrix into a circuit of CNOT and single-qubit g
 The function determines which decomposition to use based on the Lie group of the input matrix (SO(4), O(4), U(4)) or uses a predefined decomposition if the gate is common (SWAP, identity, CNOT).
 The function returns a list of ``QGate`` objects representing the circuit decomposition.
 
-For more details on the theory, see [#f1]_ [#f2]_ [#f3]_ [#f4]_.
-
-.. [#f1] Crooks, G. E., “Quantum gates - Gates, States, and Circuits”, version 0.11.0., Mar. 2024, https://threeplusone.com/pubs/on_gates.pdf
-.. [#f2] Van Loan, C. F., “The ubiquitous Kronecker product”, J. Comput. Appl. Math., vol. 123, no. 1-2, pp. 85-100, Nov. 2000, https://doi.org/10.1016/S0377-0427(00)00393-9
-.. [#f3] Jun Zhang, Jiri Vala, Shankar Sastry, and K. Birgitta Whaley. Geometric theory of nonlocal two-qubit operations. Phys. Rev. A, 67:042313 (2003), https://arxiv.org/pdf/quant-ph/0209120
-.. [#f4] Vatan, F., Williams, C., “Optimal quantum circuits for general two-qubit gates”, arXiv [quant-ph], 2003, https://arxiv.org/abs/quant-ph/0308006
+For more details on the theory, see :cite:`decomp_crooks, decomp_vanloan_2000, decomp_zhang_2003, decomp_vatan_2004`.
 """
 
 from __future__ import annotations
@@ -78,7 +73,7 @@ def kronecker_decomposition(
     """Compute the Kronecker decomposition of a 4 x 4 matrix.
 
     Given a 4 x 4 matrix ``M``, find the two 2 x 2 matrix ``A`` and ``B`` such that their Kronecker
-    product is the closest to the matrix ``M`` in the Frobenius norm [#f1]_ [#f2]_.
+    product is the closest to the matrix ``M`` in the Frobenius norm :cite:`decomp_crooks, decomp_vanloan_2000`.
 
     Args:
         matrix (NDArray[float]): 4 x 4 matrix.
@@ -131,7 +126,7 @@ def so4_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
     """Circuit decomposition of SO(4) matrices.
 
     Decompose a 4 x 4 matrix in SO(4) (special orthogonal group) into a circuit of 2 CNOT gates
-    and 8 single-qubit gates [#f1]_ [#f4]_. The output is a list of QGate objects.
+    and 8 single-qubit gates :cite:`decomp_crooks, decomp_vatan_2004`. The output is a list of QGate objects.
 
     Args:
         U (NDArray[float]): 4 x 4 matrix in SO(4).
@@ -179,7 +174,7 @@ def o4_det_minus1_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
     """Circuit decomposition of O(4) matrices with a determinant of -1.
 
     Decompose a 4 x 4 matrix in O(4) (orthogonal group) with a determinant of -1 into a circuit of
-    3 CNOT and 8 single-qubit gates [#f1]_ [#f4]_. The output is a list of QGate objects.
+    3 CNOT and 8 single-qubit gates :cite:`decomp_crooks, decomp_vatan_2004`. The output is a list of QGate objects.
 
     Args:
         U (NDArray[float]): 4 x 4 matrix in O(4) with a determinant of -1.
@@ -266,7 +261,7 @@ def canonical_decomposition(U: NDArray[np.floating]) -> CanonicalDecomposition:
 
     .. math:: Can(t_x, t_y, t_z) = exp(-i\\frac{\\pi}{2} (t_x X\\otimes X + t_y Y\\otimes Y + t_z Z\\otimes Z)),
 
-    where `X`, `Y`, and `Z` are the Pauli matrices [#f1]_ [#f3]_.
+    where `X`, `Y`, and `Z` are the Pauli matrices :cite:`decomp_crooks, decomp_zhang_2003`.
 
     Args:
         U (NDArray[float]): 4 x 4 unitary matrix.
@@ -369,7 +364,7 @@ def canonical_decomposition(U: NDArray[np.floating]) -> CanonicalDecomposition:
 def u4_decomposition(U: NDArray[np.floating] | QGate) -> list[QGate]:
     """Circuit decomposition of U(4) matrices.
 
-    Decompose a 4 x 4 matrix in U(4) (unitary group) into a circuit of 3 CNOT a 7 single-ubit gates [#f1]_ [#f4]_.
+    Decompose a 4 x 4 matrix in U(4) (unitary group) into a circuit of 3 CNOT a 7 single-qubit gates :cite:`decomp_crooks, decomp_vatan_2004`.
     The output is a list of QGate objects.
 
     Args:

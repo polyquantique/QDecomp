@@ -15,7 +15,7 @@
 """
 This module defines the :class:`GridOperator`.
 
-Grid operators are a central concept introduced in Section 5.3 of [1]_. However, this class is generalized to work with any matrix
+Grid operators are a central concept introduced in Section 5.3 of :cite:`grid_problem_ross`. However, this class is generalized to work with any matrix
 whose elements lie in the ring :math:`D[\sqrt{2}]`.
 
 To efficiently solve a general 2D grid problem, it is necessary to find the upright bounding box of the
@@ -54,9 +54,7 @@ then there exists a special grid operator :math:`G`, such that:
 
 This class defines grid operators, which will be useful in the grid problem algorithm as a whole.
 
-For more information on the use of states, see Section 5.3 of [1]_.
-
-.. [1] Neil J. Ross and Peter Selinger, Optimal ancilla-free Clifford+T approximation of z-rotations, https://arxiv.org/pdf/1403.2975.
+For more information on the use of states, see Section 5.3 of :cite:`grid_problem_ross`.
 """
 
 from __future__ import annotations
@@ -84,8 +82,7 @@ class GridOperator:
     domains, applying a grid operator allows us to widen and reshape these regions into more tractable forms,
     thus enabling more effective enumeration of solutions.
 
-    Grid operators are discussed in detail in Section 5.3 of the following reference:
-    https://arxiv.org/pdf/1403.2975.
+    Grid operators are discussed in detail in Section 5.3 of :cite:`grid_problem_ross`.
 
     Parameters:
         G (np.ndarray): ndarray form of the grid operator

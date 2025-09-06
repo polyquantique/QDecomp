@@ -14,17 +14,15 @@
 
 """
 This module provides the function :func:`find_points` to find the three points that define the slice :math:`\\mathcal{R}_\\varepsilon`
-as described in Section 7.2 of [1]_. It also includes the :func:`find_grid_operator` function to find the grid operator that reduces
+as described in Section 7.2 of :cite:`grid_problem_ross`. It also includes the :func:`find_grid_operator` function to find the grid operator that reduces
 the skew of a state to less than 15, as well as the :func:`find_special_grid_operator` function to find the special grid operator that reduces the skew
 by at least 10%. The functions utilize the `mpmath` library for high precision arithmetic and the `numpy` library
 for numerical operations.
 
 The procedure to reduce the skew of a state is based on the algorithm described in
-Annexes A and B of [1]_.
+Annexes A and B of :cite:`grid_problem_ross`.
 
-For more information on the use of states, see Annex A and B of [1]_.
-
-.. [1] Neil J. Ross and Peter Selinger, Optimal ancilla-free Clifford+T approximation of z-rotations, https://arxiv.org/pdf/1403.2975.
+For more information on the use of states, see Annex A and B of :cite:`grid_problem_ross`.
 """
 
 import math
@@ -39,8 +37,9 @@ from qdecomp.utils.grid_problem.state import *
 
 
 def find_points(epsilon: float, theta: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Find the three points which define the slice :math:`\\mathcal{R}_\\varepsilon`
-    as shown in Section 7.2 of Ross et al. (2014).
+    """
+    Find the three points which define the slice :math:`\\mathcal{R}_\\varepsilon`
+    as shown in Section 7.2 of :cite:`grid_problem_ross`.
 
     Args:
         theta (float): The angle :math:`\\theta` such that :math:`0 \\leq \\theta < 4\\pi`
@@ -108,7 +107,8 @@ def find_points(epsilon: float, theta: float) -> tuple[np.ndarray, np.ndarray, n
 
 
 def find_grid_operator(A: np.ndarray, B: np.ndarray) -> tuple[GridOperator, GridOperator]:
-    """Find the grid operator which reduces the skew of a state to less than 15.
+    """
+    Find the grid operator which reduces the skew of a state to less than 15.
 
     Args:
         A (np.ndarray): The 2x2 matrix defining the first ellipse.
@@ -152,7 +152,8 @@ def find_grid_operator(A: np.ndarray, B: np.ndarray) -> tuple[GridOperator, Grid
 
 
 def find_special_grid_operator(state: State) -> GridOperator:
-    """Find the special grid operator which reduces the skew of a state by at least 10%.
+    """
+    Find the special grid operator which reduces the skew of a state by at least 10%.
 
     Args:
         state (State): The state defined by a pair of ellipses.

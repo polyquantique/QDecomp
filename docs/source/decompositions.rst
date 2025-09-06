@@ -28,3 +28,11 @@ Circuit Module
     :members:
     :undoc-members:
     :show-inheritance:
+
+
+References
+~~~~~~~~~~~~~~
+
+.. bibliography::
+   :filter: cited and docname in docnames
+   :keyprefix: decomp_
