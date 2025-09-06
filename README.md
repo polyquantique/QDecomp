@@ -15,7 +15,7 @@ The package contains 4 main subpackages:
 
 Below is a figure illustrating the subpackages (green) and their associated modules (yellow) and classes (orange). 
 
-![Package Structure](assets/package_structure.svg)
+![Package Structure](https://github.com/polyquantique/QDecomp/raw/main/assets/package_structure.svg)
 
 ## Documentation
 
