@@ -6,10 +6,11 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
+import qdecomp
 project = "QDecomp"
 copyright = "2025, Vincent Girouard, Olivier Romain, Marius Trudeau, Francis Blais"
 author = "Vincent Girouard, Olivier Romain, Marius Trudeau, Francis Blais"
-release = "0.0.1"
+release = qdecomp.__version__
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
