@@ -24,32 +24,35 @@ module is an implementation of the algorithm presented in Section 6 and Appendix
 
 .. code-block:: python
 
-    # Import libraries
-    from cliffordplust.rings import *
-    from cliffordplust.diophantine import solve_xi_eq_ttdag_in_d
-
+    >>> from qdecomp.rings import *
+    >>> from qdecomp.utils.diophantine import solve_xi_eq_ttdag_in_d
 
     # Solve a Diophantine equation that has a solution
-    xi = Dsqrt2(D(13, 1), D(4, 1))  # Input
-    t = solve_xi_eq_ttdag_in_d(xi)  # Compute the solution
+    >>> xi = Dsqrt2(D(13, 1), D(4, 1))  # Input
+    >>> t = solve_xi_eq_ttdag_in_d(xi)  # Compute the solution
 
-    print(f"{xi = }")  # xi = 13/2^1+2/2^0√2
-    print(f"{t = }")   # t = -2/2^0ω3 + 1/2^1ω2 + 0/2^0ω + 3/2^1
+    >>> print(f"{xi = }")
+    xi = 13/2^1+2/2^0√2
+    >>> print(f"{t = }")
+    t = -2/2^0ω3 + 1/2^1ω2 + 0/2^0ω + 3/2^1
 
     # Check the solution
-    xi_calculated_in_Domega = t * t.complex_conjugate()        # Calculate (t * t†)
-    xi_calculated = Dsqrt2.from_ring(xi_calculated_in_Domega)  # Convert the result from D[omega] to D[sqrt(2)]
+    >>> xi_calculated_in_Domega = t * t.complex_conjugate()        # Calculate (t * t†)
+    >>> xi_calculated = Dsqrt2.from_ring(xi_calculated_in_Domega)  # Convert the result from D[omega] to D[sqrt(2)]
 
-    print(f"{xi_calculated = }")        # xi_calculated = 13/2^1+2/2^0√2
-    print(f"{xi == xi_calculated = }")  # xi == xi_calculated = True
-
+    >>> print(f"{xi_calculated = }")
+    xi_calculated = 13/2^1+2/2^0√2
+    >>> print(f"{xi == xi_calculated = }")
+    xi == xi_calculated = True
 
     # Solve a Diophantine equation that doesn't have any solution
-    xi = Dsqrt2(D(9, 1), D(3, 1))   # Input
-    t = solve_xi_eq_ttdag_in_d(xi)  # Compute the solution
+    >>> xi = Dsqrt2(D(9, 1), D(3, 1))   # Input
+    >>> t = solve_xi_eq_ttdag_in_d(xi)  # Compute the solution
 
-    print(f"{xi = }")  # xi = 9/2^1+3/2^1√2
-    print(f"{t = }")   # t = None
+    >>> print(f"{xi = }")
+    xi = 9/2^1+3/2^1√2
+    >>> print(f"{t = }")
+    t = None
 """
 
 from math import log, sqrt

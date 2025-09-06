@@ -33,15 +33,17 @@ This module contains the following functions:
 
 .. code-block:: python
 
-    from qdecomp.utils.exact_synthesis import exact_synthesis_alg, ZERO_DOMEGA, ONE_DOMEGA
+    >>> import numpy as np
+    >>> from qdecomp.utils.exact_synthesis import exact_synthesis_alg, ZERO_DOMEGA, ONE_DOMEGA
+    >>> from qdecomp.rings import Domega
 
-    # Define the X gate as input with 0 and 1 as Domega objects
-    X = np.array([[ZERO_DOMEGA, ONE_DOMEGA], [ONE_DOMEGA, ZERO_DOMEGA]], dtype=Domega)
+    # Define the X gate with 0 and 1 as Domega objects
+    >>> X = np.array([[ZERO_DOMEGA, ONE_DOMEGA], [ONE_DOMEGA, ZERO_DOMEGA]], dtype=Domega)
 
-    # Perform exact synthesis
-    sequence = exact_synthesis_alg(X)
-    print(sequence)
-    # HTTTTH
+    # Perform the exact synthesis
+    >>> sequence = exact_synthesis_alg(X)
+    >>> print(sequence)
+    HTTTTH
 """
 
 import json
@@ -303,13 +305,17 @@ def domega_matrix_to_tuple(array: np.ndarray) -> tuple:
 
     .. code-block:: python
 
+        >>> import numpy as np
+        >>> from qdecomp.utils.exact_synthesis import domega_matrix_to_tuple, ZERO_DOMEGA, ONE_DOMEGA
+        >>> from qdecomp.rings import Domega
+        
         # Define the X gate with 0 and 1 as Domega objects
-        X = np.array([[ZERO_DOMEGA, ONE_DOMEGA], [ONE_DOMEGA, ZERO_DOMEGA]], dtype=Domega)
+        >>> X = np.array([[ZERO_DOMEGA, ONE_DOMEGA], [ONE_DOMEGA, ZERO_DOMEGA]], dtype=Domega)
 
-        # Convert to tuple format
-        x_tuple = domega_matrix_to_tuple(X)
-        print(x_tuple) # First column of X in tuple format
-        # ((0, 0), (0, 0), (0, 0), (0, 0)), ((0, 0), (0, 0), (0, 0), (1, 0))
+        # Convert X to tuple format
+        >>> x_tuple = domega_matrix_to_tuple(X)
+        >>> print(x_tuple) # First column of X in tuple format
+        ((0, 0), (0, 0), (0, 0), (0, 0)), ((0, 0), (0, 0), (0, 0), (1, 0))
     """
     if not np.all([isinstance(element, Domega) for element in array.flatten()]):
         raise TypeError("Matrix elements must be of class Domega")

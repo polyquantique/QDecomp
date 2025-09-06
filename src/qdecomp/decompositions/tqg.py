@@ -85,15 +85,18 @@ def kronecker_decomp(
         TypeError: If matrix is not a numpy array.
         ValueError: If matrix is not a 4 x 4 matrix.
 
-    Examples:
+    **Example**:
 
     .. code-block:: python
 
-        >>> # Define two 2 x 2 matrices
+        >>> import numpy as np
+        >>> from qdecomp.decompositions import kronecker_decomp
+
+        # Define two 2 x 2 matrices
         >>> A = np.array([[1, 2], [3, 4]])
         >>> B = np.array([[5, 6], [7, 8]])
 
-        >>> # Compute the Kronecker decomposition
+        # Compute the Kronecker decomposition
         >>> a, b = kronecker_decomp(np.kron(A, B))
         >>> print(np.allclose(np.kron(A, B), np.kron(a, b)))
         True
@@ -278,19 +281,23 @@ def canonical_decomp(U: NDArray[np.floating]) -> CanonicalDecomposition:
         TypeError: If the matrix U is not a numpy object.
         ValueError: If U is not a 4 x 4 unitary matrix.
 
-    Examples:
+    **Example**:
 
     .. code-block:: python
 
-        >>> # Define a 4 x 4 unitary matrix
         >>> from scipy.stats import unitary_group
+        >>> import numpy as np
+        >>> from qdecomp.decompositions import canonical_decomp
+        >>> from qdecomp.utils import gates
+        
+        # Define a 4 x 4 unitary matrix
         >>> U = unitary_group.rvs(4)
 
-        >>> # Perform the canonical decomposition and reconstruct the matrix
+        # Perform the canonical decomposition and reconstruct the matrix
         >>> decomp = canonical_decomp(U)
         >>> reconstructed_matrix = np.exp(1.j * decomp.phase) * decomp.B @ gates.canonical_gate(*decomp.t) @ decomp.A
 
-        >>> # Check if the decomposition is correct
+        # Check if the decomposition is correct
         >>> print(np.allclose(U, reconstructed_matrix))
         True
     """
@@ -406,12 +413,12 @@ def u4_decomp(U: NDArray[np.floating] | QGate) -> list[QGate]:
     decomposition_circuit = [
         QGate.from_matrix(a1, name="A1", target=(q[0],)),
         QGate.from_matrix(a2, name="A2", target=(q[1],)),
-        QGate.from_tuple(("CNOT1", (q[0], q[1]), 0)),
+        QGate.from_tuple(("CNOT1", (q[0], q[1]), 0), name="CNOT1"),
         QGate.from_matrix(gates.power_pauli_z(tz - 0.5), name="PZ", target=(q[0],)),
         QGate.from_matrix(gates.power_pauli_y(tx - 0.5), name="PY", target=(q[1],)),
-        QGate.from_tuple(("CNOT", (q[0], q[1]), 0)),
+        QGate.from_tuple(("CNOT", (q[0], q[1]), 0), name="CNOT"),
         QGate.from_matrix(gates.power_pauli_y(0.5 - ty), name="PY", target=(q[1],)),
-        QGate.from_tuple(("CNOT1", (q[0], q[1]), 0)),
+        QGate.from_tuple(("CNOT1", (q[0], q[1]), 0), name="CNOT1"),
         QGate.from_matrix(b1, name="B1", target=(q[0],)),
         QGate.from_matrix(b2, name="B2", target=(q[1],)),
     ]
@@ -508,15 +515,30 @@ def cnot_decomp(U: NDArray[np.floating]) -> list[QGate]:
         TypeError: If the input matrix is not a numpy array or a QGate object.
         ValueError: If the input matrix is not a 4 x 4 unitary matrix.
 
-    Examples:
+    **Example**:
 
     .. code-block:: python
 
-        >>> # Use an arbitrary 4 x 4 unitary matrix
+        >>> from qdecomp.decompositions import cnot_decomp
         >>> from scipy.stats import unitary_group
+        
+        # Use an arbitrary 4 x 4 unitary matrix
         >>> U = unitary_group.rvs(4)
-        >>> # Decompose the matrix into a circuit of CNOT and single-qubit gates
+
+        # Decompose the matrix into a circuit of CNOT and single-qubit gates
         >>> circuit = cnot_decomp(U)
+        >>> for gate in circuit:
+        ...     print(f"{gate.target} -> {gate.name}")
+        (0,) -> A1
+        (1,) -> A2
+        (0, 1) -> CNOT1
+        (0,) -> PZ
+        (1,) -> PY
+        (0, 1) -> CNOT
+        (1,) -> PY
+        (0, 1) -> CNOT1
+        (0,) -> B1
+        (1,) -> B2
     """
     # Check input type
     if not isinstance(U, (np.ndarray, QGate)):
@@ -562,22 +584,21 @@ def tqg_decomp(tqg: Union[np.ndarray, QGate], epsilon: float = 0.01) -> list[QGa
 
     **Example**
 
-        .. code-block:: python
+    .. code-block:: python
 
-            >>> from scipy.stats import unitary_group
-            >>> from qdecomp.decompositions import sqg_decomp
+        >>> from scipy.stats import unitary_group
+        >>> from qdecomp.decompositions import tqg_decomp
 
-            # Decompose a random two qubit gate with tolerance 0.001
-            >>> tqg = unitary_group.rvs(4, random_state=42)
-            >>> circuit = tqg_decomp(tqg, epsilon=0.001)
-            >>> for gates in circuit:
-            ...     print(f"{gates.target} -> {gates.sequence}")
-            (0,) -> S T H T [...] H Z S T
-            (1,) -> S T H T [...] S H S T
-            (0, 1) -> CNOT1
-            ...
-            (1,) -> H T H S [...] T H Z S
-
+        # Decompose a random two qubit gate with tolerance 0.001
+        >>> tqg = unitary_group.rvs(4, random_state=42)
+        >>> circuit = tqg_decomp(tqg, epsilon=0.001)
+        >>> for gates in circuit:
+        ...     print(f"{gates.target} -> {gates.sequence}")
+        (0,) -> S T H T [...] H Z S T
+        (1,) -> S T H T [...] S H S T
+        (0, 1) -> CNOT1
+        ...
+        (1,) -> H T H S [...] T H Z S
     """
 
     if not isinstance(tqg, (np.ndarray, QGate)):

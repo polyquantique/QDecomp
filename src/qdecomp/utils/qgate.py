@@ -104,7 +104,7 @@ class QGate:
         >>> print("Matrix:\n", gate.sequence_matrix, "\n")
         Matrix:
          [[ 0.+1.j  0.+0.j]
-         [-0.+0.j  0.+1.j]]
+         [-0.+0.j -0.+1.j]]
 
         # Set the approximation sequence of a gate
         >>> approx_gate = QGate.from_matrix(matrix=np.diag([1-0.001j, 1.j+0.001]), name="approx_my_gate")
