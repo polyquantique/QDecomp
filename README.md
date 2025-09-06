@@ -1,3 +1,5 @@
+[![Documentation](https://img.shields.io/badge/docs-readthedocs-blue.svg)](https://qdecomp.readthedocs.io/en/latest/)
+
 # QDecomp
 `QDecomp` is a standalone software package to perform multiple decompositions of single-qubit and two-qubit quantum gates.
 
