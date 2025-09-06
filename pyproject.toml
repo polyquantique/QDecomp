@@ -21,7 +21,9 @@ dependencies = [
     "scipy",
     "matplotlib",
 ]
+keywords = ["quantum", "decomposition", "python", "compiler", "clifford+t", "quantum-computing", "quantum-circuits"]
 classifiers = [
+    "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
@@ -29,7 +31,10 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Quantum Computing"
 ]
 
 [project.optional-dependencies]
