@@ -13,7 +13,7 @@
 #    limitations under the License.
 
 """
-Various decomposition algorithms for single-qubit gates, two-qubit gates, and circuits composed of
+Decomposition algorithms for single-qubit gates, two-qubit gates, and circuits composed of
 single-qubit and two-qubit gates.
 """
 

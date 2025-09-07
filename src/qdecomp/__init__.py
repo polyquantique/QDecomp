@@ -13,7 +13,10 @@
 #    limitations under the License.
 
 """
-QDecomp: A library for quantum circuit decomposition.
+QDecomp 
+-------
+
+A library for quantum circuit decompositions and approximations.
 """
 
 __version__ = "0.1.0"
