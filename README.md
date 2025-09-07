@@ -31,12 +31,48 @@ The documentation is generated in `docs/build/html/`. Open `docs/build/html/inde
 
 ## Installation
 
-To install `QDecomp`, clone the repository and install the dependencies:
+The `QDecomp` package can be installed from source by following the following steps:
+
+1. Clone the repository
 
 ```bash
 git clone https://github.com/polyquantique/QDecomp.git
 cd QDecomp
-pip install -r requirements.txt -e .
+```
+
+2. (Optional) Create and activate a virtual environment
+
+- Linux / macOS:
+
+    ```bash
+    python3 -m venv venv
+    source venv/bin/activate
+    ```
+- Windows (Command Prompt):
+
+    ```bash
+    python -m venv venv
+    venv\Scripts\activate
+    ```
+
+3. Install the package and dependencies
+
+- Standard installation:
+
+    ```bash
+    pip install .
+    ```
+- Editable (developer) installation:
+
+    ```bash
+    pip install -e .[dev]
+    ```
+
+4. (Optional) Run the tests
+
+```bash
+pip install pytest
+pytest tests
 ```
 
 ## Usage Examples
