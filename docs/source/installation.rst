@@ -38,7 +38,7 @@ The :mod:`QDecomp` package can be installed from source by following the followi
 
     .. code-block:: bash
 
-        pip install -r requirements.txt -e .
+        pip install -e .[dev]
 
 4. (Optional) Run the tests
 

@@ -65,7 +65,7 @@ cd QDecomp
 - Editable (developer) installation:
 
     ```bash
-    pip install -r requirements.txt -e .
+    pip install -e .[dev]
     ```
 
 4. (Optional) Run the tests
