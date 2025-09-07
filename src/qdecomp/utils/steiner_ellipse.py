@@ -20,6 +20,7 @@ determine whether points are inside an ellipse using its matrix definition.
 
 import mpmath as mp
 import numpy as np
+from typing import Union
 
 __all__ = [
     "assert_steiner_ellipse",
@@ -144,7 +145,7 @@ def steiner_ellipse_def(
     return D, p
 
 
-NestedList = list[float] | list["NestedList"]
+NestedList = Union[list[float], list["NestedList"]]
 
 
 def is_inside_ellipse(u: NestedList, D: np.ndarray, p: np.ndarray) -> np.ndarray:
