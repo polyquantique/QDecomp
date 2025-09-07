@@ -16,12 +16,29 @@
 Test of exact_synthesis
 """
 
+import os
+
 import numpy as np
 import pytest
 
 from qdecomp.rings import Domega  # type: ignore[import]
 from qdecomp.utils.exact_synthesis import *  # type: ignore[import]
-from qdecomp.utils.exact_synthesis import OMEGA, ONE_DOMEGA, ZERO_DOMEGA, H, I, T, W
+from qdecomp.utils.exact_synthesis.exact_synthesis import (
+    OMEGA,
+    ONE_DOMEGA,
+    ZERO_DOMEGA,
+    H,
+    I,
+    T,
+    W,
+    apply_sequence,
+    domega_matrix_to_tuple,
+    exact_synthesis_reduc,
+    get_omega_exponent,
+    is_unitary_domega,
+    s3_decomposition,
+)
+from qdecomp.utils.exact_synthesis.s3_generator import generate_s3, generate_sequences
 
 # Set a fixed random seed for reproducibility
 np.random.seed(42)
@@ -342,7 +359,6 @@ def test_generate_s3_creates_file():
         os.path.dirname(__file__),
         "..",
         "..",
-        "..",
         "src",
         "qdecomp",
         "utils",
@@ -384,7 +400,7 @@ def test_optimize_sequence_repetition(sequence):
         ("ZTZ", "T"),
         ("STS", "ZT"),
         ("TST", "Z"),
-        ("ZSZ", "S")
+        ("ZSZ", "S"),
     ],
 )
 def test_optimize_sequence_validity(sequence, expected):

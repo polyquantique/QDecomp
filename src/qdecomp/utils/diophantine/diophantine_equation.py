@@ -15,7 +15,7 @@
 r"""
 This module solves the Diophantine equation :math:`\xi = t \cdot t^\dagger` for :math:`t \in \mathbb{D}[\omega]` where :math:`\xi
 \in \mathbb{D}[\sqrt{2}]` is given. The solution :math:`t` is returned if it exists, or `None` otherwise. This
-module is an implementation of the algorithm presented in Section 6 and Appendix C of [1]_ by Ross and Selinger.
+module is an implementation of the algorithm presented in Section 6 and Appendix C of :cite:`diophantine_ross`.
 
 | **Input:** :math:`\xi \in \mathbb{D}[\sqrt{2}]`
 | **Output:** :math:`t \in \mathbb{D}[\omega]`, the solution to the equation :math:`\xi = t \cdot t^\dagger`, or `None` if no solution exists for the specified :math:`\xi`
@@ -24,35 +24,38 @@ module is an implementation of the algorithm presented in Section 6 and Appendix
 
 .. code-block:: python
 
-    # Import libraries
-    from cliffordplust.rings import *
-    from cliffordplust.diophantine import solve_xi_eq_ttdag_in_d
-
+    >>> from qdecomp.rings import *
+    >>> from qdecomp.utils.diophantine import solve_xi_eq_ttdag_in_d
 
     # Solve a Diophantine equation that has a solution
-    xi = Dsqrt2(D(13, 1), D(4, 1))  # Input
-    t = solve_xi_eq_ttdag_in_d(xi)  # Compute the solution
+    >>> xi = Dsqrt2(D(13, 1), D(4, 1))  # Input
+    >>> t = solve_xi_eq_ttdag_in_d(xi)  # Compute the solution
 
-    print(f"{xi = }")  # xi = 13/2^1+2/2^0√2
-    print(f"{t = }")   # t = -2/2^0ω3 + 1/2^1ω2 + 0/2^0ω + 3/2^1
+    >>> print(f"{xi = }")
+    xi = 13/2^1+2/2^0√2
+    >>> print(f"{t = }")
+    t = -2/2^0ω3 + 1/2^1ω2 + 0/2^0ω + 3/2^1
 
     # Check the solution
-    xi_calculated_in_Domega = t * t.complex_conjugate()        # Calculate (t * t†)
-    xi_calculated = Dsqrt2.from_ring(xi_calculated_in_Domega)  # Convert the result from D[omega] to D[sqrt(2)]
+    >>> xi_calculated_in_Domega = t * t.complex_conjugate()        # Calculate (t * t†)
+    >>> xi_calculated = Dsqrt2.from_ring(xi_calculated_in_Domega)  # Convert the result from D[omega] to D[sqrt(2)]
 
-    print(f"{xi_calculated = }")        # xi_calculated = 13/2^1+2/2^0√2
-    print(f"{xi == xi_calculated = }")  # xi == xi_calculated = True
-
+    >>> print(f"{xi_calculated = }")
+    xi_calculated = 13/2^1+2/2^0√2
+    >>> print(f"{xi == xi_calculated = }")
+    xi == xi_calculated = True
 
     # Solve a Diophantine equation that doesn't have any solution
-    xi = Dsqrt2(D(9, 1), D(3, 1))   # Input
-    t = solve_xi_eq_ttdag_in_d(xi)  # Compute the solution
+    >>> xi = Dsqrt2(D(9, 1), D(3, 1))   # Input
+    >>> t = solve_xi_eq_ttdag_in_d(xi)  # Compute the solution
 
-    print(f"{xi = }")  # xi = 9/2^1+3/2^1√2
-    print(f"{t = }")   # t = None
-
-.. [1] Neil J. Ross and Peter Selinger, Optimal ancilla-free Clifford+T approximation of z-rotations, https://arxiv.org/pdf/1403.2975.
+    >>> print(f"{xi = }")
+    xi = 9/2^1+3/2^1√2
+    >>> print(f"{t = }")
+    t = None
 """
+
+from typing import Union
 
 from math import log, sqrt
 
@@ -340,7 +343,7 @@ def xi_fact(xi: Zsqrt2) -> list[tuple[Zsqrt2, int]]:
     return xi_fact_list
 
 
-def pi_fact_into_xi(pi: int) -> Zsqrt2 | None:
+def pi_fact_into_xi(pi: int) -> Union[Zsqrt2, None]:
     r"""
     Solve the equation :math:`p_i = \xi_i \cdot \xi_i^{\bullet} = a^2 - 2 \cdot b^2` where :math:`^{\bullet}` denotes
     the :math:`\sqrt{2}` conjugate. :math:`p_i` is a prime integer and :math:`\xi_i = a + b \sqrt{2}` is an element of
@@ -366,7 +369,7 @@ def pi_fact_into_xi(pi: int) -> Zsqrt2 | None:
     return Zsqrt2(int(sqrt(pi + 2 * b**2)), b)
 
 
-def xi_i_fact_into_ti(xi_i: Zsqrt2, check_prime: bool = False) -> Zomega | None:
+def xi_i_fact_into_ti(xi_i: Zsqrt2, check_prime: bool = False) -> Union[Zomega, None]:
     r"""
     Solve the equation :math:`\xi_i = t_i \cdot t_i^\dagger` where :math:`^\dagger` denotes the complex conjugate.
     :math:`\xi_i` is a prime element in :math:`\mathbb{Z}[\sqrt{2}]` and :math:`t_i` is an element of :math:`\mathbb{Z}[\omega]`. :math:`\xi_i` has a
@@ -435,7 +438,7 @@ def xi_i_fact_into_ti(xi_i: Zsqrt2, check_prime: bool = False) -> Zomega | None:
         return None
 
 
-def solve_xi_sim_ttdag_in_z(xi: Zsqrt2) -> Zomega | None:
+def solve_xi_sim_ttdag_in_z(xi: Zsqrt2) -> Union[Zomega, None]:
     r"""
     Solve the equation :math:`\xi \sim t \cdot t^\dagger` for :math:`t` where :math:`^\dagger` denotes the complex conjugate.
     :math:`\xi` is an element of :math:`\mathbb{Z}[\sqrt{2}]` and :math:`t` is an element of :math:`\mathbb{Z}[\omega]`. This function returns the
@@ -468,7 +471,7 @@ def solve_xi_sim_ttdag_in_z(xi: Zsqrt2) -> Zomega | None:
     return t
 
 
-def solve_xi_eq_ttdag_in_d(xi: Dsqrt2) -> Domega | None:
+def solve_xi_eq_ttdag_in_d(xi: Dsqrt2) -> Union[Domega, None]:
     r"""
     Solve the equation :math:`\xi = t \cdot t^\dagger` for :math:`t` where :math:`^\dagger` denotes the complex conjugate. :math:`\xi`
     is an element of :math:`\mathbb{D}[\sqrt{2}]` and :math:`t` is an element of :math:`\mathbb{D}[\omega]`. This function returns the first

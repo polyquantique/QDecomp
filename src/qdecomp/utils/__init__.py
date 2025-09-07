@@ -12,6 +12,11 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+"""
+Multiple utility functions and classes for quantum gate decomposition. This includes functions for
+manipulating quantum gates and ellipses.
+"""
+
 from qdecomp.utils.gates_utils import *
 from qdecomp.utils.qgate import QGate
 from qdecomp.utils.steiner_ellipse import *

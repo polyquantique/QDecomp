@@ -12,6 +12,11 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+"""
+Decomposition algorithms for single-qubit gates, two-qubit gates, and circuits composed of
+single-qubit and two-qubit gates.
+"""
+
 from qdecomp.decompositions.circuit import circuit_decomp
 from qdecomp.decompositions.sqg import *
 from qdecomp.decompositions.tqg import *

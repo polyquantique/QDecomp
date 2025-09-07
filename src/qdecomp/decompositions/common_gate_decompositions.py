@@ -23,7 +23,7 @@ The decompositions are returned as a list of :class:QGate objects.
 from qdecomp.utils import QGate
 
 
-def dcnot_decomposition(q0: int, q1: int) -> list[QGate]:
+def dcnot_decomp(q0: int, q1: int) -> list[QGate]:
     """Circuit implementation of the double CNOT (DCNOT) gate (CNOT, then CNOT inverted).
 
     Decompose the DCNOT gate into a circuit of CNOT and inverted CNOT gates.
@@ -42,7 +42,7 @@ def dcnot_decomposition(q0: int, q1: int) -> list[QGate]:
     return dcnot_circuit
 
 
-def inv_dcnot_decomposition(q0: int, q1: int) -> list[QGate]:
+def inv_dcnot_decomp(q0: int, q1: int) -> list[QGate]:
     """Circuit implementation of the inverted DCNOT gate (CNOT inverted, then CNOT).
 
     Decompose the inverted DCNOT gate into a circuit of inverted CNOT and CNOT gates.
@@ -61,7 +61,7 @@ def inv_dcnot_decomposition(q0: int, q1: int) -> list[QGate]:
     return inv_dcnot_circuit
 
 
-def magic_decomposition(q0: int, q1: int) -> list[QGate]:
+def magic_decomp(q0: int, q1: int) -> list[QGate]:
     """Circuit implementation of the magic gate.
 
     Decompose the magic gate into a circuit of S, H, and CNOT gates.
@@ -82,7 +82,7 @@ def magic_decomposition(q0: int, q1: int) -> list[QGate]:
     return magic_circuit
 
 
-def magic_dag_decomposition(q0: int, q1: int) -> list[QGate]:
+def magic_dag_decomp(q0: int, q1: int) -> list[QGate]:
     """Circuit implementation of the hermitian conjugate of the magic gate.
 
     Decompose the hermitian conjugate of the magic gate into a circuit of SDAG, H, and CNOT gates.
@@ -103,7 +103,7 @@ def magic_dag_decomposition(q0: int, q1: int) -> list[QGate]:
     return magic_dag_circuit
 
 
-def swap_decomposition(q0: int, q1: int) -> list[QGate]:
+def swap_decomp(q0: int, q1: int) -> list[QGate]:
     """Circuit implementation of the SWAP gate.
 
     Decompose the SWAP gate into a circuit of CNOT gates.
@@ -123,7 +123,7 @@ def swap_decomposition(q0: int, q1: int) -> list[QGate]:
     return swap_circuit
 
 
-def cy_decomposition(q0: int, q1: int) -> list[QGate]:
+def cy_decomp(q0: int, q1: int) -> list[QGate]:
     """Circuit implementation of the controlled Y (CY) gate.
 
     Decompose the CY gate into a circuit of SDAG, CNOT and S gates.
@@ -143,7 +143,7 @@ def cy_decomposition(q0: int, q1: int) -> list[QGate]:
     return cy_circuit
 
 
-def cz_decomposition(q0: int, q1: int) -> list[QGate]:
+def cz_decomp(q0: int, q1: int) -> list[QGate]:
     """Circuit implementation of the controlled Z (CZ) gate.
 
     Decompose the CZ gate into a circuit of H, CNOT, and H gates.
@@ -163,7 +163,7 @@ def cz_decomposition(q0: int, q1: int) -> list[QGate]:
     return cz_circuit
 
 
-def ch_decomposition(q0: int, q1: int):
+def ch_decomp(q0: int, q1: int):
     """Circuit implementation of the controlled Hadamard (CH) gate.
 
     Decompose the CH gate into a circuit of Clifford+T gates.
@@ -187,7 +187,7 @@ def ch_decomposition(q0: int, q1: int):
     return ch_circuit
 
 
-def iswap_decomposition(q0: int, q1: int) -> list[QGate]:
+def iswap_decomp(q0: int, q1: int) -> list[QGate]:
     """Circuit implementation of the iSWAP gate.
 
     Decompose the iSWAP gate into a circuit of Clifford+T gates.
@@ -200,8 +200,8 @@ def iswap_decomposition(q0: int, q1: int) -> list[QGate]:
         list[QGate]: List of QGate objects representing the decomposition of the iSWAP gate.
     """
     iswap_circuit = (
-        swap_decomposition(q0, q1)
-        + cz_decomposition(q0, q1)
+        swap_decomp(q0, q1)
+        + cz_decomp(q0, q1)
         + [
             QGate.from_tuple(("S", (q0,), 0)),
             QGate.from_tuple(("S", (q1,), 0)),
@@ -210,7 +210,7 @@ def iswap_decomposition(q0: int, q1: int) -> list[QGate]:
     return iswap_circuit
 
 
-def common_decompositions(name: str, q0: int, q1: int) -> list[QGate]:
+def common_decomp(name: str, q0: int, q1: int) -> list[QGate]:
     """Return the Clifford+T decomposition of a 4 x 4 quantum gate.
 
     Given the name of a 2 qubit quantum gate, return the Clifford+T decomposition of the gate.
@@ -229,21 +229,21 @@ def common_decompositions(name: str, q0: int, q1: int) -> list[QGate]:
         ValueError: If the decomposition of the gate is not implemented
     """
     if name == "DCNOT":
-        return dcnot_decomposition(q0, q1)
+        return dcnot_decomp(q0, q1)
     elif name == "INV_DCNOT":
-        return inv_dcnot_decomposition(q0, q1)
+        return inv_dcnot_decomp(q0, q1)
     elif name == "MAGIC":
-        return magic_decomposition(q0, q1)
+        return magic_decomp(q0, q1)
     elif name == "MAGIC_DAG":
-        return magic_dag_decomposition(q0, q1)
+        return magic_dag_decomp(q0, q1)
     elif name == "SWAP":
-        return swap_decomposition(q0, q1)
+        return swap_decomp(q0, q1)
     elif name == "CY":
-        return cy_decomposition(q0, q1)
+        return cy_decomp(q0, q1)
     elif name == "CZ":
-        return cz_decomposition(q0, q1)
+        return cz_decomp(q0, q1)
     elif name == "CH":
-        return ch_decomposition(q0, q1)
+        return ch_decomp(q0, q1)
     elif name == "ISWAP":
-        return iswap_decomposition(q0, q1)
+        return iswap_decomp(q0, q1)
     raise ValueError(f"Decomposition of gate {name} not implemented.")

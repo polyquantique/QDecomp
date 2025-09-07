@@ -25,9 +25,7 @@ The module includes the following classes:
     - :class:`Zomega`: Ring of cyclotomic integers of degree 8 :math:`\\mathbb{Z}[\\omega]`.
     - :class:`Domega`: Ring of cyclotomic dyadic fractions of degree 8 :math:`\\mathbb{D}[\\omega]`.
 
-For more information, see [1]_.
-
-.. [1] Neil J. Ross and Peter Selinger, Optimal ancilla-free Clifford+T approximation of z-rotations, https://arxiv.org/pdf/1403.2975.
+For more information, see :cite:`rings_ross`.
 """
 
 from __future__ import annotations

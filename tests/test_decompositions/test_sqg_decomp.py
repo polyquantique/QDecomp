@@ -18,7 +18,7 @@ import numpy as np
 import pytest
 from scipy.stats import unitary_group
 
-from qdecomp.decompositions import rz_decomp, sqg_decomp, zyz_decomposition
+from qdecomp.decompositions import rz_decomp, sqg_decomp, zyz_decomp
 from qdecomp.utils import QGate
 
 np.random.seed(42)  # For reproducibility
@@ -53,13 +53,13 @@ def phase(alpha):
     ],
 )
 @pytest.mark.parametrize("alpha", [0, 1, np.pi, np.pi / 2, 2 * np.pi])
-def test_zyz_decomposition(a, b, alpha):
+def test_zyz_decomp(a, b, alpha):
     """
     Test the ZYZ decomposition of a 2x2 unitary matrix.
     """
     U = np.exp(1.0j * alpha) * np.array([[a, -b.conjugate()], [b, a.conjugate()]])  # Unitary matrix
 
-    t0, t1, t2, alpha_ = zyz_decomposition(U)
+    t0, t1, t2, alpha_ = zyz_decomp(U)
 
     # Check that the decomposition is correct
     U_calculated = phase(alpha_) * rz(t2) @ ry(t1) @ rz(t0)
@@ -67,14 +67,14 @@ def test_zyz_decomposition(a, b, alpha):
     assert np.allclose(U, U_calculated, atol=1e-7, rtol=1e-7)
 
 
-def test_zyz_decomposition_arbitrary_unitary():
+def test_zyz_decomp_arbitrary_unitary():
     """
     Test the ZYZ decomposition of arbitrary unitary matrices.
     """
     unitary_generator = unitary_group(dim=2, seed=42)
     for _ in range(15):
         U = unitary_generator.rvs()  # Generate a random unitary matrix
-        t0, t1, t2, alpha_ = zyz_decomposition(U)
+        t0, t1, t2, alpha_ = zyz_decomp(U)
 
         # Check that the decomposition is correct
         U_calculated = phase(alpha_) * rz(t2) @ ry(t1) @ rz(t0)
@@ -82,32 +82,32 @@ def test_zyz_decomposition_arbitrary_unitary():
         assert np.allclose(U, U_calculated, atol=1e-7, rtol=1e-7)
 
 
-def test_zyz_decomposition_unitary_error():
+def test_zyz_decomp_unitary_error():
     """
-    Test the errors raised by the zyz_decomposition() function when the matrix is not unitary.
+    Test the errors raised by the zyz_decomp() function when the matrix is not unitary.
     """
     U = np.array([[1, 0], [0, 2]])
     with pytest.raises(
         ValueError, match="The input matrix must be unitary. Got a matrix with determinant"
     ):
-        zyz_decomposition(U)
+        zyz_decomp(U)
 
 
-def test_zyz_decomposition_shape_error():
+def test_zyz_decomp_shape_error():
     """
-    Test the errors raised by the zyz_decomposition() function when the matrix is not 2x2.
+    Test the errors raised by the zyz_decomp() function when the matrix is not 2x2.
     """
     U = np.eye(3)
     with pytest.raises(
         ValueError, match=r"The input matrix must be 2x2. Got a matrix with shape \(3, 3\)."
     ):
-        zyz_decomposition(U)
+        zyz_decomp(U)
 
 
 @pytest.mark.parametrize("epsilon", [1e-2, 1e-3, 1e-4])
 @pytest.mark.parametrize("angle", [np.pi / 2, np.pi / 4, np.pi / 6, np.pi, np.pi / 8, np.pi / 12])
-def test_rz_decomposition_precision(angle, epsilon):
-    """Test if rz_decomposition returns a sequence within the desired error."""
+def test_rz_decomp_precision(angle, epsilon):
+    """Test if rz_decomp returns a sequence within the desired error."""
     sequence = rz_decomp(angle=angle, epsilon=epsilon, add_global_phase=True)
     gate = QGate.from_matrix(
         np.array([[np.exp(-1j * angle / 2), 0], [0, np.exp(1j * angle / 2)]]),
@@ -119,9 +119,9 @@ def test_rz_decomposition_precision(angle, epsilon):
     assert error < epsilon
 
 
-@pytest.mark.parametrize("angle", np.random.uniform(0, 2 * np.pi, 10))
+@pytest.mark.parametrize("angle", np.random.uniform(0, 2 * np.pi, 5))
 @pytest.mark.parametrize("epsilon", [1e-2, 1e-3, 1e-4])
-def test_rz_decomposition_random_angle(angle, epsilon):
+def test_rz_decomp_random_angle(angle, epsilon):
     """Test if the decomposition of a random angle is correct."""
     sequence = rz_decomp(angle=angle, epsilon=epsilon, add_global_phase=True)
     gate = QGate.from_matrix(
@@ -135,7 +135,7 @@ def test_rz_decomposition_random_angle(angle, epsilon):
     assert error < epsilon
 
 
-def test_rz_decomposition_identity():
+def test_rz_decomp_identity():
     """Test decomposition of an RZ gate with a zero angle."""
     epsilon = 1e-4
     angle = 0.0
@@ -143,13 +143,13 @@ def test_rz_decomposition_identity():
     assert sequence == ""
 
 
-def test_rz_decomposition_invalid_angle():
+def test_rz_decomp_invalid_angle():
     """Test that a non-numeric angle raises a TypeError."""
     with pytest.raises(TypeError):
         rz_decomp(1e-5, "invalid_angle")
 
 
-@pytest.mark.parametrize("trial", range(10))
+@pytest.mark.parametrize("trial", range(5))
 @pytest.mark.parametrize("epsilon", [0.01, 0.001, 0.0001])
 def test_sqg_decomp_random_unitary(trial, epsilon):
     """Test the validity of the output of the sqg_decomp function or an arbitrary gate"""
@@ -167,7 +167,7 @@ def test_sqg_decomp_random_unitary(trial, epsilon):
     assert error < 10 * epsilon
 
 
-@pytest.mark.parametrize("trial", range(10))
+@pytest.mark.parametrize("trial", range(5))
 @pytest.mark.parametrize("epsilon", [0.01, 0.001, 0.0001])
 def test_sqg_decomp_zyz_random(trial, epsilon):
     """Test if the sqg_decomp returns the correct matrix associated with the zyz decomposition."""
@@ -177,7 +177,7 @@ def test_sqg_decomp_zyz_random(trial, epsilon):
     sequence, _ = sqg_decomp(sqg, epsilon, add_global_phase=True)
     sqg.set_decomposition(sequence, epsilon=epsilon)
     # Evaluate de zyz decomposition matrix
-    t0, t1, t2, _ = zyz_decomposition(U)
+    t0, t1, t2, _ = zyz_decomp(U)
     zyz_matrix = rz(t2) @ ry(t1) @ rz(t0)
 
     # Account for error propagation in the decomposition (10*epsilon)

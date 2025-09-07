@@ -21,9 +21,7 @@ The module provides two main functions:
 
 - :func:`solve_grid_problem_2d`: Given two upright rectangles `A` and `B` in the complex plane, :func:`solve_grid_problem_2d` finds all the solutions ``x`` in the ring of cyclotomic integers with radicand 2, :math:`\\mathbb{Z}[\\omega]`, such that ``x`` is in A and the :math:`\\sqrt{2}`-conjugate of ``x`` is in B. The solutions are used as candidates for unitary matrix entries in the Clifford+T approximation of z-rotation gates.
 
-For more information on solving 1D and 2D grid problems, see [1]_.
-
-.. [1] Neil J. Ross and Peter Selinger, Optimal ancilla-free Clifford+T approximation of z-rotations, https://arxiv.org/pdf/1403.2975.
+For more information on solving 1D and 2D grid problems, see :cite:`grid_problem_ross`.
 """
 
 from __future__ import annotations

@@ -26,7 +26,7 @@ import json
 import os
 
 from qdecomp.rings import Domega
-from qdecomp.utils.exact_synthesis import apply_sequence, domega_matrix_to_tuple
+from qdecomp.utils.exact_synthesis.exact_synthesis import apply_sequence, domega_matrix_to_tuple
 
 
 def generate_sequences() -> list[str]:
@@ -79,9 +79,6 @@ def generate_s3() -> None:
     matrix is stored as a tuple with eight integers required to initialize a Domega object.
     It stores the result in a JSON file named `s3_table.json` in the same directory as
     this script.
-
-    Returns:
-        None
     """
     s3_sequences = generate_sequences()
     s3_dict = {seq: domega_matrix_to_tuple(apply_sequence(seq)) for seq in s3_sequences}

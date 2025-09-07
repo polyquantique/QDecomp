@@ -17,3 +17,11 @@ Tonelli-Shanks Module
     :members:
     :undoc-members:
     :show-inheritance:
+
+
+References
+~~~~~~~~~~
+
+.. bibliography::
+   :filter: cited and docname in docnames
+   :keyprefix: diophantine_

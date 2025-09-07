@@ -12,4 +12,8 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+"""
+Function to solve the Diophantine equation required in the z-rotational approximation algorithm.
+"""
+
 from qdecomp.utils.diophantine.diophantine_equation import solve_xi_eq_ttdag_in_d

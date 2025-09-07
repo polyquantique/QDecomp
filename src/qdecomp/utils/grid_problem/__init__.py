@@ -12,6 +12,10 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+"""
+Functions for grid problems, including z-rotational approximation and grid algorithms.
+"""
+
 from qdecomp.utils.grid_problem.grid_algorithms import *
 from qdecomp.utils.grid_problem.grid_operator import *
 from qdecomp.utils.grid_problem.grid_problem import *

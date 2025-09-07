@@ -17,9 +17,7 @@ This file defines the :class:`State` class, which is a key component in solving 
 Specifically, it is used to ensure that the uprightness of the ellipse pair is augmented to
 at least 1/6.
 
-For more information on the use of states, see Annex A of [1]_.
-
-.. [1] Neil J. Ross and Peter Selinger, Optimal ancilla-free Clifford+T approximation of z-rotations, https://arxiv.org/pdf/1403.2975.
+For more information on the use of states, see appendix A of :cite:`grid_problem_ross`.
 """
 
 from __future__ import annotations
@@ -66,7 +64,7 @@ class State:
     2×2 real matrices with determinant 1. These matrices correspond to ellipses,
     with the matrices encoding the dimensions and orientation of each ellipse.
 
-    This class is based on Appendix A of `Ross et al. (2014) <https://arxiv.org/pdf/1403.2975>`_,
+    This class is based on Appendix A of :cite:`grid_problem_ross`,
     and is used in the context of achieving at least 1/6 uprightness for both ellipses
     associated with a state.
 
