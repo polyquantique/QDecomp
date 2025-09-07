@@ -64,19 +64,19 @@ W = np.exp(1.0j * np.pi / 4)
 
 # Two qubit gates
 CNOT = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
-"""NDArray[float]: CNOT | CX gate. Controlled-Not with the control on the first qubit. Alias: 'CX'."""
+"""NDArray[float]: CNOT | CX gate. Controlled-Not with the control on the first qubit. Alias 'CX'."""
 CX = CNOT
 
 CNOT1 = np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0], [0, 1, 0, 0]])
-"""NDArray[float]: CNOT gate with the control on the second qubit. Alias: 'CX1'."""
+"""NDArray[float]: CNOT gate with the control on the second qubit. Alias 'CX1'."""
 CX1 = CNOT1
 
 DCNOT = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1], [0, 1, 0, 0]])
-"""NDArray[float]: DCNOT (Double CNOT) gate. CNOT gate followed by an inverted CNOT gate. Alias: 'DCX'."""
+"""NDArray[float]: DCNOT (Double CNOT) gate. CNOT gate followed by an inverted CNOT gate. Alias 'DCX'."""
 DCX = DCNOT
 
 INV_DCNOT = np.array([[1, 0, 0, 0], [0, 0, 0, 1], [0, 1, 0, 0], [0, 0, 1, 0]])
-"""NDArray[float]: Inverted DCNOT gate. Inverted CNOT gate followed by a CNOT gate. Alias: 'INV_DCX'."""
+"""NDArray[float]: Inverted DCNOT gate. Inverted CNOT gate followed by a CNOT gate. Alias 'INV_DCX'."""
 INV_DCX = INV_DCNOT
 
 SWAP = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 0, 0, 1]])
