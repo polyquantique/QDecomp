@@ -25,13 +25,13 @@ from qdecomp.utils.steiner_ellipse import *
 def test_find_points_type_error():
     """Test that find_points raises TypeError for invalid inputs."""
     with pytest.raises(TypeError, match="Both theta and epsilon must be convertible to floats."):
-        find_points("", [5, 2, 4, 5])
+        find_points([5, 2, 4, 5], "")
 
 
 def test_find_points_value_error_epsilon():
     """Test that find_points raises ValueError for invalid epsilon values."""
     with pytest.raises(ValueError, match="The maximal allowable error is 0.5."):
-        find_points(2.3345, 1.5098)
+        find_points(1.5098, 2.3345)
 
 
 angles = np.linspace(0, 4 * math.pi - 0.25, 20)
@@ -40,11 +40,11 @@ values = [0.25, 1e-2, 1e-4, 1e-8, 1e-16, 1e-32, 1e-64, 1e-128]
 
 @pytest.mark.parametrize("theta", angles)
 @pytest.mark.parametrize("epsilon", values)
-def test_find_points_valid_solutions(epsilon, theta):
+def test_find_points_valid_solutions(theta, epsilon):
     """Test that find_points returns valid points for given epsilon and theta."""
     dps = int(-mp.log10(epsilon**2)) + 8  # Set the decimal places for mpmath
     with mp.workdps(dps):
-        p1, p2, p3 = find_points(epsilon, theta)
+        p1, p2, p3 = find_points(theta, epsilon)
 
         n1 = mp.sqrt((p2[0] - p3[0]) ** 2 + (p2[1] - p3[1]) ** 2)
         n2 = 2 * mp.mpf(epsilon) * mp.sqrt(mp.mpf(1) - mp.mpf(epsilon) ** 2 / 4)
@@ -61,7 +61,7 @@ def test_grid_op(epsilon, theta):
     """Test the grid operator for various epsilon and theta values."""
     dps = int(-mp.log10(epsilon**2)) + 8  # Set the decimal places for mpmath
     with mp.workdps(dps):
-        p1, p2, p3 = find_points(epsilon, theta)
+        p1, p2, p3 = find_points(theta, epsilon)
         E, p_p = steiner_ellipse_def(p1, p2, p3)
         I = np.array([[mp.mpf(1), mp.mpf(0)], [mp.mpf(0), mp.mpf(1)]], dtype=object)
         inv_gop, gop = find_grid_operator(E, I)

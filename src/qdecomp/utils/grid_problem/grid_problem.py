@@ -36,7 +36,7 @@ from qdecomp.utils.grid_problem.grid_problem import *
 from qdecomp.utils.grid_problem.state import *
 
 
-def find_points(epsilon: float, theta: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+def find_points(theta: float, epsilon: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Find the three points which define the slice :math:`\\mathcal{R}_\\varepsilon`
     as shown in Section 7.2 of :cite:`grid_problem_ross`.

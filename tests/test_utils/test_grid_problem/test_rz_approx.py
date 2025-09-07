@@ -26,13 +26,13 @@ angles = [2 * math.pi / 3, math.pi / 16, 6, 0, 3 * math.pi / 2, 2 * math.pi]
 
 @pytest.mark.parametrize("theta", angles)
 @pytest.mark.parametrize("epsilon", errors)
-def test_rz_approx(epsilon, theta):
+def test_rz_approx(theta, epsilon):
     """Test the z_rotational_approximation function for various epsilon and theta values."""
     # Set the decimal places for mpmath based on epsilon
     dps = int(-math.log10(epsilon**2)) + 8
     # Run the main function with the specified precision
     with mp.workdps(dps):
-        U = z_rotational_approximation(epsilon, theta)
+        U = z_rotational_approximation(theta, epsilon)
     U_complex = np.array(U, dtype=complex)
     # Calculate the expected Rz gate matrix
     rz = np.array(
@@ -50,16 +50,16 @@ def test_rz_approx(epsilon, theta):
 def test_invalid_theta_type():
     """Test that z_rotational_approximation raises TypeError for invalid theta type."""
     with pytest.raises(TypeError):
-        z_rotational_approximation(0.1, "invalid_theta")
+        z_rotational_approximation("invalid_theta", 0.1)
 
 
 def test_invalid_epsilon_type():
     """Test that z_rotational_approximation raises TypeError for invalid epsilon type."""
     with pytest.raises(TypeError):
-        z_rotational_approximation("invalid_epsilon", 1.0)
+        z_rotational_approximation(1.0, "invalid_epsilon")
 
 
 def test_epsilon_too_large():
     """Test that z_rotational_approximation raises ValueError for epsilon >= 0.5."""
     with pytest.raises(ValueError):
-        z_rotational_approximation(0.6, math.pi)  # epsilon >= 0.5
+        z_rotational_approximation(math.pi, 0.6)  # epsilon >= 0.5

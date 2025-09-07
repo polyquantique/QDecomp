@@ -37,7 +37,7 @@ from qdecomp.utils.steiner_ellipse import ellipse_bbox, is_inside_ellipse, stein
 I = np.array([[mp.mpf(1), mp.mpf(0)], [mp.mpf(0), mp.mpf(1)]], dtype=object)
 
 
-def initialization(epsilon: float, theta: float) -> tuple[np.ndarray, np.ndarray]:
+def initialization(theta: float, epsilon: float) -> tuple[np.ndarray, np.ndarray]:
     """
     Initializes important parameters necessary to find the appropriate Rz approximation.
 
@@ -46,8 +46,8 @@ def initialization(epsilon: float, theta: float) -> tuple[np.ndarray, np.ndarray
     computations.
 
     Args:
-        epsilon (float): Maximum allowable error.
         theta (float): Angle of the z-rotational gate.
+        epsilon (float): Maximum allowable error.
 
     Returns:
         tuple: A tuple containing:
@@ -55,7 +55,7 @@ def initialization(epsilon: float, theta: float) -> tuple[np.ndarray, np.ndarray
             - bbox_2 (tuple): Bounding box coordinates for the transformed unit disk.
     """
     # Initializes the ellipses using the points
-    p1, p2, p3 = find_points(epsilon, theta)
+    p1, p2, p3 = find_points(theta, epsilon)
     E, p_p = steiner_ellipse_def(p1, p2, p3)
 
     # Find the grid operator using the ellipses
@@ -73,15 +73,15 @@ def initialization(epsilon: float, theta: float) -> tuple[np.ndarray, np.ndarray
     return bbox_1, bbox_2
 
 
-def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
+def z_rotational_approximation(theta: float, epsilon: float) -> np.ndarray:
     """
     Finds the z-rotational approximation up to an error :math:`\\varepsilon`.
 
     This function finds an approximation of a z-rotational inside the Clifford+T group.
 
     Args:
-        epsilon (float): Maximum allowable error :math:`\\varepsilon`.
         theta (float): Angle :math:`\\theta` of the z-rotational gate.
+        epsilon (float): Maximum allowable error :math:`\\varepsilon`.
 
     Returns:
         np.ndarray: Approximation :math:`M` of a z-rotational inside the Clifford+T subset.
@@ -104,7 +104,7 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
 
     # Verify the value of epsilon
     if epsilon >= 0.5:
-        raise ValueError("The maximal allowable error is 0.5.")
+        raise ValueError(f"The maximal allowable error is 0.5. Got {epsilon}.")
 
     # Checks if the angle is trivial
     exponent = round(2 * theta / math.pi)
@@ -128,7 +128,7 @@ def z_rotational_approximation(epsilon: float, theta: float) -> np.ndarray:
         return M
 
     # Run the initialization function
-    bbox_1, bbox_2 = initialization(epsilon, theta)
+    bbox_1, bbox_2 = initialization(theta, epsilon)
 
     # Initialize the exact solution vector in order to evaluate the error later
     z = np.array([mp.cos(theta / 2), -mp.sin(theta / 2)])
