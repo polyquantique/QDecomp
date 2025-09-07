@@ -37,6 +37,8 @@ This module combines the functions from the :mod:`qdecomp.decompositions.rz` and
         T H S T H S T [...] Z T H Z S H S
 """
 
+from typing import Union
+
 import numpy as np
 from numpy.typing import NDArray
 
@@ -217,7 +219,7 @@ def rz_decomp(angle: float, epsilon: float, add_global_phase=False) -> str:
 
 
 def sqg_decomp(
-    sqg: np.ndarray | QGate, epsilon: float, add_global_phase: bool = False
+    sqg: Union[np.ndarray, QGate], epsilon: float, add_global_phase: bool = False
 ) -> tuple[str, float]:
     """
     Decomposes any single qubit gate (SQG) into its optimal sequence of Clifford+T gates up to a given error.
