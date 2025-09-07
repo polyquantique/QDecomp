@@ -26,7 +26,7 @@ import json
 import os
 
 from qdecomp.rings import Domega
-from qdecomp.utils.exact_synthesis import apply_sequence, domega_matrix_to_tuple
+from qdecomp.utils.exact_synthesis.exact_synthesis import apply_sequence, domega_matrix_to_tuple
 
 
 def generate_sequences() -> list[str]:

@@ -30,7 +30,7 @@ S3 Table Generator Module
 
 
 References
-~~~~~~~~~~~~~~
+~~~~~~~~~~
 
 .. bibliography::
    :filter: cited and docname in docnames
