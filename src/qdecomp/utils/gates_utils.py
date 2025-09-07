@@ -19,13 +19,10 @@ These functions are used to check the Lie group of a matrix and to select the ap
 
 The module contains the following functions:
 
-    :func:`is_special`: Check if a matrix is special.
-
-    :func:`is_orthogonal`: Check if a matrix is orthogonal.
-
-    :func:`is_unitary`: Check if a matrix is unitary.
-
-    :func:`is_hermitian`: Check if a matrix is Hermitian.
+| :func:`is_special`: Check if a matrix is special.
+| :func:`is_orthogonal`: Check if a matrix is orthogonal.
+| :func:`is_unitary`: Check if a matrix is unitary.
+| :func:`is_hermitian`: Check if a matrix is Hermitian.
 """
 
 import numpy as np
@@ -36,30 +33,26 @@ __all__ = ["is_special", "is_orthogonal", "is_unitary", "is_hermitian"]
 
 def is_special(matrix: NDArray[np.floating]) -> bool:
     """
-    Check if a matrix is special.
-
-    Return True if the determinant of the matrix is 1 and False otherwise.
+    Check if a matrix is special, i.e., if its determinant is 1.
 
     Args:
         matrix (NDArray[float]): Matrix to check.
 
     Returns:
-        bool: True if the matrix is special, False otherwise.
+        bool: `True` if the matrix is special, `False` otherwise.
     """
     return np.isclose(np.linalg.det(matrix), 1)
 
 
 def is_orthogonal(matrix: NDArray[np.floating]) -> bool:
     """
-    Check if a matrix is orthogonal.
-
-    Return True if the matrix inverse is equal to its transpose and False otherwise.
+    Check if a matrix is orthogonal, i.e., if its inverse is equal to its transpose.
 
     Args:
         matrix (NDArray[float]): Matrix to check.
 
     Returns:
-        bool: True if the matrix is orthogonal, False otherwise.
+        bool: `True` if the matrix is orthogonal, `False` otherwise.
     """
     return (
         np.allclose(matrix @ matrix.T, np.identity(matrix.shape[0]))
@@ -69,15 +62,13 @@ def is_orthogonal(matrix: NDArray[np.floating]) -> bool:
 
 def is_unitary(matrix: NDArray[np.floating]) -> bool:
     """
-    Check if a matrix is unitary.
-
-    Return True if the matrix inverse is equal to its conjugate transpose and False otherwise.
+    Check if a matrix is unitary, i.e., if its inverse is equal to its conjugate transpose.
 
     Args:
         matrix (NDArray[float]): Matrix to check.
 
     Returns:
-        bool: True if the matrix is unitary, False otherwise.
+        bool: `True` if the matrix is unitary, `False` otherwise.
     """
     return (
         np.allclose(matrix @ matrix.T.conj(), np.identity(matrix.shape[0]))
@@ -87,14 +78,12 @@ def is_unitary(matrix: NDArray[np.floating]) -> bool:
 
 def is_hermitian(matrix: NDArray[np.floating]) -> bool:
     """
-    Check if a matrix is Hermitian.
-
-    Return True if the matrix is equal to its conjugate transpose and False otherwise.
+    Check if a matrix is Hermitian, i.e., if it is equal to its conjugate transpose.
 
     Args:
         matrix (NDArray[float]): Matrix to check.
 
     Returns:
-        bool: True if the matrix is Hermitian, False otherwise.
+        bool: `True` if the matrix is Hermitian, `False` otherwise.
     """
     return np.allclose(matrix, matrix.T.conj())

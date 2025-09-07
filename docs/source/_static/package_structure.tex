@@ -1,0 +1,98 @@
+\documentclass{standalone}
+
+% Tikz
+\usepackage{tikz}
+
+\usetikzlibrary{arrows,shapes,positioning,shadows,trees}
+
+\tikzset{
+  basic/.style  = {draw, text width=0.45\textwidth, drop shadow, font=\sffamily, rectangle},
+  main/.style   = {basic, rounded corners=6pt, thin, align=center, fill=blue!40, font=\large},
+  objective/.style = {basic, rounded corners=6pt, thin, align=center, fill=green!70, text width=0.25\textwidth},
+  subobjective/.style = {basic, rounded corners=6pt, thin, align=left, fill=green!30, text width=0.18\textwidth},
+  constraint/.style = {basic, rounded corners=0pt, thin, align=left, fill=red!50, text width=0.20\textwidth}
+}
+
+
+\begin{document}
+
+\usetikzlibrary{shadows, arrows.meta, positioning}
+
+\begin{tikzpicture}[
+  package/.style={rectangle, draw=blue!60, fill=blue!20, thick, rounded corners, drop shadow, align=center, minimum width=3cm, minimum height=1cm},
+  subpackage/.style={rectangle, draw=green!60, fill=green!20, thick, rounded corners, drop shadow, align=center, minimum width=3.6cm, minimum height=1cm},
+  module/.style={rectangle, draw=yellow!80!black, fill=yellow!20, thick, rounded corners, drop shadow, align=center, minimum width=3.2cm, minimum height=0.8cm},
+  arrow/.style={-Stealth, thick},
+  class/.style={rectangle, draw=orange!80!black, fill=orange!30, thick, rounded corners, drop shadow, align=center, minimum width=2.3cm, minimum height=0.6cm},
+  arrow/.style={-Stealth, thick},
+  subsubpackage/.style={rectangle, draw=green!60, fill=green!20, thick, rounded corners, drop shadow, align=center, minimum width=3.2cm, minimum height=0.8cm},
+  plotmodule/.style={rectangle, draw=yellow!80!black, fill=yellow!20, thick, rounded corners, drop shadow, align=center, minimum width=3.8cm, minimum height=0.8cm},
+]
+
+% Main package
+\node[package] (qdecomp) {qdecomp};
+
+% Subpackages
+\node[subpackage, below=1.5cm of qdecomp, xshift=-6cm] (decompositions) {decompositions};
+\node[subpackage, below=1.5cm of qdecomp, xshift=-2cm] (utils) {utils};
+\node[subpackage, below=1.5cm of qdecomp, xshift=2cm] (rings) {rings};
+\node[subpackage, below=1.5cm of qdecomp, xshift=6cm] (plot) {plot};
+
+\node[module, below=0.2cm of decompositions, xshift=0.4cm] (sqg) {sqg.py};
+\node[module, below=1.2cm of decompositions, xshift=0.4cm] (tqg) {tqg.py};
+\node[module, below=2.2cm of decompositions, xshift=0.4cm] (circuit) {circuit.py};
+\node[module, below=3.2cm of decompositions, xshift=0.4cm] (common_gate_decompositions) {common\_gate\\\_decompositions.py};
+
+\node[subsubpackage, below=0.2cm of utils, xshift=0.4cm] (grid_problem) {grid\_problem};
+\node[subsubpackage, below=1.2cm of utils, xshift=0.4cm] (diophantine) {diophantine};
+\node[subsubpackage, below=2.2cm of utils, xshift=0.4cm] (exact_synthesis) {exact\_synthesis};
+\node[module, below=3.2cm of utils, xshift=0.4cm] (steiner) {steiner\_ellipse.py};
+\node[module, below=4.2cm of utils, xshift=0.4cm] (gates) {gates.py};
+\node[module, below=5.2cm of utils, xshift=0.4cm] (gates_utils) {gates\_utils.py};
+\node[module, below=6.2cm of utils, xshift=0.4cm] (qgate) {qgate.py};
+\node[class, below=0.2cm of qgate, xshift=0.4cm] (QGate) {QGate};
+
+\node[module, below=0.2cm of rings, xshift=0.4cm] (rings_module) {rings.py};
+\node[class, below=0.2cm of rings_module, xshift=0.4cm] (D) {D};
+\node[class, below=1cm of rings_module, xshift=0.4cm] (Zsqrt2) {Zsqrt2};
+\node[class, below=1.8cm of rings_module, xshift=0.4cm] (Zomega) {Zomega};
+\node[class, below=2.6cm of rings_module, xshift=0.4cm] (Dsqrt2) {Dsqrt2};
+\node[class, below=3.4cm of rings_module, xshift=0.4cm] (Domega) {Domega};
+
+\node[plotmodule, below=0.2cm of plot, xshift=0.6cm] (plot_grid_problem) {plot\_grid\_problem.py};
+\node[plotmodule, below=1.2cm of plot, xshift=0.6cm] (plot_steiner_ellipse) {plot\_steiner\_ellipse.py};
+
+
+% Arrows
+\draw[arrow] (qdecomp.south) -- (decompositions.north);
+\draw[arrow] (qdecomp.south) -- (utils.north);
+\draw[arrow] (qdecomp.south) -- (rings.north);
+\draw[arrow] (qdecomp.south) -- (plot.north);
+
+\draw[arrow]  (decompositions.199) |- (sqg.west);
+\draw[arrow]  (decompositions.199) |- (tqg.west);
+\draw[arrow]  (decompositions.199) |- (circuit.west);
+\draw[arrow]  (decompositions.199) |- (common_gate_decompositions.west);
+
+\draw[arrow]  (utils.199) |- (grid_problem.west);
+\draw[arrow]  (utils.199) |- (diophantine.west);
+\draw[arrow]  (utils.199) |- (exact_synthesis.west);
+\draw[arrow]  (utils.199) |- (steiner.west);
+\draw[arrow]  (utils.199) |- (gates.west);
+\draw[arrow]  (utils.199) |- (gates_utils.west);
+\draw[arrow]  (utils.199) |- (qgate.west);
+\draw[arrow]  (qgate.200) |- (QGate.west);
+
+\draw[arrow]  (rings.198) |- (rings_module.west);
+\draw[arrow]  (rings_module.200) |- (D.west);
+\draw[arrow]  (rings_module.200) |- (Zsqrt2.west);
+\draw[arrow]  (rings_module.200) |- (Zomega.west);
+\draw[arrow]  (rings_module.200) |- (Dsqrt2.west);
+\draw[arrow]  (rings_module.200) |- (Domega.west);
+
+\draw[arrow]  (plot.197) |- (plot_grid_problem.west);
+\draw[arrow]  (plot.197) |- (plot_steiner_ellipse.west);
+
+\end{tikzpicture}
+
+\end{document}

@@ -13,5 +13,6 @@ Utils
     
     qgate
     gates
+    gates_utils
     steiner_ellipse
     
