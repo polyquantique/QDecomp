@@ -12,5 +12,10 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+"""
+Functions for plotting various aspects of the Clifford+T decomposition algorithms. Mainly used for
+debugging and visualization purposes.
+"""
+
 from qdecomp.plot.plot_grid_problem import *
 from qdecomp.plot.plot_steiner_ellipse import *

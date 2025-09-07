@@ -35,6 +35,8 @@ from qdecomp.utils.grid_problem.grid_operator import *
 from qdecomp.utils.grid_problem.grid_problem import *
 from qdecomp.utils.grid_problem.state import *
 
+__all__ = ["find_points", "find_grid_operator", "find_special_grid_operator"]
+
 
 def find_points(theta: float, epsilon: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """

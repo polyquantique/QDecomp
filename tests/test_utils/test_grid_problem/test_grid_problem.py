@@ -19,6 +19,7 @@ import numpy as np
 import pytest
 
 from qdecomp.utils.grid_problem.grid_problem import *
+from qdecomp.utils.grid_problem.state import State
 from qdecomp.utils.steiner_ellipse import *
 
 

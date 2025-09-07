@@ -12,5 +12,8 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+"""
+Functions for the exact synthesis of unitaries in the Clifford+T group.
+"""
+
 from qdecomp.utils.exact_synthesis.exact_synthesis import *
-from qdecomp.utils.exact_synthesis.s3_generator import *

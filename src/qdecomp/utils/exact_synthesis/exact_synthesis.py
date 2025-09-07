@@ -53,6 +53,8 @@ import numpy as np
 
 from qdecomp.rings import Domega
 
+__all__ = ["exact_synthesis_alg", "optimize_sequence"]
+
 H_11: Domega = Domega((-1, 1), (0, 0), (1, 1), (0, 0))
 r""" Domega: First element of H gate (:math:`\frac{1}{\sqrt{2}}`). """
 

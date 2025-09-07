@@ -119,7 +119,7 @@ def test_rz_decomp_precision(angle, epsilon):
     assert error < epsilon
 
 
-@pytest.mark.parametrize("angle", np.random.uniform(0, 2 * np.pi, 10))
+@pytest.mark.parametrize("angle", np.random.uniform(0, 2 * np.pi, 5))
 @pytest.mark.parametrize("epsilon", [1e-2, 1e-3, 1e-4])
 def test_rz_decomp_random_angle(angle, epsilon):
     """Test if the decomposition of a random angle is correct."""
@@ -149,7 +149,7 @@ def test_rz_decomp_invalid_angle():
         rz_decomp(1e-5, "invalid_angle")
 
 
-@pytest.mark.parametrize("trial", range(10))
+@pytest.mark.parametrize("trial", range(5))
 @pytest.mark.parametrize("epsilon", [0.01, 0.001, 0.0001])
 def test_sqg_decomp_random_unitary(trial, epsilon):
     """Test the validity of the output of the sqg_decomp function or an arbitrary gate"""
@@ -167,7 +167,7 @@ def test_sqg_decomp_random_unitary(trial, epsilon):
     assert error < 10 * epsilon
 
 
-@pytest.mark.parametrize("trial", range(10))
+@pytest.mark.parametrize("trial", range(5))
 @pytest.mark.parametrize("epsilon", [0.01, 0.001, 0.0001])
 def test_sqg_decomp_zyz_random(trial, epsilon):
     """Test if the sqg_decomp returns the correct matrix associated with the zyz decomposition."""

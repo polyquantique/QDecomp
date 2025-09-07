@@ -12,4 +12,8 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
+"""
+Declaration of classes allowing to carry out symbolic computations with mathematical rings.
+"""
+
 from qdecomp.rings.rings import *
