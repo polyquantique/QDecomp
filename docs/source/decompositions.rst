@@ -31,7 +31,7 @@ Circuit Module
 
 
 References
-~~~~~~~~~~~~~~
+~~~~~~~~~~
 
 .. bibliography::
    :filter: cited and docname in docnames
