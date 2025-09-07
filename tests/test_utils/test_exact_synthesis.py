@@ -34,11 +34,11 @@ from qdecomp.utils.exact_synthesis.exact_synthesis import (
     apply_sequence,
     domega_matrix_to_tuple,
     exact_synthesis_reduc,
-    generate_sequences,
     get_omega_exponent,
     is_unitary_domega,
     s3_decomposition,
 )
+from qdecomp.utils.exact_synthesis.s3_generator import generate_s3
 
 # Set a fixed random seed for reproducibility
 np.random.seed(42)
