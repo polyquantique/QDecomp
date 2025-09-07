@@ -55,6 +55,8 @@ module is an implementation of the algorithm presented in Section 6 and Appendix
     t = None
 """
 
+from typing import Union
+
 from math import log, sqrt
 
 from qdecomp.rings import *
@@ -341,7 +343,7 @@ def xi_fact(xi: Zsqrt2) -> list[tuple[Zsqrt2, int]]:
     return xi_fact_list
 
 
-def pi_fact_into_xi(pi: int) -> Zsqrt2 | None:
+def pi_fact_into_xi(pi: int) -> Union[Zsqrt2, None]:
     r"""
     Solve the equation :math:`p_i = \xi_i \cdot \xi_i^{\bullet} = a^2 - 2 \cdot b^2` where :math:`^{\bullet}` denotes
     the :math:`\sqrt{2}` conjugate. :math:`p_i` is a prime integer and :math:`\xi_i = a + b \sqrt{2}` is an element of
@@ -367,7 +369,7 @@ def pi_fact_into_xi(pi: int) -> Zsqrt2 | None:
     return Zsqrt2(int(sqrt(pi + 2 * b**2)), b)
 
 
-def xi_i_fact_into_ti(xi_i: Zsqrt2, check_prime: bool = False) -> Zomega | None:
+def xi_i_fact_into_ti(xi_i: Zsqrt2, check_prime: bool = False) -> Union[Zomega, None]:
     r"""
     Solve the equation :math:`\xi_i = t_i \cdot t_i^\dagger` where :math:`^\dagger` denotes the complex conjugate.
     :math:`\xi_i` is a prime element in :math:`\mathbb{Z}[\sqrt{2}]` and :math:`t_i` is an element of :math:`\mathbb{Z}[\omega]`. :math:`\xi_i` has a
@@ -436,7 +438,7 @@ def xi_i_fact_into_ti(xi_i: Zsqrt2, check_prime: bool = False) -> Zomega | None:
         return None
 
 
-def solve_xi_sim_ttdag_in_z(xi: Zsqrt2) -> Zomega | None:
+def solve_xi_sim_ttdag_in_z(xi: Zsqrt2) -> Union[Zomega, None]:
     r"""
     Solve the equation :math:`\xi \sim t \cdot t^\dagger` for :math:`t` where :math:`^\dagger` denotes the complex conjugate.
     :math:`\xi` is an element of :math:`\mathbb{Z}[\sqrt{2}]` and :math:`t` is an element of :math:`\mathbb{Z}[\omega]`. This function returns the
@@ -469,7 +471,7 @@ def solve_xi_sim_ttdag_in_z(xi: Zsqrt2) -> Zomega | None:
     return t
 
 
-def solve_xi_eq_ttdag_in_d(xi: Dsqrt2) -> Domega | None:
+def solve_xi_eq_ttdag_in_d(xi: Dsqrt2) -> Union[Domega, None]:
     r"""
     Solve the equation :math:`\xi = t \cdot t^\dagger` for :math:`t` where :math:`^\dagger` denotes the complex conjugate. :math:`\xi`
     is an element of :math:`\mathbb{D}[\sqrt{2}]` and :math:`t` is an element of :math:`\mathbb{D}[\omega]`. This function returns the first

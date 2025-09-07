@@ -18,9 +18,10 @@ The module also contains useful functions allowing to find the bounding box (BBO
 determine whether points are inside an ellipse using its matrix definition.
 """
 
+from typing import Union
+
 import mpmath as mp
 import numpy as np
-from typing import Union
 
 __all__ = [
     "assert_steiner_ellipse",

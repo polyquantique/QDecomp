@@ -20,6 +20,8 @@ For more details on the definition of an ellipse and its BBOX, refer to
 the :mod:`qdecomp.utils.steiner_ellipse` module.
 """
 
+from typing import Union
+
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.patches import Rectangle
@@ -30,7 +32,7 @@ __all__ = ["plot_ellipse"]
 
 
 def plot_ellipse(
-    ax: plt.Axes, D: np.ndarray, p: np.ndarray, points: np.ndarray | None = None
+    ax: plt.Axes, D: np.ndarray, p: np.ndarray, points: Union[np.ndarray, None] = None
 ) -> None:
     """
     Plot the ellipse defined by matrix D and center p. The function also plots the BBOX of the
