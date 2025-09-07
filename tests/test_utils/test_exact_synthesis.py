@@ -38,7 +38,7 @@ from qdecomp.utils.exact_synthesis.exact_synthesis import (
     is_unitary_domega,
     s3_decomposition,
 )
-from qdecomp.utils.exact_synthesis.s3_generator import generate_s3
+from qdecomp.utils.exact_synthesis.s3_generator import generate_s3, generate_sequences
 
 # Set a fixed random seed for reproducibility
 np.random.seed(42)
@@ -357,7 +357,6 @@ def test_generate_s3_creates_file():
     """Test if generate_s3 creates the s3_table.json file."""
     output_file = os.path.join(
         os.path.dirname(__file__),
-        "..",
         "..",
         "..",
         "src",
