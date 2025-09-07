@@ -19,4 +19,4 @@ QDecomp
 A library for quantum circuit decompositions and approximations.
 """
 
-__version__ = "0.1.0"
+__version__ = "1.0.0"
