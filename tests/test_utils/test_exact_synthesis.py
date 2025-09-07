@@ -21,7 +21,7 @@ import pytest
 
 from qdecomp.rings import Domega  # type: ignore[import]
 from qdecomp.utils.exact_synthesis import *  # type: ignore[import]
-from qdecomp.utils.exact_synthesis import OMEGA, ONE_DOMEGA, ZERO_DOMEGA, H, I, T, W
+from qdecomp.utils.exact_synthesis.exact_synthesis import OMEGA, ONE_DOMEGA, ZERO_DOMEGA, H, I, T, W
 
 # Set a fixed random seed for reproducibility
 np.random.seed(42)
