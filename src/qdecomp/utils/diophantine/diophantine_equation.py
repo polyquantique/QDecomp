@@ -55,9 +55,8 @@ module is an implementation of the algorithm presented in Section 6 and Appendix
     t = None
 """
 
-from typing import Union
-
 from math import log, sqrt
+from typing import Union
 
 from qdecomp.rings import *
 from qdecomp.utils.diophantine.tonelli_shanks import tonelli_shanks_algo

@@ -22,6 +22,7 @@ help:
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 
+.PHONY: figures
 figures: $(FIGURES:=.svg)
 
 %.dvi: %.tex
@@ -31,6 +32,7 @@ figures: $(FIGURES:=.svg)
 %.svg: %.dvi
 	dvisvgm -n -o $@ $<
 
+.PHONY: clean
 clean:
 	del /q ${FIGURES}.dvi ${FIGURES}.svg
 	del /q ${FIGURES}.aux ${FIGURES}.log ${FIGURES}.fdb_latexmk ${FIGURES}.fls ${FIGURES}.pdf ${FIGURES}.synctex.gz
