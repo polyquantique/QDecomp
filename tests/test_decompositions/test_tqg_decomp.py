@@ -20,8 +20,8 @@ import numpy as np
 import pytest
 from scipy.stats import ortho_group, special_ortho_group, unitary_group
 
-from qdecomp.decompositions.tqg import *
 from qdecomp.decompositions.common_gate_decompositions import common_decomp
+from qdecomp.decompositions.tqg import *
 from qdecomp.utils import QGate, gates
 
 np.random.seed(42)  # For reproducibility

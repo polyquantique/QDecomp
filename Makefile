@@ -45,6 +45,13 @@ docs:
 	$(MAKE) -C $(DOCS_DIR) html
 
 
+# Format the code with black and isort
+.PHONY: format
+format:
+	$(PYTHON) -m isort $(SRC_DIR) $(TEST_DIR)
+	$(PYTHON) -m black $(SRC_DIR) $(TEST_DIR) -l 100
+
+
 # Run the tests
 .PHONY: test
 test:
