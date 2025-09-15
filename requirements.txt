@@ -1,1 +1,4 @@
--e .[dev]
+numpy>=2.0.2
+mpmath>=1.3.0
+scipy
+matplotlib
