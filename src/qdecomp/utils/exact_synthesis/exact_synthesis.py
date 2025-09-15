@@ -310,7 +310,7 @@ def domega_matrix_to_tuple(array: np.ndarray) -> tuple:
         >>> import numpy as np
         >>> from qdecomp.utils.exact_synthesis import domega_matrix_to_tuple, ZERO_DOMEGA, ONE_DOMEGA
         >>> from qdecomp.rings import Domega
-        
+
         # Define the X gate with 0 and 1 as Domega objects
         >>> X = np.array([[ZERO_DOMEGA, ONE_DOMEGA], [ONE_DOMEGA, ZERO_DOMEGA]], dtype=Domega)
 

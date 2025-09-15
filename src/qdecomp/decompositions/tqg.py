@@ -289,7 +289,7 @@ def canonical_decomp(U: NDArray[np.floating]) -> CanonicalDecomposition:
         >>> import numpy as np
         >>> from qdecomp.decompositions import canonical_decomp
         >>> from qdecomp.utils import gates
-        
+
         # Define a 4 x 4 unitary matrix
         >>> U = unitary_group.rvs(4)
 
@@ -521,7 +521,7 @@ def cnot_decomp(U: NDArray[np.floating]) -> list[QGate]:
 
         >>> from qdecomp.decompositions import cnot_decomp
         >>> from scipy.stats import unitary_group
-        
+
         # Use an arbitrary 4 x 4 unitary matrix
         >>> U = unitary_group.rvs(4)
 
@@ -562,7 +562,7 @@ def cnot_decomp(U: NDArray[np.floating]) -> list[QGate]:
         if is_special(matrix):
             return so4_decomp(U)
         return o4_det_minus1_decomp(U)
-    
+
     return u4_decomp(U)
 
 

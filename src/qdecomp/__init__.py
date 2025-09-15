@@ -13,7 +13,7 @@
 #    limitations under the License.
 
 """
-QDecomp 
+QDecomp
 -------
 
 A library for quantum circuit decompositions and approximations.

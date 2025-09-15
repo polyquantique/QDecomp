@@ -17,6 +17,7 @@
 import numpy as np
 import pytest
 from scipy.stats import unitary_group
+
 from qdecomp.decompositions import circuit_decomp
 from qdecomp.utils import QGate
 

@@ -42,7 +42,7 @@ def circuit_decomp(
     """
 
     # Test if input circuit is an iterable
-    if not hasattr(circuit, '__iter__'):
+    if not hasattr(circuit, "__iter__"):
         raise TypeError(f"Input circuit must be an iterable, got {type(circuit)}")
 
     # Initialize the decomposed circuit
