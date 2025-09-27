@@ -55,12 +55,12 @@ format:
 # Run the tests
 .PHONY: test
 test:
-	$(PYTHON) -m pytest $(TEST_DIR)
+	$(PYTHON) -m pytest $(TEST_DIR) -n auto
 
 # Run the tests with coverage
 .PHONY: test_cov
 test_cov:
-	$(PYTHON) -m pytest --cov=$(SRC_DIR) $(TEST_DIR) --cov-report=html --cov-branch
+	$(PYTHON) -m pytest --cov=$(SRC_DIR) $(TEST_DIR) --cov-report=html --cov-branch -n auto
 
 # Show the test coverage report
 .PHONY: test_report
