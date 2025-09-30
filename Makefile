@@ -20,7 +20,7 @@ else
     DETECTED_OS := $(shell uname -s)
 endif
 
-# Python executable
+# Set platform-specific commands
 ifeq ($(DETECTED_OS), Windows)
 	PYTHON := $(shell where py 2>NUL || where py3 2>NUL || where python 2>NUL || where python3 2>NUL)
 	OPEN := cmd /c start
