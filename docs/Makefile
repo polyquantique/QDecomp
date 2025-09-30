@@ -38,9 +38,9 @@ BUILDDIR      = build
 
 # LaTeX figure generation
 SOURCE_DIR = source
-STATIC_DIR = source\_static
+STATIC_DIR = source/_static
 FIGURES = package_structure
-FIGURES := $(addprefix $(STATIC_DIR)\, $(FIGURES))
+FIGURES := $(addprefix $(STATIC_DIR)/, $(FIGURES))
 
 
 # Set the default goal

@@ -83,10 +83,10 @@ test_cov:
 # Show the test coverage report
 .PHONY: test_report
 test_report:
-	$(OPEN) .\htmlcov\index.html
+	$(OPEN) ./htmlcov/index.html
 
 
 # Clean the repository
 .PHONY: clean
 clean:
-	$(RMDIR) .\htmlcov
+	$(RMDIR) ./htmlcov
