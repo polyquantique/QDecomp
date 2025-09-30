@@ -24,11 +24,13 @@ endif
 ifeq ($(DETECTED_OS), Windows)
 	PYTHON := $(shell where py 2>NUL || where py3 2>NUL || where python 2>NUL || where python3 2>NUL)
 	OPEN := cmd /c start
-	RM := del /q
+	RMFILES := del /q
+    RMDIR := rmdir /s /q
 else
 	PYTHON := $(shell which py 2>/dev/null || which py3 2>/dev/null || which python 2>/dev/null || which python3 2>/dev/null)
 	OPEN := open
-	RM := rm -rf
+	RMFILES := rm -f
+    RMDIR := rm -rf
 endif
 
 
@@ -36,6 +38,22 @@ endif
 SRC_DIR := src
 DOCS_DIR := docs
 TEST_DIR := tests
+
+
+# Set the default goal
+.DEFAULT_GOAL := help
+
+
+# Show available targets  
+.PHONY: help
+help:
+	@echo Available targets:
+	@echo   docs          - Build documentation
+	@echo   format        - Format source and test code using isort and black
+	@echo   test          - Run tests
+	@echo   test_cov      - Run tests with coverage
+	@echo   test_report   - Open coverage report
+	@echo   clean         - Remove coverage artifacts
 
 
 # Generate the documentation
@@ -71,4 +89,4 @@ test_report:
 # Clean the repository
 .PHONY: clean
 clean:
-	$(RM) .\htmlcov
+	$(RMDIR) .\htmlcov
