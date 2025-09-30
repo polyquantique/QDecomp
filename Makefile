@@ -89,4 +89,4 @@ test_report:
 # Clean the repository
 .PHONY: clean
 clean:
-	$(RMDIR) ./htmlcov
+	$(RMDIR) htmlcov
