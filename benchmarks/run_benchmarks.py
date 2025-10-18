@@ -1,4 +1,25 @@
-import cProfile
+# Copyright 2024-2025 Olivier Romain, Francis Blais, Vincent Girouard, Marius Trudeau
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+"""
+This script defines and runs profiling benchmarks for different versions of the `qdecomp` package.
+It creates temporary virtual environments for each version, installs the package, and runs the
+profiling script.
+"""
+
+from typing import List
+
 import os
 import tempfile
 import venv
@@ -8,7 +29,7 @@ import shutil
 from benchmark_utils import get_package_versions
 
 
-def filter_versions(versions):
+def filter_versions(versions: List[str]) -> List[str]:
     """
     Filters a list of version identifiers, returning only those that meet the specified criteria for testing.
     The specific filtering logic should be implemented as needed, for example, to include only versions greater than or equal to a certain threshold.
@@ -22,9 +43,18 @@ def filter_versions(versions):
     # Filtering logic here, e.g., only versions >= 1.0.0
     return versions
 
-def run_single_benchmark(version):
+def run_single_benchmark(version: str) -> None:
     """
     Runs the profiling of the package for the given version.
+
+    To profile a specific version, this function creates a temporary virtual environment, installs
+    the specified version of the package, copies the profiling scripts (`benchmarking_functions.py`)
+    in the virtual environment and runs the profiling script within that environment. Copying the
+    profiling script ensures that the latest version of the script is used, as it may change between
+    package versions.
+
+    Args:
+        version (str): The version of the package to profile.
     """
     with tempfile.TemporaryDirectory() as tmpdir:
         venv_dir = os.path.join(tmpdir, "venv")
@@ -54,13 +84,13 @@ def run_single_benchmark(version):
             print(f"Return code: {e.returncode}")
             print(f"Command: {e.cmd}")
 
-def run_all_benchmarks(rerun=False, versions=None):
+def run_all_benchmarks(versions: List[str] = None, rerun: bool = False) -> None:
     """
     Runs the profiling for all relevant package versions.
 
     Args:
+        versions (list): A list of versions to profile. If `None`, profiles versions obtained from `get_package_versions()` after filtering.
         rerun (bool): If `True`, re-runs profiling even if profiles already exist. Default is `False`.
-        specific_versions (list): A list of specific package versions to profile. If `None`, profiles all versions.
     """
     if versions is None:
         versions = get_package_versions()
@@ -75,6 +105,7 @@ def run_all_benchmarks(rerun=False, versions=None):
     for v in versions:
         run_single_benchmark(v)
 
+
 if __name__ == "__main__":
     # run_single_benchmark("1.0.1")
-    run_all_benchmarks(rerun=False, versions=None)
+    run_all_benchmarks(versions=None, rerun=False)

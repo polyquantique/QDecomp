@@ -1,3 +1,22 @@
+# Copyright 2024-2025 Olivier Romain, Francis Blais, Vincent Girouard, Marius Trudeau
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+"""
+This file contains utility functions for benchmarking the `qdecomp` package.
+"""
+
+from typing import Union
 import json
 import os
 import urllib.request
@@ -8,7 +27,10 @@ import pstats
 import numpy as np
 
 
-def machine_info():
+def gather_machine_info() -> None:
+    """
+    Collect and save information about the machine running the benchmarks.
+    """
     print("Benchmarks performance depends on the machine used. Please provide the following information:")
     os_name = input("Operating System: ")
     arch = input("Architecture (e.g. x64): ")
@@ -27,14 +49,51 @@ def machine_info():
     json_path = os.path.join(os.path.dirname(__file__), 'machine.json')
     json.dump(machine_info, open(json_path, 'w'), indent=4)
 
-def get_package_versions():
+def load_machine_info(as_dict=True) -> Union[dict, str]:
+    """
+    Load and return information about the machine running the benchmarks. If `as_dict` is `True`,
+    returns the information as a dictionary. Otherwise, the information is returned as a string.
+
+    Returns:
+        dict: A dictionary containing machine information such as OS, architecture, CPU, number of CPUs, and RAM.
+    """
+    json_path = os.path.join(os.path.dirname(__file__), 'machine.json')
+    with open(json_path, 'r', encoding='utf-8') as f:
+        info = json.load(f)
+    
+    if as_dict:
+        return info
+    
+    else:
+        info_str = (
+            f"Operating System: {info['os']}\n"
+            f"Architecture: {info['arch']}\n"
+            f"CPU: {info['cpu']}\n"
+            f"Number of CPUs: {info['num_cpu']}\n"
+            f"RAM: {info['ram']}\n"
+        )
+        return info_str
+
+def get_package_versions() -> list[str]:
+    """
+    Retrieves all available versions of the `qdecomp` package from PyPI.
+
+    Returns:
+        list: A sorted list of version strings available for the `qdecomp` package.
+    """
     url = f"https://pypi.org/pypi/qdecomp/json"
     with urllib.request.urlopen(url) as resp:
         data = json.load(resp)
 
     return sorted(data["releases"].keys())
 
-def load_profile():
+def load_profile() -> pd.DataFrame:
+    """
+    Loads profiling data from the `data` directory, extracting relevant statistics for analysis.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing profiling data across different versions, angles, and epsilon values.
+    """
     data_path = os.path.join(os.path.dirname(__file__), "data")
     versions = os.listdir(data_path)
     data = pd.DataFrame(columns=["version", "angle", "epsilon", "cum_time"])
@@ -59,7 +118,11 @@ def load_profile():
     
     return data
 
-def plot_version_profiling():
+def plot_version_profiling() -> None:
+    """
+    Plots the profiling results across different package versions and saves the graph as an SVG file
+    in the `graphs` directory.
+    """
     data = load_profile()
     
     version_list = sorted(data["version"].unique(), key=lambda x: list(map(int, x[1:].split('.'))))
@@ -80,7 +143,11 @@ def plot_version_profiling():
     plt.tight_layout()
     plt.savefig(os.path.join(os.path.dirname(__file__), "graphs", "version_profiling.svg"))
 
-def plot_epsilon_profiling():
+def plot_epsilon_profiling() -> None:
+    """
+    Plots the profiling results for different epsilon values and saves the graph as an SVG file
+    in the `graphs` directory. The latest package version is used for this plot.
+    """
     data = load_profile()
 
     version = max(data["version"].unique(), key=lambda x: list(map(int, x[1:].split('.'))))

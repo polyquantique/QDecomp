@@ -38,6 +38,7 @@ endif
 SRC_DIR := src
 DOCS_DIR := docs
 TEST_DIR := tests
+BENCHMARK_DIR := benchmarks
 
 
 # Set the default goal
@@ -48,12 +49,14 @@ TEST_DIR := tests
 .PHONY: help
 help:
 	@echo Available targets:
-	@echo   docs          - Build documentation
-	@echo   format        - Format source and test code using isort and black
-	@echo   test          - Run tests
-	@echo   test_cov      - Run tests with coverage
-	@echo   test_report   - Open coverage report
-	@echo   clean         - Remove coverage artifacts
+	@echo   docs              - Build documentation
+	@echo   format            - Format source and test code using isort and black
+	@echo   test              - Run tests
+	@echo   test_cov          - Run tests with coverage
+	@echo   test_report       - Open coverage report
+	@echo   run_benchmarks    - Run benchmarks for all versions skipping existing profiles
+	@echo   show_benchmarks   - Show benchmark results
+	@echo   clean             - Remove coverage artifacts
 
 
 # Generate the documentation
@@ -84,6 +87,17 @@ test_cov:
 .PHONY: test_report
 test_report:
 	$(OPEN) ./htmlcov/index.html
+
+
+# Run the benchmarks
+.PHONY: run_benchmarks
+run_benchmarks:
+	$(MAKE) -C $(BENCHMARK_DIR) run_missing_versions
+
+# Show the benchmark results
+.PHONY: show_benchmarks
+show_benchmarks:
+	$(MAKE) -C $(BENCHMARK_DIR) show
 
 
 # Clean the repository
