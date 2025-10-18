@@ -30,8 +30,12 @@ else
 endif
 
 
-# Directories
+# Useful variables
+DATA_DIR := data
 GRAPH_DIR := graphs
+
+DEFAULT_PROFILE := rz_decomp-angle1_8325957145940461-epsilon0_001.prof
+VERSION := $(shell "$(PYTHON)" -c "import qdecomp; print(qdecomp.__version__.replace('.', '_'))")
 
 
 # Set the default goal
@@ -42,10 +46,12 @@ GRAPH_DIR := graphs
 .PHONY: help
 help:
 	@echo Available targets:
+	@echo $(VERSION)
 	@echo   run_missing_versions   - Run benchmarks for specified package versions.
 	@echo   run_current_version    - Run benchmarks for the current package version.
 	@echo   rerun_all              - Rerun all benchmarks, even if profiles already exist.
-	@echo   show                   - Show profiling results.
+	@echo   show_graphs            - Plot profiling results and show them.
+	@echo   show_profiling         - Show the profiling graph for a default set of parameters.
 
 
 # Run benchmarks for missing package versions
@@ -64,10 +70,15 @@ rerun_all:
 	$(PYTHON) -c "from run_benchmarks import run_all_benchmarks; run_all_benchmarks(rerun=True)"
 
 
-# Show profiling results
-.PHONY: show
-show:
+# Plot profiling results
+.PHONY: show_graphs
+show_graphs:
 	$(PYTHON) -c "import benchmark_utils as util; util.plot_version_profiling()"
 	$(PYTHON) -c "import benchmark_utils as util; util.plot_epsilon_profiling()"
 	$(OPEN) $(GRAPH_DIR)/version_profiling.svg
 	$(OPEN) $(GRAPH_DIR)/epsilon_profiling.svg
+
+# Show the profiling graph for a default set of parameters
+.PHONY: show_profiling
+show_profiling:
+	$(PYTHON) -m snakeviz $(DATA_DIR)/v$(VERSION)/$(DEFAULT_PROFILE)
