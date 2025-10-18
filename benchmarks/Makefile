@@ -34,7 +34,7 @@ endif
 DATA_DIR := data
 GRAPH_DIR := graphs
 
-DEFAULT_PROFILE := rz_decomp-angle1_8325957145940461-epsilon0_001.prof
+DEFAULT_PROFILE := rz_decomp-angle1_8325957145940461-epsilon1e-07.prof
 VERSION := $(shell "$(PYTHON)" -c "import qdecomp; print(qdecomp.__version__.replace('.', '_'))")
 
 

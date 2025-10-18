@@ -109,7 +109,7 @@ def load_profile() -> pd.DataFrame:
                     # val: (ncalls, nprimitivecalls, tottime, cumtime, callers)
                     if "rz_decomp" in key[2]:
                         version = v.replace("_", ".")
-                        epsilon = re.search(r"epsilon([0-9_]+)", profile).group(1).replace("_", ".")
+                        epsilon = re.search(r"epsilon(0_[0-9]+|1e-[0-9]+)", profile).group(1).replace("_", ".")
                         angle = re.search(r"angle([0-9_]+)", profile).group(1).replace("_", ".")
                         cum_time = val[3]
 
@@ -133,7 +133,7 @@ def plot_version_profiling() -> None:
     for e in epsilon_list:
         time_list = [data[(data["version"] == v) & (data["epsilon"] == e)]["cum_time"].mean() for v in version_list]
         
-        plt.plot(version_list, time_list, marker="o", label=f"$\\varepsilon$ = {e}")    
+        plt.semilogy(version_list, time_list, marker="o", label=f"$\\varepsilon$ = {e}")    
 
     plt.xlabel("Version")
     plt.ylabel("Average Runtime (s)")
@@ -160,7 +160,7 @@ def plot_epsilon_profiling() -> None:
     for a in angle_list:
         time_list = [data[(data["version"] == version) & (data["angle"] == a) & (data["epsilon"] == e)]["cum_time"].mean() for e in epsilon_list]
 
-        plt.semilogx(inv_epsilon_list, time_list, marker="o", label=f"$\\theta$ = {a/np.pi:.2f}$\\pi$")
+        plt.loglog(inv_epsilon_list, time_list, marker="o", label=f"$\\theta$ = {a/np.pi:.2f}$\\pi$")
 
     plt.xlabel("Inverse of the Decomposition Tolerance ($\\varepsilon^{-1}$)")
     plt.ylabel("Runtime (s)")
