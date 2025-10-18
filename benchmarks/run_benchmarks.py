@@ -18,13 +18,12 @@ It creates temporary virtual environments for each version, installs the package
 profiling script.
 """
 
-from typing import List
-
 import os
+import shutil
+import subprocess
 import tempfile
 import venv
-import subprocess
-import shutil
+from typing import List
 
 from benchmark_utils import get_package_versions
 
@@ -42,6 +41,7 @@ def filter_versions(versions: List[str]) -> List[str]:
     """
     # Filtering logic here, e.g., only versions >= 1.0.0
     return versions
+
 
 def run_single_benchmark(version: str) -> None:
     """
@@ -72,19 +72,30 @@ def run_single_benchmark(version: str) -> None:
 
         # Install specific package versions and run the profiling script.
         try:
-            subprocess.check_call([python_bin, "-m", "pip", "install", "--upgrade", "pip"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            subprocess.check_call([python_bin, "-m", "pip", "install", f"qdecomp=={version}"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            subprocess.check_call(
+                [python_bin, "-m", "pip", "install", "--upgrade", "pip"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            subprocess.check_call(
+                [python_bin, "-m", "pip", "install", f"qdecomp=={version}"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
 
             # Copy the benchmarking script into the virtual environment.
             # This ensures the latest version of benchmarking_functions.py is used (it might change from one version to another).
             shutil.copyfile(script_to_copy_path, venv_script_path)
 
-            subprocess.check_call([python_bin, venv_script_path, "--data_path", data_path], text=True)
+            subprocess.check_call(
+                [python_bin, venv_script_path, "--data_path", data_path], text=True
+            )
 
         except subprocess.CalledProcessError as e:
             print(f"Error occurred while processing version {version}: {e}")
             print(f"Return code: {e.returncode}")
             print(f"Command: {e.cmd}")
+
 
 def run_all_benchmarks(versions: List[str] = None, rerun: bool = False) -> None:
     """
@@ -102,7 +113,9 @@ def run_all_benchmarks(versions: List[str] = None, rerun: bool = False) -> None:
         benchmarks_dir = os.path.join(os.path.dirname(__file__), "data")
         if os.path.exists(benchmarks_dir):
             benchmarked_versions = os.listdir(benchmarks_dir)
-            versions = [v for v in versions if "v" + v.replace('.', '_') not in benchmarked_versions]
+            versions = [
+                v for v in versions if "v" + v.replace(".", "_") not in benchmarked_versions
+            ]
 
     print(f"Versions to profile: {versions}")
     for v in versions:

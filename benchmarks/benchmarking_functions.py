@@ -17,17 +17,18 @@ This script is copied by benchmarks/run_benchmarks.py to be run inside a virtual
 It performs the profiling of the QDecomp package and saves the profiling data to the specified path.
 """
 
+import argparse
 import cProfile
-from qdecomp.decompositions import rz_decomp
-import qdecomp
-import numpy as np
 import os
 from time import perf_counter
-import argparse
 
+import numpy as np
+
+import qdecomp
+from qdecomp.decompositions import rz_decomp
 
 # Define benchmark parameters
-ANGLE_LIST = np.array([1/3, 7/12, 13/12]) * np.pi
+ANGLE_LIST = np.array([1 / 3, 7 / 12, 13 / 12]) * np.pi
 EPSILON_LIST = 10.0 ** np.arange(-1, -7.5, -1)
 
 
@@ -39,7 +40,7 @@ def run_single_profile(func: callable, args: list = [], kwargs: dict = {}) -> cP
         func (callable): The function to profile.
         args (list): Positional arguments to pass to the function.
         kwargs (dict): Keyword arguments to pass to the function.
-    
+
     Returns:
         cProfile.Profile: The profiling data collected during the function execution.
     """
@@ -47,10 +48,17 @@ def run_single_profile(func: callable, args: list = [], kwargs: dict = {}) -> cP
     profiler.enable()
     func(*args, **kwargs)
     profiler.disable()
-    
+
     return profiler
 
-def save_profile(data_path: str, profile: cProfile.Profile, benchmark_name: str, args: list = [], kwargs: dict = {}) -> None:
+
+def save_profile(
+    data_path: str,
+    profile: cProfile.Profile,
+    benchmark_name: str,
+    args: list = [],
+    kwargs: dict = {},
+) -> None:
     """
     Saves the profiling data to a file in the specified data path. The file name is constructed
     based on the benchmark name and the arguments used.
@@ -63,17 +71,18 @@ def save_profile(data_path: str, profile: cProfile.Profile, benchmark_name: str,
         kwargs (dict): Keyword arguments used in the benchmark.
     """
     base_path = os.path.join(data_path, "data")
-    version_name = "v" + qdecomp.__version__.replace('.', '_')
+    version_name = "v" + qdecomp.__version__.replace(".", "_")
     file_dir = os.path.join(base_path, version_name)
     os.makedirs(file_dir, exist_ok=True)
 
     args_name = "-".join([str(a) for a in args])
-    kwargs_name = "-".join([key+str(val) for key, val in kwargs.items()])
+    kwargs_name = "-".join([key + str(val) for key, val in kwargs.items()])
 
     file_name = "-".join([benchmark_name, args_name, kwargs_name])
     file_name = file_name.rstrip("-").replace(".", "_").replace("--", "-")
 
-    profile.dump_stats(os.path.join(file_dir, file_name + '.prof'))
+    profile.dump_stats(os.path.join(file_dir, file_name + ".prof"))
+
 
 def profile_package(data_path: str) -> None:
     """
@@ -87,11 +96,12 @@ def profile_package(data_path: str) -> None:
     for a in ANGLE_LIST:
         for e in EPSILON_LIST:
             print(f"Running profile {iteration} / {n_profiles}...", end="\r")
-            kwargs = {'angle': a, 'epsilon': e}
+            kwargs = {"angle": a, "epsilon": e}
             profile = run_single_profile(rz_decomp, kwargs=kwargs)
             save_profile(data_path, profile, "rz_decomp", kwargs=kwargs)
             iteration += 1
     print(f"Profiling of version {qdecomp.__version__} completed.")
+
 
 if __name__ == "__main__":
     # Parse command-line arguments
