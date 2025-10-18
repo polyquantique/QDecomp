@@ -28,7 +28,7 @@ import argparse
 
 # Define benchmark parameters
 ANGLE_LIST = np.array([1/3, 7/12, 13/12]) * np.pi
-EPSILON_LIST = 10.0 ** np.arange(-1, -3.5, -1)
+EPSILON_LIST = 10.0 ** np.arange(-1, -7.5, -1)
 
 
 def run_single_profile(func: callable, args: list = [], kwargs: dict = {}) -> cProfile.Profile:
@@ -82,12 +82,16 @@ def profile_package(data_path: str) -> None:
     Args:
         data_path (str): Path to save profiling data.
     """
+    n_profiles = len(ANGLE_LIST) * len(EPSILON_LIST)
+    iteration = 1
     for a in ANGLE_LIST:
         for e in EPSILON_LIST:
+            print(f"Running profile {iteration} / {n_profiles}...", end="\r")
             kwargs = {'angle': a, 'epsilon': e}
             profile = run_single_profile(rz_decomp, kwargs=kwargs)
             save_profile(data_path, profile, "rz_decomp", kwargs=kwargs)
-
+            iteration += 1
+    print(f"Profiling of version {qdecomp.__version__} completed.")
 
 if __name__ == "__main__":
     # Parse command-line arguments

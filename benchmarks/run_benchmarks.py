@@ -56,7 +56,9 @@ def run_single_benchmark(version: str) -> None:
     Args:
         version (str): The version of the package to profile.
     """
+    print(f"Profiling version {version}...")
     with tempfile.TemporaryDirectory() as tmpdir:
+        print("Creating virtual environment and installing package...")
         venv_dir = os.path.join(tmpdir, "venv")
         venv.create(venv_dir, with_pip=True)
         if os.name != "nt":
@@ -70,8 +72,8 @@ def run_single_benchmark(version: str) -> None:
 
         # Install specific package versions and run the profiling script.
         try:
-            subprocess.check_call([python_bin, "-m", "pip", "install", "--upgrade", "pip"])
-            subprocess.check_call([python_bin, "-m", "pip", "install", f"qdecomp=={version}"])
+            subprocess.check_call([python_bin, "-m", "pip", "install", "--upgrade", "pip"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            subprocess.check_call([python_bin, "-m", "pip", "install", f"qdecomp=={version}"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
             # Copy the benchmarking script into the virtual environment.
             # This ensures the latest version of benchmarking_functions.py is used (it might change from one version to another).
@@ -102,6 +104,7 @@ def run_all_benchmarks(versions: List[str] = None, rerun: bool = False) -> None:
             benchmarked_versions = os.listdir(benchmarks_dir)
             versions = [v for v in versions if "v" + v.replace('.', '_') not in benchmarked_versions]
 
+    print(f"Versions to profile: {versions}")
     for v in versions:
         run_single_benchmark(v)
 
