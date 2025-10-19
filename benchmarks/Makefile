@@ -46,7 +46,6 @@ VERSION := $(shell "$(PYTHON)" -c "import qdecomp; print(qdecomp.__version__.rep
 .PHONY: help
 help:
 	@echo Available targets:
-	@echo $(VERSION)
 	@echo   run_missing_versions   - Run benchmarks for specified package versions.
 	@echo   run_current_version    - Run benchmarks for the current package version.
 	@echo   rerun_all              - Rerun all benchmarks, even if profiles already exist.

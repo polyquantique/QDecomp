@@ -44,6 +44,7 @@ dev = [
     "black",
     "isort",
     "sympy",
+    "pandas",
     "snakeviz",
 ]
 

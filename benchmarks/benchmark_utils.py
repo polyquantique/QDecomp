@@ -154,7 +154,10 @@ def plot_version_profiling() -> None:
     plt.legend()
     plt.grid()
     plt.tight_layout()
-    plt.savefig(os.path.join(os.path.dirname(__file__), "graphs", "version_profiling.svg"))
+
+    graphs_dir = os.path.join(os.path.dirname(__file__), "graphs")
+    os.makedirs(graphs_dir, exist_ok=True)
+    plt.savefig(os.path.join(graphs_dir, "version_profiling.svg"))
 
 
 def plot_epsilon_profiling() -> None:
@@ -189,7 +192,10 @@ def plot_epsilon_profiling() -> None:
     plt.legend()
     plt.grid()
     plt.tight_layout()
-    plt.savefig(os.path.join(os.path.dirname(__file__), "graphs", "epsilon_profiling.svg"))
+
+    graphs_dir = os.path.join(os.path.dirname(__file__), "graphs")
+    os.makedirs(graphs_dir, exist_ok=True)
+    plt.savefig(os.path.join(graphs_dir, "epsilon_profiling.svg"))
 
 
 if __name__ == "__main__":
