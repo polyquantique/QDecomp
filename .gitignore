@@ -10,9 +10,13 @@ build/
 Local_only/
 Solutions/
 *_debug.*
+*test_app*
 
 *.ipynb
 *.dll
+*.a
+*.o
+*.exe
 *.egg-info
 *venv/
 .python-version

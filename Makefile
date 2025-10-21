@@ -24,20 +24,38 @@ endif
 ifeq ($(DETECTED_OS), Windows)
 	PYTHON := $(shell where py 2>NUL || where py3 2>NUL || where python 2>NUL || where python3 2>NUL)
 	OPEN := cmd /c start
-	RMFILES := del /q
+	RMFILE := del /q
     RMDIR := rmdir /s /q
 else
 	PYTHON := $(shell which py 2>/dev/null || which py3 2>/dev/null || which python 2>/dev/null || which python3 2>/dev/null)
 	OPEN := open
-	RMFILES := rm -f
+	RMFILE := rm -f
     RMDIR := rm -rf
 endif
+
+
+# C++ compiler settings
+CXX := g++
+CXXFLAGS := -std=c++17 -Wall -Wextra -pthread
 
 
 # Directories
 SRC_DIR := src
 DOCS_DIR := docs
 TEST_DIR := tests
+PY_TEST_DIR := $(TEST_DIR)/python
+CPP_TEST_DIR := $(TEST_DIR)/cpp
+LIBS_DIR := libs
+GTEST_DIR := $(LIBS_DIR)/googletest
+
+
+# For C++ tests
+CPP_TEST_MAIN := $(CPP_TEST_DIR)/test_main.cpp
+ifeq ($(DETECTED_OS), Windows)
+	CPP_TEST_SRC_FILES := $(shell powershell -Command "Get-ChildItem -Path '$(CPP_TEST_DIR)' -Recurse -Include *.cpp -Depth 2 | ForEach-Object { $$_.FullName }")
+else
+	CPP_TEST_SRC_FILES := $(shell find $(CPP_TEST_DIR) -name '*.cpp')
+endif
 
 
 # Set the default goal
@@ -48,12 +66,14 @@ TEST_DIR := tests
 .PHONY: help
 help:
 	@echo Available targets:
-	@echo   docs          - Build documentation
-	@echo   format        - Format source and test code using isort and black
-	@echo   test          - Run tests
-	@echo   test_cov      - Run tests with coverage
-	@echo   test_report   - Open coverage report
-	@echo   clean         - Remove coverage artifacts
+	@echo   docs            - Build documentation
+	@echo   format          - Format source and test code using isort and black
+	@echo   test            - Run tests
+	@echo   test_cov        - Run tests with coverage
+	@echo   test_report     - Open coverage report
+	@echo   compile_gtest   - Compile the googletest library
+	@echo   test_cpp        - Compile and run C++ tests
+	@echo   clean           - Remove coverage artifacts
 
 
 # Generate the documentation
@@ -70,15 +90,15 @@ format:
 	$(PYTHON) -m black $(SRC_DIR) $(TEST_DIR) -l 100
 
 
-# Run the tests
+# Run the Python tests
 .PHONY: test
 test:
-	$(PYTHON) -m pytest $(TEST_DIR) -n auto
+	$(PYTHON) -m pytest $(PY_TEST_DIR) -n auto
 
 # Run the tests with coverage
 .PHONY: test_cov
 test_cov:
-	$(PYTHON) -m pytest --cov=$(SRC_DIR) $(TEST_DIR) --cov-report=html --cov-branch -n auto
+	$(PYTHON) -m pytest --cov=$(SRC_DIR) $(PY_TEST_DIR) --cov-report=html --cov-branch -n auto
 
 # Show the test coverage report
 .PHONY: test_report
@@ -86,7 +106,21 @@ test_report:
 	$(OPEN) ./htmlcov/index.html
 
 
+# Compile the googletest library
+.PHONY: compile_gtest
+compile_gtest:
+	$(CXX) $(CXXFLAGS) -I $(GTEST_DIR)/googletest -I $(GTEST_DIR)/googletest/include -c $(GTEST_DIR)/googletest/src/gtest-all.cc -o $(GTEST_DIR)/googletest/gtest-all.o
+	ar rcs $(GTEST_DIR)/googletest/libgtest.a $(GTEST_DIR)/googletest/gtest-all.o
+
+# Run the C++ tests
+.PHONY: test_cpp
+test_cpp:
+	$(CXX) $(CXXFLAGS) $(CPP_TEST_SRC_FILES) -I $(GTEST_DIR)/googletest/include -L $(GTEST_DIR)/googletest -lgtest -o $(CPP_TEST_DIR)/test_app
+	$(CPP_TEST_DIR)/test_app
+
+
 # Clean the repository
 .PHONY: clean
 clean:
 	$(RMDIR) htmlcov
+	$(RMFILE) $(CPP_TEST_MAIN)
