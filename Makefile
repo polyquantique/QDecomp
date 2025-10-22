@@ -50,7 +50,7 @@ GTEST_DIR := $(LIBS_DIR)/googletest
 
 
 # For C++ tests
-CPP_TEST_MAIN := $(CPP_TEST_DIR)/test_main.cpp
+CPP_TEST_MAIN := $(CPP_TEST_DIR)/test_main
 ifeq ($(DETECTED_OS), Windows)
 	CPP_TEST_SRC_FILES := $(shell powershell -Command "Get-ChildItem -Path '$(CPP_TEST_DIR)' -Recurse -Include *.cpp -Depth 2 | ForEach-Object { $$_.FullName }")
 else
@@ -106,6 +106,11 @@ test_report:
 	$(OPEN) ./htmlcov/index.html
 
 
+# Compile and execute a .exe file from a .cpp files
+%.exe: %.cpp
+	$(CXX) $(CXXFLAGS) $< -I $(LIBS_DIR) -I $(SRC_DIR) -o $@
+	./$@
+
 # Compile the googletest library
 .PHONY: compile_gtest
 compile_gtest:
@@ -115,12 +120,11 @@ compile_gtest:
 # Run the C++ tests
 .PHONY: test_cpp
 test_cpp:
-	$(CXX) $(CXXFLAGS) $(CPP_TEST_SRC_FILES) -I $(GTEST_DIR)/googletest/include -L $(GTEST_DIR)/googletest -lgtest -o $(CPP_TEST_DIR)/test_app
-	$(CPP_TEST_DIR)/test_app
+	$(CXX) $(CXXFLAGS) $(CPP_TEST_SRC_FILES) -I $(GTEST_DIR)/googletest/include -I $(LIBS_DIR) -I $(SRC_DIR) -L $(GTEST_DIR)/googletest -lgtest -o $(CPP_TEST_DIR)/test_main
+	$(CPP_TEST_DIR)/test_main
 
 
 # Clean the repository
 .PHONY: clean
 clean:
-	$(RMDIR) htmlcov
-	$(RMFILE) $(CPP_TEST_MAIN)
+	-$(RMDIR) htmlcov

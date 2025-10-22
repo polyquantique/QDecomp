@@ -10,7 +10,8 @@ build/
 Local_only/
 Solutions/
 *_debug.*
-*test_app*
+*test_main*
+!test_main.cpp
 
 *.ipynb
 *.dll
