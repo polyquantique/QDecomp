@@ -25,12 +25,12 @@ namespace mp = boost::multiprecision;
 using TestingTypes = ::testing::Types<long long int, mp::cpp_int>;
 
 template <typename T>
-class DRingTests : public ::testing::Test {};
-TYPED_TEST_SUITE(DRingTests, TestingTypes);
+class DTests : public ::testing::Test {};
+TYPED_TEST_SUITE(DTests, TestingTypes);
 
 
 // Test addition in D ring
-TYPED_TEST(DRingTests, Addition) {
+TYPED_TEST(DTests, Addition) {
     for (TypeParam a_num : {0, 2, -3}) {
     for (TypeParam b_num : {0, 11, -20}) {
     for (unsigned int a_denom : {0, 1, 2}) {
@@ -47,7 +47,7 @@ TYPED_TEST(DRingTests, Addition) {
 }
 
 // Test multiplication in D ring
-TYPED_TEST(DRingTests, Multiplication) {
+TYPED_TEST(DTests, Multiplication) {
     for (TypeParam a_num : {0, 2, -3}) {
     for (TypeParam b_num : {0, 11, -20}) {
     for (unsigned int a_denom : {0, 1, 2}) {
@@ -64,7 +64,7 @@ TYPED_TEST(DRingTests, Multiplication) {
 }
 
 // Test equality and inequality in D ring
-TYPED_TEST(DRingTests, Equality) {
+TYPED_TEST(DTests, Equality) {
     for (TypeParam a_num : {0, 2, -3}) {
     for (TypeParam b_num : {0, 11, -20}) {
     for (unsigned int a_denom : {0, 1, 2}) {
@@ -89,7 +89,7 @@ TYPED_TEST(DRingTests, Equality) {
 }
 
 // Test exponentiation in D ring
-TEST(DRingTests, Exponentiation) {
+TEST(DTests, Exponentiation) {
     for (long long int a_num : {0, 2, -3}) {
     for (unsigned int a_denom : {0, 1, 2}) {
     for (unsigned int exp : {0, 1, 2, 3}) {
@@ -103,7 +103,7 @@ TEST(DRingTests, Exponentiation) {
 }
 
 // Test the reduce method in D ring
-TYPED_TEST(DRingTests, Reduce) {
+TYPED_TEST(DTests, Reduce) {
     for (TypeParam a_num : {0, 2, -3, 4, -16}) {
     for (unsigned int a_denom : {0, 1, 2}) {
         D<TypeParam> a(a_num, a_denom);  // The reduce method is called in the constructor

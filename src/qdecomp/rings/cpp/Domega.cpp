@@ -76,15 +76,15 @@ Domega<T> Domega<T>::complex_conjugate() const {return Domega<T>(-_c, -_b, -_a, 
 
 
 template <typename T>
-unsigned int Domega<T>::sde() const {
-    unsigned int sde_ = 0;
+int Domega<T>::sde() const {
+    int sde_ = 0;
     T coeffs[4];
     T coeffs_temp[4];
 
     if (is_D() and _d == 0) {throw std::runtime_error("The sde of zero is undefined.");}
 
     if (! is_Zomega()) {  // At least one of the coefficients is not an integer.
-        unsigned int k_max = std::max(std::max(_a.denom(), _b.denom()), std::max(_c.denom(), _d.denom()));
+        int k_max = std::max(std::max(_a.denom(), _b.denom()), std::max(_c.denom(), _d.denom()));
         for (unsigned int i=0; i<4; i++) {
             coeffs[i] = operator[](i).num() << (k_max - operator[](i).denom());
         }
@@ -92,8 +92,9 @@ unsigned int Domega<T>::sde() const {
     } else {
         for (unsigned int i=0; i<4; i++) {coeffs[i] = operator[](i).num();}
 
-        while (!(coeffs[0] & 1) or !(coeffs[1] & 1) or !(coeffs[2] & 1) or !(coeffs[3] & 1)) {
-            for (unsigned int i=0; i<4; i++) {coeffs[i] >>= 1;}
+        while (!(coeffs[0] & 1) and !(coeffs[1] & 1) and !(coeffs[2] & 1) and !(coeffs[3] & 1)) {
+            for (unsigned int i=0; i<4; i++) {
+                coeffs[i] >>= 1;}
             sde_ -= 2;
         }
     }

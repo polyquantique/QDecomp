@@ -149,7 +149,7 @@ class Domega {
          * 
          * @return int The smallest denominator exponent.
          */
-        unsigned int sde() const;
+        int sde() const;
 
 
         /**
