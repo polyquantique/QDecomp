@@ -70,6 +70,48 @@ TYPED_TEST(DomegaTests, Multiplication) {
     }
 }
 
+// Test exponentiation in Domega ring
+TYPED_TEST(DomegaTests, Exponentiation) {
+    std::vector<Domega<TypeParam>> test_cases = {
+        Domega<TypeParam>(0, 0, 0, 0, 0, 0, 0, 0),
+        Domega<TypeParam>(0, 0, 0, 0, 0, 0, 1, 0),
+        Domega<TypeParam>(0, 0, 0, 0, 0, 0, 0, 1),
+        Domega<TypeParam>(2, 1, 11, 2, -3, 0, 20, 1),
+        Domega<TypeParam>(-3, 2, -20, 1, 2, 1, -11, 2)
+    };
+
+    for (Domega<TypeParam> a : test_cases) {
+    for (unsigned int exp : {0, 1, 2, 3, 4}) {
+        Domega<TypeParam> result = a.pow(exp);
+        Domega<TypeParam> brute_force(0, 0, 0, 0, 0, 0, 1, 0);
+        
+        for (unsigned int i = 0; i < exp; i++) {
+            brute_force = brute_force * a;
+        }
+
+        EXPECT_EQ(result, brute_force);
+    }
+    }
+}
+
+// Test complex_conjugate in Domega ring
+TYPED_TEST(DomegaTests, ComplexConjugate) {
+    std::vector<Domega<TypeParam>> test_cases = {
+        Domega<TypeParam>(0, 0, 0, 0, 0, 0, 0, 0),
+        Domega<TypeParam>(0, 0, 0, 0, 0, 0, 1, 0),
+        Domega<TypeParam>(0, 0, 0, 0, 0, 0, 0, 1),
+        Domega<TypeParam>(2, 1, 11, 2, -3, 0, 20, 1),
+        Domega<TypeParam>(-3, 2, -20, 1, 2, 1, -11, 2)
+    };
+
+    for (Domega<TypeParam> a : test_cases) {
+        Domega<TypeParam> conj = a.complex_conjugate();
+        Domega<TypeParam> sum = a + conj;
+        EXPECT_EQ(conj.complex_conjugate(), a);
+        EXPECT_EQ(sum.imag().to_int(), 0);
+    }
+}
+
 // Test sqrt2_conjugate in Domega ring
 TYPED_TEST(DomegaTests, Sqrt2Conjugate) {
     std::vector<Domega<TypeParam>> test_cases = {
@@ -89,8 +131,8 @@ TYPED_TEST(DomegaTests, Sqrt2Conjugate) {
     }
 }
 
-// Test exponentiation, complex_conjugate, to_Dsqrt2 in Domega ring
-TYPED_TEST(DomegaTests, Exponentiation) {
+// Test sde, exponentiation, complex_conjugate and to_Dsqrt2 in Domega ring
+TYPED_TEST(DomegaTests, Sde) {
     std::vector<Domega<TypeParam>> test_cases = {
         Domega<TypeParam>(0, 0, 0, 0, 0, 0, 1, 0),
         Domega<TypeParam>(2, 1, 11, 2, -3, 0, 20, 1),
