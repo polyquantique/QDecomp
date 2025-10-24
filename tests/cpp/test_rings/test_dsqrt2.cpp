@@ -106,3 +106,22 @@ TYPED_TEST(Dsqrt2Tests, Sqrt2Multiply) {
     }
     }
 }
+
+// Test sqrt2_conjugate and equality in Dsqrt2 ring
+TYPED_TEST(Dsqrt2Tests, Sqrt2Conjugate) {
+    std::vector<Dsqrt2<TypeParam>> test_cases = {
+        Dsqrt2<TypeParam>(0, 0, 0, 0),
+        Dsqrt2<TypeParam>(1, 0, 0, 0),
+        Dsqrt2<TypeParam>(0, 1, 0, 0),
+        Dsqrt2<TypeParam>(2, 1, 11, 1),
+        Dsqrt2<TypeParam>(-3, 2, -20, 2),
+        Dsqrt2<TypeParam>(-100, 5, 50, 3)
+    };
+
+    for (Dsqrt2<TypeParam> a : test_cases) {
+        Dsqrt2<TypeParam> conj = a.sqrt2_conjugate();
+        Dsqrt2<TypeParam> sum = a + conj;
+        EXPECT_EQ(conj.sqrt2_conjugate(), a);
+        EXPECT_TRUE(sum.is_D());
+    }
+}
