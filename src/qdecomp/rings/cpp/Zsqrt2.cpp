@@ -138,6 +138,9 @@ Zsqrt2<T> Zsqrt2<T>::pow(unsigned int n) const {
 
 template <typename T>
 void Zsqrt2<T>::unit_reduce() {
+    // Cannot reduce zero
+    if (p() == 0 && q() == 0) { return; }
+
     Zsqrt2<T> n1 = *this;
     Zsqrt2<T> n2(0, 0);
 
