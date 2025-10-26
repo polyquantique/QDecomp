@@ -64,6 +64,9 @@ def tonelli_shanks_algo(a, p):
     Raises:
         ValueError: If :math:`a` is not a quadratic residue modulo :math:`p`, i.e. no solution exists.
     """
+    if p == 2:
+        return a % 2  # Special case for p = 2
+
     if legendre_symbol(a, p) != 1:
         raise ValueError(f"a = {a} is not a quadratic residue modulo p = {p}.")
 

@@ -22,10 +22,10 @@ class Zsqrt2;
 #include "Zomega.hpp"
 #include "Zsqrt2.hpp"
 
-#include "D.cpp"
-#include "Domega.cpp"
-#include "Dsqrt2.cpp"
-#include "Zomega.cpp"
-#include "Zsqrt2.cpp"
+#include "D.tpp"
+#include "Domega.tpp"
+#include "Dsqrt2.tpp"
+#include "Zomega.tpp"
+#include "Zsqrt2.tpp"
 
 #endif  // RINGS_HPP

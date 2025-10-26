@@ -9,9 +9,8 @@
 #include <type_traits>
 #include <boost/multiprecision/cpp_int.hpp>
 
-#include "..\..\rings\cpp\Rings.hpp"
-#include "diophantine_equation.hpp"
-#include "tonelli_shanks.hpp"
+#include <qdecomp/rings/cpp/Rings.hpp>
+#include <qdecomp/utils/diophantine/cpp/tonelli_shanks.hpp>
 
 
 template <typename T>

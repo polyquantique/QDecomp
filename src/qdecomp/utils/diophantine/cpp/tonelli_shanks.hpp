@@ -61,4 +61,6 @@ template <typename T = long long int>
 T tonelli_shanks_algo(T const &a, T const &p);
 
 
+#include "tonelli_shanks.tpp"
+
 #endif // TONELLI_HPP

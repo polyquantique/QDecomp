@@ -87,6 +87,43 @@ TYPED_TEST(Zsqrt2Tests, Exponentiation) {
     }
 }
 
+// Test the || operator (if two numbers only differ by a unit) in Zsqrt2 ring
+TYPED_TEST(Zsqrt2Tests, AreSimilar) {
+    std::vector<Zsqrt2<TypeParam>> test_cases = {
+        Zsqrt2<TypeParam>(1, 0),
+        Zsqrt2<TypeParam>(0, 1),
+        Zsqrt2<TypeParam>(1, 1),
+        Zsqrt2<TypeParam>(2, 1),
+        Zsqrt2<TypeParam>(1, 1),
+        Zsqrt2<TypeParam>(-3, 2),
+        Zsqrt2<TypeParam>(5, -1),
+        Zsqrt2<TypeParam>(-101, 7)
+    };
+
+    for (Zsqrt2<TypeParam> xi : test_cases) {
+    for (unsigned int m : {0, 1}) {
+    for (unsigned int n = 0; n <= 4; n++) {
+        Zsqrt2<TypeParam> lamb(1, 1);
+        Zsqrt2<TypeParam> lamb_inv(-1, 1);
+
+        Zsqrt2<TypeParam> u = Zsqrt2<TypeParam>(-1, 0).pow(m) * lamb.pow(n);  // Generate a unit
+        Zsqrt2<TypeParam> u_ = Zsqrt2<TypeParam>(-1, 0).pow(m) * lamb_inv.pow(n);  // Generate another unit
+
+        Zsqrt2<TypeParam> xi_prime = xi * u;  // Generate a similar number
+        Zsqrt2<TypeParam> xi_prime_ = xi * u_;  // Generate another similar number
+
+        EXPECT_TRUE(xi || xi_prime);
+        EXPECT_FALSE(xi + Zsqrt2<TypeParam>(1, 0) || xi_prime);
+        EXPECT_FALSE(xi || Zsqrt2<TypeParam>(2, 0) * xi_prime);
+
+        EXPECT_TRUE(xi || xi_prime_);
+        EXPECT_FALSE(xi + Zsqrt2<TypeParam>(1, 0) || xi_prime_);
+        EXPECT_FALSE(xi || Zsqrt2<TypeParam>(2, 0) * xi_prime_);
+    }
+    }
+    }
+}
+
 // Test sqrt2_conjugate and equality in Zsqrt2 ring
 TYPED_TEST(Zsqrt2Tests, Sqrt2Conjugate) {
     std::vector<Zsqrt2<TypeParam>> test_cases = {

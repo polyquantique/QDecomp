@@ -1,11 +1,11 @@
 #include <stdexcept>
 #include <sstream>
 
-#include "tonelli_shanks.hpp"
-
 
 template <typename T>
 T mod_pow(T const &base, T const &exp, T const &mod) {
+    if (mod == 1) { return 0; }  // Special case for mod = 1
+    
     T result = 1;
     T b = base % mod;
     T e = exp;
@@ -18,16 +18,25 @@ T mod_pow(T const &base, T const &exp, T const &mod) {
         e >>= 1;
     }
 
+    if (result < 0) { result += mod; }
+
     return result;
 }
 
 template <typename T>
 int legendre_symbol(T const &a, T const &p) {
-    return (int)mod_pow(a, (p - (T)1) / 2, p);
+    if (a % 2 == 0 and p == 2) { return 0; }  // Special case for p = 2
+
+    int result = (int)mod_pow(a, (p - (T)1) / 2, p);
+
+    if (result > 1) { return -1; }
+    else { return result; }
 }
 
 template <typename T>
 T tonelli_shanks_algo(T const &a, T const &p) {
+    if (p == 2) { return a % 2; }  // Special case for p = 2
+
     if (legendre_symbol(a, p) != 1) {
         std::ostringstream oss;
         oss << "a = " << a << " is not a quadratic residue modulo p = " << p << ".";
@@ -49,7 +58,7 @@ T tonelli_shanks_algo(T const &a, T const &p) {
 
     // Find a quadratic non-residue z
     T z = 2;
-    while (legendre_symbol(z, p) != p - 1) {
+    while (legendre_symbol(z, p) != -1) {
         z++;
     }
 

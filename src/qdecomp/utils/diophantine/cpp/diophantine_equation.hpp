@@ -19,7 +19,7 @@
 #include <vector>
 #include <tuple>
 
-#include "..\..\rings\cpp\Rings.hpp"
+#include <qdecomp/rings/cpp/Rings.hpp>
 
 
 /**
@@ -83,6 +83,7 @@ std::vector<std::tuple<T, Zsqrt2<T>, unsigned int>> xi_fact(Zsqrt2<T> xi);
  * 
  * @param pi The prime number to factorize in Z[\u221A2].
  * @return A prime factor of pi in Z[\u221A2]. The \u221A2 conjugate is also a prime factor of pi.
+ * @throws std::invalid_argument if pi is not a prime number.
  */
 template <typename T = long long int>
 Zsqrt2<T> pi_fact_into_xi(T pi);
@@ -94,6 +95,7 @@ Zsqrt2<T> pi_fact_into_xi(T pi);
  *  as an argument is more efficient than recalculating it.
  * @param xi_i A prime number in Z[\u221A2] to factorize.
  * @return A prime factor of xi_i in Z[\u03C9]. The complex conjugate is also a prime factor of xi_i.
+ * @throws std::invalid_argument if pi is not a prime number.
  */
 template <typename T = long long int>
 Zomega<T> xi_i_fact_into_ti(T pi, Zsqrt2<T> xi_i);
@@ -126,5 +128,7 @@ Zomega<T> solve_xi_sim_ttdag_in_z(Zsqrt2<T> xi);
 template <typename T = long long int>
 Domega<T> solve_xi_eq_ttdag_in_d(Dsqrt2<T> xi);
 
+
+#include "diophantine_equation.tpp"
 
 #endif // DIOPHANTINE_HPP

@@ -270,8 +270,8 @@ def test_euclidean_div_Zsqrt2(num, div):
 
 
 sim_test_list = [
-    Zsqrt2(0, 1),  # 1
-    Zsqrt2(1, 0),  # sqrt(2)
+    Zsqrt2(1, 0),  # 1
+    Zsqrt2(0, 1),  # sqrt(2)
     Zsqrt2(1, 1),  # lambda = 1 + sqrt(2) (unit)
     Zsqrt2(1, 2),
     Zsqrt2(-1, 2),
