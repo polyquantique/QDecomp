@@ -18,13 +18,13 @@
 
 #include <cmath>
 
-#include "..\..\rings\cpp\Rings.hpp"
+#include <qdecomp/rings/cpp/Rings.hpp>
 
 
 const long double SQRT2 = std::sqrt(static_cast<long double>(2));
 const long double SQRT2_INV = 1.0 / SQRT2;
-inline const Zsqrt2 LAMBDA(1, 1);
-inline const Zsqrt2 LAMBDA_INV(-1, 1);
+inline const Zsqrt2<long long int> LAMBDA(1, 1);
+inline const Zsqrt2<long long int> LAMBDA_INV(-1, 1);
 
 
 /**
@@ -138,7 +138,7 @@ class GridProblem1D {
                 /**
                  * @brief Get the current solution
                  */
-                Zsqrt2 operator*() const { return Zsqrt2(_p_last, _q_last); }
+                Zsqrt2<long long int> operator*() const { return Zsqrt2<long long int>(_p_last, _q_last); }
 
                 /**
                  * @brief Increment the iterator
@@ -158,10 +158,10 @@ class GridProblem1D {
                         if (std::floor(pmin_f) != std::floor(pmax_f)) {
                             _p = static_cast<long long int>(std::floor(pmax_f));
 
-                            Zsqrt2 alpha_(_p, _q);  // Scaled solution
+                            Zsqrt2<long long int> alpha_(_p, _q);  // Scaled solution
 
                             // Unscaled solution
-                            Zsqrt2 alpha(0, 0);
+                            Zsqrt2<long long int> alpha(0, 0);
                             if (_n_scaling < 0) {
                                 alpha = alpha_ * LAMBDA_INV.pow(static_cast<unsigned short int>(-_n_scaling));
                             } else {
@@ -315,10 +315,10 @@ class GridProblem2D{
                 */
                 Zomega<long long int> operator*() const {
                     if (_first_completed) {  // Solving the second problem
-                        return (*_x_it2).to_Zomega<long long int>() + (*_y_it2).to_Zomega<long long int>() *
+                        return (*_x_it2).to_Zomega() + (*_y_it2).to_Zomega() *
                             Zomega<long long int>(0, 1, 0, 0) + Zomega<long long int>(0, 0, 1, 0);
                     } else {  // Solving the first problem
-                        return (*_x_it1).to_Zomega<long long int>() + (*_y_it1).to_Zomega<long long int>() *
+                        return (*_x_it1).to_Zomega() + (*_y_it1).to_Zomega() *
                             Zomega<long long int>(0, 1, 0, 0);
                     }
                 }
