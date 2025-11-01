@@ -7,7 +7,6 @@
 #include <iostream>
 #include <sstream>
 #include <type_traits>
-#include <boost/multiprecision/cpp_int.hpp>
 
 #include <qdecomp/rings/cpp/Rings.hpp>
 #include <qdecomp/utils/diophantine/cpp/tonelli_shanks.hpp>
@@ -292,7 +291,7 @@ Domega<T> solve_xi_eq_ttdag_in_d(Dsqrt2<T> xi) {
         + static_cast<float>(l) / 2
     ));
 
-    // v**2 = u => v = λ**n
+    // v**2 = u = λ**2n => v = λ**n
     Domega<T> v(0, 0, 0, 0, 0, 0, 0, 0);
     if (n > 0) {
         v = Zsqrt2<T>(1, 1).pow(static_cast<unsigned int>(n)).to_Domega();  // λ**n

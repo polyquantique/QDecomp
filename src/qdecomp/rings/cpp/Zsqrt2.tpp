@@ -197,8 +197,8 @@ std::tuple<Zsqrt2<T>, Zsqrt2<T>> euclidean_div(const Zsqrt2<T>& num, const Zsqrt
     Zsqrt2<T> num_ = num * div.sqrt2_conjugate();
     T den_ = (div * div.sqrt2_conjugate()).p();
 
-    T a = static_cast<T>(std::round(static_cast<float>(num_.p()) / static_cast<float>(den_)));
-    T b = static_cast<T>(std::round(static_cast<float>(num_.q()) / static_cast<float>(den_)));
+    T a = static_cast<T>(std::round(static_cast<long double>(num_.p()) / static_cast<long double>(den_)));
+    T b = static_cast<T>(std::round(static_cast<long double>(num_.q()) / static_cast<long double>(den_)));
 
     Zsqrt2<T> q(a, b);
     Zsqrt2<T> r = num - q * div;

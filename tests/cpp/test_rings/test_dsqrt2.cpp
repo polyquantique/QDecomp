@@ -125,3 +125,24 @@ TYPED_TEST(Dsqrt2Tests, Sqrt2Conjugate) {
         EXPECT_TRUE(sum.is_D());
     }
 }
+
+
+// Test cast_Dsqrt2 in Dsqrt2 ring
+TEST(Dsqrt2Tests, CastDsqrt2) {
+    std::vector<std::pair<Dsqrt2<long long int>, Dsqrt2<mp::cpp_int>>> test_cases = {
+        {Dsqrt2<long long int>(0, 0, 0, 0), Dsqrt2<mp::cpp_int>(0, 0, 0, 0)},
+        {Dsqrt2<long long int>(0, 0, 1, 1), Dsqrt2<mp::cpp_int>(0, 0, 1, 1)},
+        {Dsqrt2<long long int>(1, 0, 0, 0), Dsqrt2<mp::cpp_int>(1, 0, 0, 0)},
+        {Dsqrt2<long long int>(2, 0, 11, 3), Dsqrt2<mp::cpp_int>(2, 0, 11, 3)},
+        {Dsqrt2<long long int>(2, 1, -20, 0), Dsqrt2<mp::cpp_int>(2, 1, -20, 0)},
+        {Dsqrt2<long long int>(-3127, 3, 1, 2), Dsqrt2<mp::cpp_int>(-3127, 3, 1, 2)}
+    };
+
+    for (auto& [type1, type2] : test_cases) {
+        Dsqrt2<mp::cpp_int> cast_to_2 = cast_Dsqrt2<long long int, mp::cpp_int>(type1);
+        Dsqrt2<long long int> cast_to_1 = cast_Dsqrt2<mp::cpp_int, long long int>(type2);
+
+        EXPECT_EQ(cast_to_2, type2);
+        EXPECT_EQ(cast_to_1, type1);
+    }
+}

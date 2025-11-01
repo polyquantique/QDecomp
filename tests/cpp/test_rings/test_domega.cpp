@@ -153,3 +153,25 @@ TYPED_TEST(DomegaTests, Sde) {
         else { EXPECT_FALSE((a * sqrt2_inv.pow(-sde+1)).is_Zomega()); }
     }
 }
+
+
+// Test cast_Domega in Domega ring
+TEST(DomegaTests, CastDomega) {
+    std::vector<std::pair<Domega<long long int>, Domega<mp::cpp_int>>> test_cases = {
+        {Domega<long long int>(0, 0, 0, 0, 0, 0, 0, 0), Domega<mp::cpp_int>(0, 0, 0, 0, 0, 0, 0, 0)},
+        {Domega<long long int>(0, 0, 0, 0, 0, 0, 1, 0), Domega<mp::cpp_int>(0, 0, 0, 0, 0, 0, 1, 0)},
+        {Domega<long long int>(0, 0, 0, 0, 1, 0, 0, 0), Domega<mp::cpp_int>(0, 0, 0, 0, 1, 0, 0, 0)},
+        {Domega<long long int>(0, 0, 1, 0, 0, 0, 0, 0), Domega<mp::cpp_int>(0, 0, 1, 0, 0, 0, 0, 0)},
+        {Domega<long long int>(2, 1, 1, 3, 11, 0, 2, 0), Domega<mp::cpp_int>(2, 1, 1, 3, 11, 0, 2, 0)},
+        {Domega<long long int>(-3, 101, 2, 0, -20, 0, 1, 21), Domega<mp::cpp_int>(-3, 101, 2, 0, -20, 0, 1, 21)},
+        {Domega<long long int>(-3127, 0, 2, 1, -20, 2, 1, 3), Domega<mp::cpp_int>(-3127, 0, 2, 1, -20, 2, 1, 3)}
+    };
+
+    for (auto& [type1, type2] : test_cases) {
+        Domega<mp::cpp_int> cast_to_2 = cast_Domega<long long int, mp::cpp_int>(type1);
+        Domega<long long int> cast_to_1 = cast_Domega<mp::cpp_int, long long int>(type2);
+
+        EXPECT_EQ(cast_to_2, type2);
+        EXPECT_EQ(cast_to_1, type1);
+    }
+}

@@ -247,3 +247,15 @@ std::string Domega<T>::to_string() const {
 
 template <typename T>
 void Domega<T>::print() const {std::cout << to_string() << std::endl;}
+
+
+/// Functions in the D[\u03C9] ring
+template <typename t_in, typename t_out>
+Domega<t_out> cast_Domega(const Domega<t_in>& element) {
+    return Domega<t_out>(
+        static_cast<t_out>(element.a().num()), element.a().denom(),
+        static_cast<t_out>(element.b().num()), element.b().denom(),
+        static_cast<t_out>(element.c().num()), element.c().denom(),
+        static_cast<t_out>(element.d().num()), element.d().denom()
+    );
+}

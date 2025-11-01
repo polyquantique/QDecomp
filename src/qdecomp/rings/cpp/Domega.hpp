@@ -345,4 +345,18 @@ class Domega {
         void print() const;
 };
 
+
+/**
+ * @brief Convert a D[\u03C9] object to a D[\u03C9] object with different template types.
+ * 
+ * This function is used to convert a D[\u03C9] object with one coefficient type to another.
+ * 
+ * @tparam t_in The type of the coefficients of the input D[\u03C9] object.
+ * @tparam t_out The type of the coefficients of the output D[\u03C9] object.
+ * @param element The input D[\u03C9] object.
+ * @return Domega<t_out> The output D[\u03C9] object with the new coefficient type.
+ */
+template <typename t_in = long long int, typename t_out = long long int>
+Domega<t_out> cast_Domega(const Domega<t_in>& element);
+
 #endif // DOMEGA_HPP

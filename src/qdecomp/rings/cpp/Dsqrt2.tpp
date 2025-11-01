@@ -170,3 +170,13 @@ std::string Dsqrt2<T>::to_string() const {return _p.to_string() + " + " + _q.to_
 
 template <typename T>
 void Dsqrt2<T>::print() const {std::cout << to_string() << std::endl;}
+
+
+/// Functions in the D[\u221A2] ring
+template <typename t_in, typename t_out>
+Dsqrt2<t_out> cast_Dsqrt2(const Dsqrt2<t_in>& element) {
+    return Dsqrt2<t_out>(
+        static_cast<t_out>(element.p().num()), element.p().denom(),
+        static_cast<t_out>(element.q().num()), element.q().denom()
+    );
+}

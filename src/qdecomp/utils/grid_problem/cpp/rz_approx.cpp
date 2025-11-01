@@ -16,9 +16,9 @@
 #include <utility>
 #include <cmath>
 
-#include "..\..\rings\cpp\Rings.hpp"
-#include "..\..\diophantine\cpp\diophantine_equation.cpp"
-#include "grid_algorithms.cpp"
+#include <qdecomp/rings/cpp/Rings.hpp>
+#include <qdecomp/utils/diophantine/cpp/diophantine_equation.hpp>
+#include <qdecomp/utils/grid_problem/cpp/grid_algorithms.cpp>
 
 
 void multiply_bbox(long double bbox[2][2], long double factor) {
@@ -65,7 +65,7 @@ bool is_inside_ellipse(const long double ellipse[2][2], const long double point[
  * @return A pair containing the diagonal and anti-diagonal elements, respectively, of the matrix
  *  approximating the Rz rotation
  */
-std::pair<Domega, Domega> rz_approx(
+std::pair<Domega<long long int>, Domega<long long int>> rz_approx(
     long double theta,
     long double ellipse[2][2],
     long double point[2],
@@ -79,14 +79,14 @@ std::pair<Domega, Domega> rz_approx(
     // Usefull variables
     unsigned short int n = 0;  // Iteration
     bool odd;  // True if n is odd
-    Domega constant(0, 0, 0, 0, 0, 0, 0, 0);  // Constant used to calculate u
+    Domega<long long int> constant(0, 0, 0, 0, 0, 0, 0, 0);  // Constant used to calculate u
 
     // Solve the problem
     while (true) {
         odd = (bool)(n & 1);
 
-        if (odd) { constant = Dsqrt2(0, 0, 1, (n >> 1) + 1).to_Domega(); }
-        else { constant = Domega(0, 0, 0, 0, 0, 0, 1, n >> 1); }
+        if (odd) { constant = Dsqrt2<long long int>(0, 0, 1, (n >> 1) + 1).to_Domega(); }
+        else { constant = Domega<long long int>(0, 0, 0, 0, 0, 0, 1, n >> 1); }
 
         long double A[2][2] = {{bbox1[0][0], bbox1[0][1]}, {bbox1[1][0], bbox1[1][1]}};  // Bbox
         long double B[2][2] = {{bbox2[0][0], bbox2[0][1]}, {bbox2[1][0], bbox2[1][1]}};  // Transformed bbox
@@ -102,9 +102,9 @@ std::pair<Domega, Domega> rz_approx(
             n_candidate++;
 
             if ( n == 0 or (candidate.a() - candidate.c()) & 1 or (candidate.b() - candidate.d()) & 1 ) {
-                Domega u = candidate.to_Domega() * constant;
-                Dsqrt2 re = u.real();
-                Dsqrt2 im = u.imag();
+                Domega<long long int> u = candidate.to_Domega() * constant;
+                Dsqrt2<long long int> re = u.real();
+                Dsqrt2<long long int> im = u.imag();
 
                 long double u_tuple[2] = {re.to_long_double(), im.to_long_double()};
                 if (! is_inside_ellipse(ellipse, u_tuple, point)) { continue; }  // True if the candidate is not in the ellipse
@@ -113,12 +113,12 @@ std::pair<Domega, Domega> rz_approx(
                 if ( dst < 1 - std::pow(epsilon, static_cast<long double>(2)) / 2 ) { continue; }  // True if the candidate is not in the slice
                 
                 // At this point, the candidate solves the grid problem and is in the slice
-                Domega t(0, 0, 0, 0, 0, 0, 0, 0);  // Create a Domega object to store the solution
-                Dsqrt2 xi = Dsqrt2(1, 0, 0, 0) - (u * u.complex_conjugate()).to_Dsqrt2();
+                Domega<long long int> t(0, 0, 0, 0, 0, 0, 0, 0);  // Create a Domega object to store the solution
+                Dsqrt2<long long int> xi = Dsqrt2<long long int>(1, 0, 0, 0) - (u * u.complex_conjugate()).to_Dsqrt2();
 
-                if (xi != Dsqrt2(0, 0, 0, 0)) {  // If xi == 0, the solution to the diophantine equation is t = 0
+                if (xi != Dsqrt2<long long int>(0, 0, 0, 0)) {  // If xi == 0, the solution to the diophantine equation is t = 0
                     t = solve_xi_eq_ttdag_in_d(xi);  // Solve the diophantine equation
-                    if ( t == Domega(0, 0, 0, 0, 0, 0, 0, 0) ) { continue; }  // True if the solution does not exist for the diophantine equation
+                    if ( t == Domega<long long int>(0, 0, 0, 0, 0, 0, 0, 0) ) { continue; }  // True if the solution does not exist for the diophantine equation
                 }
 
                 // Return the solution

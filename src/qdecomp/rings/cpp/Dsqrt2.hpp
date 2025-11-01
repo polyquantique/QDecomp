@@ -256,4 +256,18 @@ class Dsqrt2 {
         void print() const;
 };
 
+
+/**
+ * @brief Convert a D[\u221A2] object to a D[\u221A2] object with different template types.
+ * 
+ * This function is used to convert a D[\u221A2] object with one coefficient type to another.
+ * 
+ * @tparam t_in The type of the coefficients of the input D[\u221A2] object.
+ * @tparam t_out The type of the coefficients of the output D[\u221A2] object.
+ * @param element The input D[\u221A2] object.
+ * @return Dsqrt2<t_out> The output D[\u221A2] object with the new coefficient type.
+ */
+template <typename t_in = long long int, typename t_out = long long int>
+Dsqrt2<t_out> cast_Dsqrt2(const Dsqrt2<t_in>& element);
+
 #endif // DSQRT2_HPP
