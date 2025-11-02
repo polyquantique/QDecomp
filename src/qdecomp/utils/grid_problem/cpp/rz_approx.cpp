@@ -15,13 +15,20 @@
 
 #include <utility>
 #include <cmath>
+#include <array>
 
 #include <qdecomp/rings/cpp/Rings.hpp>
 #include <qdecomp/utils/diophantine/cpp/diophantine_equation.hpp>
 #include <qdecomp/utils/grid_problem/cpp/grid_algorithms.cpp>
 
 
-void multiply_bbox(long double bbox[2][2], long double factor) {
+/**
+ * @brief Multiply a bounding box by a factor
+ * 
+ * @param bbox The bounding box to multiply
+ * @param factor The factor to multiply the bounding box by
+ */
+void multiply_bbox(std::array<std::array<long double, 2>, 2>& bbox, long double factor) {
     if (factor >= 0) {
         bbox[0][0] *= factor;
         bbox[0][1] *= factor;
@@ -38,8 +45,16 @@ void multiply_bbox(long double bbox[2][2], long double factor) {
     }
 }
 
-bool is_inside_ellipse(const long double ellipse[2][2], const long double point[2],
-    const long double offset[2]) {
+/**
+ * @brief Check if a point is inside an ellipse
+ * 
+ * @param ellipse The ellipse defined by its quadratic form
+ * @param point The point to check
+ * @param offset The offset to apply to the point. Equivalent to translating the ellipse.
+ * @return true if the point is inside the ellipse, false otherwise
+ */
+bool is_inside_ellipse(const std::array<std::array<long double, 2>, 2>& ellipse, const std::array<long double, 2>& point,
+    const std::array<long double, 2>& offset) {
     long double x = point[0] - offset[0];
     long double y = point[1] - offset[1];
     return (ellipse[0][0] * x * x + 2 * ellipse[0][1] * x * y + ellipse[1][1] * y * y ) <= 1;
@@ -67,14 +82,14 @@ bool is_inside_ellipse(const long double ellipse[2][2], const long double point[
  */
 std::pair<Domega<long long int>, Domega<long long int>> rz_approx(
     long double theta,
-    long double ellipse[2][2],
-    long double point[2],
-    long double bbox1[2][2],
-    long double bbox2[2][2],
+    const std::array<std::array<long double, 2>, 2>& ellipse,
+    const std::array<long double, 2>& point,
+    const std::array<std::array<long double, 2>, 2>& bbox1,
+    const std::array<std::array<long double, 2>, 2>& bbox2,
     long double epsilon
 ) {
     // Point on the unit circle
-    long double z[2] = {std::cos(theta / 2), std::sin(theta / 2)};
+    std::array<long double, 2> z = {std::cos(theta / 2), std::sin(theta / 2)};
     
     // Usefull variables
     unsigned short int n = 0;  // Iteration
@@ -88,8 +103,8 @@ std::pair<Domega<long long int>, Domega<long long int>> rz_approx(
         if (odd) { constant = Dsqrt2<long long int>(0, 0, 1, (n >> 1) + 1).to_Domega(); }
         else { constant = Domega<long long int>(0, 0, 0, 0, 0, 0, 1, n >> 1); }
 
-        long double A[2][2] = {{bbox1[0][0], bbox1[0][1]}, {bbox1[1][0], bbox1[1][1]}};  // Bbox
-        long double B[2][2] = {{bbox2[0][0], bbox2[0][1]}, {bbox2[1][0], bbox2[1][1]}};  // Transformed bbox
+        std::array<std::array<long double, 2>, 2> A = {{{bbox1[0][0], bbox1[0][1]}, {bbox1[1][0], bbox1[1][1]}}};  // Bbox
+        std::array<std::array<long double, 2>, 2> B = {{{bbox2[0][0], bbox2[0][1]}, {bbox2[1][0], bbox2[1][1]}}};  // Transformed bbox
 
         long double sqrt2_n = std::pow(2, n >> 1);
         if (odd) { sqrt2_n *= std::sqrt(2); }    
@@ -106,7 +121,7 @@ std::pair<Domega<long long int>, Domega<long long int>> rz_approx(
                 Dsqrt2<long long int> re = u.real();
                 Dsqrt2<long long int> im = u.imag();
 
-                long double u_tuple[2] = {re.to_long_double(), im.to_long_double()};
+                std::array<long double, 2> u_tuple = {re.to_long_double(), im.to_long_double()};
                 if (! is_inside_ellipse(ellipse, u_tuple, point)) { continue; }  // True if the candidate is not in the ellipse
                 if ( (re.pow(2) + im.pow(2)).to_long_double() > 1) { continue; }  // True if the candidate is not in the unit disk
                 long double dst = re.to_long_double() * z[0] - im.to_long_double() * z[1];  // Distance of the point from the center of the ellipse
