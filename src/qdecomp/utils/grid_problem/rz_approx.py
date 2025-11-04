@@ -80,6 +80,8 @@ def z_rotational_approximation(theta: float, epsilon: float) -> np.ndarray:
     Finds the z-rotational approximation up to an error :math:`\\varepsilon`.
 
     This function finds an approximation of a z-rotational inside the Clifford+T group.
+    A C++ implementation of this function is also available via the
+    :func:`qdecomp.utils.grid_problem.rz_approx_cpp.rz_approx_cpp` function.
 
     Args:
         theta (float): Angle :math:`\\theta` of the z-rotational gate.

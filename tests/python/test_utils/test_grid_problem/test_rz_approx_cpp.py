@@ -16,7 +16,7 @@ import mpmath as mp
 import numpy as np
 import pytest
 
-from qdecomp.utils.grid_problem.rz_approx import z_rotational_approximation
+from qdecomp.utils.grid_problem.rz_approx_cpp import rz_approx_cpp
 
 errors = [1e-1, 1e-2, 1e-3, 1e-4, 1e-5]
 angles = [2 * np.pi / 3, np.pi / 16, 6, 0, 3 * np.pi / 2, 2 * np.pi]
@@ -25,12 +25,12 @@ angles = [2 * np.pi / 3, np.pi / 16, 6, 0, 3 * np.pi / 2, 2 * np.pi]
 @pytest.mark.parametrize("theta", angles)
 @pytest.mark.parametrize("epsilon", errors)
 def test_rz_approx(theta, epsilon):
-    """Test the z_rotational_approximation function for various epsilon and theta values."""
+    """Test the rz_approx_cpp function for various epsilon and theta values."""
     # Set the decimal places for mpmath based on epsilon
     dps = int(-np.log10(epsilon**2)) + 8
     # Run the main function with the specified precision
     with mp.workdps(dps):
-        U = z_rotational_approximation(theta, epsilon)
+        U = rz_approx_cpp(theta, epsilon)
     U_complex = np.array(U, dtype=complex)
     # Calculate the expected Rz gate matrix
     rz = np.array(
@@ -46,18 +46,18 @@ def test_rz_approx(theta, epsilon):
 
 
 def test_invalid_theta_type():
-    """Test that z_rotational_approximation raises TypeError for invalid theta type."""
+    """Test that rz_approx_cpp raises TypeError for invalid theta type."""
     with pytest.raises(TypeError):
-        z_rotational_approximation("invalid_theta", 0.1)
+        rz_approx_cpp("invalid_theta", 0.1)
 
 
 def test_invalid_epsilon_type():
-    """Test that z_rotational_approximation raises TypeError for invalid epsilon type."""
+    """Test that rz_approx_cpp raises TypeError for invalid epsilon type."""
     with pytest.raises(TypeError):
-        z_rotational_approximation(1.0, "invalid_epsilon")
+        rz_approx_cpp(1.0, "invalid_epsilon")
 
 
 def test_epsilon_too_large():
-    """Test that z_rotational_approximation raises ValueError for epsilon >= 0.5."""
+    """Test that rz_approx_cpp raises ValueError for epsilon >= 0.5."""
     with pytest.raises(ValueError):
-        z_rotational_approximation(np.pi, 0.6)  # epsilon >= 0.5
+        rz_approx_cpp(np.pi, 0.6)  # epsilon >= 0.5

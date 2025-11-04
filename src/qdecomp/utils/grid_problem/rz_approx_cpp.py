@@ -27,7 +27,7 @@ import numpy as np
 from qdecomp.rings import Domega
 from qdecomp.utils.grid_problem.rz_approx import initialization
 
-__all__ = ["rz_approx_cpp", "rz_approx_lib"]
+__all__ = ["rz_approx_cpp"]
 
 
 # Import the C++ library
