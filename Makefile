@@ -47,6 +47,7 @@ PY_TEST_DIR := $(TEST_DIR)/python
 CPP_TEST_DIR := $(TEST_DIR)/cpp
 LIBS_DIR := libs
 GTEST_DIR := $(LIBS_DIR)/googletest
+RZ_APPROX_DLL_FILE := $(SRC_DIR)/qdecomp/utils/grid_problem/cpp/lib_rz_approx.dll
 
 
 # For C++ tests
@@ -71,6 +72,7 @@ help:
 	@echo   test            - Run tests
 	@echo   test_cov        - Run tests with coverage
 	@echo   test_report     - Open coverage report
+	@echo   rz_approx_dll   - Compile the lib_rz_approx dynamic library
 	@echo   compile_gtest   - Compile the googletest library
 	@echo   test_cpp        - Compile and run C++ tests
 	@echo   clean           - Remove coverage artifacts
@@ -111,6 +113,20 @@ test_report:
 	$(CXX) $(CXXFLAGS) $< -I $(LIBS_DIR) -I $(SRC_DIR) -o $@
 	./$@
 
+# Compile object files
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -fPIC -c $< -I $(LIBS_DIR) -I $(SRC_DIR) -o $@
+
+# Compile dynamic libraries
+%.dll: %.o
+	$(CXX) -shared -fPIC -lstdc++ $(CXXFLAGS) -o $@ $< -static
+
+
+# Compile the lib_rz_approx dynamic library
+.PHONY: rz_approx_dll
+rz_approx_dll: $(RZ_APPROX_DLL_FILE)
+
+
 # Compile the googletest library
 .PHONY: compile_gtest
 compile_gtest:
@@ -128,3 +144,6 @@ test_cpp:
 .PHONY: clean
 clean:
 	-$(RMDIR) htmlcov
+	-$(RMFILE) $(CPP_TEST_DIR)/test_main
+	-$(RMFILE) $(CPP_TEST_DIR)/test_main.exe
+	-$(RMFILE) $(RZ_APPROX_DLL_FILE)
