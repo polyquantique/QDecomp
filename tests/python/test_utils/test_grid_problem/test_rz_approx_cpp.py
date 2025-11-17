@@ -18,7 +18,7 @@ import pytest
 
 from qdecomp.utils.grid_problem.rz_approx_cpp import rz_approx_cpp
 
-errors = [1e-1, 1e-2, 1e-3, 1e-4, 1e-5]
+errors = [1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6]
 angles = [2 * np.pi / 3, np.pi / 16, 6, 0, 3 * np.pi / 2, 2 * np.pi]
 
 

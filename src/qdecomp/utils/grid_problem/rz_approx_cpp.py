@@ -20,11 +20,12 @@ uses the same parameters and returns the same type as the original function.
 """
 
 import ctypes
-import platform
 import os
+import platform
+
 import numpy as np
 
-from qdecomp.rings import Domega
+from qdecomp.rings import D, Domega
 from qdecomp.utils.grid_problem.rz_approx import initialization
 
 __all__ = ["rz_approx_cpp"]
@@ -58,6 +59,7 @@ class Domega_struct(ctypes.Structure):
         ("ld", ctypes.c_uint),
     ]
 
+
 def Domega_struct_to_Domega(domega_struct: Domega_struct) -> Domega:
     """
     Convert a Domega_struct to a Domega object.
@@ -75,9 +77,11 @@ def Domega_struct_to_Domega(domega_struct: Domega_struct) -> Domega:
         (domega_struct.d, domega_struct.ld),
     )
 
+
 # Define the result type for the C++ function
 class Rz_approx_struct(ctypes.Structure):
     _fields_ = [("u", Domega_struct), ("t", Domega_struct)]
+
 
 # C++ data types aliases
 double = ctypes.c_double  # double
@@ -89,7 +93,7 @@ rz_approx_lib.rz_approx_helper.argtypes = [
     ctypes.POINTER(double),  # point
     ctypes.POINTER(double),  # bbox1
     ctypes.POINTER(double),  # bbox2
-    double  # epsilon
+    double,  # epsilon
 ]
 rz_approx_lib.rz_approx_helper.restype = Rz_approx_struct  # 2 Domega_struct
 
@@ -109,12 +113,40 @@ def rz_approx_cpp(theta: float, epsilon: float) -> np.ndarray[Domega]:
 
     Returns:
         np.ndarray[Domega]: Approximation :math:`M` of a z-rotational inside the Clifford+T subset.
-    
+
     Raises:
         ValueError: If :math:`\\theta` is not in the range :math:`[0, 4\\pi]`.
         ValueError: If :math:`\\varepsilon \\geq 0.5`.
         ValueError: If :math:`\\theta` or :math:`\\varepsilon` cannot be converted to floats.
     """
+    # Normalize the value of theta
+    theta = theta % (4 * np.pi)
+
+    # Verify the value of epsilon
+    if epsilon >= 0.5:
+        raise ValueError(f"The maximal allowable error is 0.5. Got {epsilon}.")
+
+    # Checks if the angle is trivial
+    exponent = round(2 * theta / np.pi)
+    if np.isclose(0, theta):
+        return np.array(
+            [
+                [Domega.from_ring(1), Domega.from_ring(0)],
+                [Domega.from_ring(0), Domega.from_ring(1)],
+            ],
+            dtype=object,
+        )
+    elif np.isclose(2 * theta / np.pi, exponent):
+        T = np.array(
+            [
+                [Domega(-D(1, 0), D(0, 0), D(0, 0), D(0, 0)), Domega.from_ring(0)],
+                [Domega.from_ring(0), Domega(D(0, 0), D(0, 0), D(1, 0), D(0, 0))],
+            ],
+            dtype=object,
+        )
+        M = T**exponent
+        return M
+
     # Initialize the parameters for the C++ function
     # ellipse, p_p, bbox_1, bbox_2 = initialization(theta, epsilon)
     bbox_1, bbox_2 = initialization(theta, epsilon)
@@ -126,8 +158,8 @@ def rz_approx_cpp(theta: float, epsilon: float) -> np.ndarray[Domega]:
 
     # Convert the parameters to the appropriate types
     c_epsilon = double(epsilon)
-    c_ellipse = (double * 4)(1., 0., 0., 1.)  # Identity ellipse
-    c_point = (double * 2)(0., 0.)  # Origin point
+    c_ellipse = (double * 4)(1.0, 0.0, 0.0, 1.0)  # Identity ellipse
+    c_point = (double * 2)(0.0, 0.0)  # Origin point
     c_bbox1 = (double * 4)(*bbox_1.flatten())
     c_bbox2 = (double * 4)(*bbox_2.flatten())
     c_theta = double(theta)

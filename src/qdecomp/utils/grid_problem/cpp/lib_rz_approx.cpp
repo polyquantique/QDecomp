@@ -34,10 +34,10 @@ extern "C" {
 
     Result_struct rz_approx_helper(
         double theta,
-        const double* ellipse,  // Size 2x2
+        const double* ellipse,  // Size 4
         const double* point,  // Size 2
-        const double* bbox1,  // Size 2x2
-        const double* bbox2,  // Size 2x2
+        const double* bbox1,  // Size 4
+        const double* bbox2,  // Size 4
         double epsilon
     ) {  // Using long double is not cross-platform safe using ctype in Python
         // Convert inputs to appropriate data structures

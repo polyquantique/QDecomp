@@ -42,9 +42,7 @@ INV_SQRT2_DOMEGA = Domega((-1, 1), (0, 0), (1, 1), (0, 0))
 )
 def test_real(n):
     """Test the real value of the Domegea class."""
-    real = (
-        float(n.a) * OMEGA**3 + float(n.b) * OMEGA**2 + float(n.c) * OMEGA + float(n.d)
-    ).real
+    real = (float(n.a) * OMEGA**3 + float(n.b) * OMEGA**2 + float(n.c) * OMEGA + float(n.d)).real
     assert np.isclose(n.real(), real)
 
 
@@ -83,9 +81,7 @@ def test_real_small_value():
 )
 def test_imag(n):
     """Test the imaginary value of the Domega class."""
-    imag = (
-        float(n.a) * OMEGA**3 + float(n.b) * OMEGA**2 + float(n.c) * OMEGA + float(n.d)
-    ).imag
+    imag = (float(n.a) * OMEGA**3 + float(n.b) * OMEGA**2 + float(n.c) * OMEGA + float(n.d)).imag
     assert np.isclose(n.imag(), imag)
 
 
@@ -125,9 +121,7 @@ def test_imag_small_value():
 )
 def test_complex(n):
     """Test the complex value of the Domega class."""
-    complex_value = (
-        float(n.a) * OMEGA**3 + float(n.b) * OMEGA**2 + float(n.c) * OMEGA + float(n.d)
-    )
+    complex_value = float(n.a) * OMEGA**3 + float(n.b) * OMEGA**2 + float(n.c) * OMEGA + float(n.d)
     assert np.isclose(complex(n), complex_value)
 
 

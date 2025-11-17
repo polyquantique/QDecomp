@@ -22,8 +22,6 @@ of u, and then checking if there exists a valid associated value for t using the
 it returns the Clifford+T approximation of the z-rotation.
 """
 
-import math
-
 import mpmath as mp
 import numpy as np
 
@@ -104,14 +102,14 @@ def z_rotational_approximation(theta: float, epsilon: float) -> np.ndarray:
         raise TypeError("Both theta and epsilon must be convertible to floats.")
 
     # Normalize the value of theta
-    theta = theta % (4 * math.pi)
+    theta = theta % (4 * np.pi)
 
     # Verify the value of epsilon
     if epsilon >= 0.5:
         raise ValueError(f"The maximal allowable error is 0.5. Got {epsilon}.")
 
     # Checks if the angle is trivial
-    exponent = round(2 * theta / math.pi)
+    exponent = round(2 * theta / np.pi)
     if np.isclose(0, theta):
         return np.array(
             [
@@ -120,7 +118,7 @@ def z_rotational_approximation(theta: float, epsilon: float) -> np.ndarray:
             ],
             dtype=object,
         )
-    elif np.isclose(2 * theta / math.pi, exponent):
+    elif np.isclose(2 * theta / np.pi, exponent):
         T = np.array(
             [
                 [Domega(-D(1, 0), D(0, 0), D(0, 0), D(0, 0)), Domega.from_ring(0)],
