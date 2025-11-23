@@ -22,8 +22,6 @@ of u, and then checking if there exists a valid associated value for t using the
 it returns the Clifford+T approximation of the z-rotation.
 """
 
-import math
-
 import mpmath as mp
 import numpy as np
 
@@ -69,10 +67,10 @@ def initialization(theta: float, epsilon: float) -> tuple[np.ndarray, np.ndarray
     mod_D = (inv_gop_conj.dag()).as_mpfloat() @ I @ inv_gop_conj.as_mpfloat()
 
     # Finds the bounding boxes
-    bbox_1 = ellipse_bbox(mod_E, p_p)
+    bbox_1 = ellipse_bbox(mod_E, gop.as_mpfloat() @ p_p)
     bbox_2 = ellipse_bbox(mod_D, np.array([mp.mpf(0), mp.mpf(0)]))
 
-    return bbox_1, bbox_2
+    return bbox_1, bbox_2, gop, inv_gop
 
 
 def z_rotational_approximation(theta: float, epsilon: float) -> np.ndarray:
@@ -101,15 +99,19 @@ def z_rotational_approximation(theta: float, epsilon: float) -> np.ndarray:
     except (ValueError, TypeError):
         raise TypeError("Both theta and epsilon must be convertible to floats.")
 
+    # Set the precision for mpmath calculations
+    dps = int(-np.log10(epsilon**2)) + 8
+    mp.mp.dps = dps
+
     # Normalize the value of theta
-    theta = theta % (4 * math.pi)
+    theta = theta % (4 * np.pi)
 
     # Verify the value of epsilon
     if epsilon >= 0.5:
         raise ValueError(f"The maximal allowable error is 0.5. Got {epsilon}.")
 
     # Checks if the angle is trivial
-    exponent = round(2 * theta / math.pi)
+    exponent = round(2 * theta / np.pi)
     if np.isclose(0, theta):
         return np.array(
             [
@@ -118,7 +120,7 @@ def z_rotational_approximation(theta: float, epsilon: float) -> np.ndarray:
             ],
             dtype=object,
         )
-    elif np.isclose(2 * theta / math.pi, exponent):
+    elif np.isclose(2 * theta / np.pi, exponent):
         T = np.array(
             [
                 [Domega(-D(1, 0), D(0, 0), D(0, 0), D(0, 0)), Domega.from_ring(0)],
@@ -130,7 +132,7 @@ def z_rotational_approximation(theta: float, epsilon: float) -> np.ndarray:
         return M
 
     # Run the initialization function
-    bbox_1, bbox_2 = initialization(theta, epsilon)
+    bbox_1, bbox_2, _, inv_gop = initialization(theta, epsilon)
 
     # Initialize the exact solution vector in order to evaluate the error later
     z = np.array([mp.cos(theta / 2), -mp.sin(theta / 2)])
@@ -160,8 +162,25 @@ def z_rotational_approximation(theta: float, epsilon: float) -> np.ndarray:
             # Ensure the solution was not already found previously
             is_double = abs(cand.a - cand.c) % 2 == 1 or abs(cand.b - cand.d) % 2 == 1
             if n == 0 or is_double:
-                # Find u as Domega and as mpfloat
-                u = Domega.from_ring(cand) * Domega.from_ring(const)
+                # Extract real and imag parts of u_scaled
+                u_scaled = Domega.from_ring(cand) * Domega.from_ring(const)
+                u_scaled_real = Dsqrt2.from_ring(
+                    (u_scaled + u_scaled.complex_conjugate()) * Domega.from_ring(D(1, 1))
+                )
+                u_scaled_imag = Dsqrt2.from_ring(
+                    (u_scaled - u_scaled.complex_conjugate())
+                    * Domega(D(0, 0), D(-1, 1), D(0, 0), D(0, 0))
+                )
+
+                # Apply the inverse grid operator to u
+                u = Domega.from_ring(
+                    u_scaled_real * inv_gop.a + u_scaled_imag * inv_gop.b
+                ) + Domega.from_ring(
+                    u_scaled_real * inv_gop.c + u_scaled_imag * inv_gop.d
+                ) * Domega(
+                    D(0, 0), D(1, 0), D(0, 0), D(0, 0)
+                )
+
                 u_float = np.array([u.mp_real(), u.mp_imag()])
                 # Find the conjugate of u
                 u_conj = u.sqrt2_conjugate()
