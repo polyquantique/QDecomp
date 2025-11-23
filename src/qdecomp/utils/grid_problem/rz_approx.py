@@ -101,113 +101,112 @@ def z_rotational_approximation(theta: float, epsilon: float) -> np.ndarray:
 
     # Set the precision for mpmath calculations
     dps = int(-np.log10(epsilon**2)) + 8
-    mp.mp.dps = dps
+    with mp.workdps(dps):
+        # Normalize the value of theta
+        theta = theta % (4 * np.pi)
 
-    # Normalize the value of theta
-    theta = theta % (4 * np.pi)
+        # Verify the value of epsilon
+        if epsilon >= 0.5:
+            raise ValueError(f"The maximal allowable error is 0.5. Got {epsilon}.")
 
-    # Verify the value of epsilon
-    if epsilon >= 0.5:
-        raise ValueError(f"The maximal allowable error is 0.5. Got {epsilon}.")
-
-    # Checks if the angle is trivial
-    exponent = round(2 * theta / np.pi)
-    if np.isclose(0, theta):
-        return np.array(
-            [
-                [Domega.from_ring(1), Domega.from_ring(0)],
-                [Domega.from_ring(0), Domega.from_ring(1)],
-            ],
-            dtype=object,
-        )
-    elif np.isclose(2 * theta / np.pi, exponent):
-        T = np.array(
-            [
-                [Domega(-D(1, 0), D(0, 0), D(0, 0), D(0, 0)), Domega.from_ring(0)],
-                [Domega.from_ring(0), Domega(D(0, 0), D(0, 0), D(1, 0), D(0, 0))],
-            ],
-            dtype=object,
-        )
-        M = T**exponent
-        return M
-
-    # Run the initialization function
-    bbox_1, bbox_2, _, inv_gop = initialization(theta, epsilon)
-
-    # Initialize the exact solution vector in order to evaluate the error later
-    z = np.array([mp.cos(theta / 2), -mp.sin(theta / 2)])
-
-    # Define this important value
-    delta = mp.mpf(1) - mp.mpf(0.5 * epsilon**2)
-
-    n = 0
-    while True:
-        # Varies if odd or even
-        odd = n % 2
-        if odd:
-            const = Dsqrt2(D(0, 0), D(1, int((n + 1) / 2)))
-        else:
-            const = D(1, int(n / 2))
-
-        # Initialize the bounding boxes using n
-        A = mp.sqrt(2**n) * bbox_1
-        if odd:
-            bbox_2_flip = np.flip(bbox_2, axis=1)
-            B = -mp.sqrt(2**n) * bbox_2_flip
-        else:
-            B = mp.sqrt(2**n) * bbox_2
-
-        # For every solution found
-        for cand in solve_grid_problem_2d(A, B):
-            # Ensure the solution was not already found previously
-            is_double = abs(cand.a - cand.c) % 2 == 1 or abs(cand.b - cand.d) % 2 == 1
-            if n == 0 or is_double:
-                # Extract real and imag parts of u_scaled
-                u_scaled = Domega.from_ring(cand) * Domega.from_ring(const)
-                u_scaled_real = Dsqrt2.from_ring(
-                    (u_scaled + u_scaled.complex_conjugate()) * Domega.from_ring(D(1, 1))
-                )
-                u_scaled_imag = Dsqrt2.from_ring(
-                    (u_scaled - u_scaled.complex_conjugate())
-                    * Domega(D(0, 0), D(-1, 1), D(0, 0), D(0, 0))
-                )
-
-                # Apply the inverse grid operator to u
-                u = Domega.from_ring(
-                    u_scaled_real * inv_gop.a + u_scaled_imag * inv_gop.b
-                ) + Domega.from_ring(
-                    u_scaled_real * inv_gop.c + u_scaled_imag * inv_gop.d
-                ) * Domega(
-                    D(0, 0), D(1, 0), D(0, 0), D(0, 0)
-                )
-
-                u_float = np.array([u.mp_real(), u.mp_imag()])
-                # Find the conjugate of u
-                u_conj = u.sqrt2_conjugate()
-                u_conj_float = np.array([u_conj.mp_real(), u_conj.mp_imag()])
-                # Compute the dot product and the lower bound
-                dot = np.dot(u_float, z)
-                # If the solution u is valid
-                if (
-                    dot < 1
-                    and dot > delta
-                    and u_float[0] ** 2 + u_float[1] ** 2 < 1
-                    and is_inside_ellipse(u_conj_float, I, np.zeros(2))
-                ):
-                    # Run the diophantine module
-                    xi = 1 - u.complex_conjugate() * u
-                    t = solve_xi_eq_ttdag_in_d(Dsqrt2.from_ring(xi))
-                    if t is None:
-                        # No associated t values exists
-                        pass
-                    else:
-                        # The solution is found and returned!
-                        M = np.array([[u, -t.complex_conjugate()], [t, u.complex_conjugate()]])
-                        return M
-
-        n += 1
-        if n > 1000000:
-            raise ValueError(  # pragma: no cover
-                "The algorithm did not find a solution after 1 million iterations. "
-                "Try increasing the error for the calculations."
+        # Checks if the angle is trivial
+        exponent = round(2 * theta / np.pi)
+        if np.isclose(0, theta):
+            return np.array(
+                [
+                    [Domega.from_ring(1), Domega.from_ring(0)],
+                    [Domega.from_ring(0), Domega.from_ring(1)],
+                ],
+                dtype=object,
             )
+        elif np.isclose(2 * theta / np.pi, exponent):
+            T = np.array(
+                [
+                    [Domega(-D(1, 0), D(0, 0), D(0, 0), D(0, 0)), Domega.from_ring(0)],
+                    [Domega.from_ring(0), Domega(D(0, 0), D(0, 0), D(1, 0), D(0, 0))],
+                ],
+                dtype=object,
+            )
+            M = T**exponent
+            return M
+
+        # Run the initialization function
+        bbox_1, bbox_2, _, inv_gop = initialization(theta, epsilon)
+
+        # Initialize the exact solution vector in order to evaluate the error later
+        z = np.array([mp.cos(theta / 2), -mp.sin(theta / 2)])
+
+        # Define this important value
+        delta = mp.mpf(1) - mp.mpf(0.5 * epsilon**2)
+
+        n = 0
+        while True:
+            # Varies if odd or even
+            odd = n % 2
+            if odd:
+                const = Dsqrt2(D(0, 0), D(1, int((n + 1) / 2)))
+            else:
+                const = D(1, int(n / 2))
+
+            # Initialize the bounding boxes using n
+            A = mp.sqrt(2**n) * bbox_1
+            if odd:
+                bbox_2_flip = np.flip(bbox_2, axis=1)
+                B = -mp.sqrt(2**n) * bbox_2_flip
+            else:
+                B = mp.sqrt(2**n) * bbox_2
+
+            # For every solution found
+            for cand in solve_grid_problem_2d(A, B):
+                # Ensure the solution was not already found previously
+                is_double = abs(cand.a - cand.c) % 2 == 1 or abs(cand.b - cand.d) % 2 == 1
+                if n == 0 or is_double:
+                    # Extract real and imag parts of u_scaled
+                    u_scaled = Domega.from_ring(cand) * Domega.from_ring(const)
+                    u_scaled_real = Dsqrt2.from_ring(
+                        (u_scaled + u_scaled.complex_conjugate()) * Domega.from_ring(D(1, 1))
+                    )
+                    u_scaled_imag = Dsqrt2.from_ring(
+                        (u_scaled - u_scaled.complex_conjugate())
+                        * Domega(D(0, 0), D(-1, 1), D(0, 0), D(0, 0))
+                    )
+
+                    # Apply the inverse grid operator to u
+                    u = Domega.from_ring(
+                        u_scaled_real * inv_gop.a + u_scaled_imag * inv_gop.b
+                    ) + Domega.from_ring(
+                        u_scaled_real * inv_gop.c + u_scaled_imag * inv_gop.d
+                    ) * Domega(
+                        D(0, 0), D(1, 0), D(0, 0), D(0, 0)
+                    )
+
+                    u_float = np.array([u.mp_real(), u.mp_imag()])
+                    # Find the conjugate of u
+                    u_conj = u.sqrt2_conjugate()
+                    u_conj_float = np.array([u_conj.mp_real(), u_conj.mp_imag()])
+                    # Compute the dot product and the lower bound
+                    dot = np.dot(u_float, z)
+                    # If the solution u is valid
+                    if (
+                        dot < 1
+                        and dot > delta
+                        and u_float[0] ** 2 + u_float[1] ** 2 < 1
+                        and is_inside_ellipse(u_conj_float, I, np.zeros(2))
+                    ):
+                        # Run the diophantine module
+                        xi = 1 - u.complex_conjugate() * u
+                        t = solve_xi_eq_ttdag_in_d(Dsqrt2.from_ring(xi))
+                        if t is None:
+                            # No associated t values exists
+                            pass
+                        else:
+                            # The solution is found and returned!
+                            M = np.array([[u, -t.complex_conjugate()], [t, u.complex_conjugate()]])
+                            return M
+
+            n += 1
+            if n > 1000000:
+                raise ValueError(  # pragma: no cover
+                    "The algorithm did not find a solution after 1 million iterations. "
+                    "Try increasing the error for the calculations."
+                )

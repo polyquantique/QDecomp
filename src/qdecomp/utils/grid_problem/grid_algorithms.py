@@ -115,7 +115,7 @@ def solve_grid_problem_1d(
         # If one of the bound is close to an integer, round it to the nearest integer
         # to avoid losing solutions because of numerical inaccuracy.
         for index, bound in enumerate(a_interval_scaled):
-            if abs(bound - mp.nint(bound)) < mp.mpf("1e-10"):
+            if math.isclose(bound, mp.nint(bound), abs_tol=1e-10):
                 a_interval_scaled[index] = mp.nint(bound)
 
         # If there is an integer in this interval, compute the scaled solution for ai and bi
