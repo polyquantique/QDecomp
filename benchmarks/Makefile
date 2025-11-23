@@ -23,7 +23,7 @@ endif
 # Set platform-specific commands
 ifeq ($(DETECTED_OS), Windows)
 	PYTHON := $(shell where py 2>NUL || where py3 2>NUL || where python 2>NUL || where python3 2>NUL)
-	OPEN := cmd /c start
+	OPEN := cmd /c start ""
 else
 	PYTHON := $(shell which py 2>/dev/null || which py3 2>/dev/null || which python 2>/dev/null || which python3 2>/dev/null)
 	OPEN := open
@@ -36,6 +36,7 @@ GRAPH_DIR := graphs
 
 DEFAULT_PROFILE := rz_decomp-angle1_8325957145940461-epsilon1e-07.prof
 VERSION := $(shell "$(PYTHON)" -c "import qdecomp; print(qdecomp.__version__.replace('.', '_'))")
+SPACE := $(empty) $(empty)
 
 
 # Set the default goal
@@ -45,12 +46,12 @@ VERSION := $(shell "$(PYTHON)" -c "import qdecomp; print(qdecomp.__version__.rep
 # Show help message
 .PHONY: help
 help:
-	@echo Available targets:
-	@echo   run_missing_versions   - Run benchmarks for specified package versions.
-	@echo   run_current_version    - Run benchmarks for the current package version.
-	@echo   rerun_all              - Rerun all benchmarks, even if profiles already exist.
-	@echo   show_graphs            - Plot profiling results and show them.
-	@echo   show_profiling         - Show the profiling graph for a default set of parameters.
+	@$(info Available targets:)
+	@$(info $(SPACE) run_missing_versions   - Run benchmarks for specified package versions.)
+	@$(info $(SPACE) run_current_version    - Run benchmarks for the current package version.)
+	@$(info $(SPACE) rerun_all              - Rerun all benchmarks, even if profiles already exist.)
+	@$(info $(SPACE) show_graphs            - Plot profiling results and show them.)
+	@$(info $(SPACE) show_profiling         - Show the profiling graph for a default set of parameters.)
 
 
 # Run benchmarks for missing package versions
@@ -72,8 +73,7 @@ rerun_all:
 # Plot profiling results
 .PHONY: show_graphs
 show_graphs:
-	$(PYTHON) -c "import benchmark_utils as util; util.plot_version_profiling()"
-	$(PYTHON) -c "import benchmark_utils as util; util.plot_epsilon_profiling()"
+	$(PYTHON) -c "import benchmark_utils as util; util.generate_profiling_plots()"
 	$(OPEN) $(GRAPH_DIR)/version_profiling.svg
 	$(OPEN) $(GRAPH_DIR)/epsilon_profiling.svg
 

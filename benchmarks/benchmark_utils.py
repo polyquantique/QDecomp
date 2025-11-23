@@ -47,7 +47,7 @@ def gather_machine_info() -> None:
     json.dump(machine_info, open(json_path, "w"), indent=4)
 
 
-def load_machine_info(as_dict=True) -> Union[dict, str]:
+def load_machine_info(as_dict: bool = True) -> Union[dict, str]:
     """
     Load and return information about the machine running the benchmarks. If `as_dict` is `True`,
     returns the information as a dictionary. Otherwise, the information is returned as a string.
@@ -128,17 +128,20 @@ def load_profile() -> pd.DataFrame:
     return data
 
 
-def plot_version_profiling() -> None:
+def plot_version_profiling(ax: plt.Axes) -> plt.Axes:
     """
-    Plots the profiling results across different package versions and saves the graph as an SVG file
-    in the `graphs` directory.
+    Plots the profiling results across different package versions.
+
+    Args:
+        ax: The matplotlib axis to plot on.
+
+    Returns:
+        ax: The matplotlib axis with the plot.
     """
     data = load_profile()
 
     version_list = sorted(data["version"].unique(), key=lambda x: list(map(int, x[1:].split("."))))
     epsilon_list = sorted(data["epsilon"].unique(), reverse=True)
-
-    plt.figure(figsize=(6, 4))
 
     for e in epsilon_list:
         time_list = [
@@ -146,24 +149,27 @@ def plot_version_profiling() -> None:
             for v in version_list
         ]
 
-        plt.semilogy(version_list, time_list, marker="o", label=f"$\\varepsilon$ = {e}")
+        ax.semilogy(version_list, time_list, marker="o", label=f"$\\varepsilon$ = {e}")
 
-    plt.xlabel("Version")
-    plt.ylabel("Average Runtime (s)")
-    plt.title("rz_decomp() Profiling Across Versions")
-    plt.legend()
-    plt.grid()
-    plt.tight_layout()
+    ax.set_xlabel("Version")
+    ax.set_ylabel("Average Runtime (s)")
+    ax.set_title("rz_decomp() Profiling Across Versions")
+    ax.legend()
+    ax.grid()
 
-    graphs_dir = os.path.join(os.path.dirname(__file__), "graphs")
-    os.makedirs(graphs_dir, exist_ok=True)
-    plt.savefig(os.path.join(graphs_dir, "version_profiling.svg"))
+    return ax
 
 
-def plot_epsilon_profiling() -> None:
+def plot_epsilon_profiling(ax: plt.Axes) -> plt.Axes:
     """
-    Plots the profiling results for different epsilon values and saves the graph as an SVG file
-    in the `graphs` directory. The latest package version is used for this plot.
+    Plots the profiling results for different epsilon values. The latest package version is used for
+    this plot.
+
+    Args:
+        ax: The matplotlib axis to plot on.
+
+    Returns:
+        ax: The matplotlib axis with the plot.
     """
     data = load_profile()
 
@@ -171,8 +177,6 @@ def plot_epsilon_profiling() -> None:
     angle_list = sorted(data["angle"].unique())
     epsilon_list = sorted(data["epsilon"].unique(), reverse=True)
     inv_epsilon_list = [1 / e for e in epsilon_list]
-
-    plt.figure(figsize=(6, 4))
 
     for a in angle_list:
         time_list = [
@@ -182,22 +186,50 @@ def plot_epsilon_profiling() -> None:
             for e in epsilon_list
         ]
 
-        plt.loglog(
-            inv_epsilon_list, time_list, marker="o", label=f"$\\theta$ = {a/np.pi:.2f}$\\pi$"
-        )
+        ax.loglog(inv_epsilon_list, time_list, marker="o", label=f"$\\theta$ = {a/np.pi:.2f}$\\pi$")
 
-    plt.xlabel("Inverse of the Decomposition Tolerance ($\\varepsilon^{-1}$)")
-    plt.ylabel("Runtime (s)")
-    plt.title(f"{version}: rz_decomp() Runtime VS Decomposition Tolerance")
-    plt.legend()
-    plt.grid()
-    plt.tight_layout()
+    ax.set_xlabel("Inverse of the Decomposition Tolerance ($\\varepsilon^{-1}$)")
+    ax.set_ylabel("Runtime (s)")
+    ax.set_title(f"{version}: rz_decomp() Runtime VS Decomposition Tolerance")
+    ax.legend()
+    ax.grid()
 
-    graphs_dir = os.path.join(os.path.dirname(__file__), "graphs")
-    os.makedirs(graphs_dir, exist_ok=True)
-    plt.savefig(os.path.join(graphs_dir, "epsilon_profiling.svg"))
+
+def generate_profiling_plots(save_fig: bool = True, plot_fig: bool = False) -> None:
+    """
+    Generates profiling plots for version and epsilon profiling. Refer to
+    :func:`plot_version_profiling()` and :func:`plot_epsilon_profiling()`.
+
+    Args:
+        save_fig (bool): If `True`, saves the generated plots as SVG files. Default is `True`.
+        plot_fig (bool): If `True`, displays the generated plots. Default is `False`.
+    """
+    # Version profiling plot
+    fig, version_ax = plt.subplots(figsize=(6, 4))
+    plot_version_profiling(version_ax)
+    fig.tight_layout()
+
+    if save_fig:
+        graphs_dir = os.path.join(os.path.dirname(__file__), "graphs")
+        os.makedirs(graphs_dir, exist_ok=True)
+        plt.savefig(os.path.join(graphs_dir, "version_profiling.svg"))
+
+    if plot_fig:
+        plt.show()
+
+    # Epsilon profiling plot
+    fig, epsilon_ax = plt.subplots(figsize=(6, 4))
+    plot_epsilon_profiling(epsilon_ax)
+    fig.tight_layout()
+
+    if save_fig:
+        graphs_dir = os.path.join(os.path.dirname(__file__), "graphs")
+        os.makedirs(graphs_dir, exist_ok=True)
+        plt.savefig(os.path.join(graphs_dir, "epsilon_profiling.svg"))
+
+    if plot_fig:
+        plt.show()
 
 
 if __name__ == "__main__":
-    plot_version_profiling()
-    plot_epsilon_profiling()
+    generate_profiling_plots(plot_fig=True)
