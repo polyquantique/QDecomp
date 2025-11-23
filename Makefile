@@ -38,22 +38,26 @@ endif
 SRC_DIR := src
 DOCS_DIR := docs
 TEST_DIR := tests
+BENCHMARK_DIR := benchmarks
 
 
 # Set the default goal
 .DEFAULT_GOAL := help
+SPACE := $(empty) $(empty)
 
 
 # Show available targets  
 .PHONY: help
 help:
-	@echo Available targets:
-	@echo   docs          - Build documentation
-	@echo   format        - Format source and test code using isort and black
-	@echo   test          - Run tests
-	@echo   test_cov      - Run tests with coverage
-	@echo   test_report   - Open coverage report
-	@echo   clean         - Remove coverage artifacts
+	@$(info Available targets:)
+	@$(info $(SPACE) docs              - Build documentation)
+	@$(info $(SPACE) format            - Format source and test code using isort and black)
+	@$(info $(SPACE) test              - Run tests)
+	@$(info $(SPACE) test_cov          - Run tests with coverage)
+	@$(info $(SPACE) test_report       - Open coverage report)
+	@$(info $(SPACE) run_benchmarks    - Run benchmarks for all versions skipping existing profiles)
+	@$(info $(SPACE) show_benchmarks   - Show benchmark results)
+	@$(info $(SPACE) clean             - Remove coverage artifacts)
 
 
 # Generate the documentation
@@ -66,8 +70,8 @@ docs:
 # Format the code with black and isort
 .PHONY: format
 format:
-	$(PYTHON) -m isort $(SRC_DIR) $(TEST_DIR)
-	$(PYTHON) -m black $(SRC_DIR) $(TEST_DIR) -l 100
+	$(PYTHON) -m isort $(SRC_DIR) $(TEST_DIR) $(BENCHMARK_DIR)
+	$(PYTHON) -m black $(SRC_DIR) $(TEST_DIR) $(BENCHMARK_DIR) -l 100
 
 
 # Run the tests
@@ -84,6 +88,17 @@ test_cov:
 .PHONY: test_report
 test_report:
 	$(OPEN) ./htmlcov/index.html
+
+
+# Run the benchmarks
+.PHONY: run_benchmarks
+run_benchmarks:
+	$(MAKE) -C $(BENCHMARK_DIR) run_missing_versions
+
+# Show the benchmark results
+.PHONY: show_benchmarks
+show_benchmarks:
+	$(MAKE) -C $(BENCHMARK_DIR) show_graphs
 
 
 # Clean the repository
