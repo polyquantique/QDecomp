@@ -36,8 +36,6 @@ from numpy.typing import NDArray
 
 from qdecomp.rings import INVERSE_LAMBDA, LAMBDA, Zomega, Zsqrt2
 
-SQRT2 = mp.sqrt(2)
-
 __all__ = ["solve_grid_problem_1d", "solve_grid_problem_2d"]
 
 
@@ -59,6 +57,9 @@ def solve_grid_problem_1d(
     Raises:
         TypeError: If intervals A and B are not real sequences of length 2.
     """
+    # Frequently used constant
+    SQRT2 = mp.sqrt(2)
+
     # Convert the input intervals to numpy arrays
     A_interval: np.ndarray = np.asarray(A, dtype=object)
     B_interval: np.ndarray = np.asarray(B, dtype=object)
@@ -114,7 +115,7 @@ def solve_grid_problem_1d(
         # If one of the bound is close to an integer, round it to the nearest integer
         # to avoid losing solutions because of numerical inaccuracy.
         for index, bound in enumerate(a_interval_scaled):
-            if math.isclose(bound, mp.nint(bound), rel_tol=mp.mpf("1e-10")):
+            if math.isclose(bound, mp.nint(bound), abs_tol=1e-10):
                 a_interval_scaled[index] = mp.nint(bound)
 
         # If there is an integer in this interval, compute the scaled solution for ai and bi
@@ -154,6 +155,8 @@ def solve_grid_problem_2d(
     Raises:
         TypeError: If intervals A and B are not real 2 x 2 nested sequences.
     """
+    # Frequently used constant
+    SQRT2 = mp.sqrt(2)
 
     # Define the intervals for A and B.
     Ax: np.ndarray = np.asarray(A[0], dtype=object)
@@ -175,15 +178,17 @@ def solve_grid_problem_2d(
         interval.sort()
 
     # Solve two 1D grid problems for solutions of the form a + bi, where a and b are in Z[√2].
-    alpha: Generator[Zsqrt2] = solve_grid_problem_1d(Ax, Bx)
-    beta: list[Zsqrt2] = list(solve_grid_problem_1d(Ay, By))
-    for a in alpha:
+    alpha: list[Zsqrt2] = list(solve_grid_problem_1d(Ax, Bx))
+    if alpha != []:
+        beta: Generator[Zsqrt2] = solve_grid_problem_1d(Ay, By)
         for b in beta:
-            yield Zomega(a=b.b - a.b, b=b.a, c=b.b + a.b, d=a.a)
+            for a in alpha:
+                yield Zomega(a=b.b - a.b, b=b.a, c=b.b + a.b, d=a.a)
 
     # Solve two 1D grid problems for solutions of the form a + bi + ω, where a and b are in Z[√2] and ω = (1 + i)/√2.
-    alpha2: Generator[Zsqrt2] = solve_grid_problem_1d(Ax - 1 / SQRT2, Bx + 1 / SQRT2)
-    beta2: list[Zsqrt2] = list(solve_grid_problem_1d(Ay - 1 / SQRT2, By + 1 / SQRT2))
-    for a in alpha2:
+    alpha2: list[Zsqrt2] = list(solve_grid_problem_1d(Ax - 1 / SQRT2, Bx + 1 / SQRT2))
+    if alpha2 != []:
+        beta2: Generator[Zsqrt2] = solve_grid_problem_1d(Ay - 1 / SQRT2, By + 1 / SQRT2)
         for b in beta2:
-            yield Zomega(b.b - a.b, b.a, b.b + a.b + 1, a.a)
+            for a in alpha2:
+                yield Zomega(b.b - a.b, b.a, b.b + a.b + 1, a.a)
