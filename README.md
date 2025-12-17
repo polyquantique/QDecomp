@@ -139,6 +139,10 @@ If you use `QDecomp` in your research or projects, please cite it using the foll
 }
 ```
 
+## Development
+
+When releasing a new version of QDecomp, make sure to follow the [**guidelines**](CONTRIBUTING.md).
+
 ## References
 
 * <a id="ref1"></a> [1] N. J. Ross and P. Selinger, *Optimal ancilla-free Clifford+T approximation of z-rotations*, 2014. [https://arxiv.org/abs/1403.2975](https://arxiv.org/abs/1403.2975)
