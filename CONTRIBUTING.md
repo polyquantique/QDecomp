@@ -98,6 +98,8 @@ Finally, upload it on **PyPI**.
 twine upload dist/*
 ```
 
+Be **careful**, the uploaded version is definitive and cannot be modified. To apply changes, a new version of the package must be uploaded.
+
 ### 9. Build the documentation
 
 Go on *Read the Docs* and build the latest documentation. 
